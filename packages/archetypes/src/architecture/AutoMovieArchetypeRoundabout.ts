@@ -79,10 +79,8 @@ export function create(
   });
   return builder.build(mass);
 }
-}
 
-/** The roundabout's dimensions and its rotating disc. */
-export namespace AutoMovieArchetypeRoundabout {
+  /* The roundabout's dimensions and its rotating disc. */
   /** The ground around the roundabout. */
   export type Affordance = "ground";
 

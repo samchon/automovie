@@ -90,10 +90,8 @@ export function create(
   // A built court's nominal assembly mass; it never moves.
   return builder.build(8000);
 }
-}
 
-/** Companion types and constants of {@link AutoMovieArchetypePadelCourt.create}. */
-export namespace AutoMovieArchetypePadelCourt {
+  /* Companion types and constants of {@link AutoMovieArchetypePadelCourt.create}. */
   /**
    * `net`, the net's top centre; `end` and `far`, the middles of the two back
    * walls' feet.

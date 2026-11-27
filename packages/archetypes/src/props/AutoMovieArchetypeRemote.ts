@@ -49,10 +49,8 @@ export namespace AutoMovieArchetypeRemote {
     });
     return builder.build(size.mass);
   }
-}
 
-/** The parameters and affordance identifiers of {@link AutoMovieArchetypeRemote}. */
-export namespace AutoMovieArchetypeRemote {
+  /* The parameters and affordance identifiers of {@link AutoMovieArchetypeRemote}. */
   /**
    * The dimensions this producer draws or derives, in metres unless the draw
    * records kilograms.

@@ -24,10 +24,8 @@ export namespace AutoMovieArchetypeDesktopKeyboard {
     KeyboardHardware.draw<never>("keyboard", params, seed);
   return builder.build(d.mass);
   }
-}
 
-/** The parameters and contact identifiers of {@link AutoMovieArchetypeDesktopKeyboard}. */
-export namespace AutoMovieArchetypeDesktopKeyboard {
+  /* The parameters and contact identifiers of {@link AutoMovieArchetypeDesktopKeyboard}. */
   /** The `model` choices this producer admits. */
   export type Model = "numericKeypad" | "touchId";
 

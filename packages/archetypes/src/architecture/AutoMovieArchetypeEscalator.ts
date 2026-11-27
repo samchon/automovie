@@ -220,10 +220,8 @@ export namespace AutoMovieArchetypeEscalator {
       });
     return builder.build(mass);
   }
-}
 
-/** The escalator's dimensions, rated speed, step-band profile and moving tread. */
-export namespace AutoMovieArchetypeEscalator {
+  /* The escalator's dimensions, rated speed, step-band profile and moving tread. */
   /** The two fixed landings and the two handrails at their lower horizontal run. */
   export type Affordance =
     | "lowerLanding"
@@ -506,10 +504,8 @@ export namespace AutoMovieArchetypeEscalator {
       });
     return builder.build(15);
   }
-}
 
-/** The escalator's ride and its contract. */
-export namespace AutoMovieArchetypeEscalator {
+  /* The escalator's ride and its contract. */
   /**
    * An escalator running at its rated speed in one direction, read on the ride's
    * clock: second 0 is when each named station holds its tread.

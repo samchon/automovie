@@ -106,10 +106,7 @@ export function create(
     d.mass + (params.loaded === true ? AutoMovieArchetypeMagazine.ROUNDS[kind] : 0),
   );
 }
-}
 
-/** Companion types, constants and bands of {@link createMagazine}. */
-export namespace AutoMovieArchetypeMagazine {
   /**
    * The kinds: a pistol's double-stack magazine and a rifle's 30-round
    * magazine.

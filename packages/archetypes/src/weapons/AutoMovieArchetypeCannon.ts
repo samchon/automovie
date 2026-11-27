@@ -110,10 +110,7 @@ export function create(
   else CannonPieces.swivel(builder, d);
   return builder.build(d.mass!);
 }
-}
 
-/** Companion types and bands of {@link createCannon}. */
-export namespace AutoMovieArchetypeCannon {
   /**
    * The kinds of cannon: the 6-pdr field gun, a 32-pounder naval gun on its
    * truck carriage, a mortar on its bed, and a swivel gun on its yoke.

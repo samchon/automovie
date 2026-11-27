@@ -147,10 +147,7 @@ export function create(
   });
   return builder.build(d.mass!);
 }
-}
 
-/** Companion types, constants and bands of {@link createTableware}. */
-export namespace AutoMovieArchetypeTableware {
   /**
    * The kinds: a round plate, from a side plate to a dinner plate, an oblong
    * serving platter and a cup's saucer.

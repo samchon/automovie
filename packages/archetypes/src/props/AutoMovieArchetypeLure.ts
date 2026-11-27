@@ -73,10 +73,7 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types, constants and bands of {@link createLure}. */
-export namespace AutoMovieArchetypeLure {
   /** The contact: the eye the line ties to. */
   export type Affordance = "eye";
 

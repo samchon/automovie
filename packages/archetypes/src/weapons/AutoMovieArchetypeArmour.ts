@@ -21,7 +21,14 @@ import { AutoMovieArchetypeCostumeVambrace } from "./AutoMovieArchetypeCostumeVa
 import { armourBone } from "./internal/armourBone";
 import { assembleCostumeArmour as assembleCostumeArmourImplementation } from "./internal/assembleCostumeArmour";
 
-/** Constructs the armour archetype from its recipe. */
+/**
+ * Constructs the armour archetype from its recipe.
+ *
+ * Companion types, bands, records and the bone rule of
+ * {@link AutoMovieArchetypeArmour.create}.
+ *
+ * Costume-piece selection and the binding consumed by a scene.
+ */
 export namespace AutoMovieArchetypeArmour {
   /**
    * A piece of armour worn on one bone: a helmet (open, closed or brimmed), a
@@ -30,24 +37,25 @@ export namespace AutoMovieArchetypeArmour {
    * Closed wall cells leave face, neck, arm, hem and limb cavities open. Museum
    * H/W/D and total mass remain the selected record's; fitted body boundaries
    * retain their exact measure, plate and provisional helmet pad. Unfitted
-   * elliptical walls use the plate band as a minimum normal gauge; their varying
-   * gauge preserves shared inner edges and the record envelope. This coarse
-   * construction does not claim a uniform historical plate gauge. Fitted mail
-   * places its wall outside the body's breadth/depth. Its wall is the recorded
-   * mass's equivalent volume under the existing structural-steel density, not a
-   * measurement of wire, weave or historical alloy. A gauntlet's forearm radius
-   * sizes its cuff; its rigid mitten/thumb regions are coarse authored envelopes,
-   * not a measured hand. The selected armet23232 retains its missing visor and
-   * arm-defense35850 excludes its separate elbow reinforce. Coarse opening
-   * fractions distinguish the kinds without claiming calibrated artifact
-   * profiles. Each piece stays on one bone, +Y up, +Z front; wear is its origin.
-   * Brim depth and plate metadata retain their existing contracts.
+   * elliptical walls use the plate band as a minimum normal gauge; their
+   * varying gauge preserves shared inner edges and the record envelope. This
+   * coarse construction does not claim a uniform historical plate gauge. Fitted
+   * mail places its wall outside the body's breadth/depth. Its wall is the
+   * recorded mass's equivalent volume under the existing structural-steel
+   * density, not a measurement of wire, weave or historical alloy. A gauntlet's
+   * forearm radius sizes its cuff; its rigid mitten/thumb regions are coarse
+   * authored envelopes, not a measured hand. The selected armet23232 retains
+   * its missing visor and arm-defense35850 excludes its separate elbow
+   * reinforce. Coarse opening fractions distinguish the kinds without claiming
+   * calibrated artifact profiles. Each piece stays on one bone, +Y up, +Z
+   * front; wear is its origin. Brim depth and plate metadata retain their
+   * existing contracts.
    *
-   * @param params The kind, the read piece, the body's measure, and any dimension
-   *   the author fixes.
+   * @param params The kind, the read piece, the body's measure, and any
+   *   dimension the author fixes.
    * @param seed The seed that picks the read piece left free and draws every
-   *   dimension left free inside its band; absent, the first piece and the middle
-   *   of each band.
+   *   dimension left free inside its band; absent, the first piece and the
+   *   middle of each band.
    * @returns The piece.
    * @throws {AutoMovieArchetypeRefusal} For an unsupported piece/dimension,
    *   invalid used body measures, inverted cuirass heights or a mail
@@ -208,8 +216,8 @@ export namespace AutoMovieArchetypeArmour {
    * - A cuirass or mail shirt hangs from the shoulder height, its centre half the
    *   piece's own height below it, over the chest joint.
    *
-   * @param params The performer id and body, and up to one distinct costume model
-   *   per slot.
+   * @param params The performer id and body, and up to one distinct costume
+   *   model per slot.
    * @returns The models and their initial worn bindings for the scene.
    * @throws {AutoMovieArchetypeRefusal} For a mismatched slot, reused model id,
    *   missing piece, a body without the slot's joints or a trunk piece without
@@ -220,18 +228,15 @@ export namespace AutoMovieArchetypeArmour {
   ): readonly AutoMovieArchetypeArmour.IAssemblyPiece[] {
     return assembleCostumeArmourImplementation(params);
   }
-}
 
-/** The plate thickness read. */
-const PLATE: string =
-  "Alan Williams, What can scientific analysis tell us about the effectiveness of medieval arms and armour?, p. 172: comfortable-weight breastplates between 1.5 and 3 mm, limb armour thinner; the breastplate range remains a provisional limb transfer (https://wratislavia.antiqua.uwr.edu.pl/wp-content/uploads/sites/573/2025/02/10-What-can-scientific-analysis-tell-us-about-the-effectiveness-of-medieval-arms-and-armour.pdf)";
+  /** The plate thickness read. */
+  const PLATE: string =
+    "Alan Williams, What can scientific analysis tell us about the effectiveness of medieval arms and armour?, p. 172: comfortable-weight breastplates between 1.5 and 3 mm, limb armour thinner; the breastplate range remains a provisional limb transfer (https://wratislavia.antiqua.uwr.edu.pl/wp-content/uploads/sites/573/2025/02/10-What-can-scientific-analysis-tell-us-about-the-effectiveness-of-medieval-arms-and-armour.pdf)";
 
-/** The helmet padding read. */
-const PAD: string =
-  'US Army News Service, 20 April 2011, on combat helmet pads: "The current pad is three-quarters of an inch thick" (https://www.army.mil/article/55275/combat-helmet-continues-to-evolve-step-by-step/), a modern helmet\'s padding, provisional for a medieval arming cap, whose thickness no source read gives';
+  /** The helmet padding read. */
+  const PAD: string =
+    'US Army News Service, 20 April 2011, on combat helmet pads: "The current pad is three-quarters of an inch thick" (https://www.army.mil/article/55275/combat-helmet-continues-to-evolve-step-by-step/), a modern helmet\'s padding, provisional for a medieval arming cap, whose thickness no source read gives';
 
-/** Companion types, bands, records and the bone rule of {@link createArmour}. */
-export namespace AutoMovieArchetypeArmour {
   /** The canonical factories for saved kinds, read after the catalogue loads. */
   export const PRODUCERS = {
     get openHelmet(): typeof AutoMovieArchetypeCostumeHelmet.create {
@@ -505,10 +510,7 @@ export namespace AutoMovieArchetypeArmour {
 
   /** The bone a piece rides, by its kind and a limb piece's side: `armourBone`. */
   export const bone: typeof armourBone = armourBone;
-}
 
-/** Costume-piece selection and the binding consumed by a scene. */
-export namespace AutoMovieArchetypeArmour {
   /** Bones supported by the existing head, chest, hand and limb costume pieces. */
   export type IAssemblySlot =
     | "head"

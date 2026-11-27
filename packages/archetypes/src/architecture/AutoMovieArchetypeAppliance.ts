@@ -35,10 +35,7 @@ export function create(
   );
   return AutoMovieArchetypeAppliance.PRODUCERS[kind](params, seed);
 }
-}
 
-/** Companion types, constants and bands of {@link createAppliance}. */
-export namespace AutoMovieArchetypeAppliance {
   /** The kinds of appliance. */
   export type Kind = "refrigerator" | "cooker" | "microwave" | "washingMachine";
 

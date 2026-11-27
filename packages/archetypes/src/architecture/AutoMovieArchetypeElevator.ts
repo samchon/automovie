@@ -242,10 +242,7 @@ export function create(
   return builder.build(d.mass);
 }
 
-}
 
-/** Companion types and bands of {@link AutoMovieArchetypeElevator}. */
-export namespace AutoMovieArchetypeElevator {
   /**
    * The affordance ids:
    *

@@ -142,10 +142,7 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types, constants and bands of {@link createSpinningRod}. */
-export namespace AutoMovieArchetypeSpinningRod {
   /** The contacts: the rod's grip and tip, the reel's crank and its handle. */
   export type Affordance = "grip" | "tip" | "crank" | "handle";
 

@@ -128,10 +128,8 @@ export function create(
   });
   return builder.build(dimensions.mass);
 }
-}
 
-/** Author controls for a carried scenic standard. */
-export namespace AutoMovieArchetypeScenicStandard {
+  /* Author controls for a carried scenic standard. */
   /** A carried textile-shaped panel or a circular emblem. */
   export type Kind = "banner" | "roundel";
 

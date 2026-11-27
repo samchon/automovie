@@ -103,10 +103,7 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types, constants and bands of {@link createFingerRing}. */
-export namespace AutoMovieArchetypeFingerRing {
   /**
    * The contacts: the hole's centre a finger passes through, and the band's top
    * a pinch takes.

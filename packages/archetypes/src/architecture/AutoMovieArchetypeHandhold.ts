@@ -161,10 +161,7 @@ export function create(
   }
   return builder.build(d.mass!);
 }
-}
 
-/** Companion types and bands of {@link createHandhold}. */
-export namespace AutoMovieArchetypeHandhold {
   /** The kinds of handhold. */
   export type Kind = "pole" | "strap";
 

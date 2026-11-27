@@ -61,10 +61,8 @@ export function create(
   // A flag's nominal mass, kilograms; provisional.
   return builder.build(0.02);
 }
-}
 
-/** Companion types and constants of {@link AutoMovieArchetypeFootballFlag.create}. */
-export namespace AutoMovieArchetypeFootballFlag {
+  /* Companion types and constants of {@link AutoMovieArchetypeFootballFlag.create}. */
   /**
    * `socket`, where it clips to the belt; `grip`, its middle; `tip`, its free
    * end.

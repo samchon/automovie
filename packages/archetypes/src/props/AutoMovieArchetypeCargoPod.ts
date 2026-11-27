@@ -21,10 +21,8 @@ export namespace AutoMovieArchetypeCargoPod {
 ): AutoMovieArchetype<AutoMovieArchetypeCargoPod.Affordance, AutoMovieArchetypeCargoPod.Dimension> {
   return ScenicContainerConstruction.mountedPod(params, seed);
   }
-}
 
-/** The authorable settings and local contact IDs of {@link AutoMovieArchetypeCargoPod}. */
-export namespace AutoMovieArchetypeCargoPod {
+  /* The authorable settings and local contact IDs of {@link AutoMovieArchetypeCargoPod}. */
   /**
    * The dimensions this producer draws or derives, in metres unless the draw
    * records kilograms.

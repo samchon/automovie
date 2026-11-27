@@ -45,10 +45,8 @@ export function create(
   return builder.build(d.mass!);
 }
 
-}
 
-/** The contacts and dimensions of {@link AutoMovieArchetypeClipboard}. */
-export namespace AutoMovieArchetypeClipboard {
+  /* The contacts and dimensions of {@link AutoMovieArchetypeClipboard}. */
   /**
    * The original producer parameters.
    */

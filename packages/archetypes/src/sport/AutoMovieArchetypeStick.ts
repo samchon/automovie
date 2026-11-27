@@ -29,10 +29,7 @@ export function create(
   );
   return AutoMovieArchetypeStick.PRODUCERS[kind](params, seed);
 }
-}
 
-/** Companion types and bands of {@link createStick}. */
-export namespace AutoMovieArchetypeStick {
   /** The kinds of stick. */
   export type Kind = "iceHockey" | "fieldHockey" | "lacrosse" | "cricketBat";
 

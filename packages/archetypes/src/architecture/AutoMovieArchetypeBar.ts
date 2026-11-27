@@ -113,10 +113,7 @@ export namespace AutoMovieArchetypeBar {
     });
     return builder.build(d.mass!);
   }
-}
 
-/** Companion types and bands of {@link AutoMovieArchetypeBar}. */
-export namespace AutoMovieArchetypeBar {
   /** The kinds of bar: a gymnastics high bar, a wall grab bar, a level handrail. */
   export type Kind = "high" | "grab" | "rail";
 

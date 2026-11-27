@@ -53,10 +53,8 @@ export function create(
   };
   return variants[kind].build(params, seed);
 }
-}
 
-/** Authoring controls for the padded blade silhouette. */
-export namespace AutoMovieArchetypeStageBladeProp {
+  /* Authoring controls for the padded blade silhouette. */
   /** The canonical factories for saved kinds, read after the catalogue loads. */
   export const PRODUCERS = {
     get foil(): typeof AutoMovieArchetypeStageFencingProp.create {

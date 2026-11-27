@@ -129,10 +129,7 @@ export function create(
     });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types, constants and bands of {@link createTent}. */
-export namespace AutoMovieArchetypeTent {
   /** The kinds: UNHCR's relief family tent. */
   export type Kind = "reliefFamily";
 

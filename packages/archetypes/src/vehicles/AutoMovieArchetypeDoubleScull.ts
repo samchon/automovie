@@ -87,6 +87,48 @@ export function create(
   station(builder, "stroke", -0.96, dimensions.oarLength);
   return builder.build(dimensions.mass);
 }
+
+  /* Fixed reference hull measurements and station contact ids. */
+  /** Forward station and rear station. */
+  export type Station = "bow" | "stroke";
+  /** Side from the seated actor's heading, which faces the stern. */
+  export type Side = "Left" | "Right";
+  /** Articulation and contact ids, scoped to their respective station. */
+  export type Affordance =
+    | `${Station}${"Seat" | "Slide"}`
+    | `${Station}${Side}${"Foot" | "Handle" | "Sweep" | "Dip" | "BladeTip"}`;
+  /** Hull length, waterline beam, one scull's length, and assembled mass. */
+  export type Dimension = "length" | "beam" | "oarLength" | "mass";
+  /** Model overrides at the reference figures, and scene identity. */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Scene subject name. */
+    id?: string;
+  }
+  /** Units of the fixed reference dimensions. */
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
+    length: "m",
+    beam: "m",
+    oarLength: "m",
+    mass: "kg",
+  };
+  /** The reference hull, rig and assembled reference mass. */
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(9.4, 9.4, HULL),
+    beam: AutoMovieArchetypeBand.metres(0.33, 0.33, HULL),
+    oarLength: AutoMovieArchetypeBand.metres(
+      2.9,
+      2.9,
+      `${OARS}; rigged to ${RIG}`,
+    ),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      32.64,
+      32.64,
+      `${WEIGHT}; plus four 1.41 kg sculls (${OARS})`,
+    ),
+  };
 }
 
 /**
@@ -332,48 +374,4 @@ function scull(
     depth: 0.22,
     rides: dip,
   });
-}
-
-/** Fixed reference hull measurements and station contact ids. */
-export namespace AutoMovieArchetypeDoubleScull {
-  /** Forward station and rear station. */
-  export type Station = "bow" | "stroke";
-  /** Side from the seated actor's heading, which faces the stern. */
-  export type Side = "Left" | "Right";
-  /** Articulation and contact ids, scoped to their respective station. */
-  export type Affordance =
-    | `${Station}${"Seat" | "Slide"}`
-    | `${Station}${Side}${"Foot" | "Handle" | "Sweep" | "Dip" | "BladeTip"}`;
-  /** Hull length, waterline beam, one scull's length, and assembled mass. */
-  export type Dimension = "length" | "beam" | "oarLength" | "mass";
-  /** Model overrides at the reference figures, and scene identity. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Scene subject name. */
-    id?: string;
-  }
-  /** Units of the fixed reference dimensions. */
-  export const UNITS: Readonly<
-    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
-  > = {
-    length: "m",
-    beam: "m",
-    oarLength: "m",
-    mass: "kg",
-  };
-  /** The reference hull, rig and assembled reference mass. */
-  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    length: AutoMovieArchetypeBand.metres(9.4, 9.4, HULL),
-    beam: AutoMovieArchetypeBand.metres(0.33, 0.33, HULL),
-    oarLength: AutoMovieArchetypeBand.metres(
-      2.9,
-      2.9,
-      `${OARS}; rigged to ${RIG}`,
-    ),
-    mass: AutoMovieArchetypeBand.of(
-      "kg",
-      32.64,
-      32.64,
-      `${WEIGHT}; plus four 1.41 kg sculls (${OARS})`,
-    ),
-  };
 }

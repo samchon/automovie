@@ -87,10 +87,8 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Dimensions and the bar contact of {@link createTransitionRack}. */
-export namespace AutoMovieArchetypeTransitionRack {
+  /* Dimensions and the bar contact of {@link createTransitionRack}. */
   /** The bar's top, where a saddle nose rests. */
   export type Affordance = "bar";
 

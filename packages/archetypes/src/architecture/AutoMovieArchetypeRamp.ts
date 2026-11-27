@@ -132,10 +132,7 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types and bands of {@link createRamp}. */
-export namespace AutoMovieArchetypeRamp {
   /**
    * The landing's length, metres: the 60 in (1525 mm) minimum of 2010 ADA
    * Standards 405.7.3.

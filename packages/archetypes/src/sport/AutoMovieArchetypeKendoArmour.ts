@@ -224,10 +224,7 @@ export function create(
   }
   return builder.build(d.mass);
 }
-}
 
-/** Companion types, constants and bands of {@link createKendoArmour}. */
-export namespace AutoMovieArchetypeKendoArmour {
   /** The pieces of the armour. */
   export type Kind = "men" | "do" | "kote" | "tare";
 

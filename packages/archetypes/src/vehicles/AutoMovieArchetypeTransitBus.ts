@@ -149,10 +149,8 @@ export namespace AutoMovieArchetypeTransitBus {
     return builder.build(27_750 * AutoMovieArchetypeUnits.POUND);
   }
 
-}
 
-/** Authorable passenger contacts and door controls in the bus frame. */
-export namespace AutoMovieArchetypeTransitBus {
+  /* Authorable passenger contacts and door controls in the bus frame. */
   /** Optional scene identifier for the bus. */
   export interface IParams {
     /** Unique in the scene; defaults to `transitBus`. */

@@ -111,10 +111,8 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Dimensions and sites of {@link createInfant}. */
-export namespace AutoMovieArchetypeInfant {
+  /* Dimensions and sites of {@link createInfant}. */
   /** The seat, the support sites, the mouth and the head. */
   export type Affordance = "seat" | "nape" | "back" | "mouth" | "head";
 

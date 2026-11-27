@@ -94,10 +94,8 @@ export function create(
   // A competition table's assembly mass, nominal; it never moves.
   return builder.build(130);
 }
-}
 
-/** Companion types and constants of {@link AutoMovieArchetypeTableTennisTable.create}. */
-export namespace AutoMovieArchetypeTableTennisTable {
+  /* Companion types and constants of {@link AutoMovieArchetypeTableTennisTable.create}. */
   /**
    * `surface`, the playing surface's centre; `net`, the net's top centre; `end`
    * and `far`, the middles of the two end lines.

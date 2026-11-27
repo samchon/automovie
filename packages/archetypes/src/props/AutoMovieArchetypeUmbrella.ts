@@ -126,10 +126,7 @@ export function create(
   }
   return builder.build(d.mass);
 }
-}
 
-/** Companion types, constants and bands of {@link createUmbrella}. */
-export namespace AutoMovieArchetypeUmbrella {
   /**
    * The shaft's radius, metres: a construction estimate that no act reads and
    * no band declares.

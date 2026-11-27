@@ -136,10 +136,7 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types, constants and bands of {@link createAxillaryCrutch}. */
-export namespace AutoMovieArchetypeAxillaryCrutch {
   /** The contacts: the handgrip, the floor tip and the underarm pad's top. */
   export type Affordance = "grip" | "tip" | "pad";
 

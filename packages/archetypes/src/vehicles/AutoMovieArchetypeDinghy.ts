@@ -94,6 +94,56 @@ export namespace AutoMovieArchetypeDinghy {
     helm(builder, dimensions.length);
     return builder.build(dimensions.mass);
   }
+
+  /* Reference dimensions and the model's named crew and rig contacts. */
+  /** Two deck stations, rotation drivers and real hand and line attachments. */
+  export type Affordance =
+    | "helmDeck"
+    | "crewDeck"
+    | "boom"
+    | "rudder"
+    | "tillerEnd"
+    | "extensionSwing"
+    | "extensionLift"
+    | "tiller"
+    | "mainSheet"
+    | "clew"
+    | "sheetBlock"
+    | "sheetSwing"
+    | "sheetLift";
+  /**
+   * The tiller extension's length from its joint to its tip, metres: a staged
+   * estimate.
+   */
+  export const EXTENSION: number = 0.75;
+
+  /** Overall length, beam and estimated rigged mass. */
+  export type Dimension = "length" | "beam" | "mass";
+  /** Scene identity and published dimension overrides. */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Scene subject id. */
+    id?: string;
+  }
+  /** Units of fixed reference dimensions. */
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
+    length: "m",
+    beam: "m",
+    mass: "kg",
+  };
+  /** Published hull and mainsail, plus an estimated complete mass. */
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(3.64, 3.64, HULL),
+    beam: AutoMovieArchetypeBand.metres(1.42, 1.42, HULL),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      82,
+      82,
+      `${HULL}. Published hull 73 kg with provisional 9 kg rig (${RIG}).`,
+      true,
+    ),
+  };
 }
 
 /**
@@ -364,55 +414,4 @@ function helm(builder: Build, length: number): void {
     length: 0.5,
     rides: "extensionLift",
   });
-}
-/** Reference dimensions and the model's named crew and rig contacts. */
-export namespace AutoMovieArchetypeDinghy {
-  /** Two deck stations, rotation drivers and real hand and line attachments. */
-  export type Affordance =
-    | "helmDeck"
-    | "crewDeck"
-    | "boom"
-    | "rudder"
-    | "tillerEnd"
-    | "extensionSwing"
-    | "extensionLift"
-    | "tiller"
-    | "mainSheet"
-    | "clew"
-    | "sheetBlock"
-    | "sheetSwing"
-    | "sheetLift";
-  /**
-   * The tiller extension's length from its joint to its tip, metres: a staged
-   * estimate.
-   */
-  export const EXTENSION: number = 0.75;
-
-  /** Overall length, beam and estimated rigged mass. */
-  export type Dimension = "length" | "beam" | "mass";
-  /** Scene identity and published dimension overrides. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Scene subject id. */
-    id?: string;
-  }
-  /** Units of fixed reference dimensions. */
-  export const UNITS: Readonly<
-    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
-  > = {
-    length: "m",
-    beam: "m",
-    mass: "kg",
-  };
-  /** Published hull and mainsail, plus an estimated complete mass. */
-  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    length: AutoMovieArchetypeBand.metres(3.64, 3.64, HULL),
-    beam: AutoMovieArchetypeBand.metres(1.42, 1.42, HULL),
-    mass: AutoMovieArchetypeBand.of(
-      "kg",
-      82,
-      82,
-      `${HULL}. Published hull 73 kg with provisional 9 kg rig (${RIG}).`,
-      true,
-    ),
-  };
 }

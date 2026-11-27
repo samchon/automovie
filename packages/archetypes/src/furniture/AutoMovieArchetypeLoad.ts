@@ -127,10 +127,7 @@ export function create(
   });
   return builder.build(d.mass + load);
 }
-}
 
-/** Companion types and bands of {@link createLoad}. */
-export namespace AutoMovieArchetypeLoad {
   /** The kinds of load. */
   export type Kind = "crate" | "sack";
 

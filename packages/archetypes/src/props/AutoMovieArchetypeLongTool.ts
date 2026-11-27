@@ -38,10 +38,8 @@ export function create(
   // The saved input spans every variant. The selected producer checks its original recipe.
   return AutoMovieArchetypeLongTool.PRODUCERS[kind](params, seed);
 }
-}
 
-/** Compatibility tables and types for saved long implement recipes. */
-export namespace AutoMovieArchetypeLongTool {
+  /* Compatibility tables and types for saved long implement recipes. */
   /** The original kind for the saved long implement recipe. */
   export type Kind = LongImplementDraw.Kind;
 

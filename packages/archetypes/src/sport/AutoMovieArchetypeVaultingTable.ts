@@ -89,10 +89,7 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types, constants and bands of {@link createVaultingTable}. */
-export namespace AutoMovieArchetypeVaultingTable {
   /** The top block's thickness, metres. An estimate, not read at a source. */
   export const TOP: number = 0.25;
 

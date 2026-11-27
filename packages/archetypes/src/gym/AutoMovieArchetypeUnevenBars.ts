@@ -109,10 +109,8 @@ export function create(
   }
   return builder.build(values.mass);
 }
-}
 
-/** The competition uneven bars dimensions and named grips. */
-export namespace AutoMovieArchetypeUnevenBars {
+  /* The competition uneven bars dimensions and named grips. */
   /** The central grip of the low and high rails. */
   export type Affordance = "lowBar" | "highBar";
 

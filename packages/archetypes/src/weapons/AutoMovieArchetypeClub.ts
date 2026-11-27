@@ -43,10 +43,7 @@ export function create(
   };
   return variants[kind](params, seed);
 }
-}
 
-/** Companion types and bands of {@link createClub}. */
-export namespace AutoMovieArchetypeClub {
   /** The kinds of club. */
   export type Kind = "bat" | "baton";
 

@@ -61,10 +61,7 @@ export function create(
   // Saved inputs are a wider record. The selected producer checks them with its own draw.
   return AutoMovieArchetypeMobilityAid.PRODUCERS[kind](params, seed);
 }
-}
 
-/** Companion types, constants and bands of {@link createMobilityAid}. */
-export namespace AutoMovieArchetypeMobilityAid {
   /** Each saved selector's named producer. */
   export interface IProducers {
     /** The named producer for the saved `cane` selector. */

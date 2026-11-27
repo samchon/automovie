@@ -180,10 +180,7 @@ export function create(
   }
   return builder.build(d.mass);
 }
-}
 
-/** Companion types, constants and bands of {@link createNecklace}. */
-export namespace AutoMovieArchetypeNecklace {
   /** The kinds: a chain with a small pendant, or a ribbon medal. */
   export type Kind = "chain" | "ribbon";
 

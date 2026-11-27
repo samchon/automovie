@@ -220,10 +220,7 @@ export namespace AutoMovieArchetypeBoard {
     }
     return builder.build(d.mass!);
   }
-}
 
-/** Companion types and bands of {@link AutoMovieArchetypeBoard}. */
-export namespace AutoMovieArchetypeBoard {
   /** The kinds of board. */
   export type Kind = "whiteboard" | "blackboard" | "noticeBoard";
 

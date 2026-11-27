@@ -53,10 +53,7 @@ export function create(
   };
   return variants[kind](params, seed);
 }
-}
 
-/** Companion types, constants and bands of {@link createTray}. */
-export namespace AutoMovieArchetypeTray {
   /** Each saved selector's named producer. */
   export interface IProducers {
     /** The named producer for the saved `tray` selector. */

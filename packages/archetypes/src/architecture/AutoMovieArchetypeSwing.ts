@@ -101,10 +101,8 @@ export function create(
   });
   return builder.build(mass);
 }
-}
 
-/** The swing's dimensions and its hanging seat. */
-export namespace AutoMovieArchetypeSwing {
+  /* The swing's dimensions and its hanging seat. */
   /** The ground under the swing, where a rider stands and lands. */
   export type Affordance = "ground";
 
@@ -234,10 +232,8 @@ export namespace AutoMovieArchetypeSwing {
     });
     return builder.build(mass);
   }
-}
 
-/** The swing's ride and its contract. */
-export namespace AutoMovieArchetypeSwing {
+  /* The swing's ride and its contract. */
   /**
    * A pumped playground swing on the ride's clock: the hanging seat model
    * (`createSwing.seat`) turns about the beam's pivot axis by the swing angle,

@@ -196,10 +196,8 @@ export namespace AutoMovieArchetypeLoadingTower {
     });
     return builder.build(d.mass);
   }
-}
 
-/** Dimensions and staging contacts of {@link AutoMovieArchetypeLoadingTower}. */
-export namespace AutoMovieArchetypeLoadingTower {
+  /* Dimensions and staging contacts of {@link AutoMovieArchetypeLoadingTower}. */
   /**
    * Foot support on the rear boarding slab, upper platform and gangway, plus
    * the front doorway passage.

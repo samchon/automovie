@@ -135,10 +135,7 @@ export function create(
   // Its mass: its volume times its specific gravity times water's 1000 kg per cubic metre.
   return builder.build(volume * d.gravity * 1000, { rests: "stone" });
 }
-}
 
-/** Companion types, constants and bands of {@link createRock}. */
-export namespace AutoMovieArchetypeRock {
   /** The kinds: the Udden-Wentworth cobble and boulder classes. */
   export type Kind = "cobble" | "boulder";
 

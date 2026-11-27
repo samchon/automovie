@@ -95,10 +95,7 @@ export function create(
   });
   return builder.build(d.mass!);
 }
-}
 
-/** Companion types and bands of {@link createKettlebell}. */
-export namespace AutoMovieArchetypeKettlebell {
   /** The kinds of kettlebell. */
   export type Kind = "competition";
 

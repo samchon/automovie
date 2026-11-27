@@ -36,10 +36,8 @@ export function create(
   // The saved input spans every variant. The selected producer checks its original recipe.
   return AutoMovieArchetypeTool.PRODUCERS[kind](params, seed);
 }
-}
 
-/** Compatibility tables and types for saved tool recipes. */
-export namespace AutoMovieArchetypeTool {
+  /* Compatibility tables and types for saved tool recipes. */
   /** The original kind for the saved tool recipe. */
   export type Kind = HandToolDraw.Kind;
 

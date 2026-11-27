@@ -92,10 +92,7 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types, constants and bands of {@link createJumpPit}. */
-export namespace AutoMovieArchetypeJumpPit {
   /** The board's depth below its top, metres: TR29.2's 0.10 m. */
   export const BOARD_DEPTH: number = 0.1;
 

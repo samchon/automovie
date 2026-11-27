@@ -52,10 +52,8 @@ export function create(
   };
   return variants[kind](params, seed);
 }
-}
 
-/** Compatibility tables and types for saved grooming prop recipes. */
-export namespace AutoMovieArchetypeCareItem {
+  /* Compatibility tables and types for saved grooming prop recipes. */
   /** The original kind for the saved grooming prop recipe. */
   export type Kind = GroomingPropDraw.Kind;
 

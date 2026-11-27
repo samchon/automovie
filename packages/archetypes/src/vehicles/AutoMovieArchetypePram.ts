@@ -122,10 +122,7 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types, constants and bands of {@link createPram}. */
-export namespace AutoMovieArchetypePram {
   /**
    * The wheels' radii, metres: the Bugaboo Fox 5's 8.5 in front and 12 in rear
    * wheels.

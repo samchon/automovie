@@ -139,10 +139,8 @@ export function create(
   });
   return builder.build(0.5528);
 }
-}
 
-/** The settings and local contacts of {@link createCrutch}. */
-export namespace AutoMovieArchetypeCrutch {
+  /* The settings and local contacts of {@link createCrutch}. */
   /** The handle and the tip's floor contact. */
   export type Affordance = "grip" | "tip";
 

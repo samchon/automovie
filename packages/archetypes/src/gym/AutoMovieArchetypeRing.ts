@@ -152,10 +152,7 @@ export function create(
   return builder.build(d.mass);
 }
 
-}
 
-/** Companion types, constants and bands of {@link AutoMovieArchetypeRing}. */
-export namespace AutoMovieArchetypeRing {
   /** The apron beyond the ropes on each side, metres: the AIBA guide's 85 cm. */
   export const APRON: number = 0.85;
 

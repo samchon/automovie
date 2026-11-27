@@ -93,10 +93,7 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types, constants and bands of {@link createTap}. */
-export namespace AutoMovieArchetypeTap {
   /** The spout's diameter, metres: an estimate. */
   export const SPOUT: number = 0.02;
 

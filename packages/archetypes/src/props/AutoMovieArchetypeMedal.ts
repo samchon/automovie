@@ -98,10 +98,7 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types, constants and bands of {@link createMedal}. */
-export namespace AutoMovieArchetypeMedal {
   /** The contacts: the ribbon's top a hand takes, and the disc's worn back. */
   export type Affordance = "hold" | "wear";
 

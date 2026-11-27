@@ -203,10 +203,7 @@ export function create(
   }
   return builder.build(d.mass);
 }
-}
 
-/** Companion types, constants and bands of {@link createExerciseBike}. */
-export namespace AutoMovieArchetypeExerciseBike {
   /**
    * The floor footprint, metres: the Peloton Bike's 120 x 60 cm (see the
    * source).

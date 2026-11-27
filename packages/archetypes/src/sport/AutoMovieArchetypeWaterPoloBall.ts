@@ -70,10 +70,8 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Physical circumference and mass and the spherical grip sites. */
-export namespace AutoMovieArchetypeWaterPoloBall {
+  /* Physical circumference and mass and the spherical grip sites. */
   /** The ball center and highest point. */
   export type Affordance = "grip" | "top";
   /** Ball circumference and weight. */

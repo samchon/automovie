@@ -93,10 +93,8 @@ export function create(
   // A built court's nominal assembly mass; it never moves.
   return builder.build(20000);
 }
-}
 
-/** Companion types and constants of {@link AutoMovieArchetypeSquashCourt.create}. */
-export namespace AutoMovieArchetypeSquashCourt {
+  /* Companion types and constants of {@link AutoMovieArchetypeSquashCourt.create}. */
   /**
    * `front` and `back`, the walls' centres; `tin`, the tin's top centre; `t`,
    * the short line's centre on the floor.

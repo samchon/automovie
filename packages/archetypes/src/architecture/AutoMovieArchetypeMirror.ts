@@ -146,10 +146,7 @@ export function create(
   });
   return builder.build(d.mass!);
 }
-}
 
-/** Companion types and bands of {@link createMirror}. */
-export namespace AutoMovieArchetypeMirror {
   /** The kinds of mirror. */
   export type Kind = "wall" | "cheval";
 

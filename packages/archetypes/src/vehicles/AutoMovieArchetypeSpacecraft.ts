@@ -399,10 +399,8 @@ export function create(
   });
   return builder.build(draw.derive("mass", volume * ALUMINIUM_DENSITY));
 }
-}
 
-/** The spacecraft's typed contacts, dimensions and fictional staging bands. */
-export namespace AutoMovieArchetypeSpacecraft {
+  /* The spacecraft's typed contacts, dimensions and fictional staging bands. */
   /**
    * Contacts for the walking route, hatch articulation, cabin mobility and
    * forward crew station.

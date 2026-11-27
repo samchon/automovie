@@ -99,10 +99,8 @@ export function create(
   PaddleBlade.tip(builder, "bladeTip", -half, -1, d.bladeWidth);
   return builder.build(d.mass);
 }
-}
 
-/** Shaft and blade dimensions and three contact ids of the single-bladed paddle. */
-export namespace AutoMovieArchetypeCanoePaddle {
+  /* Shaft and blade dimensions and three contact ids of the single-bladed paddle. */
   /** Shaft hand, T-grip hand, and the edge that crosses the water. */
   export type Affordance = "shaftGrip" | "topGrip" | "bladeTip";
   /** Overall length, blade envelope and published product mass. */

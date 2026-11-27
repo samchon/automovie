@@ -94,10 +94,8 @@ export function create(
   });
   return builder.build(mass);
 }
-}
 
-/** The seesaw's dimensions and its rocking beam. */
-export namespace AutoMovieArchetypeSeesaw {
+  /* The seesaw's dimensions and its rocking beam. */
   /** The ground around the seesaw. */
   export type Affordance = "ground";
 
@@ -219,15 +217,8 @@ export namespace AutoMovieArchetypeSeesaw {
     }
     return builder.build(mass);
   }
-}
 
-/** The handle id at one end of the beam for one of its rider's hands. */
-function handleId(end: BeamEnd, hand: HandSide): AutoMovieArchetypeSeesaw.BeamAffordance {
-  if (end > 0) return hand === "Left" ? "frontLeftHandle" : "frontRightHandle";
-  return hand === "Left" ? "rearLeftHandle" : "rearRightHandle";
-}
-/** The seesaw's ride and its parameters and readers. */
-export namespace AutoMovieArchetypeSeesaw {
+  /* The seesaw's ride and its parameters and readers. */
   /**
    * A seesaw rocked by its riders' push-offs on the ride's clock: the beam model
    * (`createSeesaw.beam`) turns about the pivot axis, positive lowering the front
@@ -297,4 +288,10 @@ export namespace AutoMovieArchetypeSeesaw {
      */
     beam(seconds: number): IAutoMovieTransform;
   }
+}
+
+/** The handle id at one end of the beam for one of its rider's hands. */
+function handleId(end: BeamEnd, hand: HandSide): AutoMovieArchetypeSeesaw.BeamAffordance {
+  if (end > 0) return hand === "Left" ? "frontLeftHandle" : "frontRightHandle";
+  return hand === "Left" ? "rearLeftHandle" : "rearRightHandle";
 }

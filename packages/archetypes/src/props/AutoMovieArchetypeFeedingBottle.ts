@@ -82,10 +82,8 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Dimensions and contacts of {@link createFeedingBottle}. */
-export namespace AutoMovieArchetypeFeedingBottle {
+  /* Dimensions and contacts of {@link createFeedingBottle}. */
   /** The barrel held, and the teat's tip. */
   export type Affordance = "grip" | "teat";
 

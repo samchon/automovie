@@ -196,10 +196,7 @@ export function create(
   }
   return builder.build(d.mass * stalls);
 }
-}
 
-/** Companion types, constants and bands of {@link createStartingGate}. */
-export namespace AutoMovieArchetypeStartingGate {
   /**
    * The affordance ids, each stall `k` from 0 on `-X`:
    *

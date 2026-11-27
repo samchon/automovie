@@ -171,13 +171,11 @@ export function create(
   }
   return builder.build(values.mass);
 }
-}
 
-/**
- * Companion dimensions and independently posed contacts of
- * {@link createStillRings}.
- */
-export namespace AutoMovieArchetypeStillRings {
+  /*
+   * Companion dimensions and independently posed contacts of
+   * {@link createStillRings}.
+   */
   /** One grip and the fore-aft pivot that carries it on each side. */
   export type Affordance =
     | "leftGrip"

@@ -90,10 +90,7 @@ export function create(
   };
   return variants[kind](params, seed);
 }
-}
 
-/** Companion types, constants and bands of {@link createProjectile}. */
-export namespace AutoMovieArchetypeProjectile {
   /** The canonical factories for saved kinds, read after the catalogue loads. */
   export const PRODUCERS = {
     get ball(): typeof AutoMovieArchetypeStageBallProp.create {

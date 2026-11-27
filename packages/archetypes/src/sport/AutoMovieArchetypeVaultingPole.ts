@@ -195,10 +195,7 @@ export function create(
   band("shaft", length / 2, length);
   return builder.build(d.mass);
 }
-}
 
-/** Companion types and bands of {@link createVaultingPole}. */
-export namespace AutoMovieArchetypeVaultingPole {
   /**
    * A hand's breadth along the pole, metres: the run of one grip band. An
    * estimate, not read at a source.

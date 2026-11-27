@@ -92,10 +92,7 @@ export function create(
   };
   return variants[kind].build(params, seed);
 }
-}
 
-/** Companion types, constants and bands of {@link createHolster}. */
-export namespace AutoMovieArchetypeHolster {
   /** The canonical factories for saved kinds, read after the catalogue loads. */
   export const PRODUCERS = {
     get holster(): typeof AutoMovieArchetypeStageHolster.create {

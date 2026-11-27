@@ -129,14 +129,12 @@ export namespace AutoMovieArchetypeBowlingLane {
     // A fixed lane uses a nominal assembly mass, independent of pin mass.
     return builder.build(1000);
   }
-}
 
-/**
- * Authorable settings and local support and aim targets of the ten-pin lane. Pin sockets are numbered
- * from the headpin to the last row, which gives each separately placed pin its
- * own origin.
- */
-export namespace AutoMovieArchetypeBowlingLane {
+  /*
+   * Authorable settings and local support and aim targets of the ten-pin lane. Pin sockets are numbered
+   * from the headpin to the last row, which gives each separately placed pin its
+   * own origin.
+   */
   /**
    * Pin spots numbered in order by row from left to right as seen by the
    * bowler.

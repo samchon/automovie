@@ -122,10 +122,7 @@ export function create(
   });
   return builder.build(d.mass, { rests: "steel" });
 }
-}
 
-/** Companion types and bands of {@link createSafe}. */
-export namespace AutoMovieArchetypeSafe {
   /**
    * The affordance id: `door`, the door's hinge on the side the parameter
    * names, swinging toward `+Z`; it states no travel.

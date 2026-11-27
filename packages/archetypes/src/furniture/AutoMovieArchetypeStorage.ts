@@ -55,10 +55,7 @@ export function create(
   };
   return variants[kind].build(params, seed);
 }
-}
 
-/** Companion types and bands of {@link createStorage}. */
-export namespace AutoMovieArchetypeStorage {
   /** Each saved selector's named producer. */
   export interface IProducers {
     /** The named producer for the saved `wardrobe` selector. */

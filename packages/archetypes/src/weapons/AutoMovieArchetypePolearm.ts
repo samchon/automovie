@@ -172,10 +172,7 @@ export function create(
   });
   return builder.build(d.mass!);
 }
-}
 
-/** Companion types, constants and bands of {@link createPolearm}. */
-export namespace AutoMovieArchetypePolearm {
   /** The kinds of polearm. */
   export type Kind = "staff" | "spear" | "lance";
 

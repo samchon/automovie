@@ -131,10 +131,7 @@ export function create(
   });
   return builder.build(d.mass!, { rests: "steel" });
 }
-}
 
-/** Companion types and bands of {@link createBarrel}. */
-export namespace AutoMovieArchetypeBarrel {
   /** The kinds of barrel. */
   export type Kind = "steelDrum" | "keg";
 

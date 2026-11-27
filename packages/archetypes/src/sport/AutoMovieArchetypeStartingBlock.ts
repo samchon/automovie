@@ -135,10 +135,7 @@ export function create(
   }
   return builder.build(d.mass);
 }
-}
 
-/** Companion types, constants and bands of {@link createStartingBlock}. */
-export namespace AutoMovieArchetypeStartingBlock {
   /** Each plate's thickness, metres: an estimate. */
   export const PLATE_THICKNESS: number = 0.02;
 

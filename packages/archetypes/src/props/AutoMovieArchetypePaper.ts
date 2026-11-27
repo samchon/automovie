@@ -136,10 +136,8 @@ export namespace AutoMovieArchetypePaper {
     );
     return builder.build(d.mass!);
   }
-}
 
-/** Authorable settings, formats and contact types for the paper producer. */
-export namespace AutoMovieArchetypePaper {
+  /* Authorable settings, formats and contact types for the paper producer. */
   /** A loose sheet or a map that opens at one crease. */
   export type Format = "sheet" | "foldedMap";
 

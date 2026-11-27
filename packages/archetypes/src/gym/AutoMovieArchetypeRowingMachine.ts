@@ -186,10 +186,7 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types, constants and bands of {@link createRowingMachine}. */
-export namespace AutoMovieArchetypeRowingMachine {
   /** The rail's section, metres: an estimate. */
   export const RAIL: number = 0.08;
 

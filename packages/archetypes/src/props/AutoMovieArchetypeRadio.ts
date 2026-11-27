@@ -27,10 +27,8 @@ export namespace AutoMovieArchetypeRadio {
     "speaker",
   );
   }
-}
 
-/** The parameters and affordance identifiers of {@link AutoMovieArchetypeRadio}. */
-export namespace AutoMovieArchetypeRadio {
+  /* The parameters and affordance identifiers of {@link AutoMovieArchetypeRadio}. */
   /** The `model` choices this producer admits. */
   export type Model = "nimh1400" | "liIon1600" | "liIon2250" | "liIon2900";
 

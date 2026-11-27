@@ -34,9 +34,7 @@ export namespace AutoMovieArchetypeStreetFixture {
         };
         return variants[kind](params, seed);
     }
-}
-/** Companion types and bands of {@link AutoMovieArchetypeStreetFixture}. */
-export namespace AutoMovieArchetypeStreetFixture {
+
     /** The kinds of fixture. */
     export type Kind = "trafficCone" | "bollard" | "hydrant" | "lampPost" | "signPost";
     /** Every kind, for a caller that reads one at run time. */

@@ -93,10 +93,8 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Kinds, dimensions and contacts of {@link createSledgehammer}. */
-export namespace AutoMovieArchetypeSledgehammer {
+  /* Kinds, dimensions and contacts of {@link createSledgehammer}. */
   /** A blunt sledgehammer, or a pickaxe whose point strikes. */
   export type Kind = "sledgehammer" | "pickaxe";
 

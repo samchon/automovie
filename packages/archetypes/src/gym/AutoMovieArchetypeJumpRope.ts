@@ -106,10 +106,7 @@ export function create(
   }
   return builder.build(d.mass);
 }
-}
 
-/** Companion types, constants and bands of {@link createJumpRope}. */
-export namespace AutoMovieArchetypeJumpRope {
   /** The cable's diameter, metres: the maker's 3/32 in (see the source). */
   export const CORD: number = (3 / 32) * AutoMovieArchetypeUnits.INCH;
 

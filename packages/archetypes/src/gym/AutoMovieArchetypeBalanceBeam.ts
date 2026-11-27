@@ -112,10 +112,8 @@ export function create(
   });
   return builder.build(values.mass);
 }
-}
 
-/** Companion dimensions and support for the competition balance beam. */
-export namespace AutoMovieArchetypeBalanceBeam {
+  /* Companion dimensions and support for the competition balance beam. */
   /** The flat top where hands and feet contact the beam. */
   export type Affordance = "surface";
 

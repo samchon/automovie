@@ -32,10 +32,7 @@ export function create(
   // Saved recipes may state any model. The canonical draw checks it against this kind's table.
   return AutoMovieArchetypeMachine.PRODUCERS[kind](params, seed);
 }
-}
 
-/** Companion types and bands of {@link createMachine}. */
-export namespace AutoMovieArchetypeMachine {
   /** The kinds of machine. */
   export type Kind = "vendingMachine" | "payStation" | "atm";
 

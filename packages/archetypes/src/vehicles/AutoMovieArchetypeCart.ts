@@ -95,10 +95,7 @@ export function create(
   };
   return variants[kind](params, seed);
 }
-}
 
-/** Companion types, constants and bands of {@link createCart}. */
-export namespace AutoMovieArchetypeCart {
   /** The canonical factories for saved kinds, read after the catalogue loads. */
   export const PRODUCERS = {
     get trolley(): typeof AutoMovieArchetypeShoppingTrolley.create {

@@ -73,10 +73,8 @@ export function create(
   });
   return builder.build(values.mass);
 }
-}
 
-/** The rhythmic ball dimensions and its handling contacts. */
-export namespace AutoMovieArchetypeRhythmicBall {
+  /* The rhythmic ball dimensions and its handling contacts. */
   /** The centre and lower surface of the ball. */
   export type Affordance = "grip" | "palm";
 

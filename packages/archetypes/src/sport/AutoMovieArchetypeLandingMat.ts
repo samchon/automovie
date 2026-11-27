@@ -95,10 +95,7 @@ export function create(
   });
   return builder.build(d.mass!);
 }
-}
 
-/** Companion types and bands of {@link createLandingMat}. */
-export namespace AutoMovieArchetypeLandingMat {
   /** The kinds of mat. */
   export type Kind = "highJump" | "poleVault";
 

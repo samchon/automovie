@@ -88,10 +88,7 @@ export function create(
   });
   return builder.build(d.mass!);
 }
-}
 
-/** Companion types and bands of {@link createPullUpBar}. */
-export namespace AutoMovieArchetypePullUpBar {
   /** The kinds of bar. */
   export type Kind = "gym" | "horizontalBar";
 

@@ -106,10 +106,7 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types and bands of {@link createTrampoline}. */
-export namespace AutoMovieArchetypeTrampoline {
   /** The bed's drawn thickness, metres. */
   export const BED: number = 0.01;
 

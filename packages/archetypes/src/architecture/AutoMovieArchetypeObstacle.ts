@@ -23,9 +23,7 @@ export namespace AutoMovieArchetypeObstacle {
         const kind: AutoMovieArchetypeObstacle.Kind = ArchetypeDraw.choice("obstacle", "kind", params.kind, AutoMovieArchetypeObstacle.KINDS);
         return AutoMovieArchetypeObstacle.PRODUCERS[kind](params, seed);
     }
-}
-/** Companion types, constants and bands of {@link AutoMovieArchetypeObstacle}. */
-export namespace AutoMovieArchetypeObstacle {
+
     /** The kinds of obstacle. */
     export type Kind = "crosstie" | "sandbag" | "jerseyBarrier" | "crowdBarrier" | "ropeAndPosts";
     /** Every kind, for a caller that reads one at run time. */

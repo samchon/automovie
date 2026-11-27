@@ -191,10 +191,8 @@ export function create(
     draw.derive("mass", AutoMovieArchetypeDensity.STEEL * volume),
   );
 }
-}
 
-/** Companion types, reference and bands of {@link createDeck}. */
-export namespace AutoMovieArchetypeDeck {
+  /* Companion types, reference and bands of {@link createDeck}. */
   /**
    * The affordance ids: `deck`, the walking surface between the stanchions;
    * `leftRail`, `rightRail`, the toprails along the `+X` and `-X` sides.

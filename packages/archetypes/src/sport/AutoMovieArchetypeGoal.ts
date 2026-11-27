@@ -52,10 +52,8 @@ export function create(
   };
   return variants[kind].build(params, seed);
 }
-}
 
-/** Companion types, names and bands of {@link createGoal}. */
-export namespace AutoMovieArchetypeGoal {
+  /* Companion types, names and bands of {@link createGoal}. */
   /** The kinds of goal. */
   export type Kind =
     | "footballGoal"

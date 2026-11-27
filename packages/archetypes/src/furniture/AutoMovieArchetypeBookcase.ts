@@ -21,10 +21,8 @@ export function create(
   return StorageMechanisms.bookcase(params, seed);
 }
 
-}
 
-/** The authorable settings and local contact IDs of {@link AutoMovieArchetypeBookcase}. */
-export namespace AutoMovieArchetypeBookcase {
+  /* The authorable settings and local contact IDs of {@link AutoMovieArchetypeBookcase}. */
   /**
    * The dimensions this producer draws or derives, in metres unless the draw
    * records kilograms.

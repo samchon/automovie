@@ -87,10 +87,8 @@ export namespace AutoMovieArchetypeLighter {
     });
     return builder.build(d.mass!);
   }
-}
 
-/** The authorable settings, contacts and dimensions of {@link AutoMovieArchetypeLighter}. */
-export namespace AutoMovieArchetypeLighter {
+  /* The authorable settings, contacts and dimensions of {@link AutoMovieArchetypeLighter}. */
   /**
    * The contacts this producer builds; a numbered family's count follows its
    * inputs.

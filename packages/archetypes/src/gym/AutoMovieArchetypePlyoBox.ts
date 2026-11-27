@@ -78,10 +78,7 @@ export function create(
   });
   return builder.build(d.mass!, { rests: "wood" });
 }
-}
 
-/** Companion types and bands of {@link createPlyoBox}. */
-export namespace AutoMovieArchetypePlyoBox {
   /** The kinds of box. */
   export type Kind = "wood";
 

@@ -120,10 +120,7 @@ export function create(
     );
   return builder.build(d.mass * bars);
 }
-}
 
-/** Companion types and bands of {@link createCellFront}. */
-export namespace AutoMovieArchetypeCellFront {
   /** The affordance ids: `bar1` upward from `-X`, each upright bar. */
   export type Affordance = `bar${number}`;
 

@@ -220,6 +220,30 @@ export function create(
   });
   return builder.build(mass);
 }
+
+  /* Authoring types for the two rigid serving vessels. */
+  /**
+   * The serving vessel variants admitted by the factory and listed in the
+   * catalogue.
+   */
+  export const KINDS = ["cup", "pitcher"] as const;
+
+  /** The receiving cup or the pouring pitcher. */
+  export type Kind = (typeof KINDS)[number];
+
+  /** Select a serving vessel and optionally fix its size and empty mass. */
+  export interface IParams {
+    /** Which silhouette to construct. */
+    kind: Kind;
+    /** Unique scene id, defaulting to the producer's id. */
+    id?: string;
+    /** Vertical distance in metres from the base to the rim. */
+    height?: number;
+    /** Outside rim diameter in metres across X, excluding the spout. */
+    diameter?: number;
+    /** Empty vessel mass in kilograms. */
+    mass?: number;
+  }
 }
 
 /**
@@ -245,30 +269,4 @@ function section(
     outer.push(Vector3.create(x * reach, y, z * reach));
   }
   return { inner, outer };
-}
-
-/** Authoring types for the two rigid serving vessels. */
-export namespace AutoMovieArchetypePourVessel {
-  /**
-   * The serving vessel variants admitted by the factory and listed in the
-   * catalogue.
-   */
-  export const KINDS = ["cup", "pitcher"] as const;
-
-  /** The receiving cup or the pouring pitcher. */
-  export type Kind = (typeof KINDS)[number];
-
-  /** Select a serving vessel and optionally fix its size and empty mass. */
-  export interface IParams {
-    /** Which silhouette to construct. */
-    kind: Kind;
-    /** Unique scene id, defaulting to the producer's id. */
-    id?: string;
-    /** Vertical distance in metres from the base to the rim. */
-    height?: number;
-    /** Outside rim diameter in metres across X, excluding the spout. */
-    diameter?: number;
-    /** Empty vessel mass in kilograms. */
-    mass?: number;
-  }
 }

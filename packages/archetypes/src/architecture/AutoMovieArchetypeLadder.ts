@@ -166,10 +166,7 @@ export function create(
   }
   return builder.build(d.mass * rungs);
 }
-}
 
-/** Companion types and bands of {@link createLadder}. */
-export namespace AutoMovieArchetypeLadder {
   /** The kinds of ladder. */
   export type Kind = "fixed" | "leaning";
 

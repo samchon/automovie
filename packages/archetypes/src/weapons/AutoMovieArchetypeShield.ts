@@ -210,10 +210,7 @@ export function create(
   });
   return builder.build(d.mass!);
 }
-}
 
-/** Companion types, constants and bands of {@link createShield}. */
-export namespace AutoMovieArchetypeShield {
   /** The kinds of shield. */
   export type Kind = "buckler" | "round" | "strapped";
 

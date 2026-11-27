@@ -94,10 +94,8 @@ export function create(
   };
   return variants[kind].build(params, seed);
 }
-}
 
-/** Companion types, constants, bands and rules of {@link createBow}. */
-export namespace AutoMovieArchetypeBow {
+  /* Companion types, constants, bands and rules of {@link createBow}. */
   /** The canonical factories for saved kinds, read after the catalogue loads. */
   export const PRODUCERS = {
     get longbow(): typeof AutoMovieArchetypeStageHandBowProp.create {

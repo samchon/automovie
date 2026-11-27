@@ -91,10 +91,7 @@ export function create(
   });
   return builder.build(d.mass * points.length);
 }
-}
 
-/** Companion types, constants and bands of {@link createRaceRail}. */
-export namespace AutoMovieArchetypeRaceRail {
   /**
    * The affordance id: `start`, the rail at the home straight's start, facing
    * up.

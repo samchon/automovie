@@ -100,10 +100,7 @@ export namespace AutoMovieArchetypeBoat {
     };
     return variants[kind](params, seed);
   }
-}
 
-/** Companion types, constants and bands of {@link AutoMovieArchetypeBoat}. */
-export namespace AutoMovieArchetypeBoat {
   /** The canonical factories for saved kinds, read after the catalogue loads. */
   export const PRODUCERS = {
     get rowboat(): typeof AutoMovieArchetypeRowboat.create {

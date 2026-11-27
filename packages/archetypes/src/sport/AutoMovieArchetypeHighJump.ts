@@ -141,10 +141,7 @@ export function create(
   if (kind === "poleVault") box(builder, d);
   return builder.build(d.mass!);
 }
-}
 
-/** Companion types, constants and bands of {@link createHighJump}. */
-export namespace AutoMovieArchetypeHighJump {
   /** The kinds: the high jump and the pole vault. */
   export type Kind = "highJump" | "poleVault";
 

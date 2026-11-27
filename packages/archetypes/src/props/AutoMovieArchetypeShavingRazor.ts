@@ -48,10 +48,8 @@ export function create(
   return builder.build(d.mass!);
 }
 
-}
 
-/** The contacts and dimensions of {@link AutoMovieArchetypeShavingRazor}. */
-export namespace AutoMovieArchetypeShavingRazor {
+  /* The contacts and dimensions of {@link AutoMovieArchetypeShavingRazor}. */
   /**
    * The original producer parameters.
    */

@@ -73,10 +73,8 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Dimensions and the socket of {@link createDiveMask}. */
-export namespace AutoMovieArchetypeDiveMask {
+  /* Dimensions and the socket of {@link createDiveMask}. */
   /** The skirt's seat on the face, and the nose pocket. */
   export type Affordance = "wear" | "nose";
 

@@ -84,10 +84,7 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types and bands of {@link createHeavyBag}. */
-export namespace AutoMovieArchetypeHeavyBag {
   /**
    * The affordance ids:
    *

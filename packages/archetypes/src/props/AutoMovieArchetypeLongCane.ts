@@ -107,10 +107,7 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types, constants and bands of {@link createLongCane}. */
-export namespace AutoMovieArchetypeLongCane {
   /** The contacts: the grip the hand holds and the floor tip. */
   export type Affordance = "grip" | "tip";
 

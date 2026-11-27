@@ -63,10 +63,7 @@ export function create(
   };
   return variants[kind].build(params, seed);
 }
-}
 
-/** Companion types, constants and bands of {@link createBall}. */
-export namespace AutoMovieArchetypeBall {
   /** The kinds of ball. */
   export type Kind =
     | "football"

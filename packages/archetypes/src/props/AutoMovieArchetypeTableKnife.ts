@@ -53,10 +53,8 @@ export namespace AutoMovieArchetypeTableKnife {
     });
     return builder.build(d.mass!);
   }
-}
 
-/** The authorable settings, contacts and dimensions of {@link AutoMovieArchetypeTableKnife}. */
-export namespace AutoMovieArchetypeTableKnife {
+  /* The authorable settings, contacts and dimensions of {@link AutoMovieArchetypeTableKnife}. */
   /**
    * The contacts this producer builds; a numbered family's count follows its
    * inputs.

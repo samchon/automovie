@@ -151,10 +151,8 @@ export namespace AutoMovieArchetypeMovingWalkway {
       });
     return builder.build(mass);
   }
-}
 
-/** The walkway's dimensions and its moving pallet band. */
-export namespace AutoMovieArchetypeMovingWalkway {
+  /* The walkway's dimensions and its moving pallet band. */
   /**
    * The two fixed landings, the moving band's resting surface and the two
    * handrails.
@@ -263,10 +261,8 @@ export namespace AutoMovieArchetypeMovingWalkway {
     });
     return builder.build(mass);
   }
-}
 
-/** The moving walkway's ride and its contract. */
-export namespace AutoMovieArchetypeMovingWalkway {
+  /* The moving walkway's ride and its contract. */
   /**
    * A moving walkway's band running at a constant speed, read on the ride's
    * clock: at second 0 the band model (`AutoMovieArchetypeMovingWalkway.belt`) lies on the

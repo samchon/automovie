@@ -92,10 +92,8 @@ export function create(
   return builder.build(d.mass!);
 }
 
-}
 
-/** The contacts and dimensions of {@link AutoMovieArchetypeSqueezeTube}. */
-export namespace AutoMovieArchetypeSqueezeTube {
+  /* The contacts and dimensions of {@link AutoMovieArchetypeSqueezeTube}. */
   /**
    * The original producer parameters.
    */

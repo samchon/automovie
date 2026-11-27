@@ -90,13 +90,11 @@ export namespace AutoMovieArchetypeCricketWicket {
     // Assembly mass is provisional for staging because Law 8 gives no weight.
     return builder.build(1.5);
   }
-}
 
-/**
- * Authorable settings and named aiming and inspection points for an adult wicket. The three stump
- * centers and two bail barrel centers have frames in model metres.
- */
-export namespace AutoMovieArchetypeCricketWicket {
+  /*
+   * Authorable settings and named aiming and inspection points for an adult wicket. The three stump
+   * centers and two bail barrel centers have frames in model metres.
+   */
   /** Three stump centers and two bail barrel centers. */
   export type Affordance =
     | "leftStump"

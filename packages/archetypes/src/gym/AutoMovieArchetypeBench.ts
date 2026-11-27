@@ -117,10 +117,7 @@ export function create(
   });
   return builder.build(d.mass!);
 }
-}
 
-/** Companion types and bands of {@link createBench}. */
-export namespace AutoMovieArchetypeBench {
   /** The kinds of bench. */
   export type Kind = "flat";
 

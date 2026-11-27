@@ -67,10 +67,8 @@ export function create(
   return builder.build(d.mass!);
 }
 
-}
 
-/** The contacts and dimensions of {@link AutoMovieArchetypeFishingRod}. */
-export namespace AutoMovieArchetypeFishingRod {
+  /* The contacts and dimensions of {@link AutoMovieArchetypeFishingRod}. */
   /**
    * The original producer parameters.
    */

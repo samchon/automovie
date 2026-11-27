@@ -84,10 +84,8 @@ export function create(
   }
   return builder.build(d.mass);
 }
-}
 
-/** The shaft dimensions, the two palm sites and the two wet blade edges. */
-export namespace AutoMovieArchetypeKayakPaddle {
+  /* The shaft dimensions, the two palm sites and the two wet blade edges. */
   /** Two real hand sites and separate blade tips. */
   export type Affordance = "leftGrip" | "rightGrip" | "leftTip" | "rightTip";
   /** Overall length, blade dimensions and mass. */

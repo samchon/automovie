@@ -71,10 +71,7 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types and bands of {@link createSpringboard}. */
-export namespace AutoMovieArchetypeSpringboard {
   /** The affordance ids: `surface`, the board's top. */
   export type Affordance = "surface";
 

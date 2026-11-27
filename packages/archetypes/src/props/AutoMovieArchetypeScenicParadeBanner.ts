@@ -143,14 +143,12 @@ export function create(
   });
   return builder.build(mass);
 }
-}
 
-/**
- * Fixed banner dimensions in metres and prop mass in kilograms, plus an
- * optional scene id. The producer validates overrides against bands that leave
- * an exposed grip below the panel on each pole.
- */
-export namespace AutoMovieArchetypeScenicParadeBanner {
+  /*
+   * Fixed banner dimensions in metres and prop mass in kilograms, plus an
+   * optional scene id. The producer validates overrides against bands that leave
+   * an exposed grip below the panel on each pole.
+   */
   /** Optional fixed dimensions for a rectangular panel and two matching poles. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Scene-unique id. The producer supplies a default when omitted. */

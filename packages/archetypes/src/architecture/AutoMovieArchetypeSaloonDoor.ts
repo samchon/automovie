@@ -134,10 +134,7 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types and bands of {@link createSaloonDoor}. */
-export namespace AutoMovieArchetypeSaloonDoor {
   /**
    * The affordance ids:
    *

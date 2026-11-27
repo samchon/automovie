@@ -85,10 +85,8 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Dimensions and the socket of {@link createScubaSet}. */
-export namespace AutoMovieArchetypeScubaSet {
+  /* Dimensions and the socket of {@link createScubaSet}. */
   /** The jacket on the back, and the second stage at the mouth. */
   export type Affordance = "wear" | "regulator";
 

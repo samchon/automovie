@@ -116,10 +116,7 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types and bands of {@link createHighChair}. */
-export namespace AutoMovieArchetypeHighChair {
   /** The affordance id: `seat`, the seat, facing `+Z`. */
   export type Affordance = "seat";
 

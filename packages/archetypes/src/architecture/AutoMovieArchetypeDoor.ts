@@ -330,10 +330,7 @@ export function create(
   return builder.build(d.mass!);
 }
 
-}
 
-/** Companion types and bands of {@link AutoMovieArchetypeDoor}. */
-export namespace AutoMovieArchetypeDoor {
   /** The moved constant {@link createDoorMeasures.BREAKING}. */
   export const BREAKING: typeof parts.BREAKING = parts.BREAKING;
   /** The moved type {@link createDoorMeasures.Kind}. */

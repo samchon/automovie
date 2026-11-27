@@ -243,10 +243,7 @@ export function create(
   });
   return builder.build(d.mass!);
 }
-}
 
-/** Companion types, constants and bands of {@link createFood}. */
-export namespace AutoMovieArchetypeFood {
   /** The kinds. */
   export type Kind = "bread" | "apple" | "drumstick";
 

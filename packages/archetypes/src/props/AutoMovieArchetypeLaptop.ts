@@ -73,10 +73,8 @@ export namespace AutoMovieArchetypeLaptop {
   });
   return builder.build(d.mass);
   }
-}
 
-/** The parameters and contact identifiers of {@link AutoMovieArchetypeLaptop}. */
-export namespace AutoMovieArchetypeLaptop {
+  /* The parameters and contact identifiers of {@link AutoMovieArchetypeLaptop}. */
   /** The `model` choices this producer admits. */
   export type Model = "air13" | "air15";
 

@@ -71,10 +71,7 @@ export function create(
   };
   return variants[kind](params, seed);
 }
-}
 
-/** Companion types, constants and bands of {@link createVessel}. */
-export namespace AutoMovieArchetypeVessel {
   /** Each saved selector's named producer. */
   export interface IProducers {
     /** The named producer for the saved `bowl` selector. */

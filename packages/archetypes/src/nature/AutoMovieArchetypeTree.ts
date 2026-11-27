@@ -218,10 +218,7 @@ export function create(
   });
   return builder.build(dry * (1 + d.moisture));
 }
-}
 
-/** Companion types, constants and bands of {@link createTree}. */
-export namespace AutoMovieArchetypeTree {
   /** The kinds: a white oak and a Douglas-fir. */
   export type Kind = "whiteOak" | "douglasFir";
 

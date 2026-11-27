@@ -197,10 +197,7 @@ export function create(
   }
   return builder.build(d.mass * steps);
 }
-}
 
-/** Companion types and bands of {@link createStairs}. */
-export namespace AutoMovieArchetypeStairs {
   /** Which sides have a handrail. */
   export type Rail = "left" | "right" | "both" | "none";
 

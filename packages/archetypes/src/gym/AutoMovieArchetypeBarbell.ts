@@ -134,10 +134,7 @@ export function create(
   }
   return builder.build(d.mass! + 2 * d.load!);
 }
-}
 
-/** Companion types and bands of {@link createBarbell}. */
-export namespace AutoMovieArchetypeBarbell {
   /** The kinds of bar. */
   export type Kind = "mens" | "womens";
 

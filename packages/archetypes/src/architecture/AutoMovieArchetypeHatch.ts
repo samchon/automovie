@@ -144,10 +144,7 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types and bands of {@link createHatch}. */
-export namespace AutoMovieArchetypeHatch {
   /**
    * The affordance ids:
    *

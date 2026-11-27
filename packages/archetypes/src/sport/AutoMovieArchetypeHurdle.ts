@@ -114,10 +114,7 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types, constants and bands of {@link createHurdle}. */
-export namespace AutoMovieArchetypeHurdle {
   /**
    * The races: the men's 110 m and the women's 100 m sprint hurdles, and the
    * men's and the women's 400 m hurdles.

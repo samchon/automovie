@@ -189,10 +189,7 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types and bands of {@link createSkateboard}. */
-export namespace AutoMovieArchetypeSkateboard {
   /**
    * The decks read: Powell Peralta's Kilian Martin Wolf 4, 7.75 by 31.75 in,
    * and Chin Mask, 8.5 by 33.5 in.

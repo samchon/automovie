@@ -122,10 +122,7 @@ export function create(
   );
   return builder.build(d.mass);
 }
-}
 
-/** Companion types and bands of {@link createWoodenDummy}. */
-export namespace AutoMovieArchetypeWoodenDummy {
   /**
    * The affordance ids:
    *

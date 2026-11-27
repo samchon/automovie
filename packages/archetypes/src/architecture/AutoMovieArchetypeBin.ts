@@ -254,10 +254,8 @@ export function create(
     kind === "dumpster" ? { rests: "steel" } : {},
   );
 }
-}
 
-/** Companion types and constants of {@link createBin}. */
-export namespace AutoMovieArchetypeBin {
+  /* Companion types and constants of {@link createBin}. */
   /** The kinds of container. */
   export type Kind = "wheelieBin" | "dumpster";
 

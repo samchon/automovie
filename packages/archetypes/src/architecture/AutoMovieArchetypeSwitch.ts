@@ -95,10 +95,7 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types and bands of {@link createSwitch}. */
-export namespace AutoMovieArchetypeSwitch {
   /** The kinds of control. */
   export type Kind = "rocker" | "button";
 

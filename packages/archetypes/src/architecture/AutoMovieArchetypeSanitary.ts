@@ -36,10 +36,7 @@ export function create(
   );
   return AutoMovieArchetypeSanitary.PRODUCERS[kind](params, seed);
 }
-}
 
-/** Companion types, constants and bands of {@link createSanitary}. */
-export namespace AutoMovieArchetypeSanitary {
   /** The kinds of fixture. */
   export type Kind = "washbasin" | "toilet" | "bathtub" | "shower";
 

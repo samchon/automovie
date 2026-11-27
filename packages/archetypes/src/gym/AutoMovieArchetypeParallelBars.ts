@@ -98,10 +98,7 @@ export function create(
   }
   return builder.build(d.mass!);
 }
-}
 
-/** Companion types and bands of {@link createParallelBars}. */
-export namespace AutoMovieArchetypeParallelBars {
   /** The kinds of bars. */
   export type Kind = "dipStation" | "parallelBars";
 

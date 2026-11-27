@@ -24,10 +24,8 @@ export namespace AutoMovieArchetypeTablet {
   > {
     return HandheldDevice.fullFace("tablet", "tablet", params, seed, "screen");
   }
-}
 
-/** The parameters and affordance identifiers of {@link AutoMovieArchetypeTablet}. */
-export namespace AutoMovieArchetypeTablet {
+  /* The parameters and affordance identifiers of {@link AutoMovieArchetypeTablet}. */
   /** The `model` choices this producer admits. */
   export type Model = "wifi" | "cellular";
 

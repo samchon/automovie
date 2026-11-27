@@ -129,10 +129,7 @@ export function create(
     });
   return builder.build(d.mass!);
 }
-}
 
-/** Companion types and bands of {@link createSki}. */
-export namespace AutoMovieArchetypeSki {
   /**
    * The boot stance, lower contact strip and its left and right boundaries near
    * the stance.

@@ -59,10 +59,8 @@ export function create(
   };
   return variants[kind].build(params, seed);
 }
-}
 
-/** Authoring controls and affordance ids for the stage silhouettes. */
-export namespace AutoMovieArchetypeStageWeaponProp {
+  /* Authoring controls and affordance ids for the stage silhouettes. */
   /** The canonical factories for saved kinds, read after the catalogue loads. */
   export const PRODUCERS = {
     get mace(): typeof AutoMovieArchetypeStageMaceProp.create {

@@ -88,10 +88,8 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Kinds, dimensions and contacts of {@link createRake}. */
-export namespace AutoMovieArchetypeRake {
+  /* Kinds, dimensions and contacts of {@link createRake}. */
   /** A tined rake, or a bladed hoe. */
   export type Kind = "rake" | "hoe";
 

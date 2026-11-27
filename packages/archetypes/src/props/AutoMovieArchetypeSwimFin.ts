@@ -81,10 +81,8 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Dimensions and the socket of {@link createSwimFin}. */
-export namespace AutoMovieArchetypeSwimFin {
+  /* Dimensions and the socket of {@link createSwimFin}. */
   /** The foot pocket, and the blade's upper face. */
   export type Affordance = "wear" | "blade";
 

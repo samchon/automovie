@@ -101,10 +101,7 @@ export function create(
     });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types and bands of {@link createWall}. */
-export namespace AutoMovieArchetypeWall {
   /**
    * The kinds of wall: `full` rises to a ceiling, `low` ends between seat
    * height and guard height.

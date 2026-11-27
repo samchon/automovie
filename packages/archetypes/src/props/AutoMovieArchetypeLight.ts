@@ -59,10 +59,7 @@ export function create(
   };
   return variants[kind].build(params, seed);
 }
-}
 
-/** Companion types, constants and bands of {@link createLight}. */
-export namespace AutoMovieArchetypeLight {
   /** Each saved selector's named producer. */
   export interface IProducers {
     /** The named producer for the saved `candle` selector. */

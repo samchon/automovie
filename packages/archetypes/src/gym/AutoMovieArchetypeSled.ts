@@ -106,10 +106,7 @@ export function create(
   });
   return builder.build(d.mass!);
 }
-}
 
-/** Companion types, constants and bands of {@link createSled}. */
-export namespace AutoMovieArchetypeSled {
   /** The base's thickness, metres: an estimate. */
   export const BASE: number = 0.1;
 

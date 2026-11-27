@@ -317,10 +317,7 @@ export function create(
   return builder.build(d.mass! * places);
 }
 
-}
 
-/** Companion types and bands of {@link AutoMovieArchetypeSeat}. */
-export namespace AutoMovieArchetypeSeat {
   /** The kinds of seat. */
   export type Kind =
     | "dining"

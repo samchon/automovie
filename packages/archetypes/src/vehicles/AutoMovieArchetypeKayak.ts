@@ -97,6 +97,46 @@ export namespace AutoMovieArchetypeKayak {
       brace(builder, name, sign);
     return builder.build(dimensions.mass);
   }
+
+  /* Fixed dimension sites and the three contact affordance names. */
+  /** The pan and paired footbrace faces. */
+  export type Affordance = "seat" | Brace;
+
+  /** The two footbrace faces, one per foot. */
+  export type Brace = "leftFoot" | "rightFoot";
+  /** Overall and opening dimensions, and hull mass. */
+  export type Dimension =
+    | "length"
+    | "beam"
+    | "depth"
+    | "cockpitLength"
+    | "cockpitWidth"
+    | "mass";
+  /** A scene identifier and explicit fixed reference figures. */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Scene subject id. */
+    id?: string;
+  }
+  /** Units of the catalogue measures. */
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
+    length: "m",
+    beam: "m",
+    depth: "m",
+    cockpitLength: "m",
+    cockpitWidth: "m",
+    mass: "kg",
+  };
+  /** Published envelope, cockpit at the coaming and bare hull mass. */
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(3.66, 3.66, SOURCE),
+    beam: AutoMovieArchetypeBand.metres(0.74, 0.74, SOURCE),
+    depth: AutoMovieArchetypeBand.metres(0.33, 0.33, SOURCE),
+    cockpitLength: AutoMovieArchetypeBand.metres(1.45, 1.45, SOURCE),
+    cockpitWidth: AutoMovieArchetypeBand.metres(0.56, 0.56, SOURCE),
+    mass: AutoMovieArchetypeBand.of("kg", 22, 22, SOURCE),
+  };
 }
 
 /** One longitudinal family with an unobstructed cockpit inside its deck strips. */
@@ -237,46 +277,4 @@ function brace(
     width: 0.21,
     depth: 0.105,
   });
-}
-
-/** Fixed dimension sites and the three contact affordance names. */
-export namespace AutoMovieArchetypeKayak {
-  /** The pan and paired footbrace faces. */
-  export type Affordance = "seat" | Brace;
-
-  /** The two footbrace faces, one per foot. */
-  export type Brace = "leftFoot" | "rightFoot";
-  /** Overall and opening dimensions, and hull mass. */
-  export type Dimension =
-    | "length"
-    | "beam"
-    | "depth"
-    | "cockpitLength"
-    | "cockpitWidth"
-    | "mass";
-  /** A scene identifier and explicit fixed reference figures. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Scene subject id. */
-    id?: string;
-  }
-  /** Units of the catalogue measures. */
-  export const UNITS: Readonly<
-    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
-  > = {
-    length: "m",
-    beam: "m",
-    depth: "m",
-    cockpitLength: "m",
-    cockpitWidth: "m",
-    mass: "kg",
-  };
-  /** Published envelope, cockpit at the coaming and bare hull mass. */
-  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    length: AutoMovieArchetypeBand.metres(3.66, 3.66, SOURCE),
-    beam: AutoMovieArchetypeBand.metres(0.74, 0.74, SOURCE),
-    depth: AutoMovieArchetypeBand.metres(0.33, 0.33, SOURCE),
-    cockpitLength: AutoMovieArchetypeBand.metres(1.45, 1.45, SOURCE),
-    cockpitWidth: AutoMovieArchetypeBand.metres(0.56, 0.56, SOURCE),
-    mass: AutoMovieArchetypeBand.of("kg", 22, 22, SOURCE),
-  };
 }

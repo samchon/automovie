@@ -65,10 +65,8 @@ export namespace AutoMovieArchetypePhone {
     });
     return builder.build(size.mass);
   }
-}
 
-/** The parameters and affordance identifiers of {@link AutoMovieArchetypePhone}. */
-export namespace AutoMovieArchetypePhone {
+  /* The parameters and affordance identifiers of {@link AutoMovieArchetypePhone}. */
   /**
    * The dimensions this producer draws or derives, in metres unless the draw
    * records kilograms.

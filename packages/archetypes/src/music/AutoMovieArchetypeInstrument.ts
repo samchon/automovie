@@ -89,10 +89,7 @@ export function createViolinBow(
 ): AutoMovieArchetype<"grip" | "hairFrog" | "hairTip", never> {
   return createViolinBowImplementation(params);
 }
-}
 
-/** Companion types and bands of {@link createInstrument}. */
-export namespace AutoMovieArchetypeInstrument {
   /** The kinds of instrument. */
   export type Kind =
     | "uprightPiano"

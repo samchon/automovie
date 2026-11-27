@@ -109,10 +109,7 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types, constants and bands of {@link createBoxingGlove}. */
-export namespace AutoMovieArchetypeBoxingGlove {
   /**
    * The cuff's width and height as a share of the fist's, about three quarters
    * as IBA Appendix 11's side view draws it: a construction proportion read off

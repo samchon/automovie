@@ -247,10 +247,7 @@ export function create(
         }),
   });
 }
-}
 
-/** Companion types and bands of {@link createWindow}. */
-export namespace AutoMovieArchetypeWindow {
   /**
    * Historical bag-impact reference, joules: 25 ft-lbf was the first drop
    * breaking through two of five new annealed panes in Meshulam's IIBEC 2019

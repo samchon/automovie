@@ -129,10 +129,8 @@ export namespace AutoMovieArchetypeCamera {
     });
     return builder.build(size.mass);
   }
-}
 
-/** The parameters and affordance identifiers of {@link AutoMovieArchetypeCamera}. */
-export namespace AutoMovieArchetypeCamera {
+  /* The parameters and affordance identifiers of {@link AutoMovieArchetypeCamera}. */
   /** The `model` choices this producer admits. */
   export type Model = "grIII" | "x100vi";
 

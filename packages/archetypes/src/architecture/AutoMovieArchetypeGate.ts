@@ -150,10 +150,7 @@ export function create(
   });
   return builder.build(d.mass!);
 }
-}
 
-/** Companion types and bands of {@link createGate}. */
-export namespace AutoMovieArchetypeGate {
   /** The kinds of gate. */
   export type Kind = "turnstile" | "speedGate";
 

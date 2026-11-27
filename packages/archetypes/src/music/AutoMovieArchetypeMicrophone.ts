@@ -170,10 +170,7 @@ export function create(
   });
   return builder.build(d.mass!);
 }
-}
 
-/** Companion types, constants and bands of {@link createMicrophone}. */
-export namespace AutoMovieArchetypeMicrophone {
   /** The kinds. */
   export type Kind = "handheld" | "boomStand";
 

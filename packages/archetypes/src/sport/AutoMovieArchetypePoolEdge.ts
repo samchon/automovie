@@ -225,10 +225,7 @@ export function create(
   });
   return builder.build(d.mass!);
 }
-}
 
-/** Companion types, constants and bands of {@link createPoolEdge}. */
-export namespace AutoMovieArchetypePoolEdge {
   /** The kinds: the bare end wall, and the end wall with a starting platform. */
   export type Kind = "deckEdge" | "startingPlatform";
 

@@ -121,10 +121,7 @@ export function create(
   });
   return builder.build(d.mass + load);
 }
-}
 
-/** Companion types and bands of {@link createBox}. */
-export namespace AutoMovieArchetypeBox {
   /**
    * The greatest load, kilograms: HSE INDG143 Figure 1, a man's lift close to
    * the body between knuckle and elbow height

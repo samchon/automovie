@@ -135,10 +135,7 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types and bands of {@link createConsole}. */
-export namespace AutoMovieArchetypeConsole {
   /**
    * The affordance ids:
    *

@@ -104,10 +104,7 @@ export function create(
   });
   return builder.build(d.mass!);
 }
-}
 
-/** Companion types, constants and bands of {@link createThrowingCircle}. */
-export namespace AutoMovieArchetypeThrowingCircle {
   /**
    * The marking's height above the floor, metres: an estimate drawn so the
    * place shows.

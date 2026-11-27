@@ -107,6 +107,49 @@ export function create(
   });
   return builder.build(d.mass);
 }
+
+  /* The aperture and net dimensions for one deep-water reference field. */
+  /** Goal opening at the front face. */
+  export type Affordance = "mouth";
+  /** Inside mouth width and height, post section, cleared pocket depth and mass. */
+  export type Dimension = "width" | "height" | "bar" | "depth" | "mass";
+  /** Optional scene identity and reference dimensions. */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Scene subject id. */
+    id?: string;
+  }
+  /** Units of each assembled reference figure. */
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
+    width: "m",
+    height: "m",
+    bar: "m",
+    depth: "m",
+    mass: "kg",
+  };
+  /**
+   * The fixed opening and bar section, with a model pocket beyond the required
+   * clearance.
+   */
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    width: AutoMovieArchetypeBand.metres(3, 3, RULES),
+    height: AutoMovieArchetypeBand.metres(0.9, 0.9, RULES),
+    bar: AutoMovieArchetypeBand.metres(0.075, 0.075, RULES),
+    depth: AutoMovieArchetypeBand.metres(
+      0.55,
+      0.55,
+      `${RULES}. Film pocket deeper than the 0.30 m minimum.`,
+      true,
+    ),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      35,
+      35,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
+  };
 }
 
 /**
@@ -160,49 +203,4 @@ function net(
         { color: NET },
       );
   }
-}
-
-/** The aperture and net dimensions for one deep-water reference field. */
-export namespace AutoMovieArchetypeWaterPoloGoal {
-  /** Goal opening at the front face. */
-  export type Affordance = "mouth";
-  /** Inside mouth width and height, post section, cleared pocket depth and mass. */
-  export type Dimension = "width" | "height" | "bar" | "depth" | "mass";
-  /** Optional scene identity and reference dimensions. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Scene subject id. */
-    id?: string;
-  }
-  /** Units of each assembled reference figure. */
-  export const UNITS: Readonly<
-    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
-  > = {
-    width: "m",
-    height: "m",
-    bar: "m",
-    depth: "m",
-    mass: "kg",
-  };
-  /**
-   * The fixed opening and bar section, with a model pocket beyond the required
-   * clearance.
-   */
-  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    width: AutoMovieArchetypeBand.metres(3, 3, RULES),
-    height: AutoMovieArchetypeBand.metres(0.9, 0.9, RULES),
-    bar: AutoMovieArchetypeBand.metres(0.075, 0.075, RULES),
-    depth: AutoMovieArchetypeBand.metres(
-      0.55,
-      0.55,
-      `${RULES}. Film pocket deeper than the 0.30 m minimum.`,
-      true,
-    ),
-    mass: AutoMovieArchetypeBand.of(
-      "kg",
-      35,
-      35,
-      AutoMovieArchetypeBand.TYPICAL_MASS,
-      true,
-    ),
-  };
 }

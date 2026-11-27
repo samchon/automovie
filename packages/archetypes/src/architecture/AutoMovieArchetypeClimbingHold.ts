@@ -87,10 +87,8 @@ export namespace AutoMovieArchetypeClimbingHold {
     });
     return builder.build(mass);
   }
-}
 
-/** The ledge's dimensions, scene placement inputs and named actor contacts. */
-export namespace AutoMovieArchetypeClimbingHold {
+  /* The ledge's dimensions, scene placement inputs and named actor contacts. */
   /** The exposed lip and the top bearing patch. */
   export type Affordance = "grip" | "toe";
 

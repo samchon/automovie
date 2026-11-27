@@ -96,10 +96,7 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Companion types and bands of {@link createCleaning}. */
-export namespace AutoMovieArchetypeCleaning {
   /** The kinds: a cloth folded in four, a kitchen sponge. */
   export type Kind = "cloth" | "sponge";
 

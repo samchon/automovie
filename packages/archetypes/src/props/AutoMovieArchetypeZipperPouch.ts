@@ -169,10 +169,8 @@ export namespace AutoMovieArchetypeZipperPouch {
     // The source gives dimensions, so the empty mass is a staging estimate.
     return builder.build(0.06);
   }
-}
 
-/** Authorable parameters for the zipper pouch producer. */
-export namespace AutoMovieArchetypeZipperPouch {
+  /* Authorable parameters for the zipper pouch producer. */
   /** Object form of the producer parameters. */
   export interface IOptions {
     /** The model id, unique in a scene; `zipper-pouch` when absent. */

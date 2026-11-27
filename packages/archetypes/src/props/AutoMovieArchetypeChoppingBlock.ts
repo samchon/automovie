@@ -64,10 +64,8 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Dimensions and the surface of {@link createChoppingBlock}. */
-export namespace AutoMovieArchetypeChoppingBlock {
+  /* Dimensions and the surface of {@link createChoppingBlock}. */
   /** The chopping surface. */
   export type Affordance = "top";
 

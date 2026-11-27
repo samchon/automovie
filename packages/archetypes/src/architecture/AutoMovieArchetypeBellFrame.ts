@@ -157,10 +157,8 @@ export namespace AutoMovieArchetypeBellFrame {
     );
     return builder.build(d.mass);
   }
-}
 
-/** Dimensions of {@link AutoMovieArchetypeBellFrame}. */
-export namespace AutoMovieArchetypeBellFrame {
+  /* Dimensions of {@link AutoMovieArchetypeBellFrame}. */
   /**
    * Width between outer post faces, depth between outer post faces, roof ridge
    * height and scenic mass.

@@ -164,41 +164,7 @@ export namespace AutoMovieArchetypeControl {
     });
     return builder.build(lever.mass);
   }
-}
 
-/**
- * One DIN 6337 row in metres and kilograms, from the sheet's millimetres and
- * grams.
- *
- * @param length The length l1, millimetres.
- * @param knob The knob d5, millimetres.
- * @param arm The arm d6, millimetres.
- * @param hub The hub d3, millimetres.
- * @param bore The hub's length b along the bore, millimetres.
- * @param grams The mass, grams.
- * @returns The lever's figures.
- */
-function row(
-  length: number,
-  knob: number,
-  arm: number,
-  hub: number,
-  bore: number,
-  grams: number,
-): Readonly<Record<AutoMovieArchetypeControl.LeverDimension, number>> {
-  const mm: number = AutoMovieArchetypeUnits.MILLIMETRE;
-  return {
-    length: length * mm,
-    knob: knob * mm,
-    arm: arm * mm,
-    hub: hub * mm,
-    bore: bore * mm,
-    mass: grams / 1000,
-  };
-}
-
-/** Companion types, constants and bands of {@link AutoMovieArchetypeControl}. */
-export namespace AutoMovieArchetypeControl {
   /** The kinds of control. */
   export type Kind = "lever" | "dial";
 
@@ -305,5 +271,36 @@ export namespace AutoMovieArchetypeControl {
       ADA_RANGES.reach.high,
       ADA_RANGES.reach.source,
     ),
+  };
+}
+
+/**
+ * One DIN 6337 row in metres and kilograms, from the sheet's millimetres and
+ * grams.
+ *
+ * @param length The length l1, millimetres.
+ * @param knob The knob d5, millimetres.
+ * @param arm The arm d6, millimetres.
+ * @param hub The hub d3, millimetres.
+ * @param bore The hub's length b along the bore, millimetres.
+ * @param grams The mass, grams.
+ * @returns The lever's figures.
+ */
+function row(
+  length: number,
+  knob: number,
+  arm: number,
+  hub: number,
+  bore: number,
+  grams: number,
+): Readonly<Record<AutoMovieArchetypeControl.LeverDimension, number>> {
+  const mm: number = AutoMovieArchetypeUnits.MILLIMETRE;
+  return {
+    length: length * mm,
+    knob: knob * mm,
+    arm: arm * mm,
+    hub: hub * mm,
+    bore: bore * mm,
+    mass: grams / 1000,
   };
 }

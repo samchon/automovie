@@ -69,10 +69,8 @@ export function create(
   });
   return builder.build(d.mass);
 }
-}
 
-/** Dimensions and the socket of {@link createSnorkel}. */
-export namespace AutoMovieArchetypeSnorkel {
+  /* Dimensions and the socket of {@link createSnorkel}. */
   /** The mouthpiece, and the barrel's open top. */
   export type Affordance = "wear" | "top";
 
