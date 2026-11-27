@@ -1,4 +1,9 @@
-import { AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS, AutoMovieEngineText, AutoMovieEngineValidation } from "@automovie/engine";
+import {
+  AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS,
+  AutoMovieEngineText,
+  AutoMovieEngineValidation,
+} from "@automovie/engine";
+import { unsupportedAutoMovieMaterialExtensions } from "@automovie/engine/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
