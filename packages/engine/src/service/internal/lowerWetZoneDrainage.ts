@@ -9,9 +9,6 @@ import {
   IAutoMovieWetZone,
 } from "@automovie/interface";
 
-/** Media a floor drain is allowed to discharge into. */
-const WASTE_MEDIUM: string = "waste-water";
-
 /**
  * Compose a wet zone's plumbing into an independent fluid domain.
  *
@@ -130,6 +127,9 @@ export function lowerWetZoneDrainage(
     drains: [...domain.drains, ...drains],
   };
 }
+
+/** Media a floor drain is allowed to discharge into. */
+const WASTE_MEDIUM: string = "waste-water";
 
 /** The outgoing waste-water ports a node carries, in declaration order. */
 const wastePortsOf: (

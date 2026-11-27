@@ -20,15 +20,6 @@ import { bendLower } from "./bendLower";
 import { bendLowerSolve } from "./bendLowerSolve";
 import { planBendStrategy } from "./planBendStrategy";
 
-/** The offset-corrected wrist point for a strategy. */
-type AutoMovieBendWrist = bendLower.WristAt;
-
-/** One physical lowering strategy selected by the automatic planner. */
-type AutoMovieBendStrategy = Exclude<
-  IAutoMovieMotionHumanBend.Strategy,
-  "auto"
->;
-
 /**
  * Bending down to bring a hand to a low point (the floor, a low shelf, a note
  * on the ground) with the feet planted, by a stoop, a squat or a semi-squat,
@@ -293,3 +284,12 @@ export namespace bend {
       : "stoop";
   }
 }
+
+/** The offset-corrected wrist point for a strategy. */
+type AutoMovieBendWrist = bendLower.WristAt;
+
+/** One physical lowering strategy selected by the automatic planner. */
+type AutoMovieBendStrategy = Exclude<
+  IAutoMovieMotionHumanBend.Strategy,
+  "auto"
+>;

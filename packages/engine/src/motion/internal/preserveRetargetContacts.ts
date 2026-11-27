@@ -25,27 +25,6 @@ import { HUMANOID_LEG_CHAINS } from "../HUMANOID_LEG_CHAINS";
 import { contactMask } from "./contactMask";
 import { fitSeededChainToTarget } from "./fitSeededChainToTarget";
 
-/** Only the actual FK position is observed by contact classification/correction. */
-type IPoint = Pick<IAutoMovieResolvedBone, "worldPosition">;
-
-/** Contact tolerance above the source ground counted as a planted contact. */
-const DEFAULT_TOLERANCE: number = 0.02;
-
-/**
- * Target model-unit drift at or below this absolute threshold skips another
- * fit. Binary64 scaling and FK need not commute exactly, so this is a numerical
- * no-op policy rather than a zero-residual or scale-relative error proof.
- */
-const NOOP_EPSILON: number = 1e-9;
-
-/** A chain plus the frames on which its contact must be preserved. */
-interface IAutoMovieContactWindow {
-  chain: IAutoMoviePlantChain;
-
-  /** `null` detects stance against the ground; a span declares it. */
-  window: { start: number; end: number } | null;
-}
-
 /**
  * Correct a root-scaled retarget clip at its existing authored key times using
  * each source frame's foot/declared hand contact mapped by rootScale. Source
@@ -198,6 +177,27 @@ export function preserveRetargetContacts(
       );
 
   return { ...props.retargeted, keyframes };
+}
+
+/** Only the actual FK position is observed by contact classification/correction. */
+type IPoint = Pick<IAutoMovieResolvedBone, "worldPosition">;
+
+/** Contact tolerance above the source ground counted as a planted contact. */
+const DEFAULT_TOLERANCE: number = 0.02;
+
+/**
+ * Target model-unit drift at or below this absolute threshold skips another
+ * fit. Binary64 scaling and FK need not commute exactly, so this is a numerical
+ * no-op policy rather than a zero-residual or scale-relative error proof.
+ */
+const NOOP_EPSILON: number = 1e-9;
+
+/** A chain plus the frames on which its contact must be preserved. */
+interface IAutoMovieContactWindow {
+  chain: IAutoMoviePlantChain;
+
+  /** `null` detects stance against the ground; a span declares it. */
+  window: { start: number; end: number } | null;
 }
 
 /** Every bone of the chain resolves on the rig's FK walk. */

@@ -4,24 +4,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** A swing's unchanged event seconds. */
-interface IInterval {
-  /** Liftoff, included in swing. */
-  from: number;
-  /** Touchdown, excluded from swing. */
-  to: number;
-}
-
-/** One limb's prepared immutable gait data. */
-interface ICourse {
-  /** World-metre prints, from entry through the final cycle. */
-  points: IAutoMovieVector3[];
-  /** Increasing swing windows. */
-  intervals: IInterval[];
-  /** Metres of vertical lift. */
-  height: number;
-}
-
 /**
  * Prepare every footprint and swing boundary once and return the original
  * minimum-jerk course, with a parabolic vertical lift during the swing.
@@ -113,4 +95,22 @@ export namespace crawlCourse {
     /** Knee's swing height, metres. */
     kneeLift: number;
   }
+}
+
+/** A swing's unchanged event seconds. */
+interface IInterval {
+  /** Liftoff, included in swing. */
+  from: number;
+  /** Touchdown, excluded from swing. */
+  to: number;
+}
+
+/** One limb's prepared immutable gait data. */
+interface ICourse {
+  /** World-metre prints, from entry through the final cycle. */
+  points: IAutoMovieVector3[];
+  /** Increasing swing windows. */
+  intervals: IInterval[];
+  /** Metres of vertical lift. */
+  height: number;
 }

@@ -14,24 +14,6 @@ import { AutoMovieConstructionProfileSurface } from "./construction/internal/Aut
 import { AutoMovieConstructionProfileTopology } from "./AutoMovieConstructionProfileTopology";
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 
-/** One actual original interval and its existing surface-chart consumer. */
-interface Piece {
-  /** Stable atlas ordinal and direct original neighbor ordinals. */
-  index: number;
-  /** Previous ordered piece of this same complete loop. */
-  previous: number;
-  /** Next ordered piece of this same complete loop. */
-  next: number;
-  /** Value-copied original interval declaration. */
-  piece: IAutoMovieConstructionProfilePiece;
-  /** Value-copied physical loop interval and explicit orientation. */
-  loop: IAutoMovieConstructionProfileLoop;
-  /** Borrowed immutable original function owner. */
-  curve: IAutoMovieConstructionProfileSource.ICurve;
-  /** Actual chart surface, physical station mm by normalized piece coordinate. */
-  surface: IAutoMovieSolidSurface;
-}
-
 /**
  * Evaluate original piecewise sections through the existing surface/atlas
  * contracts.
@@ -310,6 +292,24 @@ export namespace AutoMovieConstructionProfile {
       },
     };
   }
+}
+
+/** One actual original interval and its existing surface-chart consumer. */
+interface Piece {
+  /** Stable atlas ordinal and direct original neighbor ordinals. */
+  index: number;
+  /** Previous ordered piece of this same complete loop. */
+  previous: number;
+  /** Next ordered piece of this same complete loop. */
+  next: number;
+  /** Value-copied original interval declaration. */
+  piece: IAutoMovieConstructionProfilePiece;
+  /** Value-copied physical loop interval and explicit orientation. */
+  loop: IAutoMovieConstructionProfileLoop;
+  /** Borrowed immutable original function owner. */
+  curve: IAutoMovieConstructionProfileSource.ICurve;
+  /** Actual chart surface, physical station mm by normalized piece coordinate. */
+  surface: IAutoMovieSolidSurface;
 }
 
 /**

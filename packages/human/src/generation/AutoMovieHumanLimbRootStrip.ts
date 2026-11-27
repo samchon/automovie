@@ -94,30 +94,6 @@ export namespace AutoMovieHumanLimbRootStrip {
   }
 
   /**
-   * The scale that gives a derivative a speed equal to a chord.
-   *
-   * @param chord The column's chord, mm.
-   * @param first The owner's first derivative there.
-   * @returns The scale, the chord itself where the derivative vanishes.
-   */
-  function speed(chord: number, first: AutoMovieVector3Tuple): number {
-    const f: number = Math.hypot(first[0], first[1], first[2]);
-
-    return f > 0 ? chord / f : chord;
-  }
-
-  /**
-   * The distance between two points.
-   *
-   * @param a One point, mm.
-   * @param b The other, mm.
-   * @returns The distance, mm.
-   */
-  function length(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
-    return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
-  }
-
-  /**
    * An owner ring's jet where the ray from a centre toward a point's level
    * projection meets the ring's outline, the jets interpolated along the
    * outline's edge there. The strip pairs each column by this crossing, so a
@@ -267,5 +243,29 @@ export namespace AutoMovieHumanLimbRootStrip {
           (2 * p[k]! - 5 * a[k]! + 4 * b[k]! - c[k]!) / (step * step),
       ) as AutoMovieVector3Tuple,
     };
+  }
+
+  /**
+   * The scale that gives a derivative a speed equal to a chord.
+   *
+   * @param chord The column's chord, mm.
+   * @param first The owner's first derivative there.
+   * @returns The scale, the chord itself where the derivative vanishes.
+   */
+  function speed(chord: number, first: AutoMovieVector3Tuple): number {
+    const f: number = Math.hypot(first[0], first[1], first[2]);
+
+    return f > 0 ? chord / f : chord;
+  }
+
+  /**
+   * The distance between two points.
+   *
+   * @param a One point, mm.
+   * @param b The other, mm.
+   * @returns The distance, mm.
+   */
+  function length(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
+    return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   }
 }

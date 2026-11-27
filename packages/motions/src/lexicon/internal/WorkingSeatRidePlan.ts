@@ -21,15 +21,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPostureSource } from "../../posture/internal/resolveHumanPostureSource";
 import type { fixedSeatWorkingPostures } from "./fixedSeatWorkingPostures";
 
-type Plan = IAutoMovieMotionHumanActionPlan;
-type Posture = IAutoMovieMotionHumanPosture;
-type Seeded = IAutoMovieMotionHumanResolveHumanPosture.ISeeded;
-type Reader = Plan["posture"];
-type Design = NonNullable<ReturnType<typeof fixedSeatWorkingPostures>>;
-type Publish<T> = (posture: Posture, solved?: Seeded) => T;
-type Frame = (local: number) => WorkingSeatRidePlan.IWritten;
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-
 /**
  * The native working-seat ride. It proposes torso articulation only when
  * keeping the original feet requires it. A complete actual pair judgement and
@@ -213,7 +205,6 @@ export class WorkingSeatRidePlan implements WorkingSeatRidePlan.IPlan {
     return true;
   }
 }
-
 export namespace WorkingSeatRidePlan {
   /** A ride plan whose composition can sample posture and carrier together. */
   export interface IPlan extends Plan {
@@ -242,3 +233,12 @@ export namespace WorkingSeatRidePlan {
     return { posture, frame };
   }
 }
+type Plan = IAutoMovieMotionHumanActionPlan;
+type Posture = IAutoMovieMotionHumanPosture;
+type Seeded = IAutoMovieMotionHumanResolveHumanPosture.ISeeded;
+type Reader = Plan["posture"];
+type Design = NonNullable<ReturnType<typeof fixedSeatWorkingPostures>>;
+
+type Publish<T> = (posture: Posture, solved?: Seeded) => T;
+
+type Frame = (local: number) => WorkingSeatRidePlan.IWritten;

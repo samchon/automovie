@@ -29,18 +29,6 @@ const ARCH: number = 0.1;
  * which the gap is a rounding of side by side.
  */
 const PASS_GAP: number = 1e-9;
-/** The record of `IPrepareFixed`'s site. */
-type IPrepareFixed = {
-  start: Pick<jumpState.IState, PrepareFixedStart>;
-  end: Pick<jumpState.IState, PrepareFixedEnd>;
-};
-
-/** The alternatives of `PrepareFixedEnd`'s site. */
-type PrepareFixedEnd = "joints" | "legs";
-
-/** The alternatives of `PrepareFixedStart`'s site. */
-type PrepareFixedStart = "root" | "joints" | "legs";
-
 /**
  * A jump's time in the air: the shape it holds between take-off and touchdown,
  * the knee hint its legs bend toward, and the turns it asks the performance's
@@ -368,6 +356,18 @@ export namespace jumpAirborne {
     return flight.touchdown;
   }
 }
+
+/** The record of `IPrepareFixed`'s site. */
+type IPrepareFixed = {
+  start: Pick<jumpState.IState, PrepareFixedStart>;
+  end: Pick<jumpState.IState, PrepareFixedEnd>;
+};
+
+/** The alternatives of `PrepareFixedEnd`'s site. */
+type PrepareFixedEnd = "joints" | "legs";
+
+/** The alternatives of `PrepareFixedStart`'s site. */
+type PrepareFixedStart = "root" | "joints" | "legs";
 
 /**
  * One fixed endpoint joint and its clinical difference, prepared once per

@@ -8,18 +8,6 @@ import type {
 
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/** The alternatives of `ReachElbow`'s site. */
-type ReachElbow = "natural" | "level";
-
-/** The alternatives of `ReachPosture`'s site. */
-type ReachPosture = "root" | "yaw";
-
-/** The alternatives of `LayElbow`'s site. */
-type LayElbow = "natural" | "level";
-
-/** The alternatives of `LayPosture`'s site. */
-type LayPosture = "root" | "yaw";
-
 /**
  * The direction a hand lies on a surface region when the arm chooses it
  * (`lay`), and the direction a hand that continues its forearm points at a
@@ -102,6 +90,18 @@ export namespace AutoMovieMotionHumanTouchPath {
       : { x: 0, y: 1, z: 0 };
   }
 }
+
+/** The alternatives of `ReachElbow`'s site. */
+type ReachElbow = "natural" | "level";
+
+/** The alternatives of `ReachPosture`'s site. */
+type ReachPosture = "root" | "yaw";
+
+/** The alternatives of `LayElbow`'s site. */
+type LayElbow = "natural" | "level";
+
+/** The alternatives of `LayPosture`'s site. */
+type LayPosture = "root" | "yaw";
 /** The alternatives of `ElbowOfElbow`'s site. */
 type ElbowOfElbow = "natural" | "level";
 

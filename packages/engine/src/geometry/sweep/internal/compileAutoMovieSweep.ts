@@ -374,11 +374,6 @@ export const compileAutoMovieSweep: (
   };
 };
 
-/** One loop of a sweep by parameter: its point at any spine and loop parameter. */
-interface ICompiledLoop {
-  point: (u: number, v: number) => IAutoMovieSweepSection.IPoint;
-}
-
 /**
  * Samples of a smooth section under parameter correspondence; a polygon is
  * sampled at its corners.
@@ -450,9 +445,6 @@ function compileLoop(
   };
 }
 
-/** One compiled silhouette guide. */
-type ICompiledGuide = IAutoMovieCompileSweepGuideOutput;
-
 /**
  * Correct a row of section radii by the guides, the Gordon surface's guide term
  * less its tensor term.
@@ -492,3 +484,11 @@ function guide(
   }
   return out;
 }
+
+/** One loop of a sweep by parameter: its point at any spine and loop parameter. */
+interface ICompiledLoop {
+  point: (u: number, v: number) => IAutoMovieSweepSection.IPoint;
+}
+
+/** One compiled silhouette guide. */
+type ICompiledGuide = IAutoMovieCompileSweepGuideOutput;

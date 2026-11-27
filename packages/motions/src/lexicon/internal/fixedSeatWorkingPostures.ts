@@ -15,20 +15,6 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { fixedSeatFootSwing } from "./fixedSeatFootSwing";
 import { fixedSeatTrunk } from "./fixedSeatTrunk";
 
-type Posture = IAutoMovieMotionHumanPosture;
-type Joints = Posture["joints"];
-type Points = Parameters<typeof fixedSeatTrunk>[2];
-type Angles = readonly [number, number, number];
-type Source = (degrees: number) => Posture;
-type Feedback = fixedSeatWorkingPostures.IFeedback;
-type Alternatives = Generator<Posture, void, Feedback>;
-type Design = (
-  posture: Posture,
-  frame: IAutoMovieRigidTransform,
-) => Alternatives;
-type OptionalDesign = Design | undefined;
-type OptionalLimit = IAutoMovieJointConstraint | undefined;
-
 const ZERO: Angles = [0, 0, 0];
 const BONES: readonly AutoMovieHumanoidBone[] = [
   "spine",
@@ -36,7 +22,6 @@ const BONES: readonly AutoMovieHumanoidBone[] = [
   "leftShoulder",
   "rightShoulder",
 ];
-
 /** Move only the trunk coordinates that the closed bilateral fit supplied. */
 function withTrunk(base: Posture, target: Joints, share: number): Posture {
   const joints: Joints = { ...base.joints };
@@ -51,7 +36,6 @@ function withTrunk(base: Posture, target: Joints, share: number): Posture {
   }
   return { ...base, joints };
 }
-
 /**
  * Alternatives to an unsupported pelvic tilt on one working seat. Foot
  * placement is prepared once in the seat's actual frame. At a changing grip the
@@ -148,7 +132,6 @@ export function fixedSeatWorkingPostures(
     }
   };
 }
-
 /** A rejected candidate's actual obstruction, supplied by the native pair model. */
 export namespace fixedSeatWorkingPostures {
   export interface IFeedback {
@@ -159,3 +142,20 @@ export namespace fixedSeatWorkingPostures {
     neck: boolean;
   }
 }
+type Posture = IAutoMovieMotionHumanPosture;
+type Joints = Posture["joints"];
+type Points = Parameters<typeof fixedSeatTrunk>[2];
+type Angles = readonly [number, number, number];
+type Source = (degrees: number) => Posture;
+
+type Feedback = fixedSeatWorkingPostures.IFeedback;
+type Alternatives = Generator<Posture, void, Feedback>;
+
+type Design = (
+  posture: Posture,
+  frame: IAutoMovieRigidTransform,
+) => Alternatives;
+
+type OptionalDesign = Design | undefined;
+
+type OptionalLimit = IAutoMovieJointConstraint | undefined;

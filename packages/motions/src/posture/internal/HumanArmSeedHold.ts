@@ -19,8 +19,6 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmWristShell } from "./HumanArmWristShell";
 
-/** The record of `IInstantAt`'s site. */
-type IInstantAt = { x: number[][][]; evaluation: M.IEvaluation };
 /**
  * The arms' configuration at one waypoint of the hold with every hand on its
  * site and every arm clear.
@@ -302,6 +300,8 @@ export function HumanArmSeedHold(
     fix: "put the hand on a site its arm reaches with the body clear",
   });
 }
+/** The record of `IInstantAt`'s site. */
+type IInstantAt = { x: number[][][]; evaluation: M.IEvaluation };
 
 /**
  * Predict the next hold pose using the site and the carried pose in this knot's

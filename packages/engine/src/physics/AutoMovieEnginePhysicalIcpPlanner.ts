@@ -23,57 +23,6 @@ import { AutoMovieEnginePhysicalIcpPlannerTools as Tools } from "./AutoMovieEngi
 import { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "./AutoMovieEnginePhysicalPlanarPolygon";
 
 
-function computePlan(
-  plan: AutoMovieEnginePhysicalIcpPlanner.IPlan,
-  time: number,
-  soles: AutoMovieEnginePhysicalIcpPlanner.ISoles,
-): AutoMovieEnginePhysicalIcpPlanner.IOutput {
-  let output: Tools.IState;
-  if (plan.kind === "single")
-    output = Segments.compute(plan.segments, time, soles[plan.side]);
-  else {
-    // The cubic's ends carried to where their frames now are (l.80-85).
-    const middle: Polygon.IFrame = Tools.midFeet(
-      soles.left,
-      soles.right,
-      plan.fallback,
-    );
-    const carry = (end: AutoMovieEnginePhysicalIcpPlanner.ITransferPlan["initial"]) =>
-      Tools.detach(
-        end.frame === "midFeet" ? middle : soles[end.frame],
-        end.state,
-      );
-    const from: Tools.IState = carry(plan.initial);
-    const to: Tools.IState = carry(plan.final);
-    output = Tools.cubic(
-      {
-        duration: plan.cubicDuration,
-        initial: from.position,
-        initialVelocity: from.velocity,
-        final: to.position,
-        finalVelocity: to.velocity,
-      },
-      time,
-    );
-  }
-  const remaining: number = plan.duration - time;
-
-  // The rate's linear decay once done (l.287-306).
-  let velocity: Tools.IFloor = output.velocity;
-  if (plan.decay !== undefined && -remaining > 0.0) {
-    const factor: number = Math.min(
-      Math.max(1.0 - -remaining / plan.decay, 0.0),
-      1.0,
-    );
-    velocity = { x: velocity.x * factor, z: velocity.z * factor };
-  }
-  return {
-    position: output.position,
-    velocity,
-    done: remaining <= 0.0,
-  };
-}
-
 /** The planner's plans, parameters and builders.
  * @see https://github.com/ihmcrobotics/ihmc-open-robotics-software/blob/201903_Stable/ihmc-common-walking-control-modules/src/main/java/us/ihmc/commonWalkingControlModules/capturePoint/ContinuousCMPBasedICPPlanner.java
  */
@@ -472,6 +421,57 @@ export namespace AutoMovieEnginePhysicalIcpPlanner {
     );
     return transfer(p, input.soles, middle, "midFeet", input.from, input.to);
   }
+}
+
+function computePlan(
+  plan: AutoMovieEnginePhysicalIcpPlanner.IPlan,
+  time: number,
+  soles: AutoMovieEnginePhysicalIcpPlanner.ISoles,
+): AutoMovieEnginePhysicalIcpPlanner.IOutput {
+  let output: Tools.IState;
+  if (plan.kind === "single")
+    output = Segments.compute(plan.segments, time, soles[plan.side]);
+  else {
+    // The cubic's ends carried to where their frames now are (l.80-85).
+    const middle: Polygon.IFrame = Tools.midFeet(
+      soles.left,
+      soles.right,
+      plan.fallback,
+    );
+    const carry = (end: AutoMovieEnginePhysicalIcpPlanner.ITransferPlan["initial"]) =>
+      Tools.detach(
+        end.frame === "midFeet" ? middle : soles[end.frame],
+        end.state,
+      );
+    const from: Tools.IState = carry(plan.initial);
+    const to: Tools.IState = carry(plan.final);
+    output = Tools.cubic(
+      {
+        duration: plan.cubicDuration,
+        initial: from.position,
+        initialVelocity: from.velocity,
+        final: to.position,
+        finalVelocity: to.velocity,
+      },
+      time,
+    );
+  }
+  const remaining: number = plan.duration - time;
+
+  // The rate's linear decay once done (l.287-306).
+  let velocity: Tools.IFloor = output.velocity;
+  if (plan.decay !== undefined && -remaining > 0.0) {
+    const factor: number = Math.min(
+      Math.max(1.0 - -remaining / plan.decay, 0.0),
+      1.0,
+    );
+    velocity = { x: velocity.x * factor, z: velocity.z * factor };
+  }
+  return {
+    position: output.position,
+    velocity,
+    done: remaining <= 0.0,
+  };
 }
 
 /**

@@ -1,9 +1,6 @@
 import { AutoMovieArchetypeUnits } from "../../core";
 import type { AutoMovieArchetypeDoor } from "../AutoMovieArchetypeDoor";
 
-/** One read size's figures, metres. */
-type Figures = Readonly<Partial<Record<AutoMovieArchetypeDoor.Dimension, number>>>;
-
 /**
  * A cylindrical lock's backsets, the Schlage ND's, which a lever and a knob
  * share and a sliding door's pull is set at.
@@ -107,3 +104,6 @@ export const DOOR_SIZES: Readonly<{
     },
   },
 };
+
+/** One read size's figures, metres. */
+type Figures = Readonly<Partial<Record<AutoMovieArchetypeDoor.Dimension, number>>>;

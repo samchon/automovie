@@ -10,9 +10,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** The alternatives of `OfHitStill`'s site. */
-type OfHitStill = "restitution" | "hardness" | "penetrability";
-
 /**
  * Forces on a performer as input to a performance: an impulse at an instant (a
  * blow, a shove, a hit) or a force sustained over a span (a load, a pull, a
@@ -124,3 +121,6 @@ export namespace HumanForce {
       : force.force;
   }
 }
+
+/** The alternatives of `OfHitStill`'s site. */
+type OfHitStill = "restitution" | "hardness" | "penetrability";

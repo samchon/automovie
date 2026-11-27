@@ -12,12 +12,6 @@ import { layoutAutoMovieText } from "./layoutAutoMovieText";
 import { regionsOfAutoMovieGlyph } from "./regionsOfAutoMovieGlyph";
 
 /**
- * Default chord tolerance, metres: 0.05 mm, below a pixel of any sign a frame
- * shows.
- */
-const TOLERANCE: number = 0.00005;
-
-/**
  * Set a text run as flat glyph triangles in its box, for lettering drawn on a
  * face.
  *
@@ -86,3 +80,9 @@ export function buildAutoMovieTextGeometry(
   }
   return out;
 }
+
+/**
+ * Default chord tolerance, metres: 0.05 mm, below a pixel of any sign a frame
+ * shows.
+ */
+const TOLERANCE: number = 0.00005;

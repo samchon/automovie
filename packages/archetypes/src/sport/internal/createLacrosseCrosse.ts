@@ -6,9 +6,6 @@ import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/ind
 import { StickBuild } from "./StickBuild";
 
 
-/** Points in the local model frame, in metres. */
-const v: typeof Vector3.create = Vector3.create;
-
 /**
  * A lacrosse crosse with a mesh pocket, scoop and shaft grip.
  *
@@ -89,3 +86,6 @@ export function createLacrosseCrosse(
   StickBuild.contacts(builder, length, head, face, faceWidth, "round", depth);
   return builder.build(d.mass!);
 }
+
+/** Points in the local model frame, in metres. */
+const v: typeof Vector3.create = Vector3.create;

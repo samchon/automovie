@@ -11,21 +11,6 @@ import { HumanPerformancePlace } from "./HumanPerformancePlace";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanScheduleRefusal } from "./HumanScheduleRefusal";
 
-/** The record of `IProximityPlaced`'s site. */
-type IProximityPlaced = { start: number; duration: number };
-
-/** The record of `IAlign2`'s site. */
-type IAlign2 = { subject: string; meeting: IAutoMovieMotionMeeting };
-
-/** The record of `IAlign`'s site. */
-type IAlign = { subject: string; meeting: IAutoMovieMotionMeeting };
-
-/** The record of `IAlignMeetingsItem`'s site. */
-type IAlignMeetingsItem = { subject: string; meeting: IAutoMovieMotionMeeting };
-
-/** The record of `IResolvePlaced`'s site. */
-type IResolvePlaced = { start: number; duration: number };
-
 /**
  * The composition resolved on the film clock: the engine's schedule resolver
  * given this performance's laws, the alignment of an action synced to an
@@ -429,3 +414,18 @@ export namespace HumanPerformanceSchedule {
     return undefined;
   }
 }
+
+/** The record of `IProximityPlaced`'s site. */
+type IProximityPlaced = { start: number; duration: number };
+
+/** The record of `IAlign2`'s site. */
+type IAlign2 = { subject: string; meeting: IAutoMovieMotionMeeting };
+
+/** The record of `IAlign`'s site. */
+type IAlign = { subject: string; meeting: IAutoMovieMotionMeeting };
+
+/** The record of `IAlignMeetingsItem`'s site. */
+type IAlignMeetingsItem = { subject: string; meeting: IAutoMovieMotionMeeting };
+
+/** The record of `IResolvePlaced`'s site. */
+type IResolvePlaced = { start: number; duration: number };

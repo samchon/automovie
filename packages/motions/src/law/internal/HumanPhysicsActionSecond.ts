@@ -6,9 +6,6 @@ import type {
 import { HumanPhysics } from "./HumanPhysics";
 import { HumanPhysicsInvalid } from "./HumanPhysicsInvalid";
 
-/** The action clock's numeric extent. */
-type Timing = Pick<HumanPhysics.ITiming, "duration">;
-
 /** Resolve a bound or request its local clock's named events. */
 export function HumanPhysicsActionSecond(
   bound: IAutoMovieMotionHumanBalance.IBound,
@@ -76,3 +73,6 @@ export namespace HumanPhysicsActionSecond {
         read(events: readonly IAutoMovieMotionEvent[]): number;
       };
 }
+
+/** The action clock's numeric extent. */
+type Timing = Pick<HumanPhysics.ITiming, "duration">;

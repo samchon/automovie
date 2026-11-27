@@ -163,31 +163,6 @@ export namespace AutoMovieSolidCycle {
   }
 
   /**
-   * The removed side of a cycle's directed chords as its owner built it
-   * (`IAutoMovieSolidCycle.IExactSegment.sense`): a hole removes its polygon's
-   * inside, the left of its chords when its signed chart area is positive, and
-   * an island the outside; a start cycle removes the stations below it, the
-   * left of chords of rising phase, and an end cycle those above.
-   */
-  function removed(
-    cycle: Pick<IAutoMovieSolidCycle.ICycle, "kind" | "chart">,
-  ): number {
-    const n: number = cycle.chart.length;
-    if (cycle.kind === "start" || cycle.kind === "end")
-      return (
-        Math.sign(cycle.chart[n - 1]![1] - cycle.chart[0]![1]) *
-        (cycle.kind === "start" ? 1 : -1)
-      );
-    let area: number = 0;
-    for (let k: number = 0; k < n; k++) {
-      const a: [number, number] = cycle.chart[k]!;
-      const b: [number, number] = cycle.chart[(k + 1) % n]!;
-      area += a[0] * b[1] - b[0] * a[1];
-    }
-    return Math.sign(area) * (cycle.kind === "hole" ? 1 : -1);
-  }
-
-  /**
    * Whether a chart point lies on a cycle's kept side or on the cycle.
    *
    * @param cycle The cycle.
@@ -238,6 +213,144 @@ export namespace AutoMovieSolidCycle {
           };
     return (u: number, v: number): boolean =>
       read(cycle, u, v, period, prepared);
+  }
+
+  /**
+   * The station a winding cycle crosses a phase at, by linear interpolation in
+   * its chart.
+   *
+   * @param cycle A `start` or `end` cycle.
+   * @param v The phase.
+   * @param period The face's phase period.
+   * @returns The station. Requires a nonempty winding chart and a finite
+   *   positive period. The first crossing wins; if none is found, the first
+   *   vertex's station is returned. Multiple crossings are not resolved into a
+   *   unique station.
+   */
+  export function station(
+    cycle: Pick<IAutoMovieSolidCycle.ICycle, "chart">,
+    v: number,
+    period: number,
+  ): number {
+    const n: number = cycle.chart.length;
+    const v0: number = cycle.chart[0]![1];
+    const span: number = cycle.chart[n - 1]![1] - v0;
+    const sense: number = span >= 0 ? 1 : -1;
+    const local: number = v0 + sense * reduce(sense * (v - v0), period);
+    for (let k: number = 0; k < n; k++) {
+      const a: [number, number] = cycle.chart[k]!;
+      const b: [number, number] =
+        k + 1 < n
+          ? cycle.chart[k + 1]!
+          : [cycle.chart[0]![0], cycle.chart[0]![1] + sense * period];
+      if ((local - a[1]) * (local - b[1]) <= 0 && a[1] !== b[1])
+        return a[0] + ((local - a[1]) * (b[0] - a[0])) / (b[1] - a[1]);
+    }
+    return cycle.chart[0]![0];
+  }
+
+  /**
+   * A point's nearest segment of a cycle in the chart.
+   *
+   * @param cycle The cycle.
+   * @param u The point's `u`.
+   * @param v The point's `v`.
+   * @param period The face's phase period; absent for a face that is not
+   *   periodic.
+   * @returns The foot. Finite representable chart arithmetic is required for a
+   *   meaningful nearest foot. Equal distances keep the earlier segment; a
+   *   degenerate segment uses share zero, and an empty chart leaves distance
+   *   infinite.
+   */
+  export function foot(
+    cycle: Pick<IAutoMovieSolidCycle.ICycle, "chart">,
+    u: number,
+    v: number,
+    period: number | undefined,
+  ): IAutoMovieSolidCycle.IFoot {
+    const n: number = cycle.chart.length;
+    let best: IAutoMovieSolidCycle.IFoot = {
+      segment: 0,
+      share: 0,
+      distance: Infinity,
+    };
+    for (let k: number = 0; k < n; k++) {
+      const a: [number, number] = cycle.chart[k]!;
+      const b: [number, number] = cycle.chart[(k + 1) % n]!;
+      const bv: number = k + 1 < n ? b[1] : shift(b[1], a[1], period);
+      const w: number = shift(v, a[1], period);
+      const dx: number = b[0] - a[0];
+      const dy: number = bv - a[1];
+      const dd: number = dx * dx + dy * dy;
+      const s: number =
+        dd > 0
+          ? Math.min(1, Math.max(0, ((u - a[0]) * dx + (w - a[1]) * dy) / dd))
+          : 0;
+      const d: number = Math.hypot(u - a[0] - s * dx, w - a[1] - s * dy);
+      if (d < best.distance) best = { segment: k, share: s, distance: d };
+    }
+    return best;
+  }
+
+  /**
+   * The arithmetic mean of the cycle's stored chart points, with no phase
+   * reduction. Empty charts yield two NaNs; this is not an area centroid.
+   */
+  export function centre(
+    cycle: Pick<IAutoMovieSolidCycle.ICycle, "chart">,
+  ): [number, number] {
+    let u: number = 0;
+    let v: number = 0;
+    for (const p of cycle.chart) {
+      u += p[0];
+      v += p[1];
+    }
+    return [u / cycle.chart.length, v / cycle.chart.length];
+  }
+
+  /**
+   * A phase moved by whole periods nearest a reference.
+   *
+   * @param v The phase.
+   * @param reference The phase to come near.
+   * @param period The period; absent, no move.
+   * @returns The moved phase. A defined period must be finite and positive for
+   *   the nearest-period interpretation; Math.round retains its existing
+   *   half-period tie rule.
+   */
+  export function shift(
+    v: number,
+    reference: number,
+    period: number | undefined,
+  ): number {
+    return period === undefined
+      ? v
+      : v + period * Math.round((reference - v) / period);
+  }
+
+  /**
+   * The removed side of a cycle's directed chords as its owner built it
+   * (`IAutoMovieSolidCycle.IExactSegment.sense`): a hole removes its polygon's
+   * inside, the left of its chords when its signed chart area is positive, and
+   * an island the outside; a start cycle removes the stations below it, the
+   * left of chords of rising phase, and an end cycle those above.
+   */
+  function removed(
+    cycle: Pick<IAutoMovieSolidCycle.ICycle, "kind" | "chart">,
+  ): number {
+    const n: number = cycle.chart.length;
+    if (cycle.kind === "start" || cycle.kind === "end")
+      return (
+        Math.sign(cycle.chart[n - 1]![1] - cycle.chart[0]![1]) *
+        (cycle.kind === "start" ? 1 : -1)
+      );
+    let area: number = 0;
+    for (let k: number = 0; k < n; k++) {
+      const a: [number, number] = cycle.chart[k]!;
+      const b: [number, number] = cycle.chart[(k + 1) % n]!;
+      area += a[0] * b[1] - b[0] * a[1];
+    }
+    return Math.sign(area) * (cycle.kind === "hole" ? 1 : -1);
   }
 
   /**
@@ -409,119 +522,6 @@ export namespace AutoMovieSolidCycle {
       if (cycle.kind === "start" ? x <= u : x >= u) count++;
     }
     return count % 2 === 1;
-  }
-
-  /**
-   * The station a winding cycle crosses a phase at, by linear interpolation in
-   * its chart.
-   *
-   * @param cycle A `start` or `end` cycle.
-   * @param v The phase.
-   * @param period The face's phase period.
-   * @returns The station. Requires a nonempty winding chart and a finite
-   *   positive period. The first crossing wins; if none is found, the first
-   *   vertex's station is returned. Multiple crossings are not resolved into a
-   *   unique station.
-   */
-  export function station(
-    cycle: Pick<IAutoMovieSolidCycle.ICycle, "chart">,
-    v: number,
-    period: number,
-  ): number {
-    const n: number = cycle.chart.length;
-    const v0: number = cycle.chart[0]![1];
-    const span: number = cycle.chart[n - 1]![1] - v0;
-    const sense: number = span >= 0 ? 1 : -1;
-    const local: number = v0 + sense * reduce(sense * (v - v0), period);
-    for (let k: number = 0; k < n; k++) {
-      const a: [number, number] = cycle.chart[k]!;
-      const b: [number, number] =
-        k + 1 < n
-          ? cycle.chart[k + 1]!
-          : [cycle.chart[0]![0], cycle.chart[0]![1] + sense * period];
-      if ((local - a[1]) * (local - b[1]) <= 0 && a[1] !== b[1])
-        return a[0] + ((local - a[1]) * (b[0] - a[0])) / (b[1] - a[1]);
-    }
-    return cycle.chart[0]![0];
-  }
-
-  /**
-   * A point's nearest segment of a cycle in the chart.
-   *
-   * @param cycle The cycle.
-   * @param u The point's `u`.
-   * @param v The point's `v`.
-   * @param period The face's phase period; absent for a face that is not
-   *   periodic.
-   * @returns The foot. Finite representable chart arithmetic is required for a
-   *   meaningful nearest foot. Equal distances keep the earlier segment; a
-   *   degenerate segment uses share zero, and an empty chart leaves distance
-   *   infinite.
-   */
-  export function foot(
-    cycle: Pick<IAutoMovieSolidCycle.ICycle, "chart">,
-    u: number,
-    v: number,
-    period: number | undefined,
-  ): IAutoMovieSolidCycle.IFoot {
-    const n: number = cycle.chart.length;
-    let best: IAutoMovieSolidCycle.IFoot = {
-      segment: 0,
-      share: 0,
-      distance: Infinity,
-    };
-    for (let k: number = 0; k < n; k++) {
-      const a: [number, number] = cycle.chart[k]!;
-      const b: [number, number] = cycle.chart[(k + 1) % n]!;
-      const bv: number = k + 1 < n ? b[1] : shift(b[1], a[1], period);
-      const w: number = shift(v, a[1], period);
-      const dx: number = b[0] - a[0];
-      const dy: number = bv - a[1];
-      const dd: number = dx * dx + dy * dy;
-      const s: number =
-        dd > 0
-          ? Math.min(1, Math.max(0, ((u - a[0]) * dx + (w - a[1]) * dy) / dd))
-          : 0;
-      const d: number = Math.hypot(u - a[0] - s * dx, w - a[1] - s * dy);
-      if (d < best.distance) best = { segment: k, share: s, distance: d };
-    }
-    return best;
-  }
-
-  /**
-   * The arithmetic mean of the cycle's stored chart points, with no phase
-   * reduction. Empty charts yield two NaNs; this is not an area centroid.
-   */
-  export function centre(
-    cycle: Pick<IAutoMovieSolidCycle.ICycle, "chart">,
-  ): [number, number] {
-    let u: number = 0;
-    let v: number = 0;
-    for (const p of cycle.chart) {
-      u += p[0];
-      v += p[1];
-    }
-    return [u / cycle.chart.length, v / cycle.chart.length];
-  }
-
-  /**
-   * A phase moved by whole periods nearest a reference.
-   *
-   * @param v The phase.
-   * @param reference The phase to come near.
-   * @param period The period; absent, no move.
-   * @returns The moved phase. A defined period must be finite and positive for
-   *   the nearest-period interpretation; Math.round retains its existing
-   *   half-period tie rule.
-   */
-  export function shift(
-    v: number,
-    reference: number,
-    period: number | undefined,
-  ): number {
-    return period === undefined
-      ? v
-      : v + period * Math.round((reference - v) / period);
   }
 }
 

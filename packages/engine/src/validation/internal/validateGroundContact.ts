@@ -20,11 +20,6 @@ import { fkReachableBones } from "./fkReachableBones";
 import { admitMotionSampleRate } from "./admitMotionSampleRate";
 import { validateCapsule } from "./validateCapsule";
 
-const DEFAULT_FOOT_BONES: readonly ["leftFoot", "rightFoot"] = [
-  "leftFoot",
-  "rightFoot",
-] as const;
-
 /**
  * Sample FK and compare configured foot points and valid capsule endpoints to
  * scalar/height-source ground minus tolerance. A nonfinite tolerance or a
@@ -162,6 +157,11 @@ export function validateGroundContact(
 
   return collector.toValidation();
 }
+
+const DEFAULT_FOOT_BONES: readonly ["leftFoot", "rightFoot"] = [
+  "leftFoot",
+  "rightFoot",
+] as const;
 
 /**
  * Carry an endpoint's surface height, admitted ground threshold and signed

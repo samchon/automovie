@@ -3,9 +3,6 @@ import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
 import { type resolvePianoScoreVoicing } from "./resolvePianoScoreVoicing";
 
-/** A hand placement shared by every key in a voicing. */
-type IVoicing = resolvePianoScoreVoicing.Voicing;
-
 /** Find the current voicing or the destination of the hand's transport. */
 export function pianoScoreHand(
   timeline: readonly IVoicing[],
@@ -55,3 +52,6 @@ export namespace pianoScoreHand {
     transport: number;
   }
 }
+
+/** A hand placement shared by every key in a voicing. */
+type IVoicing = resolvePianoScoreVoicing.Voicing;

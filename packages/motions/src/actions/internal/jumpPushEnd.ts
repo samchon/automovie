@@ -13,22 +13,6 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { jumpPush } from "./jumpPush";
 import { walkLeg } from "./walkLeg";
 
-/** The alternatives of `JumpPushEndResult`'s site. */
-type JumpPushEndResult = "joints" | "limbs";
-
-/** The alternatives of `JumpPushEndProps`'s site. */
-type JumpPushEndProps =
-  | "body"
-  | "takeoff"
-  | "reaching"
-  | "supportPitch"
-  | "supportHeading"
-  | "ball"
-  | "upright"
-  | "heading"
-  | "tuck"
-  | "knee";
-
 /**
  * The raw end of the planted push, shared with the airborne initial state. All
  * carried entry rates vanish here; the heel rule still reads the actual
@@ -115,3 +99,19 @@ export function jumpPushEnd(
     },
   };
 }
+
+/** The alternatives of `JumpPushEndResult`'s site. */
+type JumpPushEndResult = "joints" | "limbs";
+
+/** The alternatives of `JumpPushEndProps`'s site. */
+type JumpPushEndProps =
+  | "body"
+  | "takeoff"
+  | "reaching"
+  | "supportPitch"
+  | "supportHeading"
+  | "ball"
+  | "upright"
+  | "heading"
+  | "tuck"
+  | "knee";

@@ -6,54 +6,6 @@ import type {
 
 import { closestPointsBetweenSegments } from "../../math/internal/closestPointsBetweenSegments";
 
-/** A closed, outward-rounded binary64 interval. */
-interface IRange {
-  /** Lower bound. */
-  low: number;
-  /** Upper bound. */
-  high: number;
-}
-
-/** One bounded point at a normalized sample time. */
-interface IPoint {
-  /** Approximate point, used only to find useful candidates. */
-  value: IAutoMovieVector3;
-  /** Enclosures of the actual affine point. */
-  bounds: Record<keyof IAutoMovieVector3, IRange>;
-}
-
-/** The two endpoint pairs at one sample of the uninterrupted affine law. */
-interface ISample {
-  /** Normalized parameter in the originally supplied interval. */
-  at: number;
-  /** First capsule's axis endpoints. */
-  first: readonly [IPoint, IPoint];
-  /** Second capsule's axis endpoints. */
-  second: readonly [IPoint, IPoint];
-}
-
-/** Sampled contact whose axis-point distance is independently bounded. */
-interface IWitness {
-  /** Rounded signed gap between the selected axis points, less both radii. */
-  separation: number;
-  /** Rounded world point inside the ideal overlap, weighted by radius. */
-  point: IAutoMovieVector3;
-}
-
-/** A queued time cell whose endpoint geometry can serve both child cells. */
-interface ICell {
-  /** Included opening sample. */
-  start: ISample;
-  /** Included closing sample. */
-  end: ISample;
-}
-
-/** Fixed read order for bounds and witness coordinates. */
-const AXES: readonly (keyof IAutoMovieVector3)[] = ["x", "y", "z"];
-
-/** One private scratch cell for synchronous binary64 successor reads. */
-const BITS: DataView = new DataView(new ArrayBuffer(8));
-
 /**
  * Find a sampled depth violation or prove clearance for a certified affine
  * capsule pair, with explicit work and numerical limits.
@@ -168,6 +120,54 @@ export function measureAutoMovieSweptCapsuleCollision(
   }
   return { status: "clear", basis, compared };
 }
+
+/** A closed, outward-rounded binary64 interval. */
+interface IRange {
+  /** Lower bound. */
+  low: number;
+  /** Upper bound. */
+  high: number;
+}
+
+/** One bounded point at a normalized sample time. */
+interface IPoint {
+  /** Approximate point, used only to find useful candidates. */
+  value: IAutoMovieVector3;
+  /** Enclosures of the actual affine point. */
+  bounds: Record<keyof IAutoMovieVector3, IRange>;
+}
+
+/** The two endpoint pairs at one sample of the uninterrupted affine law. */
+interface ISample {
+  /** Normalized parameter in the originally supplied interval. */
+  at: number;
+  /** First capsule's axis endpoints. */
+  first: readonly [IPoint, IPoint];
+  /** Second capsule's axis endpoints. */
+  second: readonly [IPoint, IPoint];
+}
+
+/** Sampled contact whose axis-point distance is independently bounded. */
+interface IWitness {
+  /** Rounded signed gap between the selected axis points, less both radii. */
+  separation: number;
+  /** Rounded world point inside the ideal overlap, weighted by radius. */
+  point: IAutoMovieVector3;
+}
+
+/** A queued time cell whose endpoint geometry can serve both child cells. */
+interface ICell {
+  /** Included opening sample. */
+  start: ISample;
+  /** Included closing sample. */
+  end: ISample;
+}
+
+/** Fixed read order for bounds and witness coordinates. */
+const AXES: readonly (keyof IAutoMovieVector3)[] = ["x", "y", "z"];
+
+/** One private scratch cell for synchronous binary64 successor reads. */
+const BITS: DataView = new DataView(new ArrayBuffer(8));
 
 /** Check the finite, positive-radius geometry supplied by the source. */
 function admissible(span: Sweep.ISpan): boolean {

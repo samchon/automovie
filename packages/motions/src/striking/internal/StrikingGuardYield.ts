@@ -10,9 +10,6 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 
-/** The record of `IBackRoot`'s site. */
-type IBackRoot = { position: IAutoMovieVector3; yaw: number };
-
 /**
  * How far a guard facing a person steps back so that the two fighters' guards,
  * both held, stand clear of each other: no joint of either body inside the
@@ -286,6 +283,9 @@ export namespace StrikingGuardYield {
     return { x: Math.sin(r), y: 0, z: Math.cos(r) };
   }
 }
+
+/** The record of `IBackRoot`'s site. */
+type IBackRoot = { position: IAutoMovieVector3; yaw: number };
 
 /** The peer frames used to infer the stance center, heading and lead. */
 const STANCE_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set([

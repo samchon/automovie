@@ -30,6 +30,134 @@ import { assembleCostumeArmour as assembleCostumeArmourImplementation } from "./
  * Costume-piece selection and the binding consumed by a scene.
  */
 export namespace AutoMovieArchetypeArmour {
+  /** The kinds of piece. */
+  export type Kind =
+    | "openHelmet"
+    | "closedHelmet"
+    | "brimmedHelmet"
+    | "cuirass"
+    | "mail"
+    | "gauntlet"
+    | "vambrace"
+    | "greave";
+
+  /**
+   * The affordance id: `wear`, the centre of the body part the piece covers,
+   * `+Y` up the segment, where it rides its bone.
+   */
+  export type Affordance = "wear";
+
+  /**
+   * The free dimensions, metres unless stated:
+   *
+   * - `height`, `width`, `depth`: the read piece's, as its record measures it; a
+   *   mail shirt's height is its length.
+   * - `thickness`: the plate's normal gauge; a minimum on unfitted elliptical
+   *   walls.
+   * - `pad`: a helmet's padding inside its plate.
+   * - `mass`: kilograms.
+   */
+  export type Dimension =
+    | "height"
+    | "width"
+    | "depth"
+    | "thickness"
+    | "pad"
+    | "mass";
+
+  /** The read pieces, by their Metropolitan Museum object ids. */
+  export type Model =
+    | "met26453"
+    | "met25388"
+    | "met23232"
+    | "met26508"
+    | "met26512"
+    | "met21972"
+    | "met22359"
+    | "met23084"
+    | "met34324"
+    | "met22415"
+    | "met633538"
+    | "met27635"
+    | "met23255"
+    | "met23256"
+    | "met23199"
+    | "met24896"
+    | "met35850"
+    | "met22970"
+    | "met22276";
+
+  /**
+   * The parameters: the kind, the read piece, the body to fit, and any free
+   * dimension fixed to a value inside its band.
+   */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Which piece. */
+    kind: Kind;
+
+    /** Which read piece; picked from the seed when absent. */
+    model?: Model;
+
+    /**
+     * The body to fit, metres: required fields are finite and positive,
+     * shoulders above waist for a cuirass. Unused fields may be omitted; absent
+     * measure retains the literal museum envelope. Mail's inner body boundary
+     * is exact; its equivalent wall lies outside it. A gauntlet's forearm
+     * radius fits its cuff, not an unmeasured palm.
+     */
+    measure?: Partial<IAutoMovieBodyMeasure>;
+
+    /** The model's id, unique in a scene; `armour` when absent. */
+    id?: string;
+  }
+
+  /** Bones supported by the existing head, chest, hand and limb costume pieces. */
+  export type IAssemblySlot =
+    | "head"
+    | "chest"
+    | "leftHand"
+    | "rightHand"
+    | "leftLowerArm"
+    | "rightLowerArm"
+    | "leftLowerLeg"
+    | "rightLowerLeg";
+
+  /** The shared measured costume model, retaining its wear socket. */
+  export type IAssemblyModel = AutoMovieArchetype<
+    AutoMovieArchetypeArmour.Affordance,
+    AutoMovieArchetypeArmour.Dimension
+  >;
+
+  /**
+   * The wearer's T-pose rest joints in canonical world metres, bones and
+   * measure.
+   */
+  export type IAssemblyWearer = Pick<
+    IAutoMovieMotionHumanBody,
+    "rest" | "bones" | "measure"
+  >;
+
+  /** A selection of separate models and their wearer. */
+  export interface IAssemblyParams {
+    /** The performer's scene identity. */
+    subject: string;
+
+    /** The performer's body, read at its rest to find each covered segment. */
+    body: IAssemblyWearer;
+
+    /** At most one independent and anatomically corresponding model per bone. */
+    pieces: Readonly<Partial<Record<IAssemblySlot, IAssemblyModel>>>;
+  }
+
+  /** One source model and its initial bone binding. */
+  export interface IAssemblyPiece {
+    /** The original source model with its existing id and geometry. */
+    model: IAssemblyModel;
+
+    /** The resolved binding for the performance and renderer. */
+    worn: IAutoMovieMotionHumanProp.IWorn;
+  }
+
   /**
    * A piece of armour worn on one bone: a helmet (open, closed or brimmed), a
    * cuirass, a mail shirt, a gauntlet, a vambrace or a greave.
@@ -265,17 +393,6 @@ export namespace AutoMovieArchetypeArmour {
     },
   } satisfies Readonly<Record<Kind, unknown>>;
 
-  /** The kinds of piece. */
-  export type Kind =
-    | "openHelmet"
-    | "closedHelmet"
-    | "brimmedHelmet"
-    | "cuirass"
-    | "mail"
-    | "gauntlet"
-    | "vambrace"
-    | "greave";
-
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
     "openHelmet",
@@ -288,30 +405,6 @@ export namespace AutoMovieArchetypeArmour {
     "greave",
   ];
 
-  /**
-   * The affordance id: `wear`, the centre of the body part the piece covers,
-   * `+Y` up the segment, where it rides its bone.
-   */
-  export type Affordance = "wear";
-
-  /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `height`, `width`, `depth`: the read piece's, as its record measures it; a
-   *   mail shirt's height is its length.
-   * - `thickness`: the plate's normal gauge; a minimum on unfitted elliptical
-   *   walls.
-   * - `pad`: a helmet's padding inside its plate.
-   * - `mass`: kilograms.
-   */
-  export type Dimension =
-    | "height"
-    | "width"
-    | "depth"
-    | "thickness"
-    | "pad"
-    | "mass";
-
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
@@ -323,28 +416,6 @@ export namespace AutoMovieArchetypeArmour {
     pad: "m",
     mass: "kg",
   };
-
-  /** The read pieces, by their Metropolitan Museum object ids. */
-  export type Model =
-    | "met26453"
-    | "met25388"
-    | "met23232"
-    | "met26508"
-    | "met26512"
-    | "met21972"
-    | "met22359"
-    | "met23084"
-    | "met34324"
-    | "met22415"
-    | "met633538"
-    | "met27635"
-    | "met23255"
-    | "met23256"
-    | "met23199"
-    | "met24896"
-    | "met35850"
-    | "met22970"
-    | "met22276";
 
   /** A record's height, width, depth and mass, centimetres and grams. */
   const read = (
@@ -484,77 +555,6 @@ export namespace AutoMovieArchetypeArmour {
     greave: { thickness: { ...thickness, provisional: true } },
   };
 
-  /**
-   * The parameters: the kind, the read piece, the body to fit, and any free
-   * dimension fixed to a value inside its band.
-   */
-  export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which piece. */
-    kind: Kind;
-
-    /** Which read piece; picked from the seed when absent. */
-    model?: Model;
-
-    /**
-     * The body to fit, metres: required fields are finite and positive,
-     * shoulders above waist for a cuirass. Unused fields may be omitted; absent
-     * measure retains the literal museum envelope. Mail's inner body boundary
-     * is exact; its equivalent wall lies outside it. A gauntlet's forearm
-     * radius fits its cuff, not an unmeasured palm.
-     */
-    measure?: Partial<IAutoMovieBodyMeasure>;
-
-    /** The model's id, unique in a scene; `armour` when absent. */
-    id?: string;
-  }
-
   /** The bone a piece rides, by its kind and a limb piece's side: `armourBone`. */
   export const bone: typeof armourBone = armourBone;
-
-  /** Bones supported by the existing head, chest, hand and limb costume pieces. */
-  export type IAssemblySlot =
-    | "head"
-    | "chest"
-    | "leftHand"
-    | "rightHand"
-    | "leftLowerArm"
-    | "rightLowerArm"
-    | "leftLowerLeg"
-    | "rightLowerLeg";
-
-  /** The shared measured costume model, retaining its wear socket. */
-  export type IAssemblyModel = AutoMovieArchetype<
-    AutoMovieArchetypeArmour.Affordance,
-    AutoMovieArchetypeArmour.Dimension
-  >;
-
-  /**
-   * The wearer's T-pose rest joints in canonical world metres, bones and
-   * measure.
-   */
-  export type IAssemblyWearer = Pick<
-    IAutoMovieMotionHumanBody,
-    "rest" | "bones" | "measure"
-  >;
-
-  /** A selection of separate models and their wearer. */
-  export interface IAssemblyParams {
-    /** The performer's scene identity. */
-    subject: string;
-
-    /** The performer's body, read at its rest to find each covered segment. */
-    body: IAssemblyWearer;
-
-    /** At most one independent and anatomically corresponding model per bone. */
-    pieces: Readonly<Partial<Record<IAssemblySlot, IAssemblyModel>>>;
-  }
-
-  /** One source model and its initial bone binding. */
-  export interface IAssemblyPiece {
-    /** The original source model with its existing id and geometry. */
-    model: IAssemblyModel;
-
-    /** The resolved binding for the performance and renderer. */
-    worn: IAutoMovieMotionHumanProp.IWorn;
-  }
 }

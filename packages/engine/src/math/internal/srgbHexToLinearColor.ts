@@ -3,16 +3,6 @@ import type { IAutoMovieColor } from "@automovie/interface";
 import { linearColorToSrgbHex } from "./linearColorToSrgbHex";
 
 /**
- * The exact `#RRGGBB` swatch form every authored palette string is written in.
- *
- * Three separate capture groups rather than one six-digit run, so a channel is
- * read as a channel instead of a number that happens to be twenty-four bits
- * wide: shifting a parsed integer would put the decode one bug away from the
- * transcription this whole module exists to remove.
- */
-const SRGB_HEX_SWATCH: RegExp = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i;
-
-/**
  * Decode one sRGB `#RRGGBB` swatch into the linear color materials are typed
  * in.
  *
@@ -49,6 +39,16 @@ export function srgbHexToLinearColor(hex: string): IAutoMovieColor {
     hex: linearColorToSrgbHex(decoded),
   };
 }
+
+/**
+ * The exact `#RRGGBB` swatch form every authored palette string is written in.
+ *
+ * Three separate capture groups rather than one six-digit run, so a channel is
+ * read as a channel instead of a number that happens to be twenty-four bits
+ * wide: shifting a parsed integer would put the decode one bug away from the
+ * transcription this whole module exists to remove.
+ */
+const SRGB_HEX_SWATCH: RegExp = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i;
 
 /**
  * The sRGB electro-optical transfer function of IEC 61966-2-1.

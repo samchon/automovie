@@ -20,18 +20,6 @@ import { grammarDiagnosticsToReviewNotes } from "./grammarDiagnosticsToReviewNot
 import { projectToNdc } from "./projectToNdc";
 import { resolveCameraAt } from "./resolveCameraAt";
 
-/** Assumed render aspect (width / height); the scene camera carries none. */
-const DEFAULT_ASPECT: number = 16 / 9;
-
-/** Default visual-read sampling rate, in samples per second. */
-const DEFAULT_SAMPLE_RATE: number = 12;
-
-/** Default body radius, in metres, a contact point must land within. */
-const DEFAULT_CONTACT_RADIUS: number = 1.0;
-
-/** Default silhouette half-width, in metres, a torso-sized radius. */
-const DEFAULT_SILHOUETTE_RADIUS: number = 0.35;
-
 /**
  * Engine-computed visual-read metrics for one compiled shot, filed as advisory
  * `tier: "visual"` review notes after any film-grammar findings passed in. They
@@ -166,6 +154,18 @@ export function reviewVisualRead(
   }
   return notes;
 }
+
+/** Assumed render aspect (width / height); the scene camera carries none. */
+const DEFAULT_ASPECT: number = 16 / 9;
+
+/** Default visual-read sampling rate, in samples per second. */
+const DEFAULT_SAMPLE_RATE: number = 12;
+
+/** Default body radius, in metres, a contact point must land within. */
+const DEFAULT_CONTACT_RADIUS: number = 1.0;
+
+/** Default silhouette half-width, in metres, a torso-sized radius. */
+const DEFAULT_SILHOUETTE_RADIUS: number = 0.35;
 
 /** A performance whose node and motion both resolved. */
 interface IPerformer {

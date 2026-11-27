@@ -36,35 +36,6 @@ const OCTAGON: readonly (readonly [number, number])[] = [
 /** Shorthand for constructing a point or box size in model coordinates. */
 const v: typeof Vector3.create = Vector3.create;
 
-/**
- * A selected scenic support construction, with all dimensions in the saved
- * units.
- */
-type Builder<Id extends createScenicContainer.Affordance | "mount"> =
-  AutoMovieArchetypeBuilder<Id, createScenicContainer.Dimension>;
-
-/**
- * Shape writers consume their contact IDs without exposing a fluent builder
- * result.
- */
-type ShapeWriter<Id extends createScenicContainer.Affordance> = {
-  [Method in "affordance" | "box" | "convex"]: (
-    ...args: Parameters<Builder<Id>[Method]>
-  ) => void;
-};
-
-/** The contact ids {@link draw} can type its builder with. */
-type DrawContact = createScenicContainer.Affordance | "mount";
-
-/** What {@link draw} prepares for its caller. */
-interface IDrawResult<Id extends DrawContact> {
-  /** The prepared `builder` this call returns. */
-  builder: Builder<Id>;
-
-  /** The prepared `dimensions` this call returns. */
-  dimensions: Record<createScenicContainer.Dimension, number>;
-}
-
 /** Draw the four dimensions for the selected shape before building its solids. */
 function draw<Id extends DrawContact>(
   kind: createScenicContainer.Kind,
@@ -122,9 +93,6 @@ function surface<Id extends createScenicContainer.Affordance>(
   });
 }
 
-/** The builder methods {@link coilBasket} uses to add its parts and contacts. */
-type CoilBasketWriter = "convex" | "affordance";
-
 /**
  * Fixed stacked sections suggest a coiled body and fitted lid in the guide
  * render.
@@ -169,9 +137,6 @@ function coilBasket(
     depth * 0.88 * Math.SQRT1_2,
   );
 }
-
-/** The builder methods {@link fishBasket} uses to add its parts and contacts. */
-type FishBasketWriter = "convex" | "box" | "affordance";
 
 /**
  * Willow-colored panels widen toward the rim while leaving the open interior
@@ -236,9 +201,6 @@ function fishBasket(
   );
 }
 
-/** The builder methods {@link coffer} uses to add its parts and contacts. */
-type CofferWriter = "box" | "affordance";
-
 /**
  * An overhanging plank lid and three differently toned planks define the closed
  * wooden chest.
@@ -263,9 +225,6 @@ function coffer(
   });
   surface(builder, "top", height, width, depth);
 }
-
-/** The builder methods {@link crate} uses to add its parts and contacts. */
-type CrateWriter = "box" | "affordance";
 
 /** An uninterrupted floor and ribbed open walls represent a molded dairy crate. */
 function crate(
@@ -318,9 +277,6 @@ function crate(
   }
   surface(builder, "inside", floor, width - 2 * wall, insideDepth);
 }
-
-/** The builder methods {@link pod} uses to add its parts and contacts. */
-type PodWriter = "convex" | "affordance";
 
 /** A fictional faceted pod with a contrasting center shell and flat cap. */
 function pod(
@@ -477,3 +433,47 @@ export namespace ScenicContainerConstruction {
     return builder.build(mass);
   }
 }
+
+/**
+ * A selected scenic support construction, with all dimensions in the saved
+ * units.
+ */
+type Builder<Id extends createScenicContainer.Affordance | "mount"> =
+  AutoMovieArchetypeBuilder<Id, createScenicContainer.Dimension>;
+
+/**
+ * Shape writers consume their contact IDs without exposing a fluent builder
+ * result.
+ */
+type ShapeWriter<Id extends createScenicContainer.Affordance> = {
+  [Method in "affordance" | "box" | "convex"]: (
+    ...args: Parameters<Builder<Id>[Method]>
+  ) => void;
+};
+
+/** The contact ids {@link draw} can type its builder with. */
+type DrawContact = createScenicContainer.Affordance | "mount";
+
+/** What {@link draw} prepares for its caller. */
+interface IDrawResult<Id extends DrawContact> {
+  /** The prepared `builder` this call returns. */
+  builder: Builder<Id>;
+
+  /** The prepared `dimensions` this call returns. */
+  dimensions: Record<createScenicContainer.Dimension, number>;
+}
+
+/** The builder methods {@link coilBasket} uses to add its parts and contacts. */
+type CoilBasketWriter = "convex" | "affordance";
+
+/** The builder methods {@link fishBasket} uses to add its parts and contacts. */
+type FishBasketWriter = "convex" | "box" | "affordance";
+
+/** The builder methods {@link coffer} uses to add its parts and contacts. */
+type CofferWriter = "box" | "affordance";
+
+/** The builder methods {@link crate} uses to add its parts and contacts. */
+type CrateWriter = "box" | "affordance";
+
+/** The builder methods {@link pod} uses to add its parts and contacts. */
+type PodWriter = "convex" | "affordance";

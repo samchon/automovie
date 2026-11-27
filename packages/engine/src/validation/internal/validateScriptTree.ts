@@ -9,35 +9,6 @@ import {
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
 
 /**
- * The first declaration of a node id, preserving its authored diagnostic
- * location during one tree validation.
- */
-interface IIndexedNode {
-  /** Borrowed node kept by the first-declaration id index. */
-  node: IAutoMovieScriptNode;
-
-  /** Its original tree-array position for field-located findings. */
-  index: number;
-}
-
-/**
- * Which parent kinds each node kind may refine. The refinement tree is
- * deliberately permissive where the design is silent (a tiny film may go
- * straight `intent → beat`), but never inverted: an act cannot hang under a
- * scene, a beat is always a leaf. `intent` is absent here because it is the
- * root and may have no parent at all.
- */
-const ALLOWED_PARENTS: Record<
-  Exclude<IAutoMovieScriptNode["kind"], "intent">,
-  ReadonlyArray<IAutoMovieScriptNode["kind"]>
-> = {
-  act: ["intent", "group"],
-  scene: ["intent", "act", "group"],
-  group: ["intent", "act", "scene"],
-  beat: ["intent", "act", "scene", "group"],
-};
-
-/**
  * Validate the screenplay refinement tree against its script's flat beats, the
  * structural gate a script with a `tree` must pass before commit.
  *
@@ -240,6 +211,35 @@ export function validateScriptTree(
 
   return out.toValidation();
 }
+
+/**
+ * The first declaration of a node id, preserving its authored diagnostic
+ * location during one tree validation.
+ */
+interface IIndexedNode {
+  /** Borrowed node kept by the first-declaration id index. */
+  node: IAutoMovieScriptNode;
+
+  /** Its original tree-array position for field-located findings. */
+  index: number;
+}
+
+/**
+ * Which parent kinds each node kind may refine. The refinement tree is
+ * deliberately permissive where the design is silent (a tiny film may go
+ * straight `intent → beat`), but never inverted: an act cannot hang under a
+ * scene, a beat is always a leaf. `intent` is absent here because it is the
+ * root and may have no parent at all.
+ */
+const ALLOWED_PARENTS: Record<
+  Exclude<IAutoMovieScriptNode["kind"], "intent">,
+  ReadonlyArray<IAutoMovieScriptNode["kind"]>
+> = {
+  act: ["intent", "group"],
+  scene: ["intent", "act", "group"],
+  group: ["intent", "act", "scene"],
+  beat: ["intent", "act", "scene", "group"],
+};
 
 /**
  * Memoize each parent chain's first repeated node, then report in authored id

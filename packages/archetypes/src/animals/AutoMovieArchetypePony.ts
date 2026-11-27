@@ -80,21 +80,6 @@ export namespace AutoMovieArchetypePony {
   };
 
   /**
-   * A breed's height at the withers and heart girth, metres.
-   *
-   * @param breed The breed's measures.
-   * @returns The figures.
-   */
-  function measures(
-    breed: EquineSegments.IBreed,
-  ): Readonly<Partial<Record<AutoMovieArchetypeEquine.Dimension, number>>> {
-    return {
-      withersHeight: breed.withers * AutoMovieArchetypeUnits.CENTIMETRE,
-      girth: breed.girth * AutoMovieArchetypeUnits.CENTIMETRE,
-    };
-  }
-
-  /**
    * The parameters: the breed, the tack, and any free dimension fixed to a
    * value inside its band.
    */
@@ -146,5 +131,20 @@ export namespace AutoMovieArchetypePony {
         ...AutoMovieArchetypeHorse.BODY,
         lengths: EquineSegments.lengths(EquineSegments.BREEDS[breed]),
       },
+    };
+  }
+
+  /**
+   * A breed's height at the withers and heart girth, metres.
+   *
+   * @param breed The breed's measures.
+   * @returns The figures.
+   */
+  function measures(
+    breed: EquineSegments.IBreed,
+  ): Readonly<Partial<Record<AutoMovieArchetypeEquine.Dimension, number>>> {
+    return {
+      withersHeight: breed.withers * AutoMovieArchetypeUnits.CENTIMETRE,
+      girth: breed.girth * AutoMovieArchetypeUnits.CENTIMETRE,
     };
   }}

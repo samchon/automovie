@@ -4,16 +4,6 @@ import type {
   IAutoMovieLayoutText,
 } from "@automovie/interface";
 
-/** Code point of the space, the only wrap opportunity. */
-const SPACE: number = 0x20;
-
-/**
- * Rounding allowance, metres, when a measured line is compared with the box:
- * far below any drawn feature, so a run that fits exactly is not refused for
- * the last bit of a product of decimal scales.
- */
-const FIT: number = 1e-9;
-
 /**
  * Lay a text run out from a decoded font into positioned glyphs in the box's
  * frame: origin at the box's bottom-left corner, `+x` right, `+y` up, metres.
@@ -168,6 +158,16 @@ export function layoutAutoMovieText(
   );
   return { glyphs: placed, lines: set, scale };
 }
+
+/** Code point of the space, the only wrap opportunity. */
+const SPACE: number = 0x20;
+
+/**
+ * Rounding allowance, metres, when a measured line is compared with the box:
+ * far below any drawn feature, so a run that fits exactly is not refused for
+ * the last bit of a product of decimal scales.
+ */
+const FIT: number = 1e-9;
 
 /** A code point as `U+XXXX` with the character beside it. */
 function name(codePoint: number): string {

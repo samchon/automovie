@@ -8,18 +8,6 @@ import { pushViolation } from "./pushViolation";
 import { validateRange } from "./validateRange";
 import { validateUniqueBy } from "./validateUniqueBy";
 
-/** Count shared-clock intervals without allocating a hostile-sized grid. */
-function clearanceIntervalCount(
-  duration: number,
-  sampleRate: number,
-): number | null {
-  const frames: number = Math.max(1, Math.ceil(duration * sampleRate));
-  if (frames > Number.MAX_SAFE_INTEGER) return null;
-  return Math.min(duration, (frames - 1) / sampleRate) === duration
-    ? frames - 1
-    : frames;
-}
-
 /**
  * Inspect carried camera-clearance status, camera identity and sample-plan
  * evidence.
@@ -148,4 +136,16 @@ export function appendCameraClearanceArtifact(
         );
     },
   );
+}
+
+/** Count shared-clock intervals without allocating a hostile-sized grid. */
+function clearanceIntervalCount(
+  duration: number,
+  sampleRate: number,
+): number | null {
+  const frames: number = Math.max(1, Math.ceil(duration * sampleRate));
+  if (frames > Number.MAX_SAFE_INTEGER) return null;
+  return Math.min(duration, (frames - 1) / sampleRate) === duration
+    ? frames - 1
+    : frames;
 }

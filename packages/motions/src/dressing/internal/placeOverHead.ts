@@ -83,9 +83,6 @@ export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuman
     plan: planPlaceOverHead,
   };
 
-/** The handle names a neck loop declares. */
-type Handle = "holdLeft" | "holdRight";
-
 /**
  * Set a neck loop over a partner's head. The loop's path is
  * `placeOverHeadPath`'s, read on the partner's displayed body at the action's
@@ -428,3 +425,6 @@ function assistRelease(clock: IAutoMovieMotionClock, share: number): number {
   }
   return hi;
 }
+
+/** The handle names a neck loop declares. */
+type Handle = "holdLeft" | "holdRight";

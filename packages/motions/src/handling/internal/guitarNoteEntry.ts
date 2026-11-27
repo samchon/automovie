@@ -6,9 +6,6 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** A note's ordered contact times in seconds. */
-type NoteTimes = "stopAt" | "pluckAt" | "releaseAt" | "duration";
-
 /** Admission rules for the coordinated contacts of a staged guitar note. */
 export namespace guitarNoteEntry {
   /** Admit strictly increasing contact and clearance times. */
@@ -53,3 +50,6 @@ export namespace guitarNoteEntry {
       });
   }
 }
+
+/** A note's ordered contact times in seconds. */
+type NoteTimes = "stopAt" | "pluckAt" | "releaseAt" | "duration";

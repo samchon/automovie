@@ -16,9 +16,6 @@ import { stand } from "./stand";
 import type { supportContact } from "./supportContact";
 import { supportContactOnFloor } from "./supportContactOnFloor";
 
-/** The alternatives of `PrepareSupportContactFormAxesItem`'s site. */
-type PrepareSupportContactFormAxesItem = "x" | "y" | "z";
-
 /**
  * Prepare contact forms for one unchanged body operation. Foot normals come
  * from the original quiet stance at the first requested foot normal; only the
@@ -156,3 +153,6 @@ export function prepareSupportContactForm(
     };
   };
 }
+
+/** The alternatives of `PrepareSupportContactFormAxesItem`'s site. */
+type PrepareSupportContactFormAxesItem = "x" | "y" | "z";

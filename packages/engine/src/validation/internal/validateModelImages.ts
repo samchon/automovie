@@ -9,22 +9,6 @@ import { readAutoMovieImageFacts } from "./readAutoMovieImageFacts";
 import { validateUniqueValues } from "./validateUniqueValues";
 
 /**
- * RFC 4648 section 4 base64: the standard alphabet in padded four-character
- * groups.
- */
-const BASE64: RegExp =
-  /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
-
-/**
- * Base64 characters that cover the signature and the whole IHDR chunk body (33
- * bytes).
- */
-const HEADER_CHARACTERS: number = 44;
-
-/** PNG colour types the viewer decodes: greyscale, RGB, greyscale-alpha, RGBA. */
-const COLOUR_TYPES: ReadonlySet<number> = new Set([0, 2, 4, 6]);
-
-/**
  * Admit the images a model carries: unique ids, strict base64 data, and a PNG
  * header inside the subset the viewer decodes.
  *
@@ -104,3 +88,19 @@ export function validateModelImages(
   });
   validateUniqueValues(ids, "image id", collector);
 }
+
+/**
+ * RFC 4648 section 4 base64: the standard alphabet in padded four-character
+ * groups.
+ */
+const BASE64: RegExp =
+  /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
+
+/**
+ * Base64 characters that cover the signature and the whole IHDR chunk body (33
+ * bytes).
+ */
+const HEADER_CHARACTERS: number = 44;
+
+/** PNG colour types the viewer decodes: greyscale, RGB, greyscale-alpha, RGBA. */
+const COLOUR_TYPES: ReadonlySet<number> = new Set([0, 2, 4, 6]);

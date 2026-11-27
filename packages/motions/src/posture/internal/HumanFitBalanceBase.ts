@@ -1,69 +1,6 @@
 import { AutoMovieEnginePlanarHull } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/** The record of `IHalfPlanes2`'s site. */
-type IHalfPlanes2 = { x: number; z: number };
-
-/** The record of `IHalfPlanesResult`'s site. */
-type IHalfPlanesResult = { x: number; z: number };
-
-/** The record of `IHalfPlanes`'s site. */
-type IHalfPlanes = { x: number; z: number };
-
-/** The record of `IHalfPlanesMiddle`'s site. */
-type IHalfPlanesMiddle = { x: number; z: number };
-
-/** The record of `IHalfPlanesD`'s site. */
-type IHalfPlanesD = { x: number; z: number };
-
-/** The record of `IHalfPlanesB`'s site. */
-type IHalfPlanesB = { x: number; z: number };
-
-/** The record of `IHalfPlanesA`'s site. */
-type IHalfPlanesA = { x: number; z: number };
-
-/** The record of `IHalfPlanesCornersItem`'s site. */
-type IHalfPlanesCornersItem = { x: number; z: number };
-
-/** The record of `IPlanesNormalsItem`'s site. */
-type IPlanesNormalsItem = { x: number; z: number };
-
-/** The record of `IPlanesAnchorsItem`'s site. */
-type IPlanesAnchorsItem = { x: number; z: number };
-
-/** The record of `IMeanResult`'s site. */
-type IMeanResult = {
-  x: number;
-  z: number;
-};
-
-/** The record of `IMeanOutlineItem`'s site. */
-type IMeanOutlineItem = { x: number; z: number };
-
-/** The record of `IInwardN`'s site. */
-type IInwardN = { x: number; z: number };
-
-/** The record of `IInwardB`'s site. */
-type IInwardB = { x: number; z: number };
-
-/** The record of `IInwardA`'s site. */
-type IInwardA = { x: number; z: number };
-
-/** The record of `IInwardResult`'s site. */
-type IInwardResult = { x: number; z: number };
-
-/** The record of `IInwardMiddle`'s site. */
-type IInwardMiddle = { x: number; z: number };
-
-/** The record of `IInwardOutlineItem`'s site. */
-type IInwardOutlineItem = { x: number; z: number };
-
-/** The alternatives of `ThroughKind`'s site. */
-type ThroughKind = "side" | "cap" | "point";
-
-/** The record of `IOfResult`'s site. */
-type IOfResult = { corners: HumanFitBalanceBase.ICorner[] };
-
 /**
  * The unit inward normal of a convex polygon's edge from corner `k` to the
  * next; the monotone chain leaves no edge of zero length.
@@ -245,3 +182,66 @@ export namespace HumanFitBalanceBase {
     through: IThrough[];
   }
 }
+
+/** The record of `IHalfPlanes2`'s site. */
+type IHalfPlanes2 = { x: number; z: number };
+
+/** The record of `IHalfPlanesResult`'s site. */
+type IHalfPlanesResult = { x: number; z: number };
+
+/** The record of `IHalfPlanes`'s site. */
+type IHalfPlanes = { x: number; z: number };
+
+/** The record of `IHalfPlanesMiddle`'s site. */
+type IHalfPlanesMiddle = { x: number; z: number };
+
+/** The record of `IHalfPlanesD`'s site. */
+type IHalfPlanesD = { x: number; z: number };
+
+/** The record of `IHalfPlanesB`'s site. */
+type IHalfPlanesB = { x: number; z: number };
+
+/** The record of `IHalfPlanesA`'s site. */
+type IHalfPlanesA = { x: number; z: number };
+
+/** The record of `IHalfPlanesCornersItem`'s site. */
+type IHalfPlanesCornersItem = { x: number; z: number };
+
+/** The record of `IPlanesNormalsItem`'s site. */
+type IPlanesNormalsItem = { x: number; z: number };
+
+/** The record of `IPlanesAnchorsItem`'s site. */
+type IPlanesAnchorsItem = { x: number; z: number };
+
+/** The record of `IMeanResult`'s site. */
+type IMeanResult = {
+  x: number;
+  z: number;
+};
+
+/** The record of `IMeanOutlineItem`'s site. */
+type IMeanOutlineItem = { x: number; z: number };
+
+/** The record of `IInwardN`'s site. */
+type IInwardN = { x: number; z: number };
+
+/** The record of `IInwardB`'s site. */
+type IInwardB = { x: number; z: number };
+
+/** The record of `IInwardA`'s site. */
+type IInwardA = { x: number; z: number };
+
+/** The record of `IInwardResult`'s site. */
+type IInwardResult = { x: number; z: number };
+
+/** The record of `IInwardMiddle`'s site. */
+type IInwardMiddle = { x: number; z: number };
+
+/** The record of `IInwardOutlineItem`'s site. */
+type IInwardOutlineItem = { x: number; z: number };
+
+/** The alternatives of `ThroughKind`'s site. */
+type ThroughKind = "side" | "cap" | "point";
+
+/** The record of `IOfResult`'s site. */
+type IOfResult = { corners: HumanFitBalanceBase.ICorner[] };

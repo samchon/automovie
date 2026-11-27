@@ -20,21 +20,6 @@ export interface IAutoMovieProductionCheck {
 
 /** Check inputs and the results derived from current observations. */
 export namespace IAutoMovieProductionCheck {
-  /** Metadata shared by the supported kinds of observation. */
-  interface IBase {
-    /** Stable check ID within this subject. */
-    readonly id: string;
-
-    /** The expectation shown to the director. */
-    readonly title: string;
-
-    /** The inspection scope described to the director. */
-    readonly scope: string;
-
-    /** False keeps this definition visible while withholding execution. */
-    readonly enabled?: boolean;
-  }
-
   /** A deterministic measurement from the explicitly named input files. */
   export interface IMeasurement extends IBase {
     /** Evaluate through the supplied project code on an explicit run. */
@@ -243,5 +228,20 @@ export namespace IAutoMovieProductionCheck {
 
     /** True only when the requested stage is blocked. */
     readonly blocked: boolean;
+  }
+
+  /** Metadata shared by the supported kinds of observation. */
+  interface IBase {
+    /** Stable check ID within this subject. */
+    readonly id: string;
+
+    /** The expectation shown to the director. */
+    readonly title: string;
+
+    /** The inspection scope described to the director. */
+    readonly scope: string;
+
+    /** False keeps this definition visible while withholding execution. */
+    readonly enabled?: boolean;
   }
 }

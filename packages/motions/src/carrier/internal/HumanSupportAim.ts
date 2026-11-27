@@ -13,12 +13,6 @@ import { AutoMovieMotionHumanTrunk } from "../../compose/internal/AutoMovieMotio
 import { instance } from "../../ensemble/internal/instance";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** The alternatives of `TwistBone`'s site. */
-type TwistBone = "chest" | "spine";
-
-/** The alternatives of `TwistedAddBone`'s site. */
-type TwistedAddBone = "chest" | "spine";
-
 /**
  * An aim kept on a world target from a moving support, every second.
  *
@@ -280,3 +274,9 @@ export namespace HumanSupportAim {
     return range;
   }
 }
+
+/** The alternatives of `TwistBone`'s site. */
+type TwistBone = "chest" | "spine";
+
+/** The alternatives of `TwistedAddBone`'s site. */
+type TwistedAddBone = "chest" | "spine";

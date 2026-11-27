@@ -9,30 +9,6 @@ import {
 } from "../../core/index";
 import { AnnularFitting } from "./AnnularFitting";
 
-/** A cuff's size. */
-interface ICuff {
-  /** Width along the leg, metres. */
-  width: number;
-
-  /** The leather's thickness, metres. */
-  thickness: number;
-}
-
-/**
- * A cuff's width along the leg and its leather's thickness, metres: authored,
- * no maker's listing read gives them.
- */
-const CUFF: ICuff = {
-  width: 0.05,
-  thickness: 0.008,
-};
-
-/** The strap's radius, metres: authored. */
-const STRAP: number = 0.008;
-
-/** A hobble's mass, kilograms: authored, no listing read gives it. */
-const MASS: number = 0.3;
-
 /**
  * A fore hobble: a cuff round each foreleg's cannon and a strap between them.
  *
@@ -99,3 +75,27 @@ export function createHobble(
   );
   return builder.build(MASS);
 }
+
+/** A cuff's size. */
+interface ICuff {
+  /** Width along the leg, metres. */
+  width: number;
+
+  /** The leather's thickness, metres. */
+  thickness: number;
+}
+
+/**
+ * A cuff's width along the leg and its leather's thickness, metres: authored,
+ * no maker's listing read gives them.
+ */
+const CUFF: ICuff = {
+  width: 0.05,
+  thickness: 0.008,
+};
+
+/** The strap's radius, metres: authored. */
+const STRAP: number = 0.008;
+
+/** A hobble's mass, kilograms: authored, no listing read gives it. */
+const MASS: number = 0.3;

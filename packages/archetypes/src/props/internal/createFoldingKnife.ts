@@ -9,19 +9,6 @@ import {
 } from "../../core/index";
 
 /**
- * A pocket folding knife with a three-inch blade (3 × 0.0254 m). No source is
- * read: the blade, the handle (the closed blade's length plus a bolster), its
- * thickness and width and the mass are provisional construction estimates.
- */
-const SIZE: Readonly<AutoMovieArchetypeFoldingKnife.ISize> = {
-  blade: 3 * 0.0254,
-  handle: 3 * 0.0254 + 0.025,
-  width: 0.022,
-  thickness: 0.012,
-  mass: 0.09,
-};
-
-/**
  * A folding knife whose blade swings from inside its handle to open and locks
  * there.
  *
@@ -119,3 +106,16 @@ export function createFoldingKnife(
   });
   return builder.build(SIZE.mass);
 }
+
+/**
+ * A pocket folding knife with a three-inch blade (3 × 0.0254 m). No source is
+ * read: the blade, the handle (the closed blade's length plus a bolster), its
+ * thickness and width and the mass are provisional construction estimates.
+ */
+const SIZE: Readonly<AutoMovieArchetypeFoldingKnife.ISize> = {
+  blade: 3 * 0.0254,
+  handle: 3 * 0.0254 + 0.025,
+  width: 0.022,
+  thickness: 0.012,
+  mass: 0.09,
+};

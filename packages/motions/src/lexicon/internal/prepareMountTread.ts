@@ -10,21 +10,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { mountCastObstruction } from "./mountCastObstruction";
 import type { prepareMountSeat } from "./prepareMountSeat";
 
-/** A lateral interval in tread-native metres. */
-type Span = readonly [number, number];
-
-/** The physical box whose exposed upper face is the named tread. */
-type PlateShape = Extract<IAutoMoviePhysicalShape, { kind: "box" }>;
-
-/** A placed profile cell and its actual axis projections. */
-interface ICell extends prepareMountSeat.ISolid {
-  /** The bone the actual cell follows. */
-  bone: AutoMovieHumanoidBone;
-
-  /** Its bounds in the tread's own frame. */
-  bounds: IAutoMoviePhysicalShapeBounds.IResult;
-}
-
 /** Translation across the named tread. */
 const ACROSS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 
@@ -378,4 +363,19 @@ export namespace prepareMountTread {
     /** The other witness on the named tread's top, tread-local metres. */
     material: IAutoMovieVector3;
   }
+}
+
+/** A lateral interval in tread-native metres. */
+type Span = readonly [number, number];
+
+/** The physical box whose exposed upper face is the named tread. */
+type PlateShape = Extract<IAutoMoviePhysicalShape, { kind: "box" }>;
+
+/** A placed profile cell and its actual axis projections. */
+interface ICell extends prepareMountSeat.ISolid {
+  /** The bone the actual cell follows. */
+  bone: AutoMovieHumanoidBone;
+
+  /** Its bounds in the tread's own frame. */
+  bounds: IAutoMoviePhysicalShapeBounds.IResult;
 }

@@ -35,9 +35,6 @@ import { walkSupportHeight } from "./walkSupportHeight";
 import { walkSwing } from "./walkSwing";
 import { walkWindows } from "./walkWindows";
 
-/** The alternatives of `WalkLocomoteAuthoredEntry`'s site. */
-type WalkLocomoteAuthoredEntry = "stride" | "arms";
-
 /**
  * Plan stepping locomotion in a gait: footprints, their timing, the pelvis and
  * the arms, shared by walking and running.
@@ -276,3 +273,6 @@ export function walkLocomote(
   // The steps' timing: uneven, entrained to a beat, or kept on a station (`walkClock`).
   return walkPlayback(walkClock(context, planned, gait, clock), body);
 }
+
+/** The alternatives of `WalkLocomoteAuthoredEntry`'s site. */
+type WalkLocomoteAuthoredEntry = "stride" | "arms";

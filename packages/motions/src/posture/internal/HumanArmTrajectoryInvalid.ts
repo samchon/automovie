@@ -7,12 +7,6 @@ import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
 
-/** The record of `IOfWorst`'s site. */
-type IOfWorst = { value: number; what: string };
-
-/** The record of `IOfResult`'s site. */
-type IOfResult = { value: number; what: string };
-
 /**
  * How far the arms' configuration at a waypoint passes the tangle audit's
  * clearance (with the skin `evaluate` refuses past) or a joint's range: the
@@ -141,3 +135,9 @@ export namespace HumanArmTrajectoryInvalid {
     );
   }
 }
+
+/** The record of `IOfWorst`'s site. */
+type IOfWorst = { value: number; what: string };
+
+/** The record of `IOfResult`'s site. */
+type IOfResult = { value: number; what: string };

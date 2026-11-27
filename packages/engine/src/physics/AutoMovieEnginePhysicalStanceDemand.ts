@@ -21,9 +21,6 @@ import { AutoMovieEnginePhysicalStancePressure } from "./AutoMovieEnginePhysical
 import { AutoMovieEnginePhysicalStanceSupport } from "./AutoMovieEnginePhysicalStanceSupport";
 import { physicalSupportFootprint } from "./internal/physicalSupportFootprint";
 
-/** A support limb of the balance pattern. */
-type Limb = IAutoMovieFootfallPattern["limbs"][number];
-
 /**
  * The stance's support wrench for one balance step (`AutoMovieEnginePhysicalStanceBalance`):
  * its inputs, its result and the demand that builds it.
@@ -488,3 +485,6 @@ export namespace AutoMovieEnginePhysicalStanceDemand {
     };
   }
 }
+
+/** A support limb of the balance pattern. */
+type Limb = IAutoMovieFootfallPattern["limbs"][number];

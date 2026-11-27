@@ -2,12 +2,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { ArchetypeBinary64 } from "./ArchetypeBinary64";
 
-/** An exact signed binary64 value, integer times a power of two. */
-type IDyadic = ReturnType<ReturnType<typeof ArchetypeBinary64>>;
-
-/** One call-local reader reused across all terms of an exceptional calculation. */
-type Reader = ReturnType<typeof ArchetypeBinary64>;
-
 /**
  * IEEE-754 binary64's least positive normal value; smaller intermediate
  * products lose significand bits.
@@ -354,3 +348,9 @@ function quotient(numerator: IDyadic, denominator: IDyadic): number {
   const value: number = Number(rounded) * 2 ** power;
   return negative ? -value : value;
 }
+
+/** An exact signed binary64 value, integer times a power of two. */
+type IDyadic = ReturnType<ReturnType<typeof ArchetypeBinary64>>;
+
+/** One call-local reader reused across all terms of an exceptional calculation. */
+type Reader = ReturnType<typeof ArchetypeBinary64>;

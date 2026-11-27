@@ -6,19 +6,6 @@ import type {
 
 import type { preparePoseJointResolution } from "./preparePoseJointResolution";
 
-/** Clinical F/A/T values in degrees or null rest, in their original tuple order. */
-type ITuple = readonly [
-  IAutoMovieJointPose["flexion"],
-  IAutoMovieJointPose["abduction"],
-  IAutoMovieJointPose["twist"],
-];
-
-/**
- * One private staged slot, populated only by the ordered name/F/A/T writer
- * below.
- */
-type IStagedValue = AutoMovieHumanoidBone | IAutoMovieJointPose["flexion"];
-
 /** An actually empty entry snapshot has no admission events or scalar storage. */
 const EMPTY_SCAN: preparePoseTupleScan.IScan = (): void => undefined;
 
@@ -87,3 +74,16 @@ export namespace preparePoseTupleScan {
     >,
   ) => void;
 }
+
+/** Clinical F/A/T values in degrees or null rest, in their original tuple order. */
+type ITuple = readonly [
+  IAutoMovieJointPose["flexion"],
+  IAutoMovieJointPose["abduction"],
+  IAutoMovieJointPose["twist"],
+];
+
+/**
+ * One private staged slot, populated only by the ordered name/F/A/T writer
+ * below.
+ */
+type IStagedValue = AutoMovieHumanoidBone | IAutoMovieJointPose["flexion"];

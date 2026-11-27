@@ -5,9 +5,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** The alternatives of `PlaceHumanArmGeometryOwner`'s site. */
-type PlaceHumanArmGeometryOwner = "upper" | "lower" | "hand";
-
 /**
  * Attach the existing axis and optional collider probes to a completed arm
  * chain. The chain must be the actual FK of this setup and instant's frame.
@@ -76,3 +73,6 @@ export function placeHumanArmGeometry(
     hand: wh,
   };
 }
+
+/** The alternatives of `PlaceHumanArmGeometryOwner`'s site. */
+type PlaceHumanArmGeometryOwner = "upper" | "lower" | "hand";

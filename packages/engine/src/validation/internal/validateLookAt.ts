@@ -10,21 +10,6 @@ import {
 
 import { getConstraint } from "../../rom/internal/getConstraint";
 
-type AutoMovieLookAtRange =
-  | "horizontalInner"
-  | "horizontalOuter"
-  | "verticalDown"
-  | "verticalUp";
-
-const RANGES: readonly AutoMovieLookAtRange[] = [
-  "horizontalInner",
-  "horizontalOuter",
-  "verticalDown",
-  "verticalUp",
-];
-
-const EYES: readonly AutoMovieHumanoidBone[] = ["leftEye", "rightEye"];
-
 /**
  * Admit a model's gaze declaration against its skeleton.
  *
@@ -92,6 +77,21 @@ export function validateLookAt(
         );
   }
 }
+
+type AutoMovieLookAtRange =
+  | "horizontalInner"
+  | "horizontalOuter"
+  | "verticalDown"
+  | "verticalUp";
+
+const RANGES: readonly AutoMovieLookAtRange[] = [
+  "horizontalInner",
+  "horizontalOuter",
+  "verticalDown",
+  "verticalUp",
+];
+
+const EYES: readonly AutoMovieHumanoidBone[] = ["leftEye", "rightEye"];
 
 /** How far an axis may turn in its positive direction; `0` when immobile. */
 const positiveReach: (range: IAutoMovieAngleRange | null) => number = (

@@ -8,34 +8,6 @@ import { convexHull2D } from "../../math/internal/convexHull2D";
 import { validateTransformScalars } from "./validateTransformScalars";
 
 /**
- * The optional dimensions of an affordance, each a positive length in metres,
- * angle in degrees or load in newtons when present.
- */
-const DIMENSIONS: readonly (
-  | "aperture"
-  | "depth"
-  | "back"
-  | "length"
-  | "width"
-  | "height"
-  | "radius"
-  | "load"
-  | "travel"
-  | "reverse"
-)[] = [
-  "aperture",
-  "depth",
-  "back",
-  "length",
-  "width",
-  "height",
-  "radius",
-  "load",
-  "travel",
-  "reverse",
-];
-
-/**
  * Admit a finite frame, require every optional dimension present to be finite
  * and positive, admit a surface's drawable outline, then require stack-top
  * extent plan points to span area or point-like kinds to have null extent.
@@ -114,6 +86,34 @@ export function validateAffordance(
       extent,
     );
 }
+
+/**
+ * The optional dimensions of an affordance, each a positive length in metres,
+ * angle in degrees or load in newtons when present.
+ */
+const DIMENSIONS: readonly (
+  | "aperture"
+  | "depth"
+  | "back"
+  | "length"
+  | "width"
+  | "height"
+  | "radius"
+  | "load"
+  | "travel"
+  | "reverse"
+)[] = [
+  "aperture",
+  "depth",
+  "back",
+  "length",
+  "width",
+  "height",
+  "radius",
+  "load",
+  "travel",
+  "reverse",
+];
 
 /**
  * How far past its rectangle an outline point may lie, metres: the rounding of

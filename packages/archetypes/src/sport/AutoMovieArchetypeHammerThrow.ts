@@ -20,18 +20,6 @@ export namespace AutoMovieArchetypeHammerThrow {
   /** The categories. */
   export type Kind = "men" | "women";
 
-  /** Every category, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["men", "women"];
-
-  /** The wire's diameter, metres: the rule's at least 3 mm, an estimate. */
-  export const WIRE: number = 0.003;
-
-  /** The handle's diameter, metres: an estimate. */
-  export const HANDLE: number = 0.012;
-
-  /** The handle's width across the hands, metres: an estimate. */
-  export const HANDLE_WIDTH: number = 0.11;
-
   /**
    * The affordance ids:
    *
@@ -49,15 +37,6 @@ export namespace AutoMovieArchetypeHammerThrow {
    */
   export type Dimension = "length" | "diameter" | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<
-    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
-  > = {
-    length: "m",
-    diameter: "m",
-    mass: "kg",
-  };
-
   /**
    * The parameters: the category, and any free dimension fixed to a value
    * inside its band.
@@ -69,6 +48,27 @@ export namespace AutoMovieArchetypeHammerThrow {
     /** The model's id, unique in a scene; `hammerThrow` when absent. */
     id?: string;
   }
+
+  /** Every category, for a caller that reads one at run time. */
+  export const KINDS: readonly Kind[] = ["men", "women"];
+
+  /** The wire's diameter, metres: the rule's at least 3 mm, an estimate. */
+  export const WIRE: number = 0.003;
+
+  /** The handle's diameter, metres: an estimate. */
+  export const HANDLE: number = 0.012;
+
+  /** The handle's width across the hands, metres: an estimate. */
+  export const HANDLE_WIDTH: number = 0.11;
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
+    length: "m",
+    diameter: "m",
+    mass: "kg",
+  };
 
   /** A band of the rule. */
   const band = (

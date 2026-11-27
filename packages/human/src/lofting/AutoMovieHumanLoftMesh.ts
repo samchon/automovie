@@ -287,31 +287,6 @@ export namespace AutoMovieHumanLoftMesh {
     }
   }
 
-  /** Ring vertices rotated to start at the smallest phase in `[0, 2pi)`. */
-  function ascending(
-    ring: readonly number[],
-    phases: readonly number[],
-  ): { v: number; t: number }[] {
-    const reduced: number[] = phases.map(
-      (t: number): number => t - 2 * Math.PI * Math.floor(t / (2 * Math.PI)),
-    );
-    const start: number = reduced.reduce(
-      (best: number, t: number, i: number): number =>
-        t < reduced[best]! ? i : best,
-      0,
-    );
-
-    // Unwrap after the start so the sequence increases through one period.
-    const out: { v: number; t: number }[] = [];
-    for (let k: number = 0; k < ring.length; k++) {
-      const i: number = (start + k) % ring.length;
-      const t: number =
-        reduced[i]! < reduced[start]! ? reduced[i]! + 2 * Math.PI : reduced[i]!;
-      out.push({ v: ring[i]!, t });
-    }
-    return out;
-  }
-
   /**
    * Close a ring with a fan to a pole vertex.
    *
@@ -381,6 +356,31 @@ export namespace AutoMovieHumanLoftMesh {
         out[v + 1]! /= length;
         out[v + 2]! /= length;
       }
+    }
+    return out;
+  }
+
+  /** Ring vertices rotated to start at the smallest phase in `[0, 2pi)`. */
+  function ascending(
+    ring: readonly number[],
+    phases: readonly number[],
+  ): { v: number; t: number }[] {
+    const reduced: number[] = phases.map(
+      (t: number): number => t - 2 * Math.PI * Math.floor(t / (2 * Math.PI)),
+    );
+    const start: number = reduced.reduce(
+      (best: number, t: number, i: number): number =>
+        t < reduced[best]! ? i : best,
+      0,
+    );
+
+    // Unwrap after the start so the sequence increases through one period.
+    const out: { v: number; t: number }[] = [];
+    for (let k: number = 0; k < ring.length; k++) {
+      const i: number = (start + k) % ring.length;
+      const t: number =
+        reduced[i]! < reduced[start]! ? reduced[i]! + 2 * Math.PI : reduced[i]!;
+      out.push({ v: ring[i]!, t });
     }
     return out;
   }

@@ -96,94 +96,6 @@ export namespace AutoMovieLoftChain {
   }
 
   /**
-   * Accessor of one Hermite-interpolated array of a layer: values and station
-   * slopes.
-   */
-  type Pick = (
-    layer: IAutoMovieLoftChain.ILayer,
-  ) => [readonly number[], readonly number[]];
-
-  /** Values and slopes of a layer's section coefficients. */
-  function sectionArrays(
-    layer: IAutoMovieLoftChain.ILayer,
-  ): [readonly number[], readonly number[]] {
-    return [layer.coefficients, layer.slopes];
-  }
-
-  /** Values and slopes of a layer's lift, zero where the layer has none. */
-  function liftArrays(
-    layer: IAutoMovieLoftChain.ILayer,
-  ): [readonly number[], readonly number[]] {
-    if (layer.lift !== undefined) return [layer.lift, layer.liftSlopes!];
-    const zero: number[] = new Array<number>(
-      layer.coefficients.length / 2,
-    ).fill(0);
-    return [zero, zero];
-  }
-
-  /** Hermite coefficients (or their station derivative) at s. */
-  function hermite(
-    chain: IAutoMovieLoftChain,
-    y: number,
-    differentiate: boolean,
-    pick: Pick = sectionArrays,
-  ): number[] {
-    const layers: readonly IAutoMovieLoftChain.ILayer[] = chain.layers;
-    const [lo, hi]: [number, number] = bracket(chain, y);
-    if (pick === sectionArrays) {
-      const source: IAutoMovieLoftCoefficientSource.IControls | null =
-        AutoMovieLoftCoefficientSource.controls(chain, y);
-      if (source !== null)
-        return AutoMovieStationHermite.combine(
-          source.a,
-          source.b,
-          AutoMovieLoftCoefficientSource.weights(source, differentiate ? 1 : 0),
-        );
-    }
-
-    const [av, am]: [readonly number[], readonly number[]] = pick(layers[lo]!);
-    const [bv, bm]: [readonly number[], readonly number[]] = pick(layers[hi]!);
-    const a: IAutoMovieLoftChain.ILayer = layers[lo]!;
-    const b: IAutoMovieLoftChain.ILayer = layers[hi]!;
-    const H: number = b.y - a.y;
-    const u: number = Math.min(1, Math.max(0, (y - a.y) / H));
-
-    // Layers that carry second derivatives (a feature chain expanded with
-    // its jets) take the quintic rule; the cubic below stays as it was.
-    const ac: number[] | undefined =
-      pick === sectionArrays ? a.curvatures : a.liftCurvatures;
-    const bc: number[] | undefined =
-      pick === sectionArrays ? b.curvatures : b.liftCurvatures;
-    if (ac !== undefined && bc !== undefined)
-      return AutoMovieStationHermite.combine(
-        { value: av, slope: am, curvature: ac },
-        { value: bv, slope: bm, curvature: bc },
-        AutoMovieStationHermite.weights(u, H, differentiate ? 1 : 0, true),
-      );
-
-    // Cubic Hermite basis on the unit interval, or its derivative divided by
-    // H, which converts d/du back to d/ds.
-    const h00: number = differentiate
-      ? (6 * u ** 2 - 6 * u) / H
-      : 2 * u ** 3 - 3 * u ** 2 + 1;
-    const h10: number = differentiate
-      ? (3 * u ** 2 - 4 * u + 1) / H
-      : u ** 3 - 2 * u ** 2 + u;
-    const h01: number = differentiate
-      ? (-6 * u ** 2 + 6 * u) / H
-      : -2 * u ** 3 + 3 * u ** 2;
-    const h11: number = differentiate
-      ? (3 * u ** 2 - 2 * u) / H
-      : u ** 3 - u ** 2;
-
-    // Slopes are per mm of height; H converts them to the unit parameter.
-    return av.map(
-      (c: number, k: number): number =>
-        h00 * c + h10 * H * am[k]! + h01 * bv[k]! + h11 * H * bm[k]!,
-    );
-  }
-
-  /**
    * Frame of an unchanged actual-axis interval or its declared layer
    * interpolation. Different source owners at a continuation boundary use the
    * copied endpoint jets.
@@ -331,6 +243,94 @@ export namespace AutoMovieLoftChain {
     t: number,
   ): [number, number, number] {
     return AutoMovieLoftPoint.point(chain, s, t);
+  }
+
+  /**
+   * Accessor of one Hermite-interpolated array of a layer: values and station
+   * slopes.
+   */
+  type Pick = (
+    layer: IAutoMovieLoftChain.ILayer,
+  ) => [readonly number[], readonly number[]];
+
+  /** Values and slopes of a layer's section coefficients. */
+  function sectionArrays(
+    layer: IAutoMovieLoftChain.ILayer,
+  ): [readonly number[], readonly number[]] {
+    return [layer.coefficients, layer.slopes];
+  }
+
+  /** Values and slopes of a layer's lift, zero where the layer has none. */
+  function liftArrays(
+    layer: IAutoMovieLoftChain.ILayer,
+  ): [readonly number[], readonly number[]] {
+    if (layer.lift !== undefined) return [layer.lift, layer.liftSlopes!];
+    const zero: number[] = new Array<number>(
+      layer.coefficients.length / 2,
+    ).fill(0);
+    return [zero, zero];
+  }
+
+  /** Hermite coefficients (or their station derivative) at s. */
+  function hermite(
+    chain: IAutoMovieLoftChain,
+    y: number,
+    differentiate: boolean,
+    pick: Pick = sectionArrays,
+  ): number[] {
+    const layers: readonly IAutoMovieLoftChain.ILayer[] = chain.layers;
+    const [lo, hi]: [number, number] = bracket(chain, y);
+    if (pick === sectionArrays) {
+      const source: IAutoMovieLoftCoefficientSource.IControls | null =
+        AutoMovieLoftCoefficientSource.controls(chain, y);
+      if (source !== null)
+        return AutoMovieStationHermite.combine(
+          source.a,
+          source.b,
+          AutoMovieLoftCoefficientSource.weights(source, differentiate ? 1 : 0),
+        );
+    }
+
+    const [av, am]: [readonly number[], readonly number[]] = pick(layers[lo]!);
+    const [bv, bm]: [readonly number[], readonly number[]] = pick(layers[hi]!);
+    const a: IAutoMovieLoftChain.ILayer = layers[lo]!;
+    const b: IAutoMovieLoftChain.ILayer = layers[hi]!;
+    const H: number = b.y - a.y;
+    const u: number = Math.min(1, Math.max(0, (y - a.y) / H));
+
+    // Layers that carry second derivatives (a feature chain expanded with
+    // its jets) take the quintic rule; the cubic below stays as it was.
+    const ac: number[] | undefined =
+      pick === sectionArrays ? a.curvatures : a.liftCurvatures;
+    const bc: number[] | undefined =
+      pick === sectionArrays ? b.curvatures : b.liftCurvatures;
+    if (ac !== undefined && bc !== undefined)
+      return AutoMovieStationHermite.combine(
+        { value: av, slope: am, curvature: ac },
+        { value: bv, slope: bm, curvature: bc },
+        AutoMovieStationHermite.weights(u, H, differentiate ? 1 : 0, true),
+      );
+
+    // Cubic Hermite basis on the unit interval, or its derivative divided by
+    // H, which converts d/du back to d/ds.
+    const h00: number = differentiate
+      ? (6 * u ** 2 - 6 * u) / H
+      : 2 * u ** 3 - 3 * u ** 2 + 1;
+    const h10: number = differentiate
+      ? (3 * u ** 2 - 4 * u + 1) / H
+      : u ** 3 - 2 * u ** 2 + u;
+    const h01: number = differentiate
+      ? (-6 * u ** 2 + 6 * u) / H
+      : -2 * u ** 3 + 3 * u ** 2;
+    const h11: number = differentiate
+      ? (3 * u ** 2 - 2 * u) / H
+      : u ** 3 - u ** 2;
+
+    // Slopes are per mm of height; H converts them to the unit parameter.
+    return av.map(
+      (c: number, k: number): number =>
+        h00 * c + h10 * H * am[k]! + h01 * bv[k]! + h11 * H * bm[k]!,
+    );
   }
 
   /** Unit normal `v x u` of a section frame: up for a horizontal frame. */

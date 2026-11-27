@@ -9,9 +9,6 @@ import type {
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 import { StrikingRoll } from "../../striking/internal/StrikingRoll";
 
-/** The alternatives of `READYEntryItem`'s site. */
-type READYEntryItem = "lowReady" | "highReady";
-
 /**
  * Where a firearm is held at a ready position (`HumanWeaponFirearm.present`): a
  * region the doctrine describes, not one pose, and the arm holds the weapon
@@ -208,3 +205,6 @@ export namespace HumanFirearmReady {
     });
   }
 }
+
+/** The alternatives of `READYEntryItem`'s site. */
+type READYEntryItem = "lowReady" | "highReady";

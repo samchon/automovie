@@ -18,9 +18,6 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/** The record of `IBallSportCasesFastest`'s site. */
-type IBallSportCasesFastest = { speed: number; v: IAutoMovieVector3 };
-
 /**
  * Capture cases of the team ball skills from quiet standing, with an implied
  * ball.
@@ -242,3 +239,6 @@ export function ballSportCases(
   }
   return out;
 }
+
+/** The record of `IBallSportCasesFastest`'s site. */
+type IBallSportCasesFastest = { speed: number; v: IAutoMovieVector3 };

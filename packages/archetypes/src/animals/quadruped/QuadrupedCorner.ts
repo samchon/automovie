@@ -21,9 +21,6 @@ export namespace QuadrupedCorner {
     reach: number,
   ) => IAutoMovieVector3;
 
-  /** The two horizontal axes a plane bounds. */
-  type Axis = "x" | "z";
-
   /** Both axes, in the order a foothold is cleared along them. */
   const AXES: readonly Axis[] = ["x", "z"];
 
@@ -105,4 +102,7 @@ export namespace QuadrupedCorner {
       return moved;
     };
   }
+
+  /** The two horizontal axes a plane bounds. */
+  type Axis = "x" | "z";
 }

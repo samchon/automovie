@@ -16,27 +16,6 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import type { humanFootOffset } from "../../posture/internal/humanFootOffset";
 
-/** The record of `IPrepareRollResult2`'s site. */
-type IPrepareRollResult2 = {
-  placement: IAutoMovieMotionHumanFoot.IPlacement;
-  toes: number;
-  mtp: IAutoMovieVector3;
-};
-
-/** The record of `IPrepareRollResult`'s site. */
-type IPrepareRollResult = {
-  placement: IAutoMovieMotionHumanFoot.IPlacement;
-  toes: number;
-  mtp: IAutoMovieVector3;
-};
-
-/** The record of `IRolledResult`'s site. */
-type IRolledResult = {
-  placement: IAutoMovieMotionHumanFoot.IPlacement;
-  toes: number;
-  mtp: IAutoMovieVector3;
-};
-
 /**
  * The feet of a crawl on the knees: each tucked on its toes behind its knee
  * (`kneelKeys.tucked`), the crawl placed so the tucked feet are where the
@@ -136,12 +115,6 @@ export namespace crawlFeet {
       return { placement, toes, mtp: mtpAt(placement) };
     };
   }
-  /** The record of `IPlantedResult`'s site. */
-  type IPlantedResult = {
-    frame: IAutoMovieMotionHumanFrame;
-    tucks: Record<AutoMovieHumanSide, ITuck>;
-  };
-
   /**
    * The feet a crawl kneels on, and the floor frame that keeps them where the
    * standing feet were: each foot tucked behind its knee (`kneelKeys.tucked`),
@@ -213,4 +186,31 @@ export namespace crawlFeet {
       tucks: { left: feet[0]!.tuck, right: feet[1]!.tuck },
     };
   }
+
+  /** The record of `IPlantedResult`'s site. */
+  type IPlantedResult = {
+    frame: IAutoMovieMotionHumanFrame;
+    tucks: Record<AutoMovieHumanSide, ITuck>;
+  };
 }
+
+/** The record of `IPrepareRollResult2`'s site. */
+type IPrepareRollResult2 = {
+  placement: IAutoMovieMotionHumanFoot.IPlacement;
+  toes: number;
+  mtp: IAutoMovieVector3;
+};
+
+/** The record of `IPrepareRollResult`'s site. */
+type IPrepareRollResult = {
+  placement: IAutoMovieMotionHumanFoot.IPlacement;
+  toes: number;
+  mtp: IAutoMovieVector3;
+};
+
+/** The record of `IRolledResult`'s site. */
+type IRolledResult = {
+  placement: IAutoMovieMotionHumanFoot.IPlacement;
+  toes: number;
+  mtp: IAutoMovieVector3;
+};

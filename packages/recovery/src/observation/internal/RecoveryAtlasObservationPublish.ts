@@ -13,8 +13,6 @@ import type {
 import { RecoveryChartAssembly } from "./RecoveryChartAssembly";
 import { RecoveryChartBatch as B } from "./RecoveryChartBatch";
 
-type Prepared =
-  Parameters<IAutoMovieRecoveryChartBatch.Operation>[0]["charts"][number];
 /**
  * Fit the completely registered selected domain and publish its canonical
  * assembly and coverage.
@@ -412,3 +410,5 @@ export function RecoveryAtlasObservationPublish(
     privateLedger,
   };
 }
+type Prepared =
+  Parameters<IAutoMovieRecoveryChartBatch.Operation>[0]["charts"][number];

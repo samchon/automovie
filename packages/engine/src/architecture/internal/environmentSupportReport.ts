@@ -26,27 +26,6 @@ import { builtEnvironmentSupportSweep } from "./builtEnvironmentSupportSweep";
 import { builtFootprintsOverlap } from "./builtFootprintsOverlap";
 import { AUTOMOVIE_SUPPORT_TOLERANCE } from "../AUTOMOVIE_SUPPORT_TOLERANCE";
 
-/** One measured piece: its node, world box and model-local corners in world. */
-interface IMeasured {
-  /** The staged node. */
-  node: string;
-
-  /** The world-axis-aligned box of its rest extent under its staged transform. */
-  box: IAutoMovieSubjectBox;
-
-  /** The eight corners of its rest extent in world metres. */
-  corners: IAutoMovieVector3[];
-}
-
-/** One candidate support: its id and the height of its top under a piece. */
-interface ICandidate {
-  /** Surface id or staged node. */
-  id: string;
-
-  /** Signed gap of the piece's underside above the candidate's top, metres. */
-  gap: number;
-}
-
 /**
  * Report the support of every staged set piece of a composed environment,
  * without refusing any.
@@ -207,6 +186,27 @@ export function environmentSupportReport(
       };
     },
   );
+}
+
+/** One measured piece: its node, world box and model-local corners in world. */
+interface IMeasured {
+  /** The staged node. */
+  node: string;
+
+  /** The world-axis-aligned box of its rest extent under its staged transform. */
+  box: IAutoMovieSubjectBox;
+
+  /** The eight corners of its rest extent in world metres. */
+  corners: IAutoMovieVector3[];
+}
+
+/** One candidate support: its id and the height of its top under a piece. */
+interface ICandidate {
+  /** Surface id or staged node. */
+  id: string;
+
+  /** Signed gap of the piece's underside above the candidate's top, metres. */
+  gap: number;
 }
 
 /**

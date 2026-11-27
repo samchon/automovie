@@ -1,13 +1,5 @@
 import { IAutoMovieDeliveryCrop } from "@automovie/interface";
 
-/** The whole uncropped gate, what an omitted crop means. */
-const WHOLE_DELIVERY_CROP: IAutoMovieDeliveryCrop = {
-  left: 0,
-  top: 0,
-  right: 1,
-  bottom: 1,
-};
-
 /**
  * Validate one delivery-gate crop and return a copy of it, or of the whole gate
  * when it is omitted.
@@ -39,3 +31,11 @@ export function resolveAutoMovieDeliveryCrop(
     );
   return { ...resolved };
 }
+
+/** The whole uncropped gate, what an omitted crop means. */
+const WHOLE_DELIVERY_CROP: IAutoMovieDeliveryCrop = {
+  left: 0,
+  top: 0,
+  right: 1,
+  bottom: 1,
+};

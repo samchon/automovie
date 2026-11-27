@@ -6,36 +6,6 @@ import type {
 
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 
-/** The record of `IClimbStairsFeetResult2`'s site. */
-type IClimbStairsFeetResult2 = {
-  placement: IAutoMovieMotionHumanFoot.IPlacement;
-  planted: boolean;
-};
-
-/** The record of `IIntervalsItemEntry`'s site. */
-type IIntervalsItemEntry = {
-  off: number;
-  on: number;
-  from: IAutoMovieMotionHumanFoot.IPlacement;
-  progress: (seconds: number) => number;
-  read: (share: number) => IAutoMovieMotionHumanFoot.IPlacement;
-};
-
-/** The record of `IClimbStairsFeetResult`'s site. */
-type IClimbStairsFeetResult = {
-  placement: IAutoMovieMotionHumanFoot.IPlacement;
-  planted: boolean;
-};
-
-/** The record of `IItemEntryItem`'s site. */
-type IItemEntryItem = {
-  print: IPrintItemEntry;
-  step: number;
-};
-
-/** The record of `IPrintItemEntry`'s site. */
-type IPrintItemEntry = { placement: IAutoMovieMotionHumanFoot.IPlacement };
-
 /**
  * Prepare each stair foot's timed swings and select its active interval.
  *
@@ -93,3 +63,33 @@ export function climbStairsFeet(
     return { placement: at.read(at.progress(seconds)), planted: false };
   };
 }
+
+/** The record of `IClimbStairsFeetResult2`'s site. */
+type IClimbStairsFeetResult2 = {
+  placement: IAutoMovieMotionHumanFoot.IPlacement;
+  planted: boolean;
+};
+
+/** The record of `IIntervalsItemEntry`'s site. */
+type IIntervalsItemEntry = {
+  off: number;
+  on: number;
+  from: IAutoMovieMotionHumanFoot.IPlacement;
+  progress: (seconds: number) => number;
+  read: (share: number) => IAutoMovieMotionHumanFoot.IPlacement;
+};
+
+/** The record of `IClimbStairsFeetResult`'s site. */
+type IClimbStairsFeetResult = {
+  placement: IAutoMovieMotionHumanFoot.IPlacement;
+  planted: boolean;
+};
+
+/** The record of `IItemEntryItem`'s site. */
+type IItemEntryItem = {
+  print: IPrintItemEntry;
+  step: number;
+};
+
+/** The record of `IPrintItemEntry`'s site. */
+type IPrintItemEntry = { placement: IAutoMovieMotionHumanFoot.IPlacement };

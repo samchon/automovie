@@ -13,9 +13,6 @@ import type {
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 
-/** The two admitted unit axes that affect wrist span. */
-type WristAxes = Pick<IAutoMovieJointAxes, "flexion" | "twist">;
-
 /**
  * The native wrist's inner reach radius. A flexion hinge with locked abduction
  * and a distal forearm twist has a proven radius. Other rigs use zero, the
@@ -102,3 +99,6 @@ export namespace HumanArmWristShell {
     return Math.max(0, Math.sqrt(Math.max(0, constant + least)) - travel);
   }
 }
+
+/** The two admitted unit axes that affect wrist span. */
+type WristAxes = Pick<IAutoMovieJointAxes, "flexion" | "twist">;

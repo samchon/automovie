@@ -10,9 +10,6 @@ import { AutoMoviePhysicalBalance } from "./AutoMoviePhysicalBalance";
 import { AutoMovieEnginePhysicalStanceBalance } from "./AutoMovieEnginePhysicalStanceBalance";
 import { physicalSupportFootprint } from "./internal/physicalSupportFootprint";
 
-/** A support limb of the balance pattern. */
-type Limb = IAutoMovieFootfallPattern["limbs"][number];
-
 /**
  * The stance's support polygons (`AutoMovieEnginePhysicalStanceBalance`): the planted
  * outlines, their shrinking by the margin, the shared support and its
@@ -284,3 +281,6 @@ export namespace AutoMovieEnginePhysicalStanceSupport {
     };
   }
 }
+
+/** A support limb of the balance pattern. */
+type Limb = IAutoMovieFootfallPattern["limbs"][number];

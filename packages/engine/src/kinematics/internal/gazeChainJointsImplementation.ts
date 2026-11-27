@@ -9,18 +9,18 @@ import type {
 } from "@automovie/interface";
 
 import { getConstraint } from "../../rom/internal/getConstraint";
+/** Shared gaze-chain implementation used by the Kinematics owner. */
+export const gazeChainJointsImplementation: IGazeChainJointsImplementation = {
+  run: runGazeChainJoints,
+  prepare: prepareGazeChainJoints,
+};
+
 interface IGazeChainJointsImplementation {
   run(props: IAutoMovieGazeChainJoints.IProps): IAutoMovieJointPose[];
   prepare(
     rig: IAutoMovieSkeleton | null,
   ): (flexionDeg: number, twistDeg: number) => IAutoMovieJointPose[];
 }
-
-/** Shared gaze-chain implementation used by the Kinematics owner. */
-export const gazeChainJointsImplementation: IGazeChainJointsImplementation = {
-  run: runGazeChainJoints,
-  prepare: prepareGazeChainJoints,
-};
 
 /** The bone a gaze is expressed on: the last link, and the one the eyes ride. */
 const HEAD: AutoMovieHumanoidBone = "head";

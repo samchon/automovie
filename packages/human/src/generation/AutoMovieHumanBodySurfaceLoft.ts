@@ -208,28 +208,6 @@ export namespace AutoMovieHumanBodySurfaceLoft {
   }
 
   /**
-   * Read the actual explicit regular section, independently of physical station
-   * jets. Native conic principal sections have distinct cardinal values.
-   * Genuine legacy absence keeps its previous endpoint policy; no retained
-   * source domain is bypassed to replay an unavailable cap.
-   */
-  function positiveEnd(
-    target: IAutoMovieLoftChain,
-    end: "bottom" | "top",
-  ): boolean {
-    const source: ReturnType<typeof AutoMovieLoftSection.phase> =
-      AutoMovieLoftSection.phase(target, endHeight(target, end));
-    if (source === null) return false;
-    const first: readonly number[] = source(0).p;
-    return [Math.PI / 2, Math.PI, (3 * Math.PI) / 2].some(
-      (phase: number): boolean =>
-        source(phase).p.some(
-          (value: number, axis: number): boolean => value !== first[axis],
-        ),
-    );
-  }
-
-  /**
    * Join one appendage to its base: the hole the base left round the root loop,
    * traced from the cells left out, and the strip to the appendage's root
    * ring.
@@ -372,4 +350,26 @@ export namespace AutoMovieHumanBodySurfaceLoft {
 
   /** Samples of a root loop when testing cells against it. */
   export const LOOP: number = 256;
+
+  /**
+   * Read the actual explicit regular section, independently of physical station
+   * jets. Native conic principal sections have distinct cardinal values.
+   * Genuine legacy absence keeps its previous endpoint policy; no retained
+   * source domain is bypassed to replay an unavailable cap.
+   */
+  function positiveEnd(
+    target: IAutoMovieLoftChain,
+    end: "bottom" | "top",
+  ): boolean {
+    const source: ReturnType<typeof AutoMovieLoftSection.phase> =
+      AutoMovieLoftSection.phase(target, endHeight(target, end));
+    if (source === null) return false;
+    const first: readonly number[] = source(0).p;
+    return [Math.PI / 2, Math.PI, (3 * Math.PI) / 2].some(
+      (phase: number): boolean =>
+        source(phase).p.some(
+          (value: number, axis: number): boolean => value !== first[axis],
+        ),
+    );
+  }
 }

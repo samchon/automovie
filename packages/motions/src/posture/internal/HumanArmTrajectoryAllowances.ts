@@ -13,12 +13,6 @@ import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import type { HumanArmTrajectoryWaypoint as W } from "./HumanArmTrajectoryWaypoint";
 
-/** One arm of the problem. */
-type Arm = HumanArmTrajectoryContext.IProblem["arms"][number];
-
-/** One collider of an arm's frame. */
-type Collider = IAutoMovieMotionHumanArmGeometry.IFrame["colliders"][number];
-
 /** The arm's three segments, in the order the tables index them. */
 const SEGMENTS: readonly M.Segment[] = ["upperArm", "lowerArm", "hand"];
 
@@ -434,3 +428,9 @@ export namespace HumanArmTrajectoryAllowances {
   /** The pair readers. */
   export type IReaders = Pick<M.IContext, Reader>;
 }
+
+/** One arm of the problem. */
+type Arm = HumanArmTrajectoryContext.IProblem["arms"][number];
+
+/** One collider of an arm's frame. */
+type Collider = IAutoMovieMotionHumanArmGeometry.IFrame["colliders"][number];

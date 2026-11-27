@@ -2,16 +2,6 @@ import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface
 
 import type { HumanQuadraticPreparation as Prep } from "./HumanQuadraticPreparation";
 
-/** The record of `IHumanQuadraticAdmissionResult`'s site. */
-type IHumanQuadraticAdmissionResult = {
-  entries: number;
-  same: boolean;
-  curvature: boolean;
-  linear: boolean;
-  rows: boolean;
-  topology: boolean;
-};
-
 /**
  * Validate all original entries and compare copied dependencies in one scan.
  *
@@ -142,6 +132,16 @@ export function HumanQuadraticAdmission(
     topology,
   };
 }
+
+/** The record of `IHumanQuadraticAdmissionResult`'s site. */
+type IHumanQuadraticAdmissionResult = {
+  entries: number;
+  same: boolean;
+  curvature: boolean;
+  linear: boolean;
+  rows: boolean;
+  topology: boolean;
+};
 
 /**
  * Maximum entry count and column index representable by the signed Int32 CSR

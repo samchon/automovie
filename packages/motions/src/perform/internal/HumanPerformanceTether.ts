@@ -14,9 +14,6 @@ import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { humanTetherCatenary } from "./humanTetherCatenary";
 import { humanTetherReach } from "./humanTetherReach";
 
-/** A tether found by its far prop: the declaring prop and the line. */
-type IHeld = IAutoMovieMotionHumanPerformanceState.ITethered;
-
 /**
  * The lines between props (`IAutoMovieMotionHumanTether`): where a line lies at
  * a second, and how it holds its far prop.
@@ -164,6 +161,9 @@ export namespace HumanPerformanceTether {
     return out;
   }
 }
+
+/** A tether found by its far prop: the declaring prop and the line. */
+type IHeld = IAutoMovieMotionHumanPerformanceState.ITethered;
 
 /**
  * Whether a hand or a wear carries the prop at a second. A mount a launch

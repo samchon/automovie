@@ -44,19 +44,6 @@ import { operateInsert } from "./operateInsert";
 import { operateInsertRoute } from "./operateInsertRoute";
 import { operateState } from "./operateState";
 
-/** The record of `IPlanStroke`'s site. */
-type IPlanStroke = {
-  contact: NonNullable<IAutoMovieMotionHumanArmPhrase.IStrokeProps["contact"]>;
-};
-
-/** The record of `IPACEItem`'s site. */
-type IPACEItem = {
-  press: number;
-  turn: number;
-  slide: number;
-  swing: number;
-};
-
 /**
  * Operating an articulated thing with one hand while standing: pressing a
  * button along its axis, turning a knob about its axis, pulling or pushing a
@@ -436,3 +423,16 @@ export namespace operate {
     return plan;
   }
 }
+
+/** The record of `IPlanStroke`'s site. */
+type IPlanStroke = {
+  contact: NonNullable<IAutoMovieMotionHumanArmPhrase.IStrokeProps["contact"]>;
+};
+
+/** The record of `IPACEItem`'s site. */
+type IPACEItem = {
+  press: number;
+  turn: number;
+  slide: number;
+  swing: number;
+};

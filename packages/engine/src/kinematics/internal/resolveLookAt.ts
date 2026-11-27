@@ -11,40 +11,6 @@ import {
 
 import { GAZE_PRESET_CHANNELS } from "../GAZE_PRESET_CHANNELS";
 
-/** One eye's four gaze channels. */
-interface IEyeChannels {
-  /** Turns the eye up. */
-  up: AutoMovieArkitChannel;
-
-  /** Turns the eye down. */
-  down: AutoMovieArkitChannel;
-
-  /** Turns the eye toward the nose. */
-  in: AutoMovieArkitChannel;
-
-  /** Turns the eye away from the nose. */
-  out: AutoMovieArkitChannel;
-}
-
-const LEFT: IEyeChannels = {
-  up: "eyeLookUpLeft",
-  down: "eyeLookDownLeft",
-  in: "eyeLookInLeft",
-  out: "eyeLookOutLeft",
-};
-
-const RIGHT: IEyeChannels = {
-  up: "eyeLookUpRight",
-  down: "eyeLookDownRight",
-  in: "eyeLookInRight",
-  out: "eyeLookOutRight",
-};
-
-const GAZE_CHANNELS: ReadonlySet<AutoMovieArkitChannel> = new Set([
-  ...Object.values(LEFT),
-  ...Object.values(RIGHT),
-]);
-
 /**
  * Turn the gaze channels of a sampled expression into eye-bone rotations, for a
  * model whose {@link IAutoMovieLookAt} is `"bone"`.
@@ -180,6 +146,40 @@ export function resolveLookAt(
     },
   };
 }
+
+/** One eye's four gaze channels. */
+interface IEyeChannels {
+  /** Turns the eye up. */
+  up: AutoMovieArkitChannel;
+
+  /** Turns the eye down. */
+  down: AutoMovieArkitChannel;
+
+  /** Turns the eye toward the nose. */
+  in: AutoMovieArkitChannel;
+
+  /** Turns the eye away from the nose. */
+  out: AutoMovieArkitChannel;
+}
+
+const LEFT: IEyeChannels = {
+  up: "eyeLookUpLeft",
+  down: "eyeLookDownLeft",
+  in: "eyeLookInLeft",
+  out: "eyeLookOutLeft",
+};
+
+const RIGHT: IEyeChannels = {
+  up: "eyeLookUpRight",
+  down: "eyeLookDownRight",
+  in: "eyeLookInRight",
+  out: "eyeLookOutRight",
+};
+
+const GAZE_CHANNELS: ReadonlySet<AutoMovieArkitChannel> = new Set([
+  ...Object.values(LEFT),
+  ...Object.values(RIGHT),
+]);
 
 /** Add a turn to an authored angle, keeping `null` (at rest) for no turn. */
 const add: (angle: number | null, turn: number) => number | null = (

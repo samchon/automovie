@@ -5,12 +5,6 @@ import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieJointPose, IA
 import { AutoMovieMotionHumanAuditBalance } from "../../audit/internal/AutoMovieMotionHumanAuditBalance";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 
-/** The record of `IWorstOutsideWorst`'s site. */
-type IWorstOutsideWorst = { value: number; at: number };
-
-/** The record of `IWorstOutsideResult`'s site. */
-type IWorstOutsideResult = { value: number; at: number };
-
 /**
  * Measures of a held stance on displayed poses, shared by the step 4 capture
  * cases (stretching, dance, sport): how far the body's extrapolated centre of
@@ -154,3 +148,9 @@ export namespace StanceVerdicts {
     return (Math.acos(Math.max(-1, Math.min(1, cos))) * 180) / Math.PI;
   }
 }
+
+/** The record of `IWorstOutsideWorst`'s site. */
+type IWorstOutsideWorst = { value: number; at: number };
+
+/** The record of `IWorstOutsideResult`'s site. */
+type IWorstOutsideResult = { value: number; at: number };

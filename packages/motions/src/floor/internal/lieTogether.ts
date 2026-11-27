@@ -103,9 +103,6 @@ export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLi
     plan: planLieTogether,
   };
 
-/** The two bones of a folding arm. */
-type ArmBone = "upper" | "lower";
-
 /**
  * Lie together with a partner. Both already lie on the support (`lieDown`,
  * `lieOnSurface`, `turnOver`), the performer within its arm's reach (upper arm,
@@ -486,3 +483,6 @@ function planLieTogether(
         partner: p.partner,
       });
 }
+
+/** The two bones of a folding arm. */
+type ArmBone = "upper" | "lower";

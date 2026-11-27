@@ -3,12 +3,6 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-/** Default world-space position drift tolerated across a cut (metres). */
-const DEFAULT_POSITION_TOLERANCE: number = 0.05;
-
-/** Default facing drift tolerated across a cut (degrees). */
-const DEFAULT_FACING_TOLERANCE_DEG: number = 5;
-
 /**
  * Default position/facing tolerance to0.05m/5deg and admit finite nonnegative
  * values, with facing<=180.
@@ -40,3 +34,9 @@ export function readContinuityTolerances(
   if (badPos || badFacing) return null;
   return { position: pos, facingDeg: facing };
 }
+
+/** Default world-space position drift tolerated across a cut (metres). */
+const DEFAULT_POSITION_TOLERANCE: number = 0.05;
+
+/** Default facing drift tolerated across a cut (degrees). */
+const DEFAULT_FACING_TOLERANCE_DEG: number = 5;

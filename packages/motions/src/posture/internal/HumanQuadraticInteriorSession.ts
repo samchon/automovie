@@ -4,9 +4,6 @@ import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 import type { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPreparation";
 import type { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace";
 
-/** The record of `ISessionWork`'s site. */
-type ISessionWork = { n: number; m: number; work: Workspace.IWork };
-
 /**
  * What the interior-point solve (`HumanQuadraticInterior`) carries between the
  * solves of one caller's session (one optimisation's subproblems), and the warm
@@ -240,3 +237,6 @@ export namespace HumanQuadraticInteriorSession {
     return out;
   }
 }
+
+/** The record of `ISessionWork`'s site. */
+type ISessionWork = { n: number; m: number; work: Workspace.IWork };

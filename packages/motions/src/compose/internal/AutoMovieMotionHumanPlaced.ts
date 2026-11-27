@@ -24,12 +24,6 @@ import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTargetGrid } from "./AutoMovieMotionHumanTargetGrid";
 
-/** The alternatives of `RootPosture`'s site. */
-type RootPosture = "yaw" | "pitch" | "roll";
-
-/** The alternatives of `GridPosture`'s site. */
-type GridPosture = "root" | "yaw" | "pitch" | "roll";
-
 /**
  * An arm carried to a place of the air: the hand surface laid on a point with a
  * facing, the arm's reach, hold and return planned as one trajectory over the
@@ -359,6 +353,12 @@ export namespace AutoMovieMotionHumanPlaced {
     );
   }
 }
+
+/** The alternatives of `RootPosture`'s site. */
+type RootPosture = "yaw" | "pitch" | "roll";
+
+/** The alternatives of `GridPosture`'s site. */
+type GridPosture = "root" | "yaw" | "pitch" | "roll";
 
 /** Genuine current-person exact FK source borrowed only by actual observations. */
 type IFK = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];

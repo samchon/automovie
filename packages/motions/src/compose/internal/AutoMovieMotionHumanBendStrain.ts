@@ -12,12 +12,6 @@ import { readHumanBone } from "../../body/internal/readHumanBone";
 import type { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
 import type { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 
-/** The record of `IPastRange`'s site. */
-type IPastRange = { min: number; max: number };
-
-/** The record of `IHalfRange`'s site. */
-type IHalfRange = { min: number; max: number };
-
 /**
  * Half the width of a range, degrees, or null for an axis that does not move.
  *
@@ -286,3 +280,9 @@ export namespace AutoMovieMotionHumanBendStrain {
     return of === null ? 0 : (value / of) ** 2;
   }
 }
+
+/** The record of `IPastRange`'s site. */
+type IPastRange = { min: number; max: number };
+
+/** The record of `IHalfRange`'s site. */
+type IHalfRange = { min: number; max: number };

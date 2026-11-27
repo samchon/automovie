@@ -11,18 +11,6 @@ import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 
-/** The alternatives of `CarriedColumnEntry`'s site. */
-type CarriedColumnEntry = "upper" | "lower" | "hand";
-
-/** The alternatives of `CarriedOwner`'s site. */
-type CarriedOwner = "upper" | "lower" | "hand";
-
-/** The alternatives of `WaypointFramesEntry`'s site. */
-type WaypointFramesEntry = "upper" | "lower" | "hand";
-
-/** The alternatives of `SegmentsEntryItem`'s site. */
-type SegmentsEntryItem = "upper" | "lower" | "hand";
-
 /**
  * The Jacobians of every probe, the contact and the hand's rotation of every
  * arm at every inner waypoint; an outer waypoint's are empty.
@@ -322,3 +310,15 @@ export namespace HumanArmTrajectoryJacobians {
     return { origin: Vector3.scale(twist.linear, 1000), omega: twist.angular };
   }
 }
+
+/** The alternatives of `CarriedColumnEntry`'s site. */
+type CarriedColumnEntry = "upper" | "lower" | "hand";
+
+/** The alternatives of `CarriedOwner`'s site. */
+type CarriedOwner = "upper" | "lower" | "hand";
+
+/** The alternatives of `WaypointFramesEntry`'s site. */
+type WaypointFramesEntry = "upper" | "lower" | "hand";
+
+/** The alternatives of `SegmentsEntryItem`'s site. */
+type SegmentsEntryItem = "upper" | "lower" | "hand";

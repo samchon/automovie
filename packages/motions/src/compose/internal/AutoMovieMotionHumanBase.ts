@@ -9,9 +9,6 @@ import type {
 
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 
-/** The alternatives of `PlantsPart`'s site. */
-type PlantsPart = "leftFoot" | "rightFoot";
-
 /**
  * Bases of composed actions: the plan whose posture every unclaimed channel
  * keeps.
@@ -119,3 +116,6 @@ export namespace AutoMovieMotionHumanBase {
     );
   }
 }
+
+/** The alternatives of `PlantsPart`'s site. */
+type PlantsPart = "leftFoot" | "rightFoot";

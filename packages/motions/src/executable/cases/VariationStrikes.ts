@@ -13,15 +13,6 @@ import { StrikingLimb } from "./StrikingLimb";
 import { VariationSeries } from "./VariationSeries";
 import { strikingScenarios } from "./strikingScenarios";
 
-/** The record of `IReadResult`'s site. */
-type IReadResult = {
-  verdicts: IMotionCaptureCase.IVerdict[];
-  metrics: IReadMetricsResult;
-};
-
-/** The record of `IReadMetricsResult`'s site. */
-type IReadMetricsResult = { radius: number; wide: number; narrow: number };
-
 /**
  * The strike verdicts of the variation capture: the points a straight punch
  * aims at within the partner's abdomen over `VariationSeries.REPEATS` repeats
@@ -101,6 +92,15 @@ export namespace VariationStrikes {
     return { verdicts, metrics: { radius, wide, narrow } };
   }
 }
+
+/** The record of `IReadResult`'s site. */
+type IReadResult = {
+  verdicts: IMotionCaptureCase.IVerdict[];
+  metrics: IReadMetricsResult;
+};
+
+/** The record of `IReadMetricsResult`'s site. */
+type IReadMetricsResult = { radius: number; wide: number; narrow: number };
 
 /** One repeat's strike point. */
 interface IStruck {

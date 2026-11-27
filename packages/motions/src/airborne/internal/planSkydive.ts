@@ -22,21 +22,6 @@ import { stuntFallPose } from "../../reaction/internal/stuntFallPose";
 import { skydivePath } from "./skydivePath";
 import { skydivePoses } from "./skydivePoses";
 
-/** Seconds the exit takes to turn from standing into the arch (provisional). */
-const EXIT_TURN: number = 1;
-
-/** Seconds a toggle takes to come down or go back up (provisional). */
-const PULL: number = 0.3;
-
-/** Seconds of the parachute landing fall (provisional). */
-const PLF: number = 1.2;
-
-/** Seconds a stand-up landing takes to absorb (provisional). */
-const ABSORB: number = 0.5;
-
-/** The landing fall's events in order. */
-const POINTS: readonly string[] = ["calf", "thigh", "buttock", "pushUp"];
-
 /**
  * Plan a parachute jump from a named edge to the ground at the world floor: the
  * hips follow `skydivePath`, and the body turns from the stance at the edge
@@ -407,3 +392,18 @@ export function planSkydive(
     yields: [],
   };
 }
+
+/** Seconds the exit takes to turn from standing into the arch (provisional). */
+const EXIT_TURN: number = 1;
+
+/** Seconds a toggle takes to come down or go back up (provisional). */
+const PULL: number = 0.3;
+
+/** Seconds of the parachute landing fall (provisional). */
+const PLF: number = 1.2;
+
+/** Seconds a stand-up landing takes to absorb (provisional). */
+const ABSORB: number = 0.5;
+
+/** The landing fall's events in order. */
+const POINTS: readonly string[] = ["calf", "thigh", "buttock", "pushUp"];

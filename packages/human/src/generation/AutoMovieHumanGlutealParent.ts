@@ -118,17 +118,6 @@ export namespace AutoMovieHumanGlutealParent {
   }
 }
 
-/** A calibration-mm point or dimensionless direction. */
-type Vec3 = AutoMovieVector3Tuple;
-
-/** One admitted original source, before lofting or Boolean assembly. */
-interface Field {
-  /** Identical original production part, including its actual frame owner. */
-  part: IAutoMovieViewPart;
-  /** Prepared original scalar/fullness/cap owner. */
-  source: IAutoMovieLoftViewSource.ISource;
-}
-
 /**
  * Retain the full original source, refusing unavailable direct fullness
  * explicitly.
@@ -320,19 +309,6 @@ function legReader(
   };
 }
 
-/**
- * Value-only radial residual in the actual source plane, without a closest
- * surface foot.
- */
-interface Reading {
-  /** Query distance minus the actual whole-section radius, mm. */
-  residual: number;
-  /** Actual source-plane station, mm. */
-  station: number;
-  /** Original local polar phase, radians. */
-  phase: number;
-}
-
 /** Intersect a world point's normal plane with the original proximal course. */
 function radial(
   field: Field,
@@ -446,4 +422,28 @@ function unite(
     else if (chord.front.x > last.front.x) last.front = chord.front;
   }
   return out;
+}
+
+/** A calibration-mm point or dimensionless direction. */
+type Vec3 = AutoMovieVector3Tuple;
+
+/** One admitted original source, before lofting or Boolean assembly. */
+interface Field {
+  /** Identical original production part, including its actual frame owner. */
+  part: IAutoMovieViewPart;
+  /** Prepared original scalar/fullness/cap owner. */
+  source: IAutoMovieLoftViewSource.ISource;
+}
+
+/**
+ * Value-only radial residual in the actual source plane, without a closest
+ * surface foot.
+ */
+interface Reading {
+  /** Query distance minus the actual whole-section radius, mm. */
+  residual: number;
+  /** Actual source-plane station, mm. */
+  station: number;
+  /** Original local polar phase, radians. */
+  phase: number;
 }

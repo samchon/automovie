@@ -12,16 +12,6 @@ import { Vector3 } from "../../math/Vector3";
 import { seededValue } from "../../math/internal/seededValue";
 
 /**
- * Domain salts separate the three seeded component samples without retaining a
- * random stream.
- */
-const JITTER_X: number = 0x73707278;
-/** Y component salt used with the same emitter seed and spawn index. */
-const JITTER_Y: number = 0x73707279;
-/** Z component salt used with the same emitter seed and spawn index. */
-const JITTER_Z: number = 0x7370727a;
-
-/**
  * Sample the decorative spray of a fluid domain at one solved state.
  *
  * Decorative particles do not change depths or volume ledgers. The supplied
@@ -63,6 +53,16 @@ export function sampleFluidSpray(
     emit({ domain, state, spray, time, cameraDistance, particles });
   return { step: state.step, time, particles };
 }
+/**
+ * Domain salts separate the three seeded component samples without retaining a
+ * random stream.
+ */
+const JITTER_X: number = 0x73707278;
+/** Y component salt used with the same emitter seed and spawn index. */
+const JITTER_Y: number = 0x73707279;
+
+/** Z component salt used with the same emitter seed and spawn index. */
+const JITTER_Z: number = 0x7370727a;
 
 /**
  * Append one emitter's newest stride-selected survivors, reversing the local

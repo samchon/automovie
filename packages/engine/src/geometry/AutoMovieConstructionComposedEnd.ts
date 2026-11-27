@@ -7,11 +7,6 @@ import type {
 
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-/** World point or direction, mm. */
-type Vec3 = AutoMovieVector3Tuple;
-
-/** A point or a derivative in the end plane's own coordinates, mm. */
-type V2 = [number, number];
 const { add, cross, dot, norm, scale, sub, unit } = AutoMovieSolidVector;
 
 /**
@@ -465,3 +460,8 @@ export namespace AutoMovieConstructionComposedEnd {
     };
   }
 }
+/** World point or direction, mm. */
+type Vec3 = AutoMovieVector3Tuple;
+
+/** A point or a derivative in the end plane's own coordinates, mm. */
+type V2 = [number, number];

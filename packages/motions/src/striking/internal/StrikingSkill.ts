@@ -7,9 +7,6 @@ import type {
 
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 
-/** The alternatives of `IMPACTSPEEDSHAREEntryItem`'s site. */
-type IMPACTSPEEDSHAREEntryItem = "punch" | "kick";
-
 /**
  * The striking family's measured timing, speed, reaction and guard numbers,
  * from novice to elite, as `HumanSkill.quantity` reads them. They belong to
@@ -357,3 +354,6 @@ export namespace StrikingSkill {
     };
   }
 }
+
+/** The alternatives of `IMPACTSPEEDSHAREEntryItem`'s site. */
+type IMPACTSPEEDSHAREEntryItem = "punch" | "kick";

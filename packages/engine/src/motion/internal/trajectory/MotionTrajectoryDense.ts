@@ -11,42 +11,6 @@ import { MotionTrajectoryPolynomial } from "./MotionTrajectoryPolynomial";
 import type { MotionTrajectoryRead } from "./MotionTrajectoryRead";
 import { MotionTrajectoryRotation } from "./MotionTrajectoryRotation";
 
-/** DOPRI5's original continuous-extension weights, from Hairer/Wanner CDOPRI. */
-const D: readonly number[] = [
-  -12715105075 / 11282082432,
-  0,
-  87487479700 / 32700410799,
-  -10690763975 / 1880347072,
-  701980252875 / 199316789632,
-  -1453857185 / 822651844,
-  69997945 / 29380423,
-];
-
-/** Numeric coordinate names of a body-frame rotation vector. */
-const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
-
-/**
- * The method's stage fractions, its endpoints and the two derivative nodes,
- * ascending.
- */
-const METHOD_NODES: readonly number[] = [
-  0,
-  1 / 5,
-  3 / 10,
-  4 / 5,
-  8 / 9,
-  1,
-  ...MotionTrajectoryPolynomial.NODES,
-].sort((a: number, b: number): number => a - b);
-
-/** Insert a node into an ascending list unless an equal one is there. */
-function insert(nodes: number[], node: number): void {
-  let at: number = nodes.length;
-  while (at > 0 && nodes[at - 1]! > node) --at;
-  if (at > 0 && nodes[at - 1] === node) return;
-  nodes.splice(at, 0, node);
-}
-
 /**
  * Build a C1 dense step, optionally controlled by a paired physical defect.
  *
@@ -340,4 +304,40 @@ export function MotionTrajectoryDense(props: {
     }
   }
   return { step: v, error };
+}
+
+/** DOPRI5's original continuous-extension weights, from Hairer/Wanner CDOPRI. */
+const D: readonly number[] = [
+  -12715105075 / 11282082432,
+  0,
+  87487479700 / 32700410799,
+  -10690763975 / 1880347072,
+  701980252875 / 199316789632,
+  -1453857185 / 822651844,
+  69997945 / 29380423,
+];
+
+/** Numeric coordinate names of a body-frame rotation vector. */
+const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
+
+/**
+ * The method's stage fractions, its endpoints and the two derivative nodes,
+ * ascending.
+ */
+const METHOD_NODES: readonly number[] = [
+  0,
+  1 / 5,
+  3 / 10,
+  4 / 5,
+  8 / 9,
+  1,
+  ...MotionTrajectoryPolynomial.NODES,
+].sort((a: number, b: number): number => a - b);
+
+/** Insert a node into an ascending list unless an equal one is there. */
+function insert(nodes: number[], node: number): void {
+  let at: number = nodes.length;
+  while (at > 0 && nodes[at - 1]! > node) --at;
+  if (at > 0 && nodes[at - 1] === node) return;
+  nodes.splice(at, 0, node);
 }

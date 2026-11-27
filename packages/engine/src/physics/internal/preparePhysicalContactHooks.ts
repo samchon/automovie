@@ -5,18 +5,6 @@ import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBi
 import { isPhysicalPairExcluded } from "./isPhysicalPairExcluded";
 import type { solveXpbdContacts } from "./solveXpbdContacts";
 
-/** A bound segment owns its provider order and pairs with higher ordinals. */
-interface ISegment {
-  /** Scene identity of the body the segment belongs to. */
-  body: string;
-
-  /** The segment's index in its profile's admitted segment order. */
-  ordinal: number;
-
-  /** Ordinals of later segments of the same body this one never touches. */
-  excluded?: Set<number>;
-}
-
 /**
  * Build the world's collider-pair filter for one bound run: two colliders of
  * the same segment, of a joint's two segments, or of a pair the profile
@@ -85,4 +73,16 @@ export function preparePhysicalContactHooks(
       ? left.excluded?.has(right.ordinal) === true
       : right.excluded?.has(left.ordinal) === true;
   }
+}
+
+/** A bound segment owns its provider order and pairs with higher ordinals. */
+interface ISegment {
+  /** Scene identity of the body the segment belongs to. */
+  body: string;
+
+  /** The segment's index in its profile's admitted segment order. */
+  ordinal: number;
+
+  /** Ordinals of later segments of the same body this one never touches. */
+  excluded?: Set<number>;
 }

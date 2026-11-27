@@ -19,55 +19,6 @@ import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCo
 import { fkReachableBones } from "./fkReachableBones";
 import { admitMotionSampleRate } from "./admitMotionSampleRate";
 
-const DEFAULT_MARGIN: number = 0.02;
-
-const DEFAULT_SAMPLE_RATE: number = 24;
-
-/**
- * Fixed relative weights for the proximal-joint mass approximation, normalized
- * over resolved bones; minor bones use the 0.2 fallback.
- */
-const SEGMENT_MASS_FRACTION: Partial<Record<AutoMovieHumanoidBone, number>> = {
-  hips: 14.2,
-  spine: 13.9,
-  chest: 15.6,
-  upperChest: 6.0,
-  neck: 1.1,
-  head: 7.0,
-  leftUpperArm: 2.8,
-  rightUpperArm: 2.8,
-  leftLowerArm: 1.6,
-  rightLowerArm: 1.6,
-  leftHand: 0.6,
-  rightHand: 0.6,
-  leftUpperLeg: 10.0,
-  rightUpperLeg: 10.0,
-  leftLowerLeg: 4.65,
-  rightLowerLeg: 4.65,
-  leftFoot: 1.45,
-  rightFoot: 1.45,
-};
-
-/** Mass fraction for a minor bone the table omits (clavicle, toe, eye, finger). */
-const DEFAULT_SEGMENT_MASS_FRACTION: number = 0.2;
-
-const CENTER_BONE_EXPECTED: string =
-  "center bone must exist in the target skeleton";
-
-const CENTER_BONE_REACHABLE: string =
-  "center bone is declared but not reachable from a root bone via forward kinematics";
-
-const MARGIN_EXPECTED: string = "margin must be a finite number >= 0";
-
-const SUPPORT_BONES_EXPECTED: string =
-  "supportBones must contain at least one contact bone";
-
-const SUPPORT_BONE_EXPECTED: string =
-  "support bone must exist in the target skeleton";
-
-const SUPPORT_BONE_REACHABLE: string =
-  "support bone is declared but not reachable from a root bone via forward kinematics";
-
 /**
  * Sample FK within valid support windows, project a single-bone or weighted
  * joint-position center onto XZ, and warn beyond the support hull plus a finite
@@ -242,6 +193,55 @@ export function validateBalanceSupport(
   const validation: IAutoMovieValidation = collector.toValidation();
   return validation;
 }
+
+const DEFAULT_MARGIN: number = 0.02;
+
+const DEFAULT_SAMPLE_RATE: number = 24;
+
+/**
+ * Fixed relative weights for the proximal-joint mass approximation, normalized
+ * over resolved bones; minor bones use the 0.2 fallback.
+ */
+const SEGMENT_MASS_FRACTION: Partial<Record<AutoMovieHumanoidBone, number>> = {
+  hips: 14.2,
+  spine: 13.9,
+  chest: 15.6,
+  upperChest: 6.0,
+  neck: 1.1,
+  head: 7.0,
+  leftUpperArm: 2.8,
+  rightUpperArm: 2.8,
+  leftLowerArm: 1.6,
+  rightLowerArm: 1.6,
+  leftHand: 0.6,
+  rightHand: 0.6,
+  leftUpperLeg: 10.0,
+  rightUpperLeg: 10.0,
+  leftLowerLeg: 4.65,
+  rightLowerLeg: 4.65,
+  leftFoot: 1.45,
+  rightFoot: 1.45,
+};
+
+/** Mass fraction for a minor bone the table omits (clavicle, toe, eye, finger). */
+const DEFAULT_SEGMENT_MASS_FRACTION: number = 0.2;
+
+const CENTER_BONE_EXPECTED: string =
+  "center bone must exist in the target skeleton";
+
+const CENTER_BONE_REACHABLE: string =
+  "center bone is declared but not reachable from a root bone via forward kinematics";
+
+const MARGIN_EXPECTED: string = "margin must be a finite number >= 0";
+
+const SUPPORT_BONES_EXPECTED: string =
+  "supportBones must contain at least one contact bone";
+
+const SUPPORT_BONE_EXPECTED: string =
+  "support bone must exist in the target skeleton";
+
+const SUPPORT_BONE_REACHABLE: string =
+  "support bone is declared but not reachable from a root bone via forward kinematics";
 
 /**
  * Compute a weighted mean of resolved joint world positions using the fixed

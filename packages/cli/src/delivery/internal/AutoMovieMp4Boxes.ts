@@ -35,6 +35,24 @@ export namespace AutoMovieMp4Boxes {
   }
 
   /**
+   * One `elst` entry: a presentation segment in movie ticks from a media time
+   * in media ticks, at a 16.16 rate.
+   */
+  export interface IEdit {
+    /** Segment length in movie ticks. */
+    segmentDuration: bigint;
+
+    /** Media start in media ticks; minus one is an empty edit. */
+    mediaTime: bigint;
+
+    /** Integer part of the rate. */
+    mediaRateInteger: number;
+
+    /** Fractional part of the rate. */
+    mediaRateFraction: number;
+  }
+
+  /**
    * Largest top-level box read into memory; a sample table beyond it is
    * refused.
    */
@@ -188,24 +206,6 @@ export namespace AutoMovieMp4Boxes {
         ? buffer.readBigUInt64BE(field(box, 24, 8))
         : BigInt(buffer.readUInt32BE(field(box, 16, 4))),
     };
-  }
-
-  /**
-   * One `elst` entry: a presentation segment in movie ticks from a media time
-   * in media ticks, at a 16.16 rate.
-   */
-  export interface IEdit {
-    /** Segment length in movie ticks. */
-    segmentDuration: bigint;
-
-    /** Media start in media ticks; minus one is an empty edit. */
-    mediaTime: bigint;
-
-    /** Integer part of the rate. */
-    mediaRateInteger: number;
-
-    /** Fractional part of the rate. */
-    mediaRateFraction: number;
   }
 
   /**

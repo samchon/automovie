@@ -6,13 +6,6 @@ import type {
 import { Vector3 } from "../../math/Vector3";
 
 /**
- * Smallest horizontal share of `north` that still names a heading. Below it,
- * `north` lies within about 0.2 arcseconds of the up axis, where rounding in
- * the projection decides the heading rather than the authored vector.
- */
-const PARALLEL: number = 1e-6;
-
-/**
  * Turn a solved sun position into the unit world direction from the site toward
  * the sun.
  *
@@ -59,3 +52,10 @@ export function autoMovieSunDirection(
     Vector3.scale(up, Math.sin(elevation)),
   );
 }
+
+/**
+ * Smallest horizontal share of `north` that still names a heading. Below it,
+ * `north` lies within about 0.2 arcseconds of the up axis, where rounding in
+ * the projection decides the heading rather than the authored vector.
+ */
+const PARALLEL: number = 1e-6;

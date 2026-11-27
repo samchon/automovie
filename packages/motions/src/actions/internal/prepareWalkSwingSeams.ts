@@ -16,27 +16,6 @@ import { WALK_TICK } from "./WALK_TICK";
 import type { walkLocomoteSwings } from "./walkLocomoteSwings";
 import { walkReach } from "./walkReach";
 
-interface IFoot {
-  ankle: IAutoMovieVector3;
-  knee: IAutoMovieVector3;
-  rotation: IAutoMovieQuaternion;
-  toes: number;
-}
-
-interface IAdjustment {
-  ankle: IAutoMovieVector3;
-  knee: IAutoMovieVector3;
-  turn: ReturnType<typeof Quaternion.prepareSlerp>;
-  toes: number;
-}
-
-interface ISeams {
-  departure: IAdjustment | undefined;
-  landing: IAdjustment;
-}
-
-type Flight = NonNullable<IAutoMovieMotionHumanWalkFoot.IScheduled["swing"]>;
-
 /**
  * The plant fitter can re-aim an ankle and tip its toes to hold the ground.
  * Carry its actual pose into the adjacent swing before fading the correction
@@ -140,6 +119,27 @@ export function prepareWalkSwingSeams(
     joints[toe] = [joints[toe]![0] + weight * adjustment.toes, 0, 0];
   };
 }
+
+interface IFoot {
+  ankle: IAutoMovieVector3;
+  knee: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+  toes: number;
+}
+
+interface IAdjustment {
+  ankle: IAutoMovieVector3;
+  knee: IAutoMovieVector3;
+  turn: ReturnType<typeof Quaternion.prepareSlerp>;
+  toes: number;
+}
+
+interface ISeams {
+  departure: IAdjustment | undefined;
+  landing: IAdjustment;
+}
+
+type Flight = NonNullable<IAutoMovieMotionHumanWalkFoot.IScheduled["swing"]>;
 
 /** One tick along the owning phase's existing backward endpoint estimate. */
 function extrapolate(last: IFoot, previous: IFoot): IFoot {

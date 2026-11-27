@@ -3,9 +3,6 @@ import type { IAutoMovieJointPose } from "@automovie/interface";
 import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
 import type { AutoMovieEngineMotionJointProjection } from "../AutoMovieEngineMotionJointProjection";
 
-/** Original F/A/T coordinate names, with no alternate angular convention. */
-type Axis = "flexion" | "abduction" | "twist";
-
 /**
  * Read one query's actual reference clamp and own its later analytic inputs.
  * The current callback is looked up exactly once at each original call site.
@@ -103,6 +100,9 @@ export function prepareJointProjectionClamp(
     },
   };
 }
+
+/** Original F/A/T coordinate names, with no alternate angular convention. */
+type Axis = "flexion" | "abduction" | "twist";
 
 /** Preserve the actual returned clinical values without reading unused metadata. */
 function snapshot(joint: IAutoMovieJointPose): IAutoMovieJointPose {

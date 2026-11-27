@@ -6,12 +6,6 @@ import type {
 import type { walkFoot } from "./walkFoot";
 import type { walkReach } from "./walkReach";
 
-/** The alternatives of `WalkReachFeetResult`'s site. */
-type WalkReachFeetResult = "feet" | "contacts";
-
-/** The alternatives of `WalkReachFeetHeld`'s site. */
-type WalkReachFeetHeld = "feet" | "contacts";
-
 /**
  * Read final stance endpoints only when a grounded result consumes them.
  * Bearing stances are already fitted by the root solve; non-bearing stances are
@@ -63,3 +57,9 @@ export function walkReachFeet(
     },
   };
 }
+
+/** The alternatives of `WalkReachFeetResult`'s site. */
+type WalkReachFeetResult = "feet" | "contacts";
+
+/** The alternatives of `WalkReachFeetHeld`'s site. */
+type WalkReachFeetHeld = "feet" | "contacts";

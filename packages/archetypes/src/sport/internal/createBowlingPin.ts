@@ -11,34 +11,6 @@ import {
 } from "../../core";
 
 /**
- * Height and diameter pairs in inches, from the USBC Bowling Pin Dimensions
- * table.
- */
-const PROFILE: readonly [number, number][] = [
-  [0, 2.031],
-  [0.75, 2.828],
-  [2.25, 3.906],
-  [3.375, 4.51],
-  [4.5, 4.766],
-  [5.875, 4.563],
-  [7.25, 3.703],
-  [8.625, 2.472],
-  [9.375, 1.965],
-  [10, 1.797],
-  [10.875, 1.87],
-  [11.75, 2.094],
-  [12.625, 2.406],
-  [13.5, 2.547],
-];
-
-/** Crown stations used to close the shell at the USBC nominal 15 in height. */
-const CROWN: readonly [number, number][] = [
-  [14.3, 2.2],
-  [14.8, 1.4],
-  [15, 0.2],
-];
-
-/**
  * A ten-pin bowling pin standing at its own base origin, so ten independent
  * instances can move after a hit.
  *
@@ -106,3 +78,31 @@ export function createBowlingPin(
   });
   return builder.build(mass);
 }
+
+/**
+ * Height and diameter pairs in inches, from the USBC Bowling Pin Dimensions
+ * table.
+ */
+const PROFILE: readonly [number, number][] = [
+  [0, 2.031],
+  [0.75, 2.828],
+  [2.25, 3.906],
+  [3.375, 4.51],
+  [4.5, 4.766],
+  [5.875, 4.563],
+  [7.25, 3.703],
+  [8.625, 2.472],
+  [9.375, 1.965],
+  [10, 1.797],
+  [10.875, 1.87],
+  [11.75, 2.094],
+  [12.625, 2.406],
+  [13.5, 2.547],
+];
+
+/** Crown stations used to close the shell at the USBC nominal 15 in height. */
+const CROWN: readonly [number, number][] = [
+  [14.3, 2.2],
+  [14.8, 1.4],
+  [15, 0.2],
+];

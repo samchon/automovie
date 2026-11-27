@@ -8,9 +8,6 @@ import type {
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** The alternatives of `PrepareDanceBeatsContext`'s site. */
-type PrepareDanceBeatsContext = "cue" | "start";
-
 /**
  * The beat clock every dance law shares: beat `k` at `lead + (k - 1) period`.
  * Unlocked, the period is `60 / bpm` and the lead one period; locked to a cue
@@ -78,3 +75,6 @@ export function prepareDanceBeats(
       (exact ? locked?.[k - 1] : undefined) ?? lead + (k - 1) * period,
   };
 }
+
+/** The alternatives of `PrepareDanceBeatsContext`'s site. */
+type PrepareDanceBeatsContext = "cue" | "start";

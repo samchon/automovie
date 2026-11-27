@@ -27,12 +27,6 @@ import { gaitPhaseOf } from "./gaitPhaseOf";
 import { plantsAtEnd } from "./plantsAtEnd";
 import { rootVelocityOf } from "./rootVelocityOf";
 
-/** Model-space forward, `+Z`, rotated into the world to state `facing`. */
-const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
-
-/** Zero vector, the velocity of an empty difference window. */
-const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-
 /**
  * Every scene actor's resumable state at one shot-local instant, the one body
  * behind {@link resolveBeatOpening} (`instant = 0`) and {@link resolveBeatEnd}
@@ -156,6 +150,12 @@ export function resolveBeatSnapshot(
     ),
   };
 }
+
+/** Model-space forward, `+Z`, rotated into the world to state `facing`. */
+const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
+
+/** Zero vector, the velocity of an empty difference window. */
+const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
 /**
  * A borrowed performance and its original shot-list position, held by the

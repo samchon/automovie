@@ -13,21 +13,6 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import type { humanFootOffset } from "../../posture/internal/humanFootOffset";
 
-/** The measurements and toe sockets used to resolve a flight. */
-type FlightBody = humanFootOffset.IBody & {
-  /** The body's reach and support scale, metres. */
-  measure: Pick<IAutoMovieMotionHumanBody["measure"], "hipHeight" | "footLength">;
-};
-
-/** The record of `IFlightToeF`'s site. */
-type IFlightToeF = { ankle: IAutoMovieVector3; toe: IAutoMovieVector3 };
-
-/** The record of `IFlightFeetResult`'s site. */
-type IFlightFeetResult = { ankle: IAutoMovieVector3; toe: IAutoMovieVector3 };
-
-/** The record of `IFlightFeetItem`'s site. */
-type IFlightFeetItem = { ankle: IAutoMovieVector3; toe: IAutoMovieVector3 };
-
 /**
  * The flight of stairs a climb is planned on: its shape as the author gives it,
  * the flight resolved in the performer's starting floor frame, and the surface
@@ -135,6 +120,21 @@ export namespace climbStairsFlight {
     };
   }
 }
+
+/** The measurements and toe sockets used to resolve a flight. */
+type FlightBody = humanFootOffset.IBody & {
+  /** The body's reach and support scale, metres. */
+  measure: Pick<IAutoMovieMotionHumanBody["measure"], "hipHeight" | "footLength">;
+};
+
+/** The record of `IFlightToeF`'s site. */
+type IFlightToeF = { ankle: IAutoMovieVector3; toe: IAutoMovieVector3 };
+
+/** The record of `IFlightFeetResult`'s site. */
+type IFlightFeetResult = { ankle: IAutoMovieVector3; toe: IAutoMovieVector3 };
+
+/** The record of `IFlightFeetItem`'s site. */
+type IFlightFeetItem = { ankle: IAutoMovieVector3; toe: IAutoMovieVector3 };
 
 /** The original architectural stepped surface, shared by raw and prepared reads. */
 function surfaceAt(

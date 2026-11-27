@@ -2,12 +2,6 @@ import type { IAutoMovieMotionHumanClimbStairsFlight } from "@automovie/interfac
 
 import { climbStairsFlight } from "./climbStairsFlight";
 
-/** The record of `IClimbStairsProfileEdgesResult`'s site. */
-type IClimbStairsProfileEdgesResult = { z: number; height: number };
-
-/** The record of `IClimbStairsProfileEdgesItem`'s site. */
-type IClimbStairsProfileEdgesItem = { z: number; height: number };
-
 /**
  * Prepare the stepped clearance profile a swinging sole point must clear.
  *
@@ -51,3 +45,9 @@ export function climbStairsProfile(
     return height;
   };
 }
+
+/** The record of `IClimbStairsProfileEdgesResult`'s site. */
+type IClimbStairsProfileEdgesResult = { z: number; height: number };
+
+/** The record of `IClimbStairsProfileEdgesItem`'s site. */
+type IClimbStairsProfileEdgesItem = { z: number; height: number };

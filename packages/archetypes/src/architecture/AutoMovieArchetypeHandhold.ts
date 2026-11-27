@@ -34,7 +34,59 @@ const ESTIMATES: Readonly<{ run: number; tape: number }> = {
 
 /** Constructs the handhold archetype from its recipe. */
 export namespace AutoMovieArchetypeHandhold {
-/**
+/** The kinds of handhold. */
+  export type Kind = "pole" | "strap";
+
+  /**
+   * The affordance ids:
+   *
+   * - `pole`: an upright pole, a bar along `+Y`.
+   * - `rail`: the overhead rail a strap hangs from, a bar along `X`.
+   * - `strap`: the strap's loop foot, a handle hooked by the fingers.
+   */
+  export type Affordance = "pole" | "rail" | "strap";
+
+  /**
+   * The free dimensions, metres unless stated:
+   *
+   * - `height`: the pole's top, or the overhead rail's height, above the floor.
+   * - `diameter`: the pole's or the rail's section.
+   * - `length`: a strap's from the rail to its loop's foot, its model's.
+   * - `mass`: kilograms; a strap's is its model's, the strap's alone, the rail
+   *   being the vehicle's.
+   */
+  export type Dimension = "height" | "diameter" | "length" | "mass";
+
+  /**
+   * The straps read: HAPPICH's 625 and 673 mm straps, each with its three
+   * clamping pieces' masses.
+   */
+  export type Strap =
+    | "625 mm, 100 g"
+    | "625 mm, 125 g"
+    | "625 mm, 150 g"
+    | "673 mm, 110 g"
+    | "673 mm, 135 g"
+    | "673 mm, 160 g";
+
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
+  export interface IParams extends Partial<
+    Record<Exclude<Dimension, "length">, number>
+  > {
+    /** Which handhold. */
+    kind: Kind;
+
+    /** A strap's model; drawn from the seed when absent. A pole has none. */
+    strap?: Strap;
+
+    /** The model's id, unique in a scene; `handhold` when absent. */
+    id?: string;
+  }
+
+  /**
  * A handhold a standing passenger holds in a bus or a train: an upright pole,
  * or a strap hanging from the overhead rail.
  *
@@ -162,31 +214,8 @@ export function create(
   return builder.build(d.mass!);
 }
 
-  /** The kinds of handhold. */
-  export type Kind = "pole" | "strap";
-
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["pole", "strap"];
-
-  /**
-   * The affordance ids:
-   *
-   * - `pole`: an upright pole, a bar along `+Y`.
-   * - `rail`: the overhead rail a strap hangs from, a bar along `X`.
-   * - `strap`: the strap's loop foot, a handle hooked by the fingers.
-   */
-  export type Affordance = "pole" | "rail" | "strap";
-
-  /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `height`: the pole's top, or the overhead rail's height, above the floor.
-   * - `diameter`: the pole's or the rail's section.
-   * - `length`: a strap's from the rail to its loop's foot, its model's.
-   * - `mass`: kilograms; a strap's is its model's, the strap's alone, the rail
-   *   being the vehicle's.
-   */
-  export type Dimension = "height" | "diameter" | "length" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: Readonly<
@@ -197,18 +226,6 @@ export function create(
     length: "m",
     mass: "kg",
   };
-
-  /**
-   * The straps read: HAPPICH's 625 and 673 mm straps, each with its three
-   * clamping pieces' masses.
-   */
-  export type Strap =
-    | "625 mm, 100 g"
-    | "625 mm, 125 g"
-    | "625 mm, 150 g"
-    | "673 mm, 110 g"
-    | "673 mm, 135 g"
-    | "673 mm, 160 g";
 
   /**
    * Each kind's straps, metres and kilograms, the default first; a pole has one
@@ -238,23 +255,6 @@ export function create(
       "673 mm, 160 g": { length: 0.673, mass: 0.16 },
     },
   };
-
-  /**
-   * The parameters: the kind, and any free dimension fixed to a value inside
-   * its band.
-   */
-  export interface IParams extends Partial<
-    Record<Exclude<Dimension, "length">, number>
-  > {
-    /** Which handhold. */
-    kind: Kind;
-
-    /** A strap's model; drawn from the seed when absent. A pole has none. */
-    strap?: Strap;
-
-    /** The model's id, unique in a scene; `handhold` when absent. */
-    id?: string;
-  }
 
   /** The bands every handhold shares. */
   const SHARED: Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>> =

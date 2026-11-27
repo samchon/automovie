@@ -17,12 +17,6 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/** The record of `IPrepareTargetsEntry`'s site. */
-type IPrepareTargetsEntry = {
-  ankle: IAutoMovieVector3;
-  knee: IAutoMovieVector3;
-};
-
 /**
  * The legs of a body seated on the floor with them folded: crossed in front of
  * it (tailor sitting), or both folded to its right with the knees to its left
@@ -55,9 +49,6 @@ export namespace floorSeat {
     /** Ahead of the hip joints. */
     ahead: number;
   }
-  /** The record of `ICROSSEDEntryItem`'s site. */
-  type ICROSSEDEntryItem = { ankle: IPlace; knee: IPlace };
-
   /**
    * Tailor sitting, by leg: each ankle on the floor past the other hip, the
    * left shank in front of the right, each knee out, ahead and a little up
@@ -75,8 +66,6 @@ export namespace floorSeat {
       knee: { left: -1.1, up: 0.35, ahead: 0.9 },
     },
   };
-  /** The record of `ISIDEEntryItem`'s site. */
-  type ISIDEEntryItem = { ankle: IPlace; knee: IPlace };
 
   /**
    * Side sitting, by leg: both ankles to the right, the left one ahead of the
@@ -93,7 +82,6 @@ export namespace floorSeat {
       knee: { left: 0.4, up: 0.1, ahead: 1 },
     },
   };
-
   /**
    * The share of the arm's length, shoulder to wrist, at which the supporting
    * hand of side sitting is set down: nearly straight, as an arm leant on is
@@ -135,8 +123,6 @@ export namespace floorSeat {
     if (share <= 0) return posture;
     return prepare(body, kind)(posture, share, resolution, projection);
   }
-  /** The record of `ITableEntryItem`'s site. */
-  type ITableEntryItem = { ankle: IPlace; knee: IPlace };
 
   /**
    * Prepare a fixed body's folded-sitting targets and actual FK demand. Each
@@ -272,6 +258,14 @@ export namespace floorSeat {
     };
   }
 
+  /** The record of `ICROSSEDEntryItem`'s site. */
+  type ICROSSEDEntryItem = { ankle: IPlace; knee: IPlace };
+  /** The record of `ISIDEEntryItem`'s site. */
+  type ISIDEEntryItem = { ankle: IPlace; knee: IPlace };
+
+  /** The record of `ITableEntryItem`'s site. */
+  type ITableEntryItem = { ankle: IPlace; knee: IPlace };
+
   /** Joint-space origins needed by both folded-leg placements. */
   const LEG_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set([
     "leftUpperLeg",
@@ -290,3 +284,9 @@ export namespace floorSeat {
     "leftHand",
   ]);
 }
+
+/** The record of `IPrepareTargetsEntry`'s site. */
+type IPrepareTargetsEntry = {
+  ankle: IAutoMovieVector3;
+  knee: IAutoMovieVector3;
+};

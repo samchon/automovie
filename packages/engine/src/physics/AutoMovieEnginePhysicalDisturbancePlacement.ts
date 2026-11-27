@@ -8,12 +8,6 @@ import { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "./AutoMovieEngi
 import { AutoMovieEnginePhysicalPushRecovery as Recovery } from "./AutoMovieEnginePhysicalPushRecovery";
 import { AutoMovieEnginePhysicalSupportSpanContacts as Contacts } from "./AutoMovieEnginePhysicalSupportSpanContacts";
 
-/** A planted foot. */
-type Foot = AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanFoot;
-
-/** The response being laid. */
-type IResponse = AutoMovieEnginePhysicalDisturbanceResponse.IResponse;
-
 /** The closed forms a placement reads. */
 const { ZULU, add, outline, toLocal, toWorld }: typeof AutoMovieEnginePhysicalDisturbanceForm =
   AutoMovieEnginePhysicalDisturbanceForm;
@@ -155,3 +149,9 @@ export namespace AutoMovieEnginePhysicalDisturbancePlacement {
     });
   }
 }
+
+/** A planted foot. */
+type Foot = AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanFoot;
+
+/** The response being laid. */
+type IResponse = AutoMovieEnginePhysicalDisturbanceResponse.IResponse;

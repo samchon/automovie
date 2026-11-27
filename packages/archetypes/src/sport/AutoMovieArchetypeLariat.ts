@@ -7,6 +7,48 @@ import { Vector3 } from "@automovie/engine";
 /** Public operations for Auto Movie Archetype Lariat. */
 export namespace AutoMovieArchetypeLariat {
   /**
+   * The affordance ids:
+   *
+   * - `spoke`: the swinging hand's hold on loop and spoke together.
+   * - `coils`: the tail the rein hand holds.
+   * - `hondo`: the eye the loop runs through.
+   * - `loop`: the loop's centre, its `+Y` the loop's normal.
+   */
+  export type Affordance = "spoke" | "coils" | "hondo" | "loop";
+
+  /**
+   * The free dimensions, metres unless stated:
+   *
+   * - `length`: the whole rope.
+   * - `diameter`: the rope's.
+   * - `loop`: the open loop's diameter.
+   * - `spoke`: from the hondo to the hand.
+   * - `mass`: kilograms.
+   */
+  export type Dimension = "length" | "diameter" | "loop" | "spoke" | "mass";
+
+  /** The parameters: any free dimension fixed to a value inside its band. */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** The model's id, unique in a scene; `lariat` when absent. */
+    id?: string;
+  }
+
+  /** The lariat's standing part between two held ends. */
+  export interface IStanding {
+    /** The rope's points from one end to the other, world metres. */
+    points: IAutoMovieVector3[];
+
+    /**
+     * Whether the ends are as far apart as the rope is long: straight and
+     * tensioned.
+     */
+    taut: boolean;
+
+    /** How far its middle hangs below the straight line, metres; 0 when taut. */
+    sag: number;
+  }
+
+  /**
    * A lariat, a roper's catch rope: a loop running through the hondo, the eye
    * tied at the rope's working end, the spoke from the hondo back to the swinging
    * hand, and the coiled tail the other hand holds with the reins.
@@ -38,27 +80,6 @@ export namespace AutoMovieArchetypeLariat {
   /** The coil's radius, metres: an estimate, a hand's coils. */
   export const COIL: number = 0.18;
 
-  /**
-   * The affordance ids:
-   *
-   * - `spoke`: the swinging hand's hold on loop and spoke together.
-   * - `coils`: the tail the rein hand holds.
-   * - `hondo`: the eye the loop runs through.
-   * - `loop`: the loop's centre, its `+Y` the loop's normal.
-   */
-  export type Affordance = "spoke" | "coils" | "hondo" | "loop";
-
-  /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `length`: the whole rope.
-   * - `diameter`: the rope's.
-   * - `loop`: the open loop's diameter.
-   * - `spoke`: from the hondo to the hand.
-   * - `mass`: kilograms.
-   */
-  export type Dimension = "length" | "diameter" | "loop" | "spoke" | "mass";
-
   /** Each dimension's unit. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
@@ -69,12 +90,6 @@ export namespace AutoMovieArchetypeLariat {
     spoke: "m",
     mass: "kg",
   };
-
-  /** The parameters: any free dimension fixed to a value inside its band. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
-    /** The model's id, unique in a scene; `lariat` when absent. */
-    id?: string;
-  }
 
   /** What no source read gives. */
   const UNREAD: string = "no source read gives it; provisional";
@@ -97,21 +112,6 @@ export namespace AutoMovieArchetypeLariat {
     spoke: AutoMovieArchetypeBand.metres(0.9, 1.5, UNREAD, true),
     mass: AutoMovieArchetypeBand.of("kg", 0.6, 1.2, UNREAD, true),
   };
-
-  /** The lariat's standing part between two held ends. */
-  export interface IStanding {
-    /** The rope's points from one end to the other, world metres. */
-    points: IAutoMovieVector3[];
-
-    /**
-     * Whether the ends are as far apart as the rope is long: straight and
-     * tensioned.
-     */
-    taut: boolean;
-
-    /** How far its middle hangs below the straight line, metres; 0 when taut. */
-    sag: number;
-  }
 
   /**
    * Lay the standing part of a caught lariat between its two held ends, the

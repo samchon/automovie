@@ -23,27 +23,6 @@ import { AutoMovieMotionHumanTouchPath } from "./AutoMovieMotionHumanTouchPath";
 import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpright";
 import { HumanTouchArmReference } from "./HumanTouchArmReference";
 
-/** The alternatives of `LiePosture`'s site. */
-type LiePosture = "root" | "yaw";
-
-/** The alternatives of `SettledPlace`'s site. */
-type SettledPlace = "point" | "normal";
-
-/** The alternatives of `RestPlace`'s site. */
-type RestPlace = "point" | "normal";
-
-/** The alternatives of `RestPosture`'s site. */
-type RestPosture = "root" | "yaw";
-
-/** The alternatives of `LaidPlace`'s site. */
-type LaidPlace = "point" | "normal";
-
-/** The alternatives of `BendElbow`'s site. */
-type BendElbow = "natural" | "level";
-
-/** The alternatives of `BendPlace`'s site. */
-type BendPlace = "point" | "normal";
-
 /**
  * An effector laid on a region at rest, before any stroke moves it: the arm
  * goal that lays it, what its two directions lie on by the touch's lay, the
@@ -482,3 +461,24 @@ export namespace AutoMovieMotionHumanTouchLaid {
     ];
   }
 }
+
+/** The alternatives of `LiePosture`'s site. */
+type LiePosture = "root" | "yaw";
+
+/** The alternatives of `SettledPlace`'s site. */
+type SettledPlace = "point" | "normal";
+
+/** The alternatives of `RestPlace`'s site. */
+type RestPlace = "point" | "normal";
+
+/** The alternatives of `RestPosture`'s site. */
+type RestPosture = "root" | "yaw";
+
+/** The alternatives of `LaidPlace`'s site. */
+type LaidPlace = "point" | "normal";
+
+/** The alternatives of `BendElbow`'s site. */
+type BendElbow = "natural" | "level";
+
+/** The alternatives of `BendPlace`'s site. */
+type BendPlace = "point" | "normal";

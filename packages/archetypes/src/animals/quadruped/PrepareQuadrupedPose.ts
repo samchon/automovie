@@ -22,24 +22,13 @@ import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 import { QuadrupedRigDelta } from "./QuadrupedRigDelta";
 
-/** A private part and its already admitted explicit carrier. */
-interface IBinding {
-  /**
-   * Private geometry/frame snapshot; never returned or mutated by support
-   * queries.
-   */
-  part: IAutoMovieModelPart;
-
-  /** Bone whose rigid delta carries this part. */
-  bone: AutoMovieArchetypeQuadrupedBody.Bone;
-}
-
 /** Build the owned rig, source, floor and achieved output operations. */
 function prepare<Id extends string, Dimension extends string>(
   animal: AutoMovieArchetype<Id, Dimension>,
   parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
   contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
 ): QuadrupedPosePlan.IPrepared<Id, Dimension>;
+
 function prepare<Id extends string, Dimension extends string>(
   animal: AutoMovieArchetype<Id, Dimension>,
   parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
@@ -328,7 +317,6 @@ function prepare<Id extends string, Dimension extends string>(
     };
   }
 }
-
 /** A bone frame sits at its upper joint and its bar runs along local +Y. */
 function endpoint(
   frame: IAutoMovieTransform,
@@ -408,4 +396,16 @@ export namespace PrepareQuadrupedPose {
     /** Apply admitted frames to parts and contacts in a fresh model. */
     emit(): AutoMovieArchetype<Id, Dimension>;
   }
+}
+
+/** A private part and its already admitted explicit carrier. */
+interface IBinding {
+  /**
+   * Private geometry/frame snapshot; never returned or mutated by support
+   * queries.
+   */
+  part: IAutoMovieModelPart;
+
+  /** Bone whose rigid delta carries this part. */
+  bone: AutoMovieArchetypeQuadrupedBody.Bone;
 }

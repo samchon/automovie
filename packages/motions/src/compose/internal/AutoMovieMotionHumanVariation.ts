@@ -10,27 +10,6 @@ import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionHumanTiming } from "./AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanVariationDraw } from "./AutoMovieMotionHumanVariationDraw";
 
-/** The alternatives of `OfManner`'s site. */
-type OfManner = "variation" | "consistency";
-
-/** The alternatives of `OfContext`'s site. */
-type OfContext = "skill" | "series";
-
-/** The alternatives of `BOUNDSEntryItem`'s site. */
-type BOUNDSEntryItem = "direction" | "bend" | "curvature";
-
-/** The alternatives of `SPREADSEntryItem`'s site. */
-type SPREADSEntryItem =
-  | "place"
-  | "strike"
-  | "direction"
-  | "amount"
-  | "duration"
-  | "pause"
-  | "swivel"
-  | "bend"
-  | "curvature";
-
 /**
  * The source of an action's variation.
  *
@@ -357,3 +336,24 @@ export namespace AutoMovieMotionHumanVariation {
     );
   }
 }
+
+/** The alternatives of `OfManner`'s site. */
+type OfManner = "variation" | "consistency";
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "skill" | "series";
+
+/** The alternatives of `BOUNDSEntryItem`'s site. */
+type BOUNDSEntryItem = "direction" | "bend" | "curvature";
+
+/** The alternatives of `SPREADSEntryItem`'s site. */
+type SPREADSEntryItem =
+  | "place"
+  | "strike"
+  | "direction"
+  | "amount"
+  | "duration"
+  | "pause"
+  | "swivel"
+  | "bend"
+  | "curvature";

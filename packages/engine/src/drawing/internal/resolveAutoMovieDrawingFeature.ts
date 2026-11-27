@@ -19,21 +19,6 @@ import { transformAutoMovieDrawingPoint } from "./transformAutoMovieDrawingPoint
 /** The three local axes an axis feature can name. */
 const AXIS_INDICES: readonly number[] = [0, 1, 2];
 
-/** A world point with its coordinates on the drawing grid, for ordering. */
-interface IWelded {
-  point: IAutoMovieVector3;
-  key: string;
-  x: number;
-  y: number;
-  z: number;
-}
-
-/** A welded undirected edge, oriented from its smaller corner. */
-interface IWeldedEdge {
-  from: IWelded;
-  to: IWelded;
-}
-
 /**
  * Resolve one pinned feature against the design as it stands now.
  *
@@ -314,3 +299,18 @@ const stale = (
   count,
   reason,
 });
+
+/** A world point with its coordinates on the drawing grid, for ordering. */
+interface IWelded {
+  point: IAutoMovieVector3;
+  key: string;
+  x: number;
+  y: number;
+  z: number;
+}
+
+/** A welded undirected edge, oriented from its smaller corner. */
+interface IWeldedEdge {
+  from: IWelded;
+  to: IWelded;
+}

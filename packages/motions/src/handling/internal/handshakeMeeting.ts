@@ -24,32 +24,6 @@ import { HumanSeatedReach } from "../../touch/internal/HumanSeatedReach";
 import { HumanPrehension } from "./HumanPrehension";
 import { handshakeOffer } from "./handshakeOffer";
 
-/** The record of `ILeanedPhases`'s site. */
-type ILeanedPhases = { reach: number; shake: number; back: number };
-
-/** The record of `IReadPhases`'s site. */
-type IReadPhases = { pump: number; shake: number };
-
-/** The record of `IReadContext`'s site. */
-type IReadContext = { partner: string };
-
-/** The record of `IReadLean`'s site. */
-type IReadLean = {
-  share: number;
-  joints: IAutoMovieMotionHumanSeatedReach.IJoint[];
-};
-
-/** The record of `IKindProps`'s site. */
-type IKindProps = {
-  side: AutoMovieHumanSide;
-  pump: number;
-  shake: number;
-  arm: (
-    body: IAutoMovieMotionHumanBody,
-    shoulder: IAutoMovieVector3,
-  ) => IAutoMovieResolveMutualGoal.ISide;
-};
-
 /**
  * The meeting of a handshake (`AutoMovieMotionMeeting`): one record for both
  * partners, the single owner of where the two palms meet, of the line the first
@@ -255,3 +229,29 @@ export namespace handshakeMeeting {
     };
   }
 }
+
+/** The record of `ILeanedPhases`'s site. */
+type ILeanedPhases = { reach: number; shake: number; back: number };
+
+/** The record of `IReadPhases`'s site. */
+type IReadPhases = { pump: number; shake: number };
+
+/** The record of `IReadContext`'s site. */
+type IReadContext = { partner: string };
+
+/** The record of `IReadLean`'s site. */
+type IReadLean = {
+  share: number;
+  joints: IAutoMovieMotionHumanSeatedReach.IJoint[];
+};
+
+/** The record of `IKindProps`'s site. */
+type IKindProps = {
+  side: AutoMovieHumanSide;
+  pump: number;
+  shake: number;
+  arm: (
+    body: IAutoMovieMotionHumanBody,
+    shoulder: IAutoMovieVector3,
+  ) => IAutoMovieResolveMutualGoal.ISide;
+};

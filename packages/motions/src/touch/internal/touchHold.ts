@@ -34,57 +34,6 @@ import { touchHoldRests } from "./touchHoldRests";
 import { touchLimb } from "./touchLimb";
 import { touchRegion } from "./touchRegion";
 
-/** The record of `IPerceivedResult2`'s site. */
-type IPerceivedResult2 = {
-  clear: IAutoMovieMotionHumanColliders.IPlaced[];
-  rests: IAutoMovieMotionHumanColliders.IPlaced[];
-};
-
-/** The record of `IPerceivedResult`'s site. */
-type IPerceivedResult = {
-  region: IAutoMovieMotionHumanTouch.ITouch["region"];
-  others: (
-    posture: IAutoMovieMotionHumanPosture,
-    seconds: number,
-  ) => IPerceivedOthersResult;
-};
-
-/** The record of `IPerceivedOthersResult`'s site. */
-type IPerceivedOthersResult = {
-  clear: IAutoMovieMotionHumanColliders.IPlaced[];
-  rests: IAutoMovieMotionHumanColliders.IPlaced[];
-};
-
-/** The record of `IPerceivedTarget`'s site. */
-type IPerceivedTarget = { subject: string; region: AutoMovieHumanoidRegion };
-
-/** The alternatives of `PerceivedContext`'s site. */
-type PerceivedContext = "performer" | "start" | "body";
-
-/** The record of `IOthersResult2`'s site. */
-type IOthersResult2 = {
-  clear: IAutoMovieMotionHumanColliders.IPlaced[];
-  rests: IAutoMovieMotionHumanColliders.IPlaced[];
-};
-
-/** The record of `IOthersResult`'s site. */
-type IOthersResult = {
-  clear: IAutoMovieMotionHumanColliders.IPlaced[];
-  rests: IAutoMovieMotionHumanColliders.IPlaced[];
-};
-
-/** The record of `IOthersTarget`'s site. */
-type IOthersTarget = { subject: string; region: AutoMovieHumanoidRegion };
-
-/** The alternatives of `OthersContext`'s site. */
-type OthersContext = "performer" | "start" | "body";
-
-/** The record of `IFeltResult`'s site. */
-type IFeltResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
-
-/** The alternatives of `Felt`'s site. */
-type Felt = "aim" | "performer";
-
 /**
  * How a touch reads the person it touches: as perceived on the way to them, and
  * as they are while the hand is on them.
@@ -366,6 +315,57 @@ export namespace touchHold {
     tangent: IAutoMovieMotionHumanTouchForm.Tangent;
   }
 }
+
+/** The record of `IPerceivedResult2`'s site. */
+type IPerceivedResult2 = {
+  clear: IAutoMovieMotionHumanColliders.IPlaced[];
+  rests: IAutoMovieMotionHumanColliders.IPlaced[];
+};
+
+/** The record of `IPerceivedResult`'s site. */
+type IPerceivedResult = {
+  region: IAutoMovieMotionHumanTouch.ITouch["region"];
+  others: (
+    posture: IAutoMovieMotionHumanPosture,
+    seconds: number,
+  ) => IPerceivedOthersResult;
+};
+
+/** The record of `IPerceivedOthersResult`'s site. */
+type IPerceivedOthersResult = {
+  clear: IAutoMovieMotionHumanColliders.IPlaced[];
+  rests: IAutoMovieMotionHumanColliders.IPlaced[];
+};
+
+/** The record of `IPerceivedTarget`'s site. */
+type IPerceivedTarget = { subject: string; region: AutoMovieHumanoidRegion };
+
+/** The alternatives of `PerceivedContext`'s site. */
+type PerceivedContext = "performer" | "start" | "body";
+
+/** The record of `IOthersResult2`'s site. */
+type IOthersResult2 = {
+  clear: IAutoMovieMotionHumanColliders.IPlaced[];
+  rests: IAutoMovieMotionHumanColliders.IPlaced[];
+};
+
+/** The record of `IOthersResult`'s site. */
+type IOthersResult = {
+  clear: IAutoMovieMotionHumanColliders.IPlaced[];
+  rests: IAutoMovieMotionHumanColliders.IPlaced[];
+};
+
+/** The record of `IOthersTarget`'s site. */
+type IOthersTarget = { subject: string; region: AutoMovieHumanoidRegion };
+
+/** The alternatives of `OthersContext`'s site. */
+type OthersContext = "performer" | "start" | "body";
+
+/** The record of `IFeltResult`'s site. */
+type IFeltResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
+/** The alternatives of `Felt`'s site. */
+type Felt = "aim" | "performer";
 /** The alternatives of `RubbedPlace`'s site. */
 type RubbedPlace = "point" | "normal";
 

@@ -23,22 +23,6 @@ import { everydayPostureCases } from "./everydayPostureCases";
 import { everydayTypeCases } from "./everydayTypeCases";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-const { perform, figure, event, angle, frame } = everydayCaseKit;
-/** The record of `IEverydayCasesMarginsResult`'s site. */
-type IEverydayCasesMarginsResult = { push: number; side: number };
-
-/** The alternatives of `EverydayCasesFamily`'s site. */
-type EverydayCasesFamily =
-  | "approach"
-  | "look"
-  | "gesture"
-  | "rest"
-  | "seat"
-  | "bend"
-  | "step"
-  | "brace"
-  | "type";
-
 /**
  * Capture cases of the everyday laws on the polygon man, each with the numeric
  * verdicts its family's acceptance names, so a sheet is read together with the
@@ -349,3 +333,19 @@ export function everydayCases(
   }
   return out;
 }
+const { perform, figure, event, angle, frame } = everydayCaseKit;
+
+/** The record of `IEverydayCasesMarginsResult`'s site. */
+type IEverydayCasesMarginsResult = { push: number; side: number };
+
+/** The alternatives of `EverydayCasesFamily`'s site. */
+type EverydayCasesFamily =
+  | "approach"
+  | "look"
+  | "gesture"
+  | "rest"
+  | "seat"
+  | "bend"
+  | "step"
+  | "brace"
+  | "type";

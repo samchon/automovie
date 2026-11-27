@@ -7,27 +7,6 @@ import type {
 
 import { AutoMovieArchetypeConvexCell } from "../../core";
 
-/** Directions on the sphere the stone's corners are cast along. */
-const DIRECTIONS: number = 64;
-
-/**
- * The greatest relative swell or dent of a corner, a construction detail no act
- * reads.
- */
-const DISPLACEMENT: number = 0.3;
-
-/**
- * The fraction of the raw height cut flat as the base, a construction detail no
- * act reads.
- */
-const BASE_CUT: number = 0.2;
-
-/** Octaves of the displacement noise; each halves the scale of the last. */
-const OCTAVES: number = 3;
-
-/** Amplitude ratio between the displacement noise's octaves. */
-const ROUGHNESS: number = 0.5;
-
 /**
  * A seeded irregular stone as one convex cell, resting on a flat base at `y =
  * 0`, its largest horizontal extent along X and equal to `diameter`.
@@ -156,3 +135,24 @@ export function irregularRockForm(
     side: { x: start.x, y: start.y, z: start.z + travel },
   };
 }
+
+/** Directions on the sphere the stone's corners are cast along. */
+const DIRECTIONS: number = 64;
+
+/**
+ * The greatest relative swell or dent of a corner, a construction detail no act
+ * reads.
+ */
+const DISPLACEMENT: number = 0.3;
+
+/**
+ * The fraction of the raw height cut flat as the base, a construction detail no
+ * act reads.
+ */
+const BASE_CUT: number = 0.2;
+
+/** Octaves of the displacement noise; each halves the scale of the last. */
+const OCTAVES: number = 3;
+
+/** Amplitude ratio between the displacement noise's octaves. */
+const ROUGHNESS: number = 0.5;

@@ -22,24 +22,6 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { HumanWorn } from "./HumanWorn";
 
-/** The record of `IDressTurnProps`'s site. */
-type IDressTurnProps = {
-  body: IAutoMovieMotionHumanBody;
-  posture: IAutoMovieMotionHumanPosture;
-  side: AutoMovieHumanSide;
-  wearable: IAutoMovieMotionHumanProp;
-  region: AutoMovieHumanoidRegion;
-  inverse: IAutoMovieQuaternion;
-  offset: IAutoMovieVector3;
-  socket: IAutoMovieVector3;
-  wear: IAutoMovieVector3;
-  /**
-   * The spacing of the turns tried first and the refinement's first step,
-   * degrees; positive.
-   */
-  step: number;
-};
-
 /**
  * Choose the turn about the crown at which a held hat is set on the head
  * (`dress`): the turn whose wear socket the fitted arm brings nearest the
@@ -142,11 +124,6 @@ export function dressTurn(props: IDressTurnProps): number {
     judge: (values: readonly number[]): number[] => [missed(values[0]!)],
   }).values[0]!;
 }
-/** The record of `IDressTurnCarriedResult`'s site. */
-type IDressTurnCarriedResult = {
-  grip: IAutoMovieVector3;
-  rotation: IAutoMovieQuaternion;
-};
 
 /**
  * The rigid hold of a wearable undone: where the carrying hand's grip socket
@@ -182,3 +159,26 @@ export namespace dressTurn {
     };
   }
 }
+/** The record of `IDressTurnProps`'s site. */
+type IDressTurnProps = {
+  body: IAutoMovieMotionHumanBody;
+  posture: IAutoMovieMotionHumanPosture;
+  side: AutoMovieHumanSide;
+  wearable: IAutoMovieMotionHumanProp;
+  region: AutoMovieHumanoidRegion;
+  inverse: IAutoMovieQuaternion;
+  offset: IAutoMovieVector3;
+  socket: IAutoMovieVector3;
+  wear: IAutoMovieVector3;
+  /**
+   * The spacing of the turns tried first and the refinement's first step,
+   * degrees; positive.
+   */
+  step: number;
+};
+
+/** The record of `IDressTurnCarriedResult`'s site. */
+type IDressTurnCarriedResult = {
+  grip: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+};

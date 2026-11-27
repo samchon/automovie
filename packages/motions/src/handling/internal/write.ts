@@ -38,18 +38,6 @@ import { writeAdmission } from "./writeAdmission";
 import { writeWith } from "./writeWith";
 
 /**
- * A world vertex of the path and its distance along that path from the first
- * vertex, metres.
- */
-interface IVertex {
-  /** Point of the path in the world. */
-  point: IAutoMovieVector3;
-
-  /** Length of the path to this point. */
-  length: number;
-}
-
-/**
  * Move the working point of a held tool along an authored planar stroke.
  *
  * Register the law and perform `registered("write", params)` after taking the
@@ -74,6 +62,18 @@ export const write: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanWrite> =
     },
     plan: planWrite,
   };
+
+/**
+ * A world vertex of the path and its distance along that path from the first
+ * vertex, metres.
+ */
+interface IVertex {
+  /** Point of the path in the world. */
+  point: IAutoMovieVector3;
+
+  /** Length of the path to this point. */
+  length: number;
+}
 
 /**
  * Plan once against the surface and the existing grip, then sample the arm

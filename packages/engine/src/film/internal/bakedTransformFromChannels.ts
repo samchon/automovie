@@ -4,9 +4,6 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** Read-only fallback when the object authority writes no scale channel. */
-const UNIT_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
-
 /**
  * Assemble a node's baked world frame from one already sampled object-channel
  * map.
@@ -43,3 +40,6 @@ export function bakedTransformFromChannels(
         : { x: scale[0]!, y: scale[1]!, z: scale[2]! },
   };
 }
+
+/** Read-only fallback when the object authority writes no scale channel. */
+const UNIT_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };

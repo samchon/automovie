@@ -5,29 +5,6 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Colour of the drift kind: a violet no case overlay uses and the inspection
- * reserves for nothing.
- */
-const DRIFT: number = 0x7b4fa8;
-/** The record of `IMarkMotionCaptureCaseSamplesSample2`'s site. */
-type IMarkMotionCaptureCaseSamplesSample2 = {
-  at: IAutoMovieVector3;
-  drift: number;
-};
-
-/** The record of `IMarkMotionCaptureCaseSamplesSample`'s site. */
-type IMarkMotionCaptureCaseSamplesSample = {
-  at: IAutoMovieVector3;
-  drift: number;
-};
-
-/** The alternatives of `MarkMotionCaptureCaseKindResult`'s site. */
-type MarkMotionCaptureCaseKindResult = "kind" | "label" | "color";
-
-/** The alternatives of `MarkMotionCaptureCaseKind`'s site. */
-type MarkMotionCaptureCaseKind = "kind" | "label" | "color";
-
-/**
  * Turn a motion case's overlays into inspection marks: trails as polylines,
  * targets as points, and drift samples as points flagged where their drift
  * exceeds their limit.
@@ -143,3 +120,26 @@ export function markMotionCaptureCase(
   );
   return marks;
 }
+/**
+ * Colour of the drift kind: a violet no case overlay uses and the inspection
+ * reserves for nothing.
+ */
+const DRIFT: number = 0x7b4fa8;
+
+/** The record of `IMarkMotionCaptureCaseSamplesSample2`'s site. */
+type IMarkMotionCaptureCaseSamplesSample2 = {
+  at: IAutoMovieVector3;
+  drift: number;
+};
+
+/** The record of `IMarkMotionCaptureCaseSamplesSample`'s site. */
+type IMarkMotionCaptureCaseSamplesSample = {
+  at: IAutoMovieVector3;
+  drift: number;
+};
+
+/** The alternatives of `MarkMotionCaptureCaseKindResult`'s site. */
+type MarkMotionCaptureCaseKindResult = "kind" | "label" | "color";
+
+/** The alternatives of `MarkMotionCaptureCaseKind`'s site. */
+type MarkMotionCaptureCaseKind = "kind" | "label" | "color";

@@ -16,21 +16,6 @@ import { HumanTrunk } from "./HumanTrunk";
 import { bendLower } from "./bendLower";
 
 /**
- * The step of the inclination scan `pitch` closes the reach on, degrees
- * (provisional: fine enough that the gap, which turns once over the range,
- * cannot close and open again between two steps).
- */
-const SCAN: number = 5;
-
-/**
- * The deepest trunk inclination `pitch` searches, degrees: all the pelvis can
- * tilt before the hip passes its flexion (`HumanTrunk.HIP_FLEXION`) plus the 40
- * degrees of lumbar flexion at full forward bending (Esola et al. 1996, Spine
- * 21:71), the most a standing trunk inclines.
- */
-const DEEPEST: number = HumanTrunk.HIP_FLEXION + 40;
-
-/**
  * The least trunk pitch that brings the shoulder within reach of the target
  * under a strategy, over 0 to `DEEPEST` degrees of inclination: the first of
  * every `SCAN` degrees that reaches, refined by bisection from the one before.
@@ -131,3 +116,18 @@ export function bendLowerPitch(
   }
   return hi;
 }
+
+/**
+ * The step of the inclination scan `pitch` closes the reach on, degrees
+ * (provisional: fine enough that the gap, which turns once over the range,
+ * cannot close and open again between two steps).
+ */
+const SCAN: number = 5;
+
+/**
+ * The deepest trunk inclination `pitch` searches, degrees: all the pelvis can
+ * tilt before the hip passes its flexion (`HumanTrunk.HIP_FLEXION`) plus the 40
+ * degrees of lumbar flexion at full forward bending (Esola et al. 1996, Spine
+ * 21:71), the most a standing trunk inclines.
+ */
+const DEEPEST: number = HumanTrunk.HIP_FLEXION + 40;

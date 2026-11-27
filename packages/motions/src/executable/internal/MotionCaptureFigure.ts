@@ -6,9 +6,6 @@ import type {
 import { AutoMovieHumanPolygon } from "@automovie/render";
 import * as THREE from "three";
 
-/** The record of `IMotionCaptureFigureB`'s site. */
-type IMotionCaptureFigureB = { bone: string };
-
 /**
  * The polygon man of one canonical Human body, drawn by the renderer's polygon
  * builder and posed from canonical poses.
@@ -78,3 +75,6 @@ export class MotionCaptureFigure {
     this.drawing.dispose();
   }
 }
+
+/** The record of `IMotionCaptureFigureB`'s site. */
+type IMotionCaptureFigureB = { bone: string };

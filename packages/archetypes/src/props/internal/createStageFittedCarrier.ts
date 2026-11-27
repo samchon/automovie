@@ -11,15 +11,6 @@ import {
 } from "../../core/index";
 import "../AutoMovieArchetypeStageTwoHandedSwordProp";
 
-/** Authored clearance around the rounded foam display profile, in metres. */
-const GAP: number = 0.006;
-
-/** Thickness of the visible digital channel walls, in metres. */
-const WALL: number = 0.012;
-
-/** Authored mass of the lightweight stand-in, in kilograms. */
-const MASS: number = 0.25;
-
 /**
  * Fit a hollow digital carrier to a separate padded two-handed display model.
  *
@@ -136,6 +127,15 @@ export function createStageFittedCarrier(
   });
   return builder.build(MASS);
 }
+
+/** Authored clearance around the rounded foam display profile, in metres. */
+const GAP: number = 0.006;
+
+/** Thickness of the visible digital channel walls, in metres. */
+const WALL: number = 0.012;
+
+/** Authored mass of the lightweight stand-in, in kilograms. */
+const MASS: number = 0.25;
 
 
 

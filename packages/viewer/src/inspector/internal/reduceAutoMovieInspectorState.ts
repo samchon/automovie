@@ -5,14 +5,6 @@ import type { IAutoMovieInspectorAction } from "../IAutoMovieInspectorAction.js"
 import type { IAutoMovieInspectorState } from "../IAutoMovieInspectorState.js";
 import { readAutoMovieInspectorAddress } from "./readAutoMovieInspectorAddress.js";
 
-/** The key each toggle edits. */
-const LISTS: Record<IAutoMovieInspectorAction.IToggle["type"], string> = {
-  select: "parts",
-  hide: "hide",
-  label: "label",
-  marks: "marks",
-};
-
 /**
  * Apply one edit to the inspector's request, the only way its request changes.
  *
@@ -99,6 +91,14 @@ export function reduceAutoMovieInspectorState(
       AutoMovieRenderCapture.parsePlanRequest(values),
   );
 }
+
+/** The key each toggle edits. */
+const LISTS: Record<IAutoMovieInspectorAction.IToggle["type"], string> = {
+  select: "parts",
+  hide: "hide",
+  label: "label",
+  marks: "marks",
+};
 
 /**
  * The state a reading gives: its request, or the previous request with the

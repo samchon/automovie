@@ -13,70 +13,6 @@ import { HumanTrunk } from "./HumanTrunk";
 import { seated } from "./seated";
 import { seatedLumbarTransfer } from "./seatedLumbarTransfer";
 
-/** The record of `IPropsFinal`'s site. */
-type IPropsFinal = {
-  pitch: number;
-  joints: IAutoMovieMotionHumanPosture["joints"];
-};
-
-/** The sitting law's unchanged entry, target and descent geometry. */
-interface IProps {
-  /** The body whose socket and planted legs are read. */
-  body: IAutoMovieMotionHumanBody;
-
-  /** Initial heading, degrees about world +Y. */
-  yaw: number;
-
-  /** The sitting law's admitted heading change, degrees. */
-  turn: number;
-
-  /** Seconds the descent takes, when the back has settled. */
-  descent: number;
-
-  /**
-   * Time when the seat starts bearing, seconds; the back settles from it to
-   * `descent`.
-   */
-  contact: number;
-
-  /** Seconds over which the socket travels back and the heading turns. */
-  across: number;
-
-  /**
-   * Time when the socket starts down, seconds; it reaches the seat at
-   * `contact`.
-   */
-  down: number;
-
-  /** Time when the trunk reaches its peak flexion, seconds. */
-  flexed: number;
-
-  /** Peak trunk inclination, degrees. */
-  peak: number;
-
-  /** Initial seat-socket point, world metres. */
-  start: IAutoMovieVector3;
-
-  /** Final seat-socket point, world metres. */
-  goal: IAutoMovieVector3;
-
-  /** Direct standing angles before the final-back additions. */
-  joints: IAutoMovieMotionHumanPosture["joints"];
-
-  /** Final back inclination and additive clinical joint angles, degrees. */
-  final: IPropsFinal;
-
-  /** Both original planted ankle points used by the pelvis limit, world metres. */
-  feet: Record<AutoMovieHumanSide, IAutoMovieVector3>;
-
-  /** Actual current leg goals, including the sitting law's crossed-foot course. */
-  legs(
-    root: IAutoMovieVector3,
-    yaw: number,
-    seconds: number,
-  ): IAutoMovieMotionHumanPosture["limbs"];
-}
-
 /**
  * Prepare a sit's descent: the seat socket travels back on the caller's
  * balanced share and down from `down` to `contact`, the heading turns over
@@ -199,4 +135,68 @@ export function prepareSitLowering(
   };
   transfer = seatedLumbarTransfer(body, read(contact, 1));
   return read;
+}
+
+/** The record of `IPropsFinal`'s site. */
+type IPropsFinal = {
+  pitch: number;
+  joints: IAutoMovieMotionHumanPosture["joints"];
+};
+
+/** The sitting law's unchanged entry, target and descent geometry. */
+interface IProps {
+  /** The body whose socket and planted legs are read. */
+  body: IAutoMovieMotionHumanBody;
+
+  /** Initial heading, degrees about world +Y. */
+  yaw: number;
+
+  /** The sitting law's admitted heading change, degrees. */
+  turn: number;
+
+  /** Seconds the descent takes, when the back has settled. */
+  descent: number;
+
+  /**
+   * Time when the seat starts bearing, seconds; the back settles from it to
+   * `descent`.
+   */
+  contact: number;
+
+  /** Seconds over which the socket travels back and the heading turns. */
+  across: number;
+
+  /**
+   * Time when the socket starts down, seconds; it reaches the seat at
+   * `contact`.
+   */
+  down: number;
+
+  /** Time when the trunk reaches its peak flexion, seconds. */
+  flexed: number;
+
+  /** Peak trunk inclination, degrees. */
+  peak: number;
+
+  /** Initial seat-socket point, world metres. */
+  start: IAutoMovieVector3;
+
+  /** Final seat-socket point, world metres. */
+  goal: IAutoMovieVector3;
+
+  /** Direct standing angles before the final-back additions. */
+  joints: IAutoMovieMotionHumanPosture["joints"];
+
+  /** Final back inclination and additive clinical joint angles, degrees. */
+  final: IPropsFinal;
+
+  /** Both original planted ankle points used by the pelvis limit, world metres. */
+  feet: Record<AutoMovieHumanSide, IAutoMovieVector3>;
+
+  /** Actual current leg goals, including the sitting law's crossed-foot course. */
+  legs(
+    root: IAutoMovieVector3,
+    yaw: number,
+    seconds: number,
+  ): IAutoMovieMotionHumanPosture["limbs"];
 }

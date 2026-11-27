@@ -3,12 +3,6 @@ import type {
   IAutoMoviePlanFilmSamples,
 } from "@automovie/interface";
 
-/** Height of the full-frame 36 × 24 mm gate, in metres. */
-const GATE_HEIGHT: number = 0.024;
-
-/** The golden ratio's conjugate, `(√5 − 1) / 2`. */
-const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
-
 /**
  * Plan the sub-frame samples a directly rendered frame averages with equal
  * weight: when each is placed and where on the aperture its eye sits.
@@ -87,6 +81,12 @@ export function planAutoMovieFilmSamples(
     },
   );
 }
+
+/** Height of the full-frame 36 × 24 mm gate, in metres. */
+const GATE_HEIGHT: number = 0.024;
+
+/** The golden ratio's conjugate, `(√5 − 1) / 2`. */
+const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
 
 /**
  * The base-2 radical inverse of a non-negative integer: its binary digits

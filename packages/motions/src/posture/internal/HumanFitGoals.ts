@@ -12,9 +12,6 @@ import type { HumanBodyFitRows } from "./HumanBodyFitRows";
 import { HumanFitBalance } from "./HumanFitBalance";
 import { HumanJacobian } from "./HumanJacobian";
 
-/** The alternatives of `DirectionsAxis`'s site. */
-type DirectionsAxis = "x" | "y" | "z" | IAutoMovieVector3;
-
 /**
  * Included angles and a centre-of-mass position in the whole-body fit. These
  * are relationships of the displayed body, rather than a bone moved as a
@@ -243,6 +240,9 @@ export namespace HumanFitGoals {
     );
   }
 }
+
+/** The alternatives of `DirectionsAxis`'s site. */
+type DirectionsAxis = "x" | "y" | "z" | IAutoMovieVector3;
 
 /**
  * World mean with the original ordered sums in one owned accumulator; no

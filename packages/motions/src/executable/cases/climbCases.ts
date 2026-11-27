@@ -11,12 +11,6 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { climbCaseLadder } from "./internal/climbCaseLadder";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/** The record of `IClimbCasesFewest`'s site. */
-type IClimbCasesFewest = { value: number; at: number };
-
-/** The record of `IClimbCasesHeld`'s site. */
-type IClimbCasesHeld = { value: number; where: string };
-
 /**
  * Capture cases of the climbing family: `climb-ladder`, three rungs of a fixed
  * ladder with 0.3 m spacing (OSHA 1910.23) in the four-beat pattern, from quiet
@@ -147,3 +141,9 @@ export function climbCases(
   }
   return out;
 }
+
+/** The record of `IClimbCasesFewest`'s site. */
+type IClimbCasesFewest = { value: number; at: number };
+
+/** The record of `IClimbCasesHeld`'s site. */
+type IClimbCasesHeld = { value: number; where: string };

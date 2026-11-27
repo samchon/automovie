@@ -20,12 +20,6 @@ import { AquaticCrew } from "./AquaticCrew";
 import { AquaticPaddleCraft } from "./AquaticPaddleCraft";
 import { AquaticPosture } from "./AquaticPosture";
 
-/** The record of `IScullRailResult`'s site. */
-type IScullRailResult = {
-  root: IAutoMovieVector3;
-  travel: IAutoMovieVector3;
-};
-
 /**
  * Loaded drive and airborne recovery for rowing and racing paddle strokes.
  * Double-scull landmarks follow Cuijpers et al. at 26 strokes/min
@@ -33,9 +27,6 @@ type IScullRailResult = {
  * roles follow the ICF Canoe Sprint Coaching Manual and PMCID PMC8539159.
  */
 export namespace AquaticPaddle {
-  /** Types of seated or kneeling paddle performance. */
-  type Stroke = "doubleScull" | "canoeStroke" | "kayakStroke";
-
   /** Sample three cycles with separate drive and unloaded recovery. */
   export function plan(
     context: AquaticPosture.Context,
@@ -261,6 +252,9 @@ export namespace AquaticPaddle {
     });
   }
 
+  /** Types of seated or kneeling paddle performance. */
+  type Stroke = "doubleScull" | "canoeStroke" | "kayakStroke";
+
   /**
    * Keep the entered hip height on the rail and bound its rear travel by both
    * braced legs.
@@ -331,3 +325,9 @@ export namespace AquaticPaddle {
     return { root, travel: Vector3.scale(along, distance) };
   }
 }
+
+/** The record of `IScullRailResult`'s site. */
+type IScullRailResult = {
+  root: IAutoMovieVector3;
+  travel: IAutoMovieVector3;
+};

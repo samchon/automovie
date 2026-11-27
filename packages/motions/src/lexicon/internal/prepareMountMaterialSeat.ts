@@ -10,48 +10,6 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import type { HumanMountOnFrame } from "./HumanMountOnFrame";
 import { prepareMountSeat } from "./prepareMountSeat";
 
-/** The mount's body and named material at its entry on the film clock. */
-type MountContext = Pick<
-  IAutoMovieMotionHumanActionContext,
-  "body" | "prop" | "start"
->;
-
-/** The finite bearing box whose top face matches the named seat. */
-type SeatBox = Extract<IAutoMoviePhysicalShape, { kind: "box" }>;
-
-/** The site declarations before their common carrier frame places them. */
-type Declarations = Readonly<Record<AutoMovieHumanSide, IAutoMovieAffordance>>;
-
-/** The shared material and chosen pelvis, before placing the two tread sites. */
-interface IBound {
-  /** The carrier whose posed material this provides. */
-  readonly subject: string;
-
-  /** The exact carrier pose when the reader has a same-film snapshot. */
-  frame: IAutoMovieRigidTransform | undefined;
-
-  /** Both named treads from the same model observation. */
-  treads: Declarations;
-
-  /** The admitted site and actual box. */
-  seat: prepareMountMaterialSeat.ISeatSite;
-
-  /** The declared seat's own model-local frame. */
-  named: IAutoMovieRigidTransform;
-
-  /** All affordances in the same model observation. */
-  affordances: readonly IAutoMovieAffordance[];
-
-  /** All actual physical components in the same model observation. */
-  shapes: readonly IAutoMoviePhysicalShape[];
-
-  /** The prepared socket and its clear interval in the seat itself. */
-  domain: prepareMountSeat.ISeat;
-
-  /** World goal in the mount's authored root convention. */
-  goal: IAutoMovieVector3;
-}
-
 /** The model's unplaced frame. */
 const MODEL: IAutoMovieRigidTransform = {
   position: { x: 0, y: 0, z: 0 },
@@ -358,4 +316,46 @@ function top(
         return false;
     }
   return true;
+}
+
+/** The mount's body and named material at its entry on the film clock. */
+type MountContext = Pick<
+  IAutoMovieMotionHumanActionContext,
+  "body" | "prop" | "start"
+>;
+
+/** The finite bearing box whose top face matches the named seat. */
+type SeatBox = Extract<IAutoMoviePhysicalShape, { kind: "box" }>;
+
+/** The site declarations before their common carrier frame places them. */
+type Declarations = Readonly<Record<AutoMovieHumanSide, IAutoMovieAffordance>>;
+
+/** The shared material and chosen pelvis, before placing the two tread sites. */
+interface IBound {
+  /** The carrier whose posed material this provides. */
+  readonly subject: string;
+
+  /** The exact carrier pose when the reader has a same-film snapshot. */
+  frame: IAutoMovieRigidTransform | undefined;
+
+  /** Both named treads from the same model observation. */
+  treads: Declarations;
+
+  /** The admitted site and actual box. */
+  seat: prepareMountMaterialSeat.ISeatSite;
+
+  /** The declared seat's own model-local frame. */
+  named: IAutoMovieRigidTransform;
+
+  /** All affordances in the same model observation. */
+  affordances: readonly IAutoMovieAffordance[];
+
+  /** All actual physical components in the same model observation. */
+  shapes: readonly IAutoMoviePhysicalShape[];
+
+  /** The prepared socket and its clear interval in the seat itself. */
+  domain: prepareMountSeat.ISeat;
+
+  /** World goal in the mount's authored root convention. */
+  goal: IAutoMovieVector3;
 }

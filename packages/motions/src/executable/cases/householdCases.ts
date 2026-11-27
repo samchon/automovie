@@ -9,9 +9,6 @@ import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/** The record of `IHouseholdCasesHeight`'s site. */
-type IHouseholdCasesHeight = { low: number; high: number };
-
 /**
  * Capture cases of the household family, from quiet standing with the right
  * hand, at a counter 225 mm below the elbow (Li, Chang and Zhang 2024's
@@ -134,3 +131,6 @@ export function householdCases(
   }
   return out;
 }
+
+/** The record of `IHouseholdCasesHeight`'s site. */
+type IHouseholdCasesHeight = { low: number; high: number };

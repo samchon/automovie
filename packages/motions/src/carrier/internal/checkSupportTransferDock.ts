@@ -7,27 +7,6 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** The alternatives of `EndpointAxis`'s site. */
-type EndpointAxis = "from" | "to";
-
-/** A named support rectangle and its owning prop's motion. */
-interface Endpoint {
-  /** The transfer argument identifying the support. */
-  axis: EndpointAxis;
-  /** Read the owning prop's world frame at a film second. */
-  frame(seconds: number): IAutoMovieRigidTransform;
-  /** The owning prop's world frame at the transfer start. */
-  propFrame: IAutoMovieRigidTransform;
-  /** The rectangle's world origin at the transfer start, metres. */
-  origin: IAutoMovieVector3;
-  /** The rectangle's world orientation at the transfer start. */
-  rotation: IAutoMovieQuaternion;
-  /** The rectangle's local half-width, metres. */
-  x: number;
-  /** The rectangle's local half-depth, metres. */
-  z: number;
-}
-
 /**
  * Check dock alignment on the film clock through trailing touchdown. Co-moving
  * supports must preserve the deck's position and orientation in the platform's
@@ -169,6 +148,27 @@ export function checkSupportTransferDock(
         fix: "Keep the dock gap fixed in the platform frame through trailing touchdown",
       });
   }
+}
+
+/** The alternatives of `EndpointAxis`'s site. */
+type EndpointAxis = "from" | "to";
+
+/** A named support rectangle and its owning prop's motion. */
+interface Endpoint {
+  /** The transfer argument identifying the support. */
+  axis: EndpointAxis;
+  /** Read the owning prop's world frame at a film second. */
+  frame(seconds: number): IAutoMovieRigidTransform;
+  /** The owning prop's world frame at the transfer start. */
+  propFrame: IAutoMovieRigidTransform;
+  /** The rectangle's world origin at the transfer start, metres. */
+  origin: IAutoMovieVector3;
+  /** The rectangle's world orientation at the transfer start. */
+  rotation: IAutoMovieQuaternion;
+  /** The rectangle's local half-width, metres. */
+  x: number;
+  /** The rectangle's local half-depth, metres. */
+  z: number;
 }
 
 /** Require finite position and unit rotation before quaternion products. */

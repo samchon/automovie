@@ -18,9 +18,6 @@ import type { HumanArmTrajectory } from "../../posture/internal/HumanArmTrajecto
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/** The alternatives of `RidingOwner`'s site. */
-type RidingOwner = "upper" | "lower" | "hand";
-
 /**
  * A planned arm's site that rides another arm of the same plan
  * (`HumanArmTrajectory.ISite.on`), read off where the base and the lead arm's
@@ -130,3 +127,6 @@ export namespace AutoMovieMotionHumanArmRide {
     };
   }
 }
+
+/** The alternatives of `RidingOwner`'s site. */
+type RidingOwner = "upper" | "lower" | "hand";

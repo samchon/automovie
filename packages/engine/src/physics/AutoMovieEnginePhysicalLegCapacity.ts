@@ -11,55 +11,6 @@ import { convexHull2D } from "../math/internal/convexHull2D";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 
 
-function computeLegCapacity(input: {
-  profile: Pick<IAutoMoviePhysicalProfile, "joints">;
-  segments: ReadonlyMap<string, Pick<AutoMovieXpbdBody, "translation" | "rotation">>;
-  chain: readonly string[];
-  point: IAutoMovieVector3;
-  normal?: IAutoMovieVector3;
-}): number {
-  const normal: IAutoMovieVector3 = input.normal ?? { x: 0, y: 1, z: 0 };
-  let force: number = Infinity;
-  for (const bone of input.chain) {
-    const joint: IAutoMoviePhysicalJoint | undefined = input.profile.joints.find(
-      (candidate: IAutoMoviePhysicalJoint): boolean => candidate.child === bone,
-    );
-    const parent: Pick<AutoMovieXpbdBody, "translation" | "rotation"> | undefined = joint
-      ? input.segments.get(joint.parent)
-      : undefined;
-    if (!joint || !parent) continue;
-    const frame: IAutoMovieQuaternion = Quaternion.multiply(
-      parent.rotation(),
-      joint.parentFrame.rotation,
-    );
-    const centre: IAutoMovieVector3 = Vector3.add(
-      parent.translation(),
-      Quaternion.rotateVector(parent.rotation(), joint.parentFrame.position),
-    );
-    const moment: IAutoMovieVector3 = Vector3.cross(
-      Vector3.subtract(input.point, centre),
-      normal,
-    );
-    for (const axis of joint.axes) {
-      const turn: number = Vector3.dot(
-        Quaternion.rotateVector(frame, {
-          x: axis.axis === "x" ? 1 : 0,
-          y: axis.axis === "y" ? 1 : 0,
-          z: axis.axis === "z" ? 1 : 0,
-        }),
-        moment,
-      );
-      if (!(Math.abs(turn) > 1e-9)) continue;
-      // The motor's torque per newton is -turn: positive needs the axis's
-      // forward cap, negative its reverse one.
-      const cap: number =
-        -turn > 0 ? axis.maximumTorque : (axis.reverseTorque ?? axis.maximumTorque);
-      force = Math.min(force, Math.max(0, cap) / Math.abs(turn));
-    }
-  }
-  return force;
-}
-
 /** The centre-of-pressure region the feet's capacities leave. */
 export namespace AutoMovieEnginePhysicalLegCapacity {
   /**
@@ -171,4 +122,53 @@ export namespace AutoMovieEnginePhysicalLegCapacity {
     });
     return out;
   }
+}
+
+function computeLegCapacity(input: {
+  profile: Pick<IAutoMoviePhysicalProfile, "joints">;
+  segments: ReadonlyMap<string, Pick<AutoMovieXpbdBody, "translation" | "rotation">>;
+  chain: readonly string[];
+  point: IAutoMovieVector3;
+  normal?: IAutoMovieVector3;
+}): number {
+  const normal: IAutoMovieVector3 = input.normal ?? { x: 0, y: 1, z: 0 };
+  let force: number = Infinity;
+  for (const bone of input.chain) {
+    const joint: IAutoMoviePhysicalJoint | undefined = input.profile.joints.find(
+      (candidate: IAutoMoviePhysicalJoint): boolean => candidate.child === bone,
+    );
+    const parent: Pick<AutoMovieXpbdBody, "translation" | "rotation"> | undefined = joint
+      ? input.segments.get(joint.parent)
+      : undefined;
+    if (!joint || !parent) continue;
+    const frame: IAutoMovieQuaternion = Quaternion.multiply(
+      parent.rotation(),
+      joint.parentFrame.rotation,
+    );
+    const centre: IAutoMovieVector3 = Vector3.add(
+      parent.translation(),
+      Quaternion.rotateVector(parent.rotation(), joint.parentFrame.position),
+    );
+    const moment: IAutoMovieVector3 = Vector3.cross(
+      Vector3.subtract(input.point, centre),
+      normal,
+    );
+    for (const axis of joint.axes) {
+      const turn: number = Vector3.dot(
+        Quaternion.rotateVector(frame, {
+          x: axis.axis === "x" ? 1 : 0,
+          y: axis.axis === "y" ? 1 : 0,
+          z: axis.axis === "z" ? 1 : 0,
+        }),
+        moment,
+      );
+      if (!(Math.abs(turn) > 1e-9)) continue;
+      // The motor's torque per newton is -turn: positive needs the axis's
+      // forward cap, negative its reverse one.
+      const cap: number =
+        -turn > 0 ? axis.maximumTorque : (axis.reverseTorque ?? axis.maximumTorque);
+      force = Math.min(force, Math.max(0, cap) / Math.abs(turn));
+    }
+  }
+  return force;
 }

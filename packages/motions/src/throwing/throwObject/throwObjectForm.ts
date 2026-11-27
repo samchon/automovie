@@ -3,9 +3,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** The alternatives of `EntryEntryItem`'s site. */
-type EntryEntryItem = "chamber" | "release" | "finish";
-
 /**
  * The throw's form: every coefficient of its launch, its clock, its trunk and
  * its hand's places by style, each with its source or marked provisional where
@@ -168,3 +165,6 @@ export namespace throwObjectForm {
     },
   };
 }
+
+/** The alternatives of `EntryEntryItem`'s site. */
+type EntryEntryItem = "chamber" | "release" | "finish";

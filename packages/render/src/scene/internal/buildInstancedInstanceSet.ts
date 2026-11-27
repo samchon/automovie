@@ -27,51 +27,6 @@ import { regenerateInstanceSlot } from "./regenerateInstanceSlot.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
 /**
- * One chunk's prototype tier meshes and the hysteretic tier selected by its
- * last update.
- */
-interface IInstancePrototypeChunkObject {
-  /** Supplied unscaled prototype radius estimate used by projected-size LOD. */
-  projectionRadius: number;
-
-  /** Visible authored slots assigned to this prototype in the chunk. */
-  count: number;
-
-  /** Compiled tier policy read by the existing selector. */
-  lod: IAutoMovieCompiledInstanceSet["lod"];
-
-  /** Chunk-owned meshes toggled in place when the selected tier changes. */
-  tiers: Map<IAutoMovieCompiledFormationLod["tier"], THREE.InstancedMesh>;
-
-  /** Previous selected tier for hysteresis; null before the first update. */
-  selected: IAutoMovieCompiledFormationLod["tier"] | null;
-}
-
-/** One flattened prototype tier ready to be cloned into a chunk batch. */
-interface IInstanceRepresentation {
-  /** Flattened rest geometry cloned separately for each chunk batch. */
-  geometry: THREE.BufferGeometry;
-
-  /** Owned instance-only materials shared by the prototype's chunk meshes. */
-  materials: THREE.Material[];
-}
-
-/** One compiled chunk and its persistent prototype visibility state. */
-interface IInstanceChunkObject {
-  /** Immutable compiled member span, bounds and centroid. */
-  runtime: IAutoMovieCompiledInstanceSet["chunks"][number];
-
-  /**
-   * Metre radius of the chunk's slot-origin bounds before prototype
-   * enlargement.
-   */
-  radius: number;
-
-  /** Chunk-owned tier meshes and selection state, updated in the existing order. */
-  prototypes: IInstancePrototypeChunkObject[];
-}
-
-/**
  * Build one non-formation crowd, vegetation, prop, facade, or ornament set.
  *
  * Matrices, colors, scales, and numeric trait attributes are regenerated from
@@ -511,6 +466,51 @@ export const buildInstancedInstanceSet: (
     },
   );
 };
+
+/**
+ * One chunk's prototype tier meshes and the hysteretic tier selected by its
+ * last update.
+ */
+interface IInstancePrototypeChunkObject {
+  /** Supplied unscaled prototype radius estimate used by projected-size LOD. */
+  projectionRadius: number;
+
+  /** Visible authored slots assigned to this prototype in the chunk. */
+  count: number;
+
+  /** Compiled tier policy read by the existing selector. */
+  lod: IAutoMovieCompiledInstanceSet["lod"];
+
+  /** Chunk-owned meshes toggled in place when the selected tier changes. */
+  tiers: Map<IAutoMovieCompiledFormationLod["tier"], THREE.InstancedMesh>;
+
+  /** Previous selected tier for hysteresis; null before the first update. */
+  selected: IAutoMovieCompiledFormationLod["tier"] | null;
+}
+
+/** One flattened prototype tier ready to be cloned into a chunk batch. */
+interface IInstanceRepresentation {
+  /** Flattened rest geometry cloned separately for each chunk batch. */
+  geometry: THREE.BufferGeometry;
+
+  /** Owned instance-only materials shared by the prototype's chunk meshes. */
+  materials: THREE.Material[];
+}
+
+/** One compiled chunk and its persistent prototype visibility state. */
+interface IInstanceChunkObject {
+  /** Immutable compiled member span, bounds and centroid. */
+  runtime: IAutoMovieCompiledInstanceSet["chunks"][number];
+
+  /**
+   * Metre radius of the chunk's slot-origin bounds before prototype
+   * enlargement.
+   */
+  radius: number;
+
+  /** Chunk-owned tier meshes and selection state, updated in the existing order. */
+  prototypes: IInstancePrototypeChunkObject[];
+}
 
 const instanceMatrix: (
   slot: IAutoMovieInstanceSlot,

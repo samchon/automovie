@@ -9,12 +9,6 @@ import type {
 
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 
-/** The alternatives of `Placement2`'s site. */
-type Placement2 = "point" | "rotation";
-
-/** A foot's ankle point and turn. */
-type Placement = Required<Pick<IAutoMovieHumanLimbGoal, Placement2>>;
-
 /**
  * A foot goal turned toes-down about its contact until its ankle is within the
  * leg's reach of the hip with the knee `knee` bent, no further than `ankling`:
@@ -89,3 +83,9 @@ export function ankleRidePedalFoot(
   }
   return turnedBy(sign * high);
 }
+
+/** The alternatives of `Placement2`'s site. */
+type Placement2 = "point" | "rotation";
+
+/** A foot's ankle point and turn. */
+type Placement = Required<Pick<IAutoMovieHumanLimbGoal, Placement2>>;

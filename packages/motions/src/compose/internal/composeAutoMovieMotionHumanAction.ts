@@ -15,9 +15,6 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
 
-/** The channel mask a primitive reads at a second of its window. */
-type SoDependency = (seconds: number) => number;
-
 /**
  * An action composed of part primitives over a base.
  *
@@ -432,6 +429,9 @@ export function composeAutoMovieMotionHumanAction(
     return posture;
   }
 }
+
+/** The channel mask a primitive reads at a second of its window. */
+type SoDependency = (seconds: number) => number;
 
 /** Whether a primitive solves what it reads of other performers once placed. */
 function readies(p: IAutoMovieMotionHumanPrimitive): boolean {

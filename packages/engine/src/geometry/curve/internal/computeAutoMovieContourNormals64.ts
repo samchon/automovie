@@ -1,15 +1,6 @@
 import type { AutoMovieVector3Tuple } from "@automovie/interface";
 
 import { AutoMovieCurveMath64 as M } from "../../AutoMovieCurveMath64";
-const add: typeof M.add = M.add,
-  sub: typeof M.sub = M.sub,
-  mul: typeof M.scale = M.scale;
-const cross: (a: V3, b: V3) => V3 = (a: V3, b: V3): V3 => [
-  a[1] * b[2] - a[2] * b[1],
-  a[2] * b[0] - a[0] * b[2],
-  a[0] * b[1] - a[1] * b[0],
-];
-
 /**
  * Accumulate emitted contour-face area vectors and normalize each vertex once.
  * Positions remain in the original common millimetre chart. Opposing areas can
@@ -32,5 +23,14 @@ export function computeAutoMovieContourNormals64(
     return length > 0 ? mul(normal, 1 / length) : [0, 0, 0];
   });
 }
+const add: typeof M.add = M.add,
+  sub: typeof M.sub = M.sub,
+  mul: typeof M.scale = M.scale;
+
+const cross: (a: V3, b: V3) => V3 = (a: V3, b: V3): V3 => [
+  a[1] * b[2] - a[2] * b[1],
+  a[2] * b[0] - a[0] * b[2],
+  a[0] * b[1] - a[1] * b[0],
+];
 
 type V3 = AutoMovieVector3Tuple;

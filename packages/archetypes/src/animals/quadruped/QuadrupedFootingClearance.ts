@@ -14,20 +14,6 @@ import {
 import type { AutoMovieArchetypeQuadrupedFooting } from "../AutoMovieArchetypeQuadrupedFooting";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 
-/** World up. */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/**
- * Turns that bring world -X, +X, -Z and +Z to world down, so a part's lowest
- * surface in each gives its horizontal extent.
- */
-const SIDES: readonly IAutoMovieQuaternion[] = [
-  Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
-  Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -90),
-  Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
-  Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
-];
-
 /**
  * The least vertical lift that keeps every solid of a displayed model out of
  * every authored footing plane it overlaps, zero when none enters one.
@@ -128,6 +114,20 @@ export function QuadrupedFootingClearance(
   }
   return lift;
 }
+
+/** World up. */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/**
+ * Turns that bring world -X, +X, -Z and +Z to world down, so a part's lowest
+ * surface in each gives its horizontal extent.
+ */
+const SIDES: readonly IAutoMovieQuaternion[] = [
+  Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
+  Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -90),
+  Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
+  Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+];
 
 /** The rotation taking one unit direction to another. */
 function turn(

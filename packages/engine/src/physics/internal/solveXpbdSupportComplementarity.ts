@@ -1,6 +1,51 @@
 import { AutoMovieEngineMath } from "../../math/AutoMovieEngineMath";
 import type { solveXpbdArticulationContacts as Contacts } from "./solveXpbdArticulationContacts";
 
+/** The input of solveXpbdSupportComplementarity. */
+export namespace solveXpbdSupportComplementarity {
+  /**
+   * The support rows of a tree without a root task, solved as a complementarity
+   * problem by active set (Mirtich 1996, "Impulse-based Dynamic Simulation of
+   * Rigid Body Systems", chapter 6), every condition inside the one linear system
+   * of each round:
+   *
+   * - A free row holds its velocity: `(K lambda + u)_r = 0`;
+   * - A normal row below its bound is held at it, `lambda_r = lower_r`, and
+   *   released again when, held, its point would approach (`(K lambda + u)_r <
+   *   0`), the Signorini complementarity;
+   * - A patch whose total friction, the contact passes' `F` plus the rows'
+   *   `lambda_t`, leaves its cone `mu (N + sum lambda_n)` slides along the
+   *   direction `d` the total left in: `F + lambda_t = d mu (N + sum lambda_n)`,
+   *   linear in the patch's normal impulses (Coulomb's law, sliding branch, on
+   *   the substep's whole friction).
+   *
+   * A round that changes no row's state is the answer. Every change holds or
+   * releases one normal or starts one patch sliding, so the rounds are bounded by
+   * twice the rows; the last round's solution stands if the bound is reached.
+   *
+   * @param input The rows' coupling matrix, the motors' velocity change at them
+   *   and the rows.
+   * @returns The rows' impulses, or null when a round's system is singular.
+   */
+  export function run(
+    input: Parameters<typeof solveXpbdSupportComplementarityImplementation>[0],
+  ): ReturnType<typeof solveXpbdSupportComplementarityImplementation> {
+    return solveXpbdSupportComplementarityImplementation(input);
+  }
+
+  /** One tree's rows. */
+  export interface IInput {
+    /** Each row's velocity change per unit impulse of every row. */
+    k: readonly number[][];
+
+    /** Each row's velocity change under the motors alone. */
+    u: readonly number[];
+
+    /** The rows and patches. */
+    set: Contacts.ISet;
+  }
+}
+
 function solveXpbdSupportComplementarityImplementation(
   input: solveXpbdSupportComplementarity.IInput,
 ): number[] | null {
@@ -58,51 +103,6 @@ function solveXpbdSupportComplementarityImplementation(
     if (!changed) return current;
   }
   return lambda;
-}
-
-/** The input of solveXpbdSupportComplementarity. */
-export namespace solveXpbdSupportComplementarity {
-  /**
-   * The support rows of a tree without a root task, solved as a complementarity
-   * problem by active set (Mirtich 1996, "Impulse-based Dynamic Simulation of
-   * Rigid Body Systems", chapter 6), every condition inside the one linear system
-   * of each round:
-   *
-   * - A free row holds its velocity: `(K lambda + u)_r = 0`;
-   * - A normal row below its bound is held at it, `lambda_r = lower_r`, and
-   *   released again when, held, its point would approach (`(K lambda + u)_r <
-   *   0`), the Signorini complementarity;
-   * - A patch whose total friction, the contact passes' `F` plus the rows'
-   *   `lambda_t`, leaves its cone `mu (N + sum lambda_n)` slides along the
-   *   direction `d` the total left in: `F + lambda_t = d mu (N + sum lambda_n)`,
-   *   linear in the patch's normal impulses (Coulomb's law, sliding branch, on
-   *   the substep's whole friction).
-   *
-   * A round that changes no row's state is the answer. Every change holds or
-   * releases one normal or starts one patch sliding, so the rounds are bounded by
-   * twice the rows; the last round's solution stands if the bound is reached.
-   *
-   * @param input The rows' coupling matrix, the motors' velocity change at them
-   *   and the rows.
-   * @returns The rows' impulses, or null when a round's system is singular.
-   */
-  export function run(
-    input: Parameters<typeof solveXpbdSupportComplementarityImplementation>[0],
-  ): ReturnType<typeof solveXpbdSupportComplementarityImplementation> {
-    return solveXpbdSupportComplementarityImplementation(input);
-  }
-
-  /** One tree's rows. */
-  export interface IInput {
-    /** Each row's velocity change per unit impulse of every row. */
-    k: readonly number[][];
-
-    /** Each row's velocity change under the motors alone. */
-    u: readonly number[];
-
-    /** The rows and patches. */
-    set: Contacts.ISet;
-  }
 }
 
 /**

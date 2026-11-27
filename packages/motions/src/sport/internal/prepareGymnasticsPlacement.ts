@@ -4,15 +4,6 @@ import type { AutoMovieHumanoidBone, IAutoMovieHumanDigitGoal, IAutoMovieHumanLi
 import { HumanPosturePreparation } from "../../posture/internal/HumanPosturePreparation";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 
-/** The alternatives of `Heading2`'s site. */
-type Heading2 = "yaw" | "pitch" | "roll";
-
-/**
- * The root orientation that changes while the prepared articulation stays
- * fixed.
- */
-type Heading = Pick<IAutoMovieMotionHumanPosture, Heading2>;
-
 /**
  * Prepare placement of one fixed gymnastic articulation by its centre of mass.
  * The body and mass model belong to the unchanged body's plan. Each query may
@@ -86,6 +77,15 @@ export function prepareGymnasticsPlacement(
     ).posture;
   };
 }
+
+/** The alternatives of `Heading2`'s site. */
+type Heading2 = "yaw" | "pitch" | "roll";
+
+/**
+ * The root orientation that changes while the prepared articulation stays
+ * fixed.
+ */
+type Heading = Pick<IAutoMovieMotionHumanPosture, Heading2>;
 /**
  * Copy the authored tuples so neither the input nor a returned posture owns
  * retained shape data.

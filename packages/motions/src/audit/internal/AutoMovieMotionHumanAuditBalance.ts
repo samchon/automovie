@@ -46,25 +46,6 @@ export namespace AutoMovieMotionHumanAuditBalance {
    */
   export const STEP: number = 1 / 240;
 
-  /** One action's candidate interval as indices into the original film grid. */
-  interface ISampledInterval {
-    span: HumanPhysics.ISpan;
-    from: number;
-    to: number;
-  }
-
-  /** Displayed bones and their mass centre at one instant of the stencil. */
-  interface IStencilSample {
-    /** The displayed bones. */
-    bones: Bones;
-
-    /** Their centre of mass, world metres. */
-    centre: IAutoMovieVector3;
-  }
-
-  /** Read or allocate the one sample shared by overlapping stencils. */
-  type StencilAt = (seconds: number, bones?: Bones) => IStencilSample;
-
   /**
    * How far the extrapolated centre of mass leaves the feet's hull over the
    * instants where both feet alone bear the body.
@@ -442,6 +423,25 @@ export namespace AutoMovieMotionHumanAuditBalance {
     }
     return left && right;
   }
+
+  /** One action's candidate interval as indices into the original film grid. */
+  interface ISampledInterval {
+    span: HumanPhysics.ISpan;
+    from: number;
+    to: number;
+  }
+
+  /** Displayed bones and their mass centre at one instant of the stencil. */
+  interface IStencilSample {
+    /** The displayed bones. */
+    bones: Bones;
+
+    /** Their centre of mass, world metres. */
+    centre: IAutoMovieVector3;
+  }
+
+  /** Read or allocate the one sample shared by overlapping stencils. */
+  type StencilAt = (seconds: number, bones?: Bones) => IStencilSample;
 }
 
 /** The displayed bones as owned by the audit's motion. */

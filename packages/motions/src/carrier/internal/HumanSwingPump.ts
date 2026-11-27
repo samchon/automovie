@@ -15,40 +15,13 @@ import { HumanRide } from "../../lexicon/internal/HumanRide";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-type Params = IAutoMovieMotionHumanPlayground.ISwingPumpParams;
-type Plan = IAutoMovieMotionHumanActionPlan;
-type Posture = IAutoMovieMotionHumanPosture;
-
-/** A point in the swing's plane: forward `z` then up `y`, metres from the pivot. */
-type PlanePoint = readonly [number, number];
-
-/** One body part turning on a circle in the swing's plane. */
-interface ITurningPart {
-  /** Mass, kilograms. */
-  mass: number;
-
-  /** The centre it turns about. */
-  centre: PlanePoint;
-
-  /** Its centre of mass's distance from that centre, metres. */
-  radius: number;
-
-  /** Start and end angles from forward toward up, radians. */
-  from: number;
-
-  /** End angle, radians. */
-  to: number;
-}
-
 /** World vertical. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
 /**
  * Seconds each change of posture takes, centred on the seat's turning point
  * (provisional staging).
  */
 const TURN: number = 0.3;
-
 /**
  * Sampling step that locates the seat's turning points, seconds: finer than any
  * swing's half period.
@@ -307,4 +280,31 @@ export namespace HumanSwingPump {
     }
     return Math.abs(swept / inertia) / Quaternion.DEG2RAD;
   }
+}
+
+type Params = IAutoMovieMotionHumanPlayground.ISwingPumpParams;
+
+type Plan = IAutoMovieMotionHumanActionPlan;
+
+type Posture = IAutoMovieMotionHumanPosture;
+
+/** A point in the swing's plane: forward `z` then up `y`, metres from the pivot. */
+type PlanePoint = readonly [number, number];
+
+/** One body part turning on a circle in the swing's plane. */
+interface ITurningPart {
+  /** Mass, kilograms. */
+  mass: number;
+
+  /** The centre it turns about. */
+  centre: PlanePoint;
+
+  /** Its centre of mass's distance from that centre, metres. */
+  radius: number;
+
+  /** Start and end angles from forward toward up, radians. */
+  from: number;
+
+  /** End angle, radians. */
+  to: number;
 }

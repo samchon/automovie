@@ -22,27 +22,6 @@ import { walkReachGround } from "./walkReachGround";
 import { walkSupportHeight } from "./walkSupportHeight";
 import { walkSwing } from "./walkSwing";
 
-/** The already evaluated pelvis at the current action second. */
-interface IReachAt {
-  /** The action second it was evaluated at. */
-  seconds: number;
-
-  /** The pelvis there. */
-  pelvis: walkReach.IPelvis;
-}
-
-/** The two scheduled feet at an action second. */
-type Feet = Record<
-  AutoMovieHumanSide,
-  IAutoMovieMotionHumanWalkFoot.IScheduled
->;
-
-/** The pelvis's three joint angles at an action second, degrees. */
-type Hips = readonly [number, number, number];
-
-/** A posture read's optional FK source. */
-type Resolution = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
-
 /**
  * A stepping gait's pelvis settled against its stances: every swing's flight
  * claim, scheduled descent and stance ends are constants of the step, settled
@@ -281,6 +260,27 @@ export namespace walkLocomoteGround {
     };
   }
 }
+
+/** The already evaluated pelvis at the current action second. */
+interface IReachAt {
+  /** The action second it was evaluated at. */
+  seconds: number;
+
+  /** The pelvis there. */
+  pelvis: walkReach.IPelvis;
+}
+
+/** The two scheduled feet at an action second. */
+type Feet = Record<
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanWalkFoot.IScheduled
+>;
+
+/** The pelvis's three joint angles at an action second, degrees. */
+type Hips = readonly [number, number, number];
+
+/** A posture read's optional FK source. */
+type Resolution = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
 
 /**
  * Settle the pelvis at a second from the prepared swing claims.

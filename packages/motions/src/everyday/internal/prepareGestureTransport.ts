@@ -11,18 +11,6 @@ import type {
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/** The record of `IPrepareGestureTransportGoalsResult`'s site. */
-type IPrepareGestureTransportGoalsResult = {
-  side: AutoMovieHumanSide;
-  hand: IAutoMovieMotionHumanGestureStroke.IHand;
-};
-
-/** The record of `IPrepareGestureTransportGoalsItem`'s site. */
-type IPrepareGestureTransportGoalsItem = {
-  side: AutoMovieHumanSide;
-  hand: IAutoMovieMotionHumanGestureStroke.IHand;
-};
-
 /**
  * Measure the farthest entry-to-stroke hand transport while sharing only the
  * fixed action-entry pose's demanded FK. Named and varied stroke probes still
@@ -82,3 +70,15 @@ export function prepareGestureTransport(
     return farthest;
   };
 }
+
+/** The record of `IPrepareGestureTransportGoalsResult`'s site. */
+type IPrepareGestureTransportGoalsResult = {
+  side: AutoMovieHumanSide;
+  hand: IAutoMovieMotionHumanGestureStroke.IHand;
+};
+
+/** The record of `IPrepareGestureTransportGoalsItem`'s site. */
+type IPrepareGestureTransportGoalsItem = {
+  side: AutoMovieHumanSide;
+  hand: IAutoMovieMotionHumanGestureStroke.IHand;
+};

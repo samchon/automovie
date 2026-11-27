@@ -17,9 +17,6 @@ import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
 import { compileAutoMovieNormalizedPhases64 } from "./compileAutoMovieNormalizedPhases64";
 import { isDenseFinite } from "./isDenseFinite";
 
-type Row = { interval: number; t: number; station: number };
-type SpanFamily = { grids: AutoMovieBernsteinGrid64[] };
-
 /**
  * Generate a metre mesh from complete corresponding cubic courses. Exact
  * common-span restrictions feed componentwise PCHIP control fields and
@@ -502,3 +499,6 @@ export function tessellateAutoMovieCurveGrid64(
     },
   };
 }
+type Row = { interval: number; t: number; station: number };
+
+type SpanFamily = { grids: AutoMovieBernsteinGrid64[] };

@@ -29,20 +29,6 @@ import { AutoMovieViewChain } from "./AutoMovieViewChain";
 import { AutoMovieViewLoftInputs } from "./construction/internal/AutoMovieViewLoftInputs";
 import { AutoMovieViewSection } from "./AutoMovieViewSection";
 
-/** Existing ordered quarter layout shared with the view input owner. */
-type Quarters<T> = IAutoMovieViewPart.IQuarters<T>;
-
-/**
- * One emitted station's plane, radius reader and four-quarter metadata, in
- * station order.
- */
-interface Row {
-  station: number;
-  frame: IAutoMovieLoftSectionFrame;
-  radius: (phi: number) => number;
-  view: IAutoMovieLoftChain.IView | undefined;
-}
-
 /**
  * Loft a view part through its four signed source outlines and fullness owner.
  * Direct shoulder/top fields retain their original scalar generators for final
@@ -566,6 +552,20 @@ export namespace AutoMovieViewLoft {
         chains.length === 0 ? CONTINUITY : { phase: "C1", station: "C1" },
     };
   }
+}
+
+/** Existing ordered quarter layout shared with the view input owner. */
+type Quarters<T> = IAutoMovieViewPart.IQuarters<T>;
+
+/**
+ * One emitted station's plane, radius reader and four-quarter metadata, in
+ * station order.
+ */
+interface Row {
+  station: number;
+  frame: IAutoMovieLoftSectionFrame;
+  radius: (phi: number) => number;
+  view: IAutoMovieLoftChain.IView | undefined;
 }
 
 /** The continuity every four-quarter chain carries. */

@@ -10,15 +10,6 @@ import { SiegeClearance } from "./SiegeClearance";
 import { SiegeStructure } from "./SiegeStructure";
 import type { AutoMovieArchetypeSiegeEngine } from "../AutoMovieArchetypeSiegeEngine";
 
-/** A siege engine under construction. */
-type Builder = AutoMovieArchetypeBuilder<
-  AutoMovieArchetypeSiegeEngine.Affordance,
-  AutoMovieArchetypeSiegeEngine.Dimension
->;
-
-/** A siege engine's dimensions. */
-type Drawn = Readonly<Partial<Record<AutoMovieArchetypeSiegeEngine.Dimension, number>>>;
-
 /**
  * A throwing engine's frame and arm, and the swing of its arm: the arm turns on
  * its axle across `X` at the frame's top, its long end toward `+Z` at rest,
@@ -240,3 +231,12 @@ export namespace SiegeArm {
     }
   }
 }
+
+/** A siege engine under construction. */
+type Builder = AutoMovieArchetypeBuilder<
+  AutoMovieArchetypeSiegeEngine.Affordance,
+  AutoMovieArchetypeSiegeEngine.Dimension
+>;
+
+/** A siege engine's dimensions. */
+type Drawn = Readonly<Partial<Record<AutoMovieArchetypeSiegeEngine.Dimension, number>>>;

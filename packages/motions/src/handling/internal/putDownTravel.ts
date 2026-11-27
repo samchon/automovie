@@ -134,15 +134,6 @@ export function putDownTravel(
   };
 }
 
-/** The route segment active at a path second and the second on its own clock. */
-interface IActiveSpan {
-  /** The active segment. */
-  span: IAutoMovieMotionHumanPrehension.ITransport;
-
-  /** Seconds since that segment began. */
-  local: number;
-}
-
 /** Read the active minimum-jerk span on the local clock of the whole path. */
 function joinRoute(
   spans: readonly IAutoMovieMotionHumanPrehension.ITransport[],
@@ -201,4 +192,13 @@ export namespace putDownTravel {
     /** Seconds from entry to the aperture when specified. */
     aperture?: number;
   }
+}
+
+/** The route segment active at a path second and the second on its own clock. */
+interface IActiveSpan {
+  /** The active segment. */
+  span: IAutoMovieMotionHumanPrehension.ITransport;
+
+  /** Seconds since that segment began. */
+  local: number;
 }

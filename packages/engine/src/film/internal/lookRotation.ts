@@ -3,12 +3,6 @@ import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 
-/** World up: the horizon a camera keeps level. */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/** The reference that replaces {@link UP} when the aim is parallel to it. */
-const BACK: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
-
 /**
  * The rotation that points a camera's −Z down `direction` while keeping its
  * horizon level.
@@ -62,3 +56,9 @@ export function lookRotation(
     z: s / 4,
   });
 }
+
+/** World up: the horizon a camera keeps level. */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/** The reference that replaces {@link UP} when the aim is parallel to it. */
+const BACK: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };

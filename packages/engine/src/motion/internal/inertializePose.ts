@@ -14,9 +14,6 @@ import { Quaternion } from "../../math/Quaternion";
 import { inertializeOffset } from "./inertializeOffset";
 import { samplePoseVelocity as samplePoseVelocityImplementation } from "./samplePoseVelocity";
 
-/** World/rotation-vector components in their existing decay evaluation order. */
-const AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
-
 /**
  * Inertialize a transition between two poses: the target motion plays from the
  * cut, and the source's offset from it decays to zero.
@@ -248,6 +245,9 @@ export function inertializePose(
     };
   };
 }
+
+/** World/rotation-vector components in their existing decay evaluation order. */
+const AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
 
 /**
  * Apply the same scalar hinge offset without creating a per-joint angle

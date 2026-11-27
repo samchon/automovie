@@ -96,6 +96,18 @@ export namespace AutoMovieLoftJet {
     return jet;
   }
 
+  /**
+   * Unit normal `P_t x P_s` of a finite jet, or null when its length is at most
+   * 1e-12.
+   */
+  export function normal(
+    jet: IAutoMovieLoftSurfaceJet,
+  ): AutoMovieVector3Tuple | null {
+    const n: AutoMovieVector3Tuple = cross(jet.t, jet.s);
+    const l: number = Math.hypot(n[0], n[1], n[2]);
+    return l > 1e-12 ? [n[0] / l, n[1] / l, n[2] / l] : null;
+  }
+
   /** One interval's endpoint arrays, weights and combined derivative rows. */
   interface IControls {
     /** Lower endpoint, unchanged for the immutable chain's lifetime. */
@@ -327,18 +339,6 @@ export namespace AutoMovieLoftJet {
       w[4]! * b.slope[k]! +
       w[5]! * b.value[k]!
     );
-  }
-
-  /**
-   * Unit normal `P_t x P_s` of a finite jet, or null when its length is at most
-   * 1e-12.
-   */
-  export function normal(
-    jet: IAutoMovieLoftSurfaceJet,
-  ): AutoMovieVector3Tuple | null {
-    const n: AutoMovieVector3Tuple = cross(jet.t, jet.s);
-    const l: number = Math.hypot(n[0], n[1], n[2]);
-    return l > 1e-12 ? [n[0] / l, n[1] / l, n[2] / l] : null;
   }
 }
 

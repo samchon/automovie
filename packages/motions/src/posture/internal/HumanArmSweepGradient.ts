@@ -7,15 +7,6 @@ import type {
 
 import type { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 
-/** The placed shape parts needed by the signed-distance gradient. */
-type Placement = Pick<IAutoMovieMotionHumanArmGeometry.IShape, "pose" | "shape">;
-
-/** The chord, its nearest witness and the endpoint frames. */
-type Witness = Pick<
-  HumanArmTrajectorySweep.ISwept,
-  "start" | "to" | "near" | "first" | "turn"
->;
-
 /**
  * Differentiate the least signed hull distance along a penetrating arm chord.
  * For an interior minimizer between two active face planes, its longitudinal
@@ -137,3 +128,12 @@ export namespace HumanArmSweepGradient {
  * subtraction (fewer than 64 serial rounded operations).
  */
 const ROUNDING: number = (64 * Number.EPSILON) / (1 - 64 * Number.EPSILON);
+
+/** The placed shape parts needed by the signed-distance gradient. */
+type Placement = Pick<IAutoMovieMotionHumanArmGeometry.IShape, "pose" | "shape">;
+
+/** The chord, its nearest witness and the endpoint frames. */
+type Witness = Pick<
+  HumanArmTrajectorySweep.ISwept,
+  "start" | "to" | "near" | "first" | "turn"
+>;

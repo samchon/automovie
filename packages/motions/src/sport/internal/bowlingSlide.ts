@@ -59,9 +59,6 @@ export const bowlingSlide: IAutoMovieMotionHumanActionLaw<Parameters> = {
   plan,
 };
 
-/** The authored final glide of a one-handed bowling approach. */
-type Parameters = IAutoMovieMotionHumanBowlingSlide.IParams;
-
 /**
  * Prepare the slide and the distinct recovery step without changing entry
  * posture or fixed foot ownership outside the moving intervals.
@@ -299,3 +296,6 @@ function plan(
     },
   };
 }
+
+/** The authored final glide of a one-handed bowling approach. */
+type Parameters = IAutoMovieMotionHumanBowlingSlide.IParams;

@@ -15,48 +15,6 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { humanEquestrianRhythm } from "./humanEquestrianRhythm";
 
-/** The ride law's context after the seated entry has been admitted. */
-type Context =
-  IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide.IParams>;
-
-/** A jumping rider's four ordered landmarks on the ride's local clock. */
-type Jump = humanEquestrianRhythm.Jump;
-
-/** Kept in parent-to-child order to describe the same four joints in each pose. */
-const BONES = ["spine", "chest", "neck", "head"] as const;
-/** The alternatives of `LookDirection`'s site. */
-type LookDirection = 1 | -1;
-
-/** The centred over-shoulder film beat on the ride's clock. */
-interface ILook {
-  /** Local seconds of greatest turn. */
-  peak: number;
-  /** Half the turn's duration, seconds. */
-  half: number;
-  /** Left is positive about the rider's up axis. */
-  direction: LookDirection;
-}
-
-/**
- * A support-relative response integrated before the ride fits its hands and
- * feet.
- */
-interface IPrepared {
-  /** Local seconds where the stirrups support the raised rider without the seat. */
-  offSeat?: readonly [number, number];
-  /**
-   * Pose the pelvis and upper body relative to the saddle and keep the limb
-   * demands for the ride to fit.
-   */
-  at(
-    seconds: number,
-    posture: IAutoMovieMotionHumanPosture,
-    carrier: IAutoMovieRigidTransform,
-    seatDrift: IAutoMovieVector3,
-    up: IAutoMovieVector3,
-  ): void;
-}
-
 /**
  * Prepare opt-in riding articulation from the support's film cues. Collected
  * walk and trot show opposing saddle and pelvic pitch during early stance, with
@@ -290,6 +248,48 @@ export function prepareHumanEquestrianRide(
       }
     },
   };
+}
+
+/** The ride law's context after the seated entry has been admitted. */
+type Context =
+  IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide.IParams>;
+
+/** A jumping rider's four ordered landmarks on the ride's local clock. */
+type Jump = humanEquestrianRhythm.Jump;
+/** Kept in parent-to-child order to describe the same four joints in each pose. */
+const BONES = ["spine", "chest", "neck", "head"] as const;
+
+/** The alternatives of `LookDirection`'s site. */
+type LookDirection = 1 | -1;
+
+/** The centred over-shoulder film beat on the ride's clock. */
+interface ILook {
+  /** Local seconds of greatest turn. */
+  peak: number;
+  /** Half the turn's duration, seconds. */
+  half: number;
+  /** Left is positive about the rider's up axis. */
+  direction: LookDirection;
+}
+
+/**
+ * A support-relative response integrated before the ride fits its hands and
+ * feet.
+ */
+interface IPrepared {
+  /** Local seconds where the stirrups support the raised rider without the seat. */
+  offSeat?: readonly [number, number];
+  /**
+   * Pose the pelvis and upper body relative to the saddle and keep the limb
+   * demands for the ride to fit.
+   */
+  at(
+    seconds: number,
+    posture: IAutoMovieMotionHumanPosture,
+    carrier: IAutoMovieRigidTransform,
+    seatDrift: IAutoMovieVector3,
+    up: IAutoMovieVector3,
+  ): void;
 }
 /** The record of `ITimesCue`'s site. */
 type ITimesCue = { seconds: number };

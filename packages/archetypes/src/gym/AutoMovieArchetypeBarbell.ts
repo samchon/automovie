@@ -16,7 +16,42 @@ const IWF: string =
 
 /** Constructs the barbell archetype from its recipe. */
 export namespace AutoMovieArchetypeBarbell {
-/**
+/** The kinds of bar. */
+  export type Kind = "mens" | "womens";
+
+  /**
+   * The affordance ids:
+   *
+   * - `gripLeft`: where the left hand holds the shaft, on `+X`, taken from the
+   *   `-Z` side.
+   * - `gripRight`: where the right hand holds it, on `-X`.
+   */
+  export type Affordance = "gripLeft" | "gripRight";
+
+  /**
+   * The free dimensions, metres unless stated:
+   *
+   * - `length`: the whole bar, end to end.
+   * - `diameter`: the shaft where it is gripped.
+   * - `mass`: the bar alone, kilograms.
+   * - `grip`: between the middles of the two hands.
+   * - `load`: the discs and collar on each side, kilograms; 0 is the empty bar.
+   */
+  export type Dimension = "length" | "diameter" | "mass" | "grip" | "load";
+
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Which bar. */
+    kind: Kind;
+
+    /** The model's id, unique in a scene; `barbell` when absent. */
+    id?: string;
+  }
+
+  /**
  * A weightlifting barbell: a steel bar with a sleeve at each end, and the discs
  * loaded on the sleeves when a load is given.
  *
@@ -135,9 +170,6 @@ export function create(
   return builder.build(d.mass! + 2 * d.load!);
 }
 
-  /** The kinds of bar. */
-  export type Kind = "mens" | "womens";
-
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["mens", "womens"];
 
@@ -172,26 +204,6 @@ export function create(
    */
   export const HAND: number = 0.12;
 
-  /**
-   * The affordance ids:
-   *
-   * - `gripLeft`: where the left hand holds the shaft, on `+X`, taken from the
-   *   `-Z` side.
-   * - `gripRight`: where the right hand holds it, on `-X`.
-   */
-  export type Affordance = "gripLeft" | "gripRight";
-
-  /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `length`: the whole bar, end to end.
-   * - `diameter`: the shaft where it is gripped.
-   * - `mass`: the bar alone, kilograms.
-   * - `grip`: between the middles of the two hands.
-   * - `load`: the discs and collar on each side, kilograms; 0 is the empty bar.
-   */
-  export type Dimension = "length" | "diameter" | "mass" | "grip" | "load";
-
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
@@ -202,18 +214,6 @@ export function create(
     grip: "m",
     load: "kg",
   };
-
-  /**
-   * The parameters: the kind, and any free dimension fixed to a value inside
-   * its band.
-   */
-  export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which bar. */
-    kind: Kind;
-
-    /** The model's id, unique in a scene; `barbell` when absent. */
-    id?: string;
-  }
 
   /**
    * The hands' spacing: from a clean's grip to a snatch's. An estimate, not

@@ -11,6 +11,33 @@ import { GoalBuild } from "./GoalBuild";
 import { buildTennisNet } from "./buildTennisNet";
 import type { AutoMovieArchetypeGoal } from "../AutoMovieArchetypeGoal";
 
+/**
+ * A tennis net with centre strap, sagging cord and post grips.
+ *
+ * The net spans the XY plane, with the top ledge at the centre strap and the
+ * square posts outside the doubles court.
+ *
+ * @param params The optional identifier and dimensions fixed within their
+ *   recorded bands.
+ * @param seed The seed for free dimensions. The band midpoints apply without a
+ *   seed.
+ * @returns The model with its named contacts in its local frame.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
+ *   cannot be realized.
+ */
+export function createTennisNet(
+  params: AutoMovieArchetypeTennisNet.IParams = {},
+  seed?: number,
+): AutoMovieArchetype<AutoMovieArchetypeTennisNet.Affordance, AutoMovieArchetypeTennisNet.Dimension> {
+  const {
+    builder,
+    d,
+  }: ReturnType<typeof GoalBuild.draw<AutoMovieArchetypeTennisNet.Affordance>> =
+    GoalBuild.draw("tennisNet", params, seed);
+  tennis(builder, d);
+  return builder.build(d.mass!);
+}
+
 /** The builder for this field or court apparatus. */
 type Builder = AutoMovieArchetypeBuilder<
   AutoMovieArchetypeTennisNet.Affordance,
@@ -40,35 +67,8 @@ const CORD: number = 0.008;
  * the limit the model takes.
  */
 const STRAP: number = 0.05;
-
 /** Thickness in metres of the retained collision panels. */
 const NET_THICKNESS: number = 0.005;
-/**
- * A tennis net with centre strap, sagging cord and post grips.
- *
- * The net spans the XY plane, with the top ledge at the centre strap and the
- * square posts outside the doubles court.
- *
- * @param params The optional identifier and dimensions fixed within their
- *   recorded bands.
- * @param seed The seed for free dimensions. The band midpoints apply without a
- *   seed.
- * @returns The model with its named contacts in its local frame.
- * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
- *   cannot be realized.
- */
-export function createTennisNet(
-  params: AutoMovieArchetypeTennisNet.IParams = {},
-  seed?: number,
-): AutoMovieArchetype<AutoMovieArchetypeTennisNet.Affordance, AutoMovieArchetypeTennisNet.Dimension> {
-  const {
-    builder,
-    d,
-  }: ReturnType<typeof GoalBuild.draw<AutoMovieArchetypeTennisNet.Affordance>> =
-    GoalBuild.draw("tennisNet", params, seed);
-  tennis(builder, d);
-  return builder.build(d.mass!);
-}
 
 /**
  * Build a tennis net: square posts outside the doubles court, the cord sagging

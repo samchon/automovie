@@ -14,24 +14,6 @@ import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEng
 import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
 import { validateModel } from "../../validation/internal/validateModel";
 
-/** The builder-sealed ingest closure of an imported appearance. */
-type IImportedClosure = NonNullable<IAutoMovieModel["imported"]>;
-
-/** One sealed asset path and digest of an imported appearance. */
-type IImportedAsset = IImportedClosure["assets"][number];
-
-/** One sealed LOD level of an imported appearance. */
-type IImportedLod = IImportedClosure["lod"][number];
-
-/** An articulation node with the index it was first declared at. */
-interface IDeclaredNode {
-  /** The first declaration of the node id. */
-  node: IAutoMovieNode;
-
-  /** Its index in `articulation.nodes`, for duplicate and cycle reports. */
-  index: number;
-}
-
 /**
  * The FORGE consumer's object side: accept a prop an agent authored as data
  * (crude primitive proxy, rich meaning: body, affordances, self-declared
@@ -109,6 +91,24 @@ export function forgeProp(spec: IAutoMoviePropSpec): IAutoMovieForgedProp {
 
   if (out.items.length > 0) return { success: false, violations: out.items };
   return { success: true, prop: spec };
+}
+
+/** The builder-sealed ingest closure of an imported appearance. */
+type IImportedClosure = NonNullable<IAutoMovieModel["imported"]>;
+
+/** One sealed asset path and digest of an imported appearance. */
+type IImportedAsset = IImportedClosure["assets"][number];
+
+/** One sealed LOD level of an imported appearance. */
+type IImportedLod = IImportedClosure["lod"][number];
+
+/** An articulation node with the index it was first declared at. */
+interface IDeclaredNode {
+  /** The first declaration of the node id. */
+  node: IAutoMovieNode;
+
+  /** Its index in `articulation.nodes`, for duplicate and cycle reports. */
+  index: number;
 }
 
 /**

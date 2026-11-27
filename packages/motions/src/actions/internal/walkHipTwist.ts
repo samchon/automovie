@@ -1,9 +1,6 @@
 import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
 import type { IAutoMovieAngleRange } from "@automovie/interface";
 
-/** The alternatives of `WalkHipTwistBone`'s site. */
-type WalkHipTwistBone = "leftUpperLeg" | "rightUpperLeg";
-
 /**
  * Read the least internal or external rotation available at either hip.
  *
@@ -23,3 +20,6 @@ export function walkHipTwist(rom: typeof DEFAULT_HUMANOID_ROM): number {
     ),
   );
 }
+
+/** The alternatives of `WalkHipTwistBone`'s site. */
+type WalkHipTwistBone = "leftUpperLeg" | "rightUpperLeg";

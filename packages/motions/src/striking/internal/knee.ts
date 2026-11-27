@@ -22,9 +22,6 @@ import { StrikingTarget } from "./StrikingTarget";
 import { StrikingWeapon } from "./StrikingWeapon";
 import { StrikingWeaponTable } from "./StrikingWeaponTable";
 
-/** The alternatives of `PlanLeg`'s site. */
-type PlanLeg = "leftLeg" | "rightLeg";
-
 /**
  * A knee strike: the knee driven up and forward onto the target while the hands
  * hold the opponent's head or neck (the clinch) or stay at the guard.
@@ -455,6 +452,9 @@ export namespace knee {
     };
   }
 }
+
+/** The alternatives of `PlanLeg`'s site. */
+type PlanLeg = "leftLeg" | "rightLeg";
 
 /** Clinch contact reads only the partner's neck and its required FK ancestry. */
 const NECK: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(

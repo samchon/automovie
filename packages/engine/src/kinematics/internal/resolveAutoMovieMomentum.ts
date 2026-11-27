@@ -18,57 +18,6 @@ import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
 
 
 /**
- * Linear and angular momentum of a posed body from two of its poses `seconds`
- * apart, at the interval's middle, read from the mass model
- * `resolveAutoMovieCenterOfMass` builds once per body: every profile segment a
- * rigid part riding its bone, with its mass, centre and principal inertia.
- *
- * Airborne rotation, the response to an impulse and a pair's balance read the
- * momenta and the composite tensor about the centre of mass (#3422). Units are
- * kilograms, metres and seconds: linear momentum in kg m/s, angular momentum in
- * kg m짼/s, in the frame the bones are given in (the world, or a root's own
- * frame when a caller passes root-frame bones).
- *
- * Each segment's velocity is the chord of its centre over the interval and its
- * angular velocity the rotation vector of its relative turn `Q1 Q0?뼘?, taken on
- * the shorter arc (`AutoMovieEngineMotionSampling.samplePoseVelocityRotationVector`), over the interval:
- * both are central differences about the middle, with second-order error in
- * `seconds` for sufficiently smooth segment trajectories. Each segment's
- * position and principal frame are read at the middle (the mean of its centres
- * and the half-way slerp of its frames), and the angular momentum about the
- * middle's centre of mass is `誇 m (c - C) 횞 v + R diag(I) R巢 ?`, the segments'
- * orbital and spin momenta. A rigid turn of the whole body by `罐` over the
- * interval introduces an `O(罐짼)` orbital error through the mean positions and
- * velocity chords. The logarithmic spin rate has no such universal scalar bias,
- * and the complete relative momentum error depends on the mass distribution and
- * motion; this stencil does not certify a relative error budget for a chosen
- * interval.
- *
- * @param model The body's mass model.
- * @param before The posed bones at the interval's start.
- * @param after The posed bones at its end.
- * @param seconds The interval, seconds; positive.
- * @returns The momenta.
- * @throws {Error} When the interval is not positive or a segment's bone is not
- *   posed in both.
- */
-function resolveAutoMovieMomentumRun(
-  model: IAutoMovieResolveCenterOfMass.IModel,
-  before: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  after: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  seconds: number,
-): IAutoMovieBodyMomentum {
-  if (!(seconds > 0))
-    throw new Error(`The momentum needs a positive interval, got ${seconds}`);
-  return resolveAutoMovieMomentum.between(
-    model,
-    resolveAutoMovieMomentum.pose(model, before),
-    resolveAutoMovieMomentum.pose(model, after),
-    seconds,
-  );
-}
-
-/**
  * Companion types and readings of {@link resolveAutoMovieMomentum}: the
  * composite tensor, its principal frame and the posed parts.
  */
@@ -391,6 +340,57 @@ export namespace resolveAutoMovieMomentum {
       ): IAutoMovieCombinePhysicalMassProperties.IPart => posePart(s, bones),
     );
   }
+}
+
+/**
+ * Linear and angular momentum of a posed body from two of its poses `seconds`
+ * apart, at the interval's middle, read from the mass model
+ * `resolveAutoMovieCenterOfMass` builds once per body: every profile segment a
+ * rigid part riding its bone, with its mass, centre and principal inertia.
+ *
+ * Airborne rotation, the response to an impulse and a pair's balance read the
+ * momenta and the composite tensor about the centre of mass (#3422). Units are
+ * kilograms, metres and seconds: linear momentum in kg m/s, angular momentum in
+ * kg m짼/s, in the frame the bones are given in (the world, or a root's own
+ * frame when a caller passes root-frame bones).
+ *
+ * Each segment's velocity is the chord of its centre over the interval and its
+ * angular velocity the rotation vector of its relative turn `Q1 Q0?뼘?, taken on
+ * the shorter arc (`AutoMovieEngineMotionSampling.samplePoseVelocityRotationVector`), over the interval:
+ * both are central differences about the middle, with second-order error in
+ * `seconds` for sufficiently smooth segment trajectories. Each segment's
+ * position and principal frame are read at the middle (the mean of its centres
+ * and the half-way slerp of its frames), and the angular momentum about the
+ * middle's centre of mass is `誇 m (c - C) 횞 v + R diag(I) R巢 ?`, the segments'
+ * orbital and spin momenta. A rigid turn of the whole body by `罐` over the
+ * interval introduces an `O(罐짼)` orbital error through the mean positions and
+ * velocity chords. The logarithmic spin rate has no such universal scalar bias,
+ * and the complete relative momentum error depends on the mass distribution and
+ * motion; this stencil does not certify a relative error budget for a chosen
+ * interval.
+ *
+ * @param model The body's mass model.
+ * @param before The posed bones at the interval's start.
+ * @param after The posed bones at its end.
+ * @param seconds The interval, seconds; positive.
+ * @returns The momenta.
+ * @throws {Error} When the interval is not positive or a segment's bone is not
+ *   posed in both.
+ */
+function resolveAutoMovieMomentumRun(
+  model: IAutoMovieResolveCenterOfMass.IModel,
+  before: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  after: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  seconds: number,
+): IAutoMovieBodyMomentum {
+  if (!(seconds > 0))
+    throw new Error(`The momentum needs a positive interval, got ${seconds}`);
+  return resolveAutoMovieMomentum.between(
+    model,
+    resolveAutoMovieMomentum.pose(model, before),
+    resolveAutoMovieMomentum.pose(model, after),
+    seconds,
+  );
 }
 
 /**

@@ -3,12 +3,6 @@ import type {
   IAutoMovieMotionHumanDive,
 } from "@automovie/interface";
 
-/** The alternatives of `PlanContactsPart`'s site. */
-type PlanContactsPart = "leftFoot" | "rightFoot";
-
-/** The alternatives of `PlanContactsPart2`'s site. */
-type PlanContactsPart2 = "leftFoot" | "rightFoot";
-
 /**
  * The dive's contact windows: both feet planted through the take-off (on the
  * held ball for a dive), the seat lying from the landing (or from three tenths
@@ -90,3 +84,9 @@ export namespace diveContacts {
     toLeft: number;
   }
 }
+
+/** The alternatives of `PlanContactsPart`'s site. */
+type PlanContactsPart = "leftFoot" | "rightFoot";
+
+/** The alternatives of `PlanContactsPart2`'s site. */
+type PlanContactsPart2 = "leftFoot" | "rightFoot";

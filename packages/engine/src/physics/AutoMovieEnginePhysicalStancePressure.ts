@@ -7,9 +7,6 @@ import type {
 import { AutoMoviePhysicalBalance } from "./AutoMoviePhysicalBalance";
 import { physicalSupportPoint } from "./internal/physicalSupportPoint";
 
-/** A support limb of the balance pattern. */
-type Limb = IAutoMovieFootfallPattern["limbs"][number];
-
 /**
  * The stance's weighted objective (`AutoMovieEnginePhysicalStanceBalance`): the momentum, yaw
  * and centre-of-pressure weights and the centre-of-pressure command row.
@@ -67,6 +64,34 @@ export namespace AutoMovieEnginePhysicalStancePressure {
   export const CENTER_OF_PRESSURE_WEIGHT: number = 15.0;
 
   /**
+   * The biped's weighted objective: IHMC's controllers ask the whole-body solve
+   * for their linear momentum rate, aimed through the pivot (develop
+   * `LinearMomentumRateControlModule.computeDesiredLinearMomentumRateOfChange`
+   * l.603-628), as weighted objectives over the contact wrench rather than a
+   * moment (`AutoMovieXpbdWorld.IObjective`); the trunk's orientation stays the
+   * root task's spin row, its own task.
+   *
+   * @param input The centre of mass, whether a limb swings, the planted
+   *   outlines and poses, and the controller's centre of pressure.
+   * @returns The objective's weights and rows.
+   */
+  export function objective(input: {
+    center: IAutoMovieVector3;
+    swinging: boolean;
+    outlines: readonly { limb: Limb; outline: IAutoMovieVector3[] }[];
+    planted: Readonly<Record<string, IAutoMovieRigidTransform>>;
+    point: IAutoMovieVector3;
+  }): IObjective {
+    return {
+      force: BIPED_MOMENTUM_WEIGHT,
+      ...(input.swinging
+        ? { yaw: { center: input.center, weight: BIPED_YAW_WEIGHT } }
+        : {}),
+      ...pressureCommand(input.outlines, input.planted, input.point),
+    };
+  }
+
+  /**
    * IHMC's centre of pressure command for a biped
    * (`CenterOfPressureCommandCalculator.computeCenterOfPressureCommand`,
    * develop l.52-101): with one foot in contact, the command on that foot's
@@ -120,32 +145,7 @@ export namespace AutoMovieEnginePhysicalStancePressure {
     }
     return command();
   }
-
-  /**
-   * The biped's weighted objective: IHMC's controllers ask the whole-body solve
-   * for their linear momentum rate, aimed through the pivot (develop
-   * `LinearMomentumRateControlModule.computeDesiredLinearMomentumRateOfChange`
-   * l.603-628), as weighted objectives over the contact wrench rather than a
-   * moment (`AutoMovieXpbdWorld.IObjective`); the trunk's orientation stays the
-   * root task's spin row, its own task.
-   *
-   * @param input The centre of mass, whether a limb swings, the planted
-   *   outlines and poses, and the controller's centre of pressure.
-   * @returns The objective's weights and rows.
-   */
-  export function objective(input: {
-    center: IAutoMovieVector3;
-    swinging: boolean;
-    outlines: readonly { limb: Limb; outline: IAutoMovieVector3[] }[];
-    planted: Readonly<Record<string, IAutoMovieRigidTransform>>;
-    point: IAutoMovieVector3;
-  }): IObjective {
-    return {
-      force: BIPED_MOMENTUM_WEIGHT,
-      ...(input.swinging
-        ? { yaw: { center: input.center, weight: BIPED_YAW_WEIGHT } }
-        : {}),
-      ...pressureCommand(input.outlines, input.planted, input.point),
-    };
-  }
 }
+
+/** A support limb of the balance pattern. */
+type Limb = IAutoMovieFootfallPattern["limbs"][number];

@@ -5,9 +5,6 @@ import {
 
 import { Vector3 } from "../../math/Vector3";
 
-/** Directions this short or shorter carry no direction at all. */
-const AXIS_EPSILON: number = 1e-12;
-
 /**
  * Deterministic cosine-weighted unit directions over the hemisphere around
  * `normal`, `count` of them in index order.
@@ -77,6 +74,9 @@ export function autoMovieHemisphereDirections(
   }
   return out;
 }
+
+/** Directions this short or shorter carry no direction at all. */
+const AXIS_EPSILON: number = 1e-12;
 
 /**
  * Reverse the unsigned 32-bit index into base-two fractional digits for the

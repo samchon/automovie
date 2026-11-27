@@ -37,6 +37,66 @@ const SASH: Readonly<{ rail: number; depth: number; pane: number }> = {
 /** Constructs the window archetype from its recipe. */
 export namespace AutoMovieArchetypeWindow {
 /**
+   * The kinds of window: a side-hung casement, a vertically sliding hung sash,
+   * a horizontally sliding sash.
+   */
+  export type Kind = "casement" | "hung" | "sliding";
+
+  /**
+   * The affordance ids:
+   *
+   * - `sash`: the sash's articulation: a casement's hinge on its `+X` edge
+   *   swinging it out, a hung sash's slide up, a sliding sash's run toward
+   *   `-X`.
+   * - `handle`: the sash's handle on its room face, which rides the sash: a
+   *   casement's on its `-X` stile, away from the hinge, at `handleHeight`; a
+   *   sliding sash's on its `+X` stile, the edge that leaves the jamb, at
+   *   `handleHeight`; a hung sash's at the middle of its bottom rail, just
+   *   above the sill.
+   * - `sill`: the ledge under the opening, facing into the room.
+   * - `aperture`: the opening, passed through from the room toward `-Z`.
+   */
+  export type Affordance = "sash" | "handle" | "sill" | "aperture";
+
+  /**
+   * The free dimensions, metres unless stated:
+   *
+   * - `width`, `height`: the opening.
+   * - `sillHeight`: the sill above the floor.
+   * - `handleHeight`: a casement's or a sliding sash's handle above the floor; a
+   *   hung sash has none, its handle following the sill.
+   * - `swing`: how far a casement opens, degrees.
+   * - `travel`: how far a sliding sash runs.
+   * - `mass`: the window with its piece of wall, kilograms.
+   */
+  export type Dimension =
+    | "width"
+    | "height"
+    | "sillHeight"
+    | "handleHeight"
+    | "swing"
+    | "travel"
+    | "mass";
+
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Which window. */
+    kind: Kind;
+
+    /** The model's id, unique in a scene; `window` when absent. */
+    id?: string;
+
+    /**
+     * An explicit specimen or authored pane-failure calibration, joules, finite
+     * and positive; absent means unknown and does not enable fracture.
+     */
+    fractureEnergy?: number;
+  }
+
+  /**
  * A window in a piece of wall: a casement that swings out, or a sash that
  * slides up or sideways.
  *
@@ -263,50 +323,8 @@ export function create(
     AutoMovieArchetypeUnits.POUND *
     AutoMovieGravity.STANDARD;
 
-  /**
-   * The kinds of window: a side-hung casement, a vertically sliding hung sash,
-   * a horizontally sliding sash.
-   */
-  export type Kind = "casement" | "hung" | "sliding";
-
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["casement", "hung", "sliding"];
-
-  /**
-   * The affordance ids:
-   *
-   * - `sash`: the sash's articulation: a casement's hinge on its `+X` edge
-   *   swinging it out, a hung sash's slide up, a sliding sash's run toward
-   *   `-X`.
-   * - `handle`: the sash's handle on its room face, which rides the sash: a
-   *   casement's on its `-X` stile, away from the hinge, at `handleHeight`; a
-   *   sliding sash's on its `+X` stile, the edge that leaves the jamb, at
-   *   `handleHeight`; a hung sash's at the middle of its bottom rail, just
-   *   above the sill.
-   * - `sill`: the ledge under the opening, facing into the room.
-   * - `aperture`: the opening, passed through from the room toward `-Z`.
-   */
-  export type Affordance = "sash" | "handle" | "sill" | "aperture";
-
-  /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `width`, `height`: the opening.
-   * - `sillHeight`: the sill above the floor.
-   * - `handleHeight`: a casement's or a sliding sash's handle above the floor; a
-   *   hung sash has none, its handle following the sill.
-   * - `swing`: how far a casement opens, degrees.
-   * - `travel`: how far a sliding sash runs.
-   * - `mass`: the window with its piece of wall, kilograms.
-   */
-  export type Dimension =
-    | "width"
-    | "height"
-    | "sillHeight"
-    | "handleHeight"
-    | "swing"
-    | "travel"
-    | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: Readonly<
@@ -320,24 +338,6 @@ export function create(
     travel: "m",
     mass: "kg",
   };
-
-  /**
-   * The parameters: the kind, and any free dimension fixed to a value inside
-   * its band.
-   */
-  export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which window. */
-    kind: Kind;
-
-    /** The model's id, unique in a scene; `window` when absent. */
-    id?: string;
-
-    /**
-     * An explicit specimen or authored pane-failure calibration, joules, finite
-     * and positive; absent means unknown and does not enable fracture.
-     */
-    fractureEnergy?: number;
-  }
 
   /** The bands every window shares. */
   const SHARED: Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>> =

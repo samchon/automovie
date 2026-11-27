@@ -1,12 +1,6 @@
 import type { IAutoMovieRasterImage } from "@automovie/interface";
 
 /**
- * Dark red, which no inspection shade fills a whole cell with, so the cell
- * reads as a gap and not as a dark still.
- */
-const MARK: readonly [number, number, number] = [96, 16, 16];
-
-/**
  * The picture a sheet shows in place of a still that does not exist: a cell
  * whose draw failed, or the missing side or difference of a comparison row.
  *
@@ -28,3 +22,9 @@ export function markAutoMovieCaptureCell(cell: {
     pixels.set([...MARK, 255], offset);
   return { width: cell.width, height: cell.height, pixels };
 }
+
+/**
+ * Dark red, which no inspection shade fills a whole cell with, so the cell
+ * reads as a gap and not as a dark still.
+ */
+const MARK: readonly [number, number, number] = [96, 16, 16];

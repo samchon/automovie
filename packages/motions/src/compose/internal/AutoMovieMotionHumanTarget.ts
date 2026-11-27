@@ -21,27 +21,6 @@ import { HumanHandTarget } from "../../posture/internal/HumanHandTarget";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { AutoMovieMotionHumanTouchStance } from "./AutoMovieMotionHumanTouchStance";
 
-/** The alternatives of `FootPivot`'s site. */
-type FootPivot = "heel" | "ball" | "toe" | "sole";
-
-/** The alternatives of `HandPlace`'s site. */
-type HandPlace = "point" | "normal";
-
-/** The alternatives of `HandPostureItem`'s site. */
-type HandPostureItem = "pitch" | "roll";
-
-/** The alternatives of `HandPosture`'s site. */
-type HandPosture = "root" | "yaw";
-
-/** The alternatives of `ResolveContext`'s site. */
-type ResolveContext = "aim" | "body";
-
-/** The alternatives of `FallbackPosture`'s site. */
-type FallbackPosture = "root" | "yaw";
-
-/** The alternatives of `DEFAULTSEntryItem`'s site. */
-type DEFAULTSEntryItem = "ahead" | "desk" | "floor";
-
 /**
  * Where an action is directed: a target resolved to a place, and a place turned
  * into a hand's or a foot's goal.
@@ -317,3 +296,24 @@ export namespace AutoMovieMotionHumanTarget {
     return HumanFoot.pivot(body, side, pivot, place.point, heading, 0);
   }
 }
+
+/** The alternatives of `FootPivot`'s site. */
+type FootPivot = "heel" | "ball" | "toe" | "sole";
+
+/** The alternatives of `HandPlace`'s site. */
+type HandPlace = "point" | "normal";
+
+/** The alternatives of `HandPostureItem`'s site. */
+type HandPostureItem = "pitch" | "roll";
+
+/** The alternatives of `HandPosture`'s site. */
+type HandPosture = "root" | "yaw";
+
+/** The alternatives of `ResolveContext`'s site. */
+type ResolveContext = "aim" | "body";
+
+/** The alternatives of `FallbackPosture`'s site. */
+type FallbackPosture = "root" | "yaw";
+
+/** The alternatives of `DEFAULTSEntryItem`'s site. */
+type DEFAULTSEntryItem = "ahead" | "desk" | "floor";

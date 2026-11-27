@@ -1,5 +1,3 @@
-/** The alternatives of `TRAVELEntryItem`'s site. */
-type TRAVELEntryItem = "lead" | "rear";
 /**
  * The knee strike's form: the angles and shares its solve and its course are
  * built from. Every value is a provisional reading of coaching photographs
@@ -67,3 +65,5 @@ export namespace KneeForm {
    */
   export const CLINCH_DEPTH: number = 0.03;
 }
+/** The alternatives of `TRAVELEntryItem`'s site. */
+type TRAVELEntryItem = "lead" | "rear";

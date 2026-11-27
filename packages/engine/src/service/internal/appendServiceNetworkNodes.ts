@@ -7,27 +7,6 @@ import {
 
 import { appendServiceInsideSpace } from "./appendServiceInsideSpace";
 
-const DIRECTIONS: readonly ["in", "out", "bidirectional"] = [
-  "in",
-  "out",
-  "bidirectional",
-] as const;
-const NODE_KINDS: readonly [
-  "source",
-  "fixture",
-  "equipment",
-  "terminal",
-  "junction",
-  "valve",
-] = [
-  "source",
-  "fixture",
-  "equipment",
-  "terminal",
-  "junction",
-  "valve",
-] as const;
-
 /**
  * Check node placement and ports while retaining first declaration paths for
  * later connectivity diagnostics.
@@ -162,3 +141,24 @@ export function appendServiceNetworkNodes(
     });
   });
 }
+const DIRECTIONS: readonly ["in", "out", "bidirectional"] = [
+  "in",
+  "out",
+  "bidirectional",
+] as const;
+
+const NODE_KINDS: readonly [
+  "source",
+  "fixture",
+  "equipment",
+  "terminal",
+  "junction",
+  "valve",
+] = [
+  "source",
+  "fixture",
+  "equipment",
+  "terminal",
+  "junction",
+  "valve",
+] as const;

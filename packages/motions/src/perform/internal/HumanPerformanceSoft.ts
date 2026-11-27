@@ -17,12 +17,6 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSoftBoundary } from "./HumanPerformanceSoftBoundary";
 import { HumanPerformanceSoftBudget } from "./HumanPerformanceSoftBudget";
 
-/** The alternatives of `OfWhole`'s site. */
-type OfWhole = "steps" | "loads";
-
-/** The alternatives of `OfSolveResult`'s site. */
-type OfSolveResult = "steps" | "loads";
-
 /**
  * Read the whole solve the performance prepared for a soft prop.
  *
@@ -455,3 +449,9 @@ export namespace HumanPerformanceSoft {
     return out;
   }
 }
+
+/** The alternatives of `OfWhole`'s site. */
+type OfWhole = "steps" | "loads";
+
+/** The alternatives of `OfSolveResult`'s site. */
+type OfSolveResult = "steps" | "loads";

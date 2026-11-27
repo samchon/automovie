@@ -35,30 +35,6 @@ import { crutchSitKit } from "./crutchSitKit";
 import { crutchSitPath } from "./crutchSitPath";
 
 /**
- * The injured leg held off the floor standing, degrees: the crutch walk's
- * three-point gait's hip and knee flexion.
- */
-const STANDING: IAutoMovieHumanLimbReference = {
-  upper: [30, 0, 0],
-  lower: [80, 0, 0],
-};
-
-/**
- * The injured leg held forward off the floor seated, degrees (provisional: the
- * thigh level, the shank 30 degrees forward of vertical).
- */
-const SEATED: IAutoMovieHumanLimbReference = {
-  upper: [90, 0, 0],
-  lower: [60, 0, 0],
-};
-
-/**
- * How far a seated hand rests beside the thigh's side, metres (provisional: a
- * hand's breadth out).
- */
-const BESIDE: number = 0.08;
-
-/**
  * Sit down onto a chair with two crutches, in the prescribed order (Cornell
  * Health and HealthLinkBC, Using crutches), from standing with the crutches
  * standing on their tips beside the body.
@@ -377,3 +353,27 @@ export function crutchSitDown(
     base: plan.base,
   };
 }
+
+/**
+ * The injured leg held off the floor standing, degrees: the crutch walk's
+ * three-point gait's hip and knee flexion.
+ */
+const STANDING: IAutoMovieHumanLimbReference = {
+  upper: [30, 0, 0],
+  lower: [80, 0, 0],
+};
+
+/**
+ * The injured leg held forward off the floor seated, degrees (provisional: the
+ * thigh level, the shank 30 degrees forward of vertical).
+ */
+const SEATED: IAutoMovieHumanLimbReference = {
+  upper: [90, 0, 0],
+  lower: [60, 0, 0],
+};
+
+/**
+ * How far a seated hand rests beside the thigh's side, metres (provisional: a
+ * hand's breadth out).
+ */
+const BESIDE: number = 0.08;

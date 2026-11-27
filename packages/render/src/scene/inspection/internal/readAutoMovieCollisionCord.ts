@@ -7,18 +7,6 @@ import type { readAutoMovieCollisionMesh } from "./readAutoMovieCollisionMesh.js
 import { readAutoMovieCollisionTopology } from "./readAutoMovieCollisionTopology.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 
-/** Identity pose of a shape placed directly by its collider pose. */
-const IDENTITY: {
-  position: { x: number; y: number; z: number };
-  rotation: { x: number; y: number; z: number; w: number };
-} = {
-  position: { x: 0, y: 0, z: 0 },
-  rotation: { x: 0, y: 0, z: 0, w: 1 },
-};
-
-/** The capsule's local axis. */
-const UP: THREE.Vector3 = new THREE.Vector3(0, 1, 0);
-
 /**
  * Read a drawn cord as enclosing capsules around consecutive solver particles,
  * one deformable body, with the tube drawn through them as their surface.
@@ -111,6 +99,18 @@ export function readAutoMovieCollisionCord(
     );
   }
 }
+
+/** Identity pose of a shape placed directly by its collider pose. */
+const IDENTITY: {
+  position: { x: number; y: number; z: number };
+  rotation: { x: number; y: number; z: number; w: number };
+} = {
+  position: { x: 0, y: 0, z: 0 },
+  rotation: { x: 0, y: 0, z: 0, w: 1 },
+};
+
+/** The capsule's local axis. */
+const UP: THREE.Vector3 = new THREE.Vector3(0, 1, 0);
 
 /**
  * One enclosing capsule along a world segment, or null for a degenerate

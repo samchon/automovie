@@ -20,12 +20,6 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { touchSite } from "./touchSite";
 
-/** The alternatives of `DiscContext`'s site. */
-type DiscContext = "body" | "performer";
-
-/** The alternatives of `ReaderContext`'s site. */
-type ReaderContext = "aim" | "body" | "prop" | "series" | "start";
-
 /**
  * Where the touch law reads a region at a second: on which bones, and moved to
  * which site; and how far about that site a hand may land.
@@ -202,6 +196,12 @@ export namespace touchRegion {
     return undefined;
   }
 }
+
+/** The alternatives of `DiscContext`'s site. */
+type DiscContext = "body" | "performer";
+
+/** The alternatives of `ReaderContext`'s site. */
+type ReaderContext = "aim" | "body" | "prop" | "series" | "start";
 
 /** Whether a self region rides a leg, which a lean moves with the hips. */
 function onLeg(

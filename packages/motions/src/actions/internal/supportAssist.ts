@@ -18,21 +18,6 @@ const ROLES: readonly IAutoMovieMotionHumanSupport.AssistRole[] = [
 /** Taking the lying palm, sitting under it, and transferring to the squat. */
 const CONTACTS: readonly ["take", "seat", "lift"] = ["take", "seat", "lift"];
 
-/** The authored phase has a shared grip only while the hand is holding. */
-type GripPoint = IAutoMovieVector3 | undefined;
-
-/** Find a partner's grip at a whole or fractional phase index. */
-type GripReader = (
-  contact: IAutoMovieMotionHumanSupport.IContact,
-  phase: number,
-) => GripPoint;
-
-/** Ordinary support has no shared grip reader. */
-type OptionalGripReader = GripReader | undefined;
-
-/** Lowered and rising keys of the holding hand. */
-type Phase = (typeof CONTACTS)[number];
-
 /**
  * Build a meeting from the lying palm and the two subsequent shoulder
  * configurations.
@@ -240,3 +225,18 @@ export namespace supportAssist {
     return getUp.SECONDS / (CONTACTS.length + 1);
   }
 }
+
+/** The authored phase has a shared grip only while the hand is holding. */
+type GripPoint = IAutoMovieVector3 | undefined;
+
+/** Find a partner's grip at a whole or fractional phase index. */
+type GripReader = (
+  contact: IAutoMovieMotionHumanSupport.IContact,
+  phase: number,
+) => GripPoint;
+
+/** Ordinary support has no shared grip reader. */
+type OptionalGripReader = GripReader | undefined;
+
+/** Lowered and rising keys of the holding hand. */
+type Phase = (typeof CONTACTS)[number];

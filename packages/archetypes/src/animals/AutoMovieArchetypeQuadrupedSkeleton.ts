@@ -12,9 +12,6 @@ import { ApplyQuadrupedCarrierPose } from "./quadruped/ApplyQuadrupedCarrierPose
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { QuadrupedScapula } from "./quadruped/QuadrupedScapula";
 
-/** Local degree rotations without borrowing a humanoid bone slot. */
-type Rotation = Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">;
-
 /** The animal's bars as an engine-readable named rigid skeleton. */
 export namespace AutoMovieArchetypeQuadrupedSkeleton {
   /**
@@ -214,3 +211,6 @@ export namespace AutoMovieArchetypeQuadrupedSkeleton {
     return ApplyQuadrupedCarrierPose.emit(animal, rest, posed, parts, contacts);
   }
 }
+
+/** Local degree rotations without borrowing a humanoid bone slot. */
+type Rotation = Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">;

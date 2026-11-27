@@ -32,18 +32,6 @@ import { validateBuiltPopulation } from "./validateBuiltPopulation";
 import { validateBuiltSpaces } from "./validateBuiltSpaces";
 import { validateBuiltStagedConfigurations } from "./validateBuiltStagedConfigurations";
 
-const CONNECTOR_KINDS: readonly IAutoMovieBuiltConnector["kind"][] = [
-  "passage",
-  "stair",
-  "ramp",
-  "lift",
-  "escalator",
-  "moving-walk",
-  "ladder",
-  "bridge",
-  "other",
-];
-
 /**
  * Validate the graph, geometry references, and spatial topology of a building.
  *
@@ -350,6 +338,18 @@ export function validateBuiltEnvironment(
 
   return collector.toValidation();
 }
+
+const CONNECTOR_KINDS: readonly IAutoMovieBuiltConnector["kind"][] = [
+  "passage",
+  "stair",
+  "ramp",
+  "lift",
+  "escalator",
+  "moving-walk",
+  "ladder",
+  "bridge",
+  "other",
+];
 
 /**
  * Append a nested validation's findings, warnings included, re-rooting each

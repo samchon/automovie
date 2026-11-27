@@ -16,23 +16,6 @@ import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
 
-/** A named target hand's literal finger shape. */
-type Shape = IAutoMovieMotionHumanHand.Shape;
-
-/** The original finger interpolation in an owned joint record. */
-type FingerWriter = ReturnType<
-  typeof AutoMovieMotionHumanHand.prepareFingerWriter
->;
-
-/** A move may name a form known to the law during preparation. */
-type Move = IAutoMovieMotionHumanArmTarget.IMove & {
-  /** The expected fixed form, when the target owns one. */
-  fixedShape?: Shape;
-};
-
-/** The alternatives of `MoveLimb`'s site. */
-type MoveLimb = "leftArm" | "rightArm";
-
 /**
  * An arm moved between an origin and a target by a weight, and the three
  * windows of it a phrase is made of: the reach, the hold and the retract.
@@ -247,6 +230,23 @@ export namespace AutoMovieMotionHumanArmMove {
     });
   }
 }
+
+/** A named target hand's literal finger shape. */
+type Shape = IAutoMovieMotionHumanHand.Shape;
+
+/** The original finger interpolation in an owned joint record. */
+type FingerWriter = ReturnType<
+  typeof AutoMovieMotionHumanHand.prepareFingerWriter
+>;
+
+/** A move may name a form known to the law during preparation. */
+type Move = IAutoMovieMotionHumanArmTarget.IMove & {
+  /** The expected fixed form, when the target owns one. */
+  fixedShape?: Shape;
+};
+
+/** The alternatives of `MoveLimb`'s site. */
+type MoveLimb = "leftArm" | "rightArm";
 
 /** Prepare the law's one fixed form or the named forms of a varying target. */
 function prepareMoveFingers(

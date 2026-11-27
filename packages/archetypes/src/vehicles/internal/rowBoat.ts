@@ -13,18 +13,6 @@ import { ArchetypeCourseLegs } from "../../core/internal/ArchetypeCourseLegs";
 import { BoatOars } from "./BoatOars";
 import { AutoMovieArchetypeBoat } from "../AutoMovieArchetypeBoat";
 
-/** Complete rowboat state at a film second. */
-type Sample = AutoMovieArchetypeRide.ISample<
-  AutoMovieArchetypeBoat.Affordance,
-  AutoMovieArchetypeBoat.Dimension
->;
-
-/** A rowboat and its authored clock and articulation readers. */
-type Ride = AutoMovieArchetypeRide.IRide<
-  AutoMovieArchetypeBoat.Affordance,
-  AutoMovieArchetypeBoat.Dimension
->;
-
 /**
  * A rowboat rowed along a course: its root on the path, its oars swept through
  * the stroke cycle and lifted out of the water on the recovery, at a stroke
@@ -198,3 +186,15 @@ export function rowBoat(
         : undefined,
   };
 }
+
+/** Complete rowboat state at a film second. */
+type Sample = AutoMovieArchetypeRide.ISample<
+  AutoMovieArchetypeBoat.Affordance,
+  AutoMovieArchetypeBoat.Dimension
+>;
+
+/** A rowboat and its authored clock and articulation readers. */
+type Ride = AutoMovieArchetypeRide.IRide<
+  AutoMovieArchetypeBoat.Affordance,
+  AutoMovieArchetypeBoat.Dimension
+>;

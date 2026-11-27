@@ -352,15 +352,6 @@ function segment(
   return Vector3.add(p, Vector3.scale(pq, t));
 }
 
-/** A triangle's point nearest the origin and the points whose hull holds it. */
-interface ITriangle {
-  /** The nearest point. */
-  point: IAutoMovieVector3;
-
-  /** The vertices of the feature it lies on. */
-  keep: IAutoMovieVector3[];
-}
-
 /**
  * A triangle's point nearest the origin by its Voronoi regions (Ericson 2005,
  * `ClosestPtPointTriangle`, with the point at the origin).
@@ -455,6 +446,7 @@ function outside(
   const fourth: number = Vector3.dot(Vector3.subtract(d, a), n);
   return fourth === 0 || origin * fourth < 0;
 }
+
 /** Internal implementations shared by the one-function entry modules. */
 /** Internal typed runtime implementations shared by the query entry modules. */
 export const physicalShapeGjkImplementation: {
@@ -468,3 +460,11 @@ export const physicalShapeGjkImplementation: {
   physicalShapeGjkSolid,
   physicalShapeGjkCast,
 };
+/** A triangle's point nearest the origin and the points whose hull holds it. */
+interface ITriangle {
+  /** The nearest point. */
+  point: IAutoMovieVector3;
+
+  /** The vertices of the feature it lies on. */
+  keep: IAutoMovieVector3[];
+}

@@ -49,9 +49,6 @@ const BACK: number = 25;
  * skin contact, as `headRest`'s).
  */
 const NEAR: number = 0.01;
-/** The alternatives of `PlanAddedBone`'s site. */
-type PlanAddedBone = "neck" | "head";
-
 /**
  * Lean back against a seated partner's back. Each of the two reads its own and
  * the other's upper back on the displayed bodies at the start and leans its
@@ -371,3 +368,6 @@ export const backToBack: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBac
     interrupts: {},
     plan: planBackToBack,
   };
+
+/** The alternatives of `PlanAddedBone`'s site. */
+type PlanAddedBone = "neck" | "head";

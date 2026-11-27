@@ -16,33 +16,6 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { placeHumanHandSurface } from "../../posture/internal/placeHumanHandSurface";
 
-/** The alternatives of `PrepareSidedTargetPlacement`'s site. */
-type PrepareSidedTargetPlacement = "surface" | "shape";
-
-/** The alternatives of `PrepareSidedTargetPlacementResult`'s site. */
-type PrepareSidedTargetPlacementResult = "surface" | "shape";
-
-/** The alternatives of `PrepareTargetPlacement`'s site. */
-type PrepareTargetPlacement = "surface" | "shape";
-
-/** The alternatives of `PrepareTargetPlacementResult`'s site. */
-type PrepareTargetPlacementResult = "surface" | "shape";
-
-/** The alternatives of `PrepareSurfaceGoalTarget`'s site. */
-type PrepareSurfaceGoalTarget = "point" | "rotation" | "bend";
-
-/** The alternatives of `PrepareSurfaceGoalTargetResult`'s site. */
-type PrepareSurfaceGoalTargetResult = "point" | "rotation" | "bend";
-
-/** The alternatives of `PrepareGoalTarget`'s site. */
-type PrepareGoalTarget = "point" | "curl";
-
-/** The alternatives of `PointPosture`'s site. */
-type PointPosture = "root" | "yaw";
-
-/** The alternatives of `OriginBonesEntry`'s site. */
-type OriginBonesEntry = "worldPosition" | "worldRotation";
-
 /**
  * What an arm primitive is given: a hand surface's target, the origin the hand
  * leaves from and returns to, and the wrist goal the two make.
@@ -288,6 +261,33 @@ export namespace AutoMovieMotionHumanArmTarget {
     });
   }
 }
+
+/** The alternatives of `PrepareSidedTargetPlacement`'s site. */
+type PrepareSidedTargetPlacement = "surface" | "shape";
+
+/** The alternatives of `PrepareSidedTargetPlacementResult`'s site. */
+type PrepareSidedTargetPlacementResult = "surface" | "shape";
+
+/** The alternatives of `PrepareTargetPlacement`'s site. */
+type PrepareTargetPlacement = "surface" | "shape";
+
+/** The alternatives of `PrepareTargetPlacementResult`'s site. */
+type PrepareTargetPlacementResult = "surface" | "shape";
+
+/** The alternatives of `PrepareSurfaceGoalTarget`'s site. */
+type PrepareSurfaceGoalTarget = "point" | "rotation" | "bend";
+
+/** The alternatives of `PrepareSurfaceGoalTargetResult`'s site. */
+type PrepareSurfaceGoalTargetResult = "point" | "rotation" | "bend";
+
+/** The alternatives of `PrepareGoalTarget`'s site. */
+type PrepareGoalTarget = "point" | "curl";
+
+/** The alternatives of `PointPosture`'s site. */
+type PointPosture = "root" | "yaw";
+
+/** The alternatives of `OriginBonesEntry`'s site. */
+type OriginBonesEntry = "worldPosition" | "worldRotation";
 
 /**
  * The one goal field assembly; preparation may share the fixed contact

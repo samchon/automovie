@@ -2,27 +2,6 @@ import { ArchetypeMassArithmetic } from "./ArchetypeMassArithmetic";
 import { AutoMovieArchetypeRefusal } from "../AutoMovieArchetypeRefusal";
 
 /**
- * One crossing, located by time from the nearer endpoint rather than a rounded
- * whole-span share.
- */
-interface IEvent {
-  /** Seconds from the selected time endpoint. */
-  offset: number;
-  /** True when offset is measured backward from the end. */
-  fromEnd: boolean;
-  /** Travel per second, signed in the original direction. */
-  rate: number;
-}
-
-/** A prepared quintic with scalar playback and one monotone inverse. */
-interface IProfile {
-  /** Value at a phase measured from the chosen nearer endpoint. */
-  value(phase: number, fromEnd: boolean): number;
-  /** The unique crossing of a supported requested travel. */
-  crossing(requested: number): IEvent;
-}
-
-/**
  * Compile the same minimum-jerk quintic in a scale-aware, endpoint-anchored
  * form.
  *
@@ -144,4 +123,25 @@ export function ArchetypeTrackProfile(
       fix: "use supported endpoint travels and a clock that represents the crossing and rate",
     });
   }
+}
+
+/**
+ * One crossing, located by time from the nearer endpoint rather than a rounded
+ * whole-span share.
+ */
+interface IEvent {
+  /** Seconds from the selected time endpoint. */
+  offset: number;
+  /** True when offset is measured backward from the end. */
+  fromEnd: boolean;
+  /** Travel per second, signed in the original direction. */
+  rate: number;
+}
+
+/** A prepared quintic with scalar playback and one monotone inverse. */
+interface IProfile {
+  /** Value at a phase measured from the chosen nearer endpoint. */
+  value(phase: number, fromEnd: boolean): number;
+  /** The unique crossing of a supported requested travel. */
+  crossing(requested: number): IEvent;
 }

@@ -12,22 +12,6 @@ import { AutoMovieEnginePhysicalDisturbanceForm } from "../AutoMovieEnginePhysic
 import { AutoMovieEnginePhysicalDisturbanceResponse as Response } from "../AutoMovieEnginePhysicalDisturbanceResponse";
 import type { AutoMovieEnginePhysicalIcpPlannerTools as Tools } from "../AutoMovieEnginePhysicalIcpPlannerTools";
 
-/** A planted foot. */
-type Foot = AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanFoot;
-
-/** One closed-form piece of the response. */
-type IPiece = AutoMovieEnginePhysicalDisturbanceForm.IPiece;
-
-/** One swing foot's cubic. */
-type ISwing = AutoMovieEnginePhysicalDisturbanceFollow.ISwing;
-
-/** The response's following and sampling. */
-const { follow, span, swingAt }: typeof AutoMovieEnginePhysicalDisturbanceFollow =
-  AutoMovieEnginePhysicalDisturbanceFollow;
-
-/** A planted limb's outline. */
-const { outline }: typeof AutoMovieEnginePhysicalDisturbanceForm = AutoMovieEnginePhysicalDisturbanceForm;
-
 /**
  * A biped's response to a stated disturbance, prepared once for the span: IHMC
  * 201903's push recovery and capture-point plans laid from the state just after
@@ -221,3 +205,19 @@ export function preparePhysicalDisturbanceSpan(
     },
   });
 }
+
+/** A planted foot. */
+type Foot = AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanFoot;
+
+/** One closed-form piece of the response. */
+type IPiece = AutoMovieEnginePhysicalDisturbanceForm.IPiece;
+
+/** One swing foot's cubic. */
+type ISwing = AutoMovieEnginePhysicalDisturbanceFollow.ISwing;
+
+/** The response's following and sampling. */
+const { follow, span, swingAt }: typeof AutoMovieEnginePhysicalDisturbanceFollow =
+  AutoMovieEnginePhysicalDisturbanceFollow;
+
+/** A planted limb's outline. */
+const { outline }: typeof AutoMovieEnginePhysicalDisturbanceForm = AutoMovieEnginePhysicalDisturbanceForm;

@@ -14,12 +14,6 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeSeesaw } from "../AutoMovieArchetypeSeesaw";
 
-/** A unit scale: the rides move rigid frames. */
-const ONE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
-
-/** The pivot axis: the beam rocks about `+X`. */
-const AXIS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-
 /**
  * A seesaw rocked by its riders' push-offs on the ride's clock: the beam model
  * (`createSeesaw.beam`) turns about the pivot axis, positive lowering the front
@@ -90,3 +84,9 @@ export function rideSeesaw(
       }),
   };
 }
+
+/** A unit scale: the rides move rigid frames. */
+const ONE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
+
+/** The pivot axis: the beam rocks about `+X`. */
+const AXIS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };

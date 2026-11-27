@@ -11,9 +11,6 @@ import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMo
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/** The hand frame and the base admitted for that frame. */
-type Chosen<T> = readonly [IAutoMovieMotionHumanTouchEffector.IEffector, T];
-
 /**
  * Fit the requested hand and grounded stance. A bare fingertip may roll from
  * its distal face towards its palmar pad while retaining its actual tip site.
@@ -87,6 +84,9 @@ export function touchFingerStance<T>(
     return best;
   }
 }
+
+/** The hand frame and the base admitted for that frame. */
+type Chosen<T> = readonly [IAutoMovieMotionHumanTouchEffector.IEffector, T];
 
 /**
  * Only the existing geometric stance refusal admits an alternate tip

@@ -16,9 +16,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { crawlFrame } from "./crawlFrame";
 
-/** The record of `IOfDescendNearest`'s site. */
-type IOfDescendNearest = { lam: number; residual: number };
-
 /** Upright lengths and lateral places read by this chain's preparation. */
 const MEASURED: ReadonlySet<AutoMovieHumanoidBone> = new Set([
   "leftUpperArm",
@@ -400,3 +397,6 @@ export namespace crawlChain {
     balls: Record<AutoMovieHumanSide, IAutoMovieVector3>;
   }
 }
+
+/** The record of `IOfDescendNearest`'s site. */
+type IOfDescendNearest = { lam: number; residual: number };

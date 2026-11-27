@@ -19,30 +19,6 @@ import { resolveAutoMovieEnvelopeRequest } from "./resolveAutoMovieEnvelopeReque
 import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
 import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";
 
-/** One assembly solved for transmittance and interior surface temperature. */
-interface ISolvedAssembly {
-  /** Borrowed assembly whose layers and films were used. */
-  assembly: IAutoMovieEnvelopeAssembly;
-
-  /** Reciprocal series resistance in W/(m2*K). */
-  transmittance: number;
-
-  /** Dimensionless 1-U*Rsi factor, independent of air-temperature difference. */
-  temperatureFactor: number;
-
-  /** Interior face temperature in degrees Celsius. */
-  surface: number;
-}
-
-/** One assembly's interior surface margin over the indoor dew point. */
-interface IAssemblyMargin {
-  /** Borrowed assembly receiving the margin sample. */
-  assembly: IAutoMovieEnvelopeAssembly;
-
-  /** Interior face temperature minus indoor dew point, in kelvins. */
-  margin: number;
-}
-
 /**
  * Solve one envelope for heat and for surface condensation, as two runs.
  *
@@ -400,6 +376,30 @@ export function analyzeAutoMovieEnvelope(
       },
     }),
   };
+}
+
+/** One assembly solved for transmittance and interior surface temperature. */
+interface ISolvedAssembly {
+  /** Borrowed assembly whose layers and films were used. */
+  assembly: IAutoMovieEnvelopeAssembly;
+
+  /** Reciprocal series resistance in W/(m2*K). */
+  transmittance: number;
+
+  /** Dimensionless 1-U*Rsi factor, independent of air-temperature difference. */
+  temperatureFactor: number;
+
+  /** Interior face temperature in degrees Celsius. */
+  surface: number;
+}
+
+/** One assembly's interior surface margin over the indoor dew point. */
+interface IAssemblyMargin {
+  /** Borrowed assembly receiving the margin sample. */
+  assembly: IAutoMovieEnvelopeAssembly;
+
+  /** Interior face temperature minus indoor dew point, in kelvins. */
+  margin: number;
 }
 
 /**

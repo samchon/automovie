@@ -10,9 +10,6 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import type { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
-/** The record of `IOfArmRowsItem`'s site. */
-type IOfArmRowsItem = { coef: number[]; gain: number };
-
 /**
  * The detour that lays a transport of an arms' course clear of the body
  * (`HumanArmTrajectoryLaid`): where the course's reading finds an arm's probe
@@ -110,6 +107,21 @@ export namespace HumanArmTrajectoryClear {
       if (detour !== undefined) out.push(detour);
     });
     return out;
+  }
+
+  /**
+   * A detour's weight at a share of the path: 1 at its own share, 0 at both
+   * ends, a cubic ease (`3u^2 - 2u^3`) on each side, so the path leaves and
+   * meets its ends and the detour's peak with no step in its slope.
+   *
+   * @param share The path's share.
+   * @param at The detour's share.
+   * @returns The weight in [0, 1].
+   */
+  export function bump(share: number, at: number): number {
+    if (!(share > 0 && share < 1)) return 0;
+    const u: number = share <= at ? share / at : (1 - share) / (1 - at);
+    return u * u * (3 - 2 * u);
   }
 
   /**
@@ -246,22 +258,10 @@ export namespace HumanArmTrajectoryClear {
     });
     return { share: shares[waypoint]!, delta, depth: excess };
   }
-
-  /**
-   * A detour's weight at a share of the path: 1 at its own share, 0 at both
-   * ends, a cubic ease (`3u^2 - 2u^3`) on each side, so the path leaves and
-   * meets its ends and the detour's peak with no step in its slope.
-   *
-   * @param share The path's share.
-   * @param at The detour's share.
-   * @returns The weight in [0, 1].
-   */
-  export function bump(share: number, at: number): number {
-    if (!(share > 0 && share < 1)) return 0;
-    const u: number = share <= at ? share / at : (1 - share) / (1 - at);
-    return u * u * (3 - 2 * u);
-  }
 }
+
+/** The record of `IOfArmRowsItem`'s site. */
+type IOfArmRowsItem = { coef: number[]; gain: number };
 /** The record of `ILeastRow`'s site. */
 type ILeastRow = { coef: number[] };
 

@@ -6,21 +6,6 @@ import type {
 import { ArchetypeMassArithmetic } from "./ArchetypeMassArithmetic";
 
 /**
- * A primitive in its own axes: volume, centroid and central principal inertia
- * per unit mass.
- */
-interface ILocal {
-  /** Volume, cubic metres. */
-  volume: number;
-
-  /** Centroid in the primitive's coordinates, metres. */
-  centroid: IAutoMovieVector3;
-
-  /** Central moments about the primitive's axes per unit mass, square metres. */
-  unit: IAutoMovieVector3;
-}
-
-/**
  * A primitive's volume, centre and central moments per unit mass in its own
  * axes. Local volume must be finite and positive, and local principal moments
  * finite and positive; geometries outside that local representable domain are
@@ -52,6 +37,21 @@ export function ArchetypeMassPrimitive(
       `Mass primitive ${shape.type} needs representable finite volume and principal moments`,
     );
   return result;
+}
+
+/**
+ * A primitive in its own axes: volume, centroid and central principal inertia
+ * per unit mass.
+ */
+interface ILocal {
+  /** Volume, cubic metres. */
+  volume: number;
+
+  /** Centroid in the primitive's coordinates, metres. */
+  centroid: IAutoMovieVector3;
+
+  /** Central moments about the primitive's axes per unit mass, square metres. */
+  unit: IAutoMovieVector3;
 }
 
 /** Uniform-solid formulas in the primitive's axes. */

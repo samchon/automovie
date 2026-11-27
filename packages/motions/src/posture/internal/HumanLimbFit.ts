@@ -30,12 +30,6 @@ import { prepareHumanLimbFit } from "./prepareHumanLimbFit";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { solveHumanLimbFit } from "./solveHumanLimbFit";
 
-/** The alternatives of `SolvedFitterParent`'s site. */
-type SolvedFitterParent = "worldPosition" | "worldRotation";
-
-/** The alternatives of `DirectPolicy`'s site. */
-type DirectPolicy = "ordinary" | "continuous";
-
 /**
  * The fit of one limb onto its goal, which `resolveHumanPosture` runs for each
  * limb after the trunk: the goal carried into the world by the bone it is
@@ -218,6 +212,61 @@ export namespace HumanLimbFit {
   }
 
   /**
+   * A plan-time query of the arc continuation: the fit `fit` gives, or null
+   * where the continued arm's admitted arc vanished
+   * (`IAutoMovieSwivelSeed.vanished`), so a law choosing among targets (a
+   * grasp's turn, a site) keeps only those its arm reaches on one elbow path
+   * from the seed it continues. One continued fit, no search beyond the fit's
+   * own; every other refusal is thrown as `fit` throws it.
+   *
+   * @param args The arguments of `fit`; `near` is the seed continued, its
+   *   `admitted` arc the one to keep.
+   * @returns The fit, or null where its admitted arc vanished.
+   */
+  export function continues(
+    ...args: Parameters<typeof fit>
+  ): IAutoMovieSeededChainFit | null {
+    try {
+      return fit(...args);
+    } catch (error) {
+      if (error instanceof HumanLimbVanishedRefusal) return null;
+      throw error;
+    }
+  }
+
+  /**
+   * The limb posed at a prescribed swivel and bend branch, with no search or
+   * score (`HumanLimbAt.at`): mirrored and attached as `fit` is.
+   */
+  export function at(
+    ...args: Parameters<typeof HumanLimbAt.at>
+  ): ReturnType<typeof HumanLimbAt.at> {
+    return HumanLimbAt.at(...args);
+  }
+
+  /**
+   * The swivel and bend branch of a posed limb in its fits' seed frame
+   * (`HumanLimbAt.seed`).
+   */
+  export function seed(
+    ...args: Parameters<typeof HumanLimbAt.seed>
+  ): ReturnType<typeof HumanLimbAt.seed> {
+    return HumanLimbAt.seed(...args);
+  }
+
+  /**
+   * A limb goal's mirror image (`HumanLimbMirror.goal`).
+   *
+   * @param goal The goal.
+   * @returns Its mirror image.
+   */
+  export function reflected(
+    goal: IAutoMovieHumanLimbGoal,
+  ): IAutoMovieHumanLimbGoal {
+    return HumanLimbMirror.goal(goal);
+  }
+
+  /**
    * The chain's own solve in the pose given: the world goal, the obstruction,
    * the prepared fit and the contact re-aim.
    */
@@ -392,61 +441,6 @@ export namespace HumanLimbFit {
   }
 
   /**
-   * A plan-time query of the arc continuation: the fit `fit` gives, or null
-   * where the continued arm's admitted arc vanished
-   * (`IAutoMovieSwivelSeed.vanished`), so a law choosing among targets (a
-   * grasp's turn, a site) keeps only those its arm reaches on one elbow path
-   * from the seed it continues. One continued fit, no search beyond the fit's
-   * own; every other refusal is thrown as `fit` throws it.
-   *
-   * @param args The arguments of `fit`; `near` is the seed continued, its
-   *   `admitted` arc the one to keep.
-   * @returns The fit, or null where its admitted arc vanished.
-   */
-  export function continues(
-    ...args: Parameters<typeof fit>
-  ): IAutoMovieSeededChainFit | null {
-    try {
-      return fit(...args);
-    } catch (error) {
-      if (error instanceof HumanLimbVanishedRefusal) return null;
-      throw error;
-    }
-  }
-
-  /**
-   * The limb posed at a prescribed swivel and bend branch, with no search or
-   * score (`HumanLimbAt.at`): mirrored and attached as `fit` is.
-   */
-  export function at(
-    ...args: Parameters<typeof HumanLimbAt.at>
-  ): ReturnType<typeof HumanLimbAt.at> {
-    return HumanLimbAt.at(...args);
-  }
-
-  /**
-   * The swivel and bend branch of a posed limb in its fits' seed frame
-   * (`HumanLimbAt.seed`).
-   */
-  export function seed(
-    ...args: Parameters<typeof HumanLimbAt.seed>
-  ): ReturnType<typeof HumanLimbAt.seed> {
-    return HumanLimbAt.seed(...args);
-  }
-
-  /**
-   * A limb goal's mirror image (`HumanLimbMirror.goal`).
-   *
-   * @param goal The goal.
-   * @returns Its mirror image.
-   */
-  export function reflected(
-    goal: IAutoMovieHumanLimbGoal,
-  ): IAutoMovieHumanLimbGoal {
-    return HumanLimbMirror.goal(goal);
-  }
-
-  /**
    * Public near/cold fitting retains its original workspace entry and order; a
    * re-aim pass continues its first pass, prescribed where the fit's own seed
    * is.
@@ -500,3 +494,9 @@ export namespace HumanLimbFit {
     end: IAutoMovieVector3,
   ) => number;
 }
+
+/** The alternatives of `SolvedFitterParent`'s site. */
+type SolvedFitterParent = "worldPosition" | "worldRotation";
+
+/** The alternatives of `DirectPolicy`'s site. */
+type DirectPolicy = "ordinary" | "continuous";

@@ -12,24 +12,6 @@ import { HumanPosturePreparation } from "../../posture/internal/HumanPosturePrep
 import { createHumanPostureRotation } from "../../posture/internal/createHumanPostureRotation";
 import type { jumpTouchdownRotation } from "./jumpTouchdownRotation";
 
-/** Action-plan members supplied for an authored turning flight. */
-type FlightMember = "flight" | "airborne";
-
-/**
- * The flight's actual touchdown attitude: centre, world axis and angle in
- * degrees.
- */
-interface ITouchdown {
-  /** The touchdown centre the turn is about, world metres. */
-  about: IAutoMovieVector3;
-
-  /** The turn's unit axis, world. */
-  axis: IAutoMovieVector3;
-
-  /** The turn's angle, degrees. */
-  angle: number;
-}
-
 /** An upright touchdown has no attitude offset. */
 const STILL: ITouchdown = {
   about: { x: 0, y: 0, z: 0 },
@@ -239,4 +221,22 @@ export namespace jumpAirborneTurning {
       seconds: number,
     ): IAutoMovieMotionHumanPosture;
   }
+}
+
+/** Action-plan members supplied for an authored turning flight. */
+type FlightMember = "flight" | "airborne";
+
+/**
+ * The flight's actual touchdown attitude: centre, world axis and angle in
+ * degrees.
+ */
+interface ITouchdown {
+  /** The touchdown centre the turn is about, world metres. */
+  about: IAutoMovieVector3;
+
+  /** The turn's unit axis, world. */
+  axis: IAutoMovieVector3;
+
+  /** The turn's angle, degrees. */
+  angle: number;
 }

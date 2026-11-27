@@ -6,6 +6,111 @@
 import { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "./AutoMovieEnginePhysicalPlanarPolygon";
 
 
+/** The capture region's reachable region and constants.
+ * @see https://github.com/ihmcrobotics/ihmc-open-robotics-software/blob/201903_Stable/ihmc-common-walking-control-modules/src/main/java/us/ihmc/commonWalkingControlModules/captureRegion/OneStepCaptureRegionCalculator.java
+ * @see https://github.com/ihmcrobotics/ihmc-open-robotics-software/blob/201903_Stable/ihmc-common-walking-control-modules/src/main/java/us/ihmc/commonWalkingControlModules/captureRegion/CaptureRegionMathTools.java
+ */
+export namespace AutoMovieEnginePhysicalOneStepCaptureRegion {
+  /**
+   * The one-step capture region of a support foot: where a swing foot can land
+   * within its reach so that the capture point, diverging about the support
+   * foot's centre of pressure for the swing time left, lies inside it (Koolen et
+   * al. 2012, "Capturability-based analysis and control of legged locomotion,
+   * Part 2"; IHMC 201903).
+   *
+   * Everything is in the support sole's horizontal frame, x forward and y to the
+   * left (`AutoMovieEnginePhysicalPlanarPolygon`):
+   *
+   * 1. The support foot's vertices the capture point sees are the extreme centres of
+   *    pressure; with the capture point inside the foot the region is the whole
+   *    reachable region.
+   * 2. From each extreme the capture point is predicted after the time left, cop +
+   *    (xi - cop) e^(omega t), and the ray on from it away from that extreme is
+   *    cut by a circle about the foot's centroid of `APPROXIMATION_MULTIPLIER`
+   *    times the reach; seven more points on that circle join the first ray's
+   *    point to the last's, turning clockwise.
+   * 3. The hull of those points, intersected with the reachable region, is the
+   *    capture region; it is empty when they do not meet, or when a ray misses
+   *    the circle.
+   *
+   * @param input The support foot's side, the swing time left, seconds, the
+   *   capture point, the pendulum's rate, per second, the support foot's
+   *   clockwise outline, the foot width, metres, and the kinematic step range,
+   *   metres.
+   * @returns The capture region, clockwise; empty when there is none.
+   */
+  export function compute(
+    input: Parameters<typeof computeRegion>[0],
+  ): ReturnType<typeof computeRegion> {
+    return computeRegion(input);
+  }
+  /** The reachable region's vertex count, its fan's plus one (l.27). */
+  export const MAX_CAPTURE_REGION_POLYGON_POINTS: number = 20;
+
+  /** The circle points joining the kinematic extremes, plus one (l.28). */
+  export const KINEMATIC_LIMIT_POINTS: number = 8;
+
+  /** The far circle's radius over the step range (l.126). */
+  export const APPROXIMATION_MULTIPLIER: number = 100;
+
+  /** The reachable fan's angle over pi (l.29). */
+  export const REACHABLE_REGION_CUTOFF_ANGLE: number = 1.0;
+
+  /**
+   * The capture region before the reachable cut (l.165-218): the hull of each
+   * visible support vertex's predicted capture point and its ray's point on
+   * the far circle, with the circle's points between the first and last rays.
+   *
+   * @param input The swing time left, seconds, the capture point, the
+   *   pendulum's rate, per second, the support's clockwise outline, and the
+   *   step range, metres, for the far circle.
+   * @returns The raw region; undefined when the capture point lies inside the
+   *   support, so every reachable point captures; empty when a ray misses the
+   *   circle.
+   */
+  export function raw(input: {
+    remaining: number;
+    capture: Polygon.IPoint;
+    omega: number;
+    foot: readonly Polygon.IPoint[];
+    range: number;
+  }): Polygon.IPoint[] | undefined {
+    return rawRegion(input);
+  }
+
+  /**
+   * The region a swing foot can reach from a support foot (l.102-123): a fan of
+   * the step range's radius over the cutoff angle times pi toward the swing
+   * side, its points within half the foot width of the sole's x-axis moved out
+   * to it, closed by the point half a foot width to that side.
+   *
+   * @param support The support foot's side; the fan opens to the other.
+   * @param footWidth The foot width, metres.
+   * @param range The kinematic step range, metres.
+   * @returns The region, clockwise, in the support sole's frame.
+   */
+  export function reachable(
+    support: "left" | "right",
+    footWidth: number,
+    range: number,
+  ): Polygon.IPoint[] {
+    // RobotSide.negateIfLeftSide(1.0): the fan opens away from the support.
+    const sign: number = support === "left" ? -1 : 1;
+    const points: Polygon.IPoint[] = [];
+    for (let i: number = 0; i < MAX_CAPTURE_REGION_POLYGON_POINTS - 1; i++) {
+      const angle: number =
+        (sign * REACHABLE_REGION_CUTOFF_ANGLE * Math.PI * i) /
+        (MAX_CAPTURE_REGION_POLYGON_POINTS - 2);
+      const x: number = range * Math.cos(angle);
+      let y: number = range * Math.sin(angle);
+      if (Math.abs(y) < footWidth / 2) y = (sign * footWidth) / 2;
+      points.push({ x, y });
+    }
+    points.push({ x: 0, y: (sign * footWidth) / 2 });
+    return Polygon.hull(points);
+  }
+}
+
 function computeRegion(input: {
   support: "left" | "right";
   remaining: number;
@@ -111,111 +216,6 @@ function rawRegion(input: {
   }
 
   return Polygon.hull(raw);
-}
-
-/** The capture region's reachable region and constants.
- * @see https://github.com/ihmcrobotics/ihmc-open-robotics-software/blob/201903_Stable/ihmc-common-walking-control-modules/src/main/java/us/ihmc/commonWalkingControlModules/captureRegion/OneStepCaptureRegionCalculator.java
- * @see https://github.com/ihmcrobotics/ihmc-open-robotics-software/blob/201903_Stable/ihmc-common-walking-control-modules/src/main/java/us/ihmc/commonWalkingControlModules/captureRegion/CaptureRegionMathTools.java
- */
-export namespace AutoMovieEnginePhysicalOneStepCaptureRegion {
-  /**
-   * The one-step capture region of a support foot: where a swing foot can land
-   * within its reach so that the capture point, diverging about the support
-   * foot's centre of pressure for the swing time left, lies inside it (Koolen et
-   * al. 2012, "Capturability-based analysis and control of legged locomotion,
-   * Part 2"; IHMC 201903).
-   *
-   * Everything is in the support sole's horizontal frame, x forward and y to the
-   * left (`AutoMovieEnginePhysicalPlanarPolygon`):
-   *
-   * 1. The support foot's vertices the capture point sees are the extreme centres of
-   *    pressure; with the capture point inside the foot the region is the whole
-   *    reachable region.
-   * 2. From each extreme the capture point is predicted after the time left, cop +
-   *    (xi - cop) e^(omega t), and the ray on from it away from that extreme is
-   *    cut by a circle about the foot's centroid of `APPROXIMATION_MULTIPLIER`
-   *    times the reach; seven more points on that circle join the first ray's
-   *    point to the last's, turning clockwise.
-   * 3. The hull of those points, intersected with the reachable region, is the
-   *    capture region; it is empty when they do not meet, or when a ray misses
-   *    the circle.
-   *
-   * @param input The support foot's side, the swing time left, seconds, the
-   *   capture point, the pendulum's rate, per second, the support foot's
-   *   clockwise outline, the foot width, metres, and the kinematic step range,
-   *   metres.
-   * @returns The capture region, clockwise; empty when there is none.
-   */
-  export function compute(
-    input: Parameters<typeof computeRegion>[0],
-  ): ReturnType<typeof computeRegion> {
-    return computeRegion(input);
-  }
-  /** The reachable region's vertex count, its fan's plus one (l.27). */
-  export const MAX_CAPTURE_REGION_POLYGON_POINTS: number = 20;
-
-  /** The circle points joining the kinematic extremes, plus one (l.28). */
-  export const KINEMATIC_LIMIT_POINTS: number = 8;
-
-  /** The far circle's radius over the step range (l.126). */
-  export const APPROXIMATION_MULTIPLIER: number = 100;
-
-  /** The reachable fan's angle over pi (l.29). */
-  export const REACHABLE_REGION_CUTOFF_ANGLE: number = 1.0;
-
-  /**
-   * The capture region before the reachable cut (l.165-218): the hull of each
-   * visible support vertex's predicted capture point and its ray's point on
-   * the far circle, with the circle's points between the first and last rays.
-   *
-   * @param input The swing time left, seconds, the capture point, the
-   *   pendulum's rate, per second, the support's clockwise outline, and the
-   *   step range, metres, for the far circle.
-   * @returns The raw region; undefined when the capture point lies inside the
-   *   support, so every reachable point captures; empty when a ray misses the
-   *   circle.
-   */
-  export function raw(input: {
-    remaining: number;
-    capture: Polygon.IPoint;
-    omega: number;
-    foot: readonly Polygon.IPoint[];
-    range: number;
-  }): Polygon.IPoint[] | undefined {
-    return rawRegion(input);
-  }
-
-  /**
-   * The region a swing foot can reach from a support foot (l.102-123): a fan of
-   * the step range's radius over the cutoff angle times pi toward the swing
-   * side, its points within half the foot width of the sole's x-axis moved out
-   * to it, closed by the point half a foot width to that side.
-   *
-   * @param support The support foot's side; the fan opens to the other.
-   * @param footWidth The foot width, metres.
-   * @param range The kinematic step range, metres.
-   * @returns The region, clockwise, in the support sole's frame.
-   */
-  export function reachable(
-    support: "left" | "right",
-    footWidth: number,
-    range: number,
-  ): Polygon.IPoint[] {
-    // RobotSide.negateIfLeftSide(1.0): the fan opens away from the support.
-    const sign: number = support === "left" ? -1 : 1;
-    const points: Polygon.IPoint[] = [];
-    for (let i: number = 0; i < MAX_CAPTURE_REGION_POLYGON_POINTS - 1; i++) {
-      const angle: number =
-        (sign * REACHABLE_REGION_CUTOFF_ANGLE * Math.PI * i) /
-        (MAX_CAPTURE_REGION_POLYGON_POINTS - 2);
-      const x: number = range * Math.cos(angle);
-      let y: number = range * Math.sin(angle);
-      if (Math.abs(y) < footWidth / 2) y = (sign * footWidth) / 2;
-      points.push({ x, y });
-    }
-    points.push({ x: 0, y: (sign * footWidth) / 2 });
-    return Polygon.hull(points);
-  }
 }
 
 /**

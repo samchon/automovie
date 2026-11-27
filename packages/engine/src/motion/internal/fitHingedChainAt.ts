@@ -22,6 +22,131 @@ import { basisOf } from "./basisOf";
 import { orientChainEffector } from "./orientChainEffector";
 import { prepareHingedChainAt } from "./prepareHingedChainAt";
 
+/** Companion types of `fitHingedChainAt`. */
+export namespace fitHingedChainAt {
+  /** Place a chain at a prescribed swivel without searching. */
+  export function place(
+    props: IAutoMovieFitChainToTargetProps,
+    swivel: number,
+    branch: number,
+  ): IPlaced | null {
+    return placeHingedChainAt(props, swivel, branch);
+  }
+
+  /** A chain placed at a swivel. */
+  export interface IPlaced extends IAutoMovieSeededChainFit {
+    /** How far the target lies beyond the branch's legal shell, metres. */
+    shortfall: number;
+
+    /** Whether the range of motion moved a joint off the swivel's own pose. */
+    clamped: boolean;
+
+    /**
+     * The request's obstruction read at the swivel's own mid and end joints
+     * (`IAutoMovieFitChainToTargetProps.obstruction`); 0 without one, positive
+     * where the chain passes through what the fit keeps clear of.
+     */
+    blocked: number;
+  }
+
+  /**
+   * A hinged chain's joint angles at a swivel and bend branch before the range
+   * of motion applies, with no placement, clamp or projection: the root's and
+   * the mid joint's decomposition of the swivel's pose, as `fitHingedChainAt`
+   * decomposes them before its clamp, and, for a requested effector rotation,
+   * the end joint's rotation relative to the hinge-only mid bone decomposed on
+   * the end joint's clinical basis, as `orientChainEffector` reads that
+   * rotation before it splits the twist and projects. These are the angles
+   * theta_1 to theta_7 of Tolani, Goswami and Badler 2000 (Graphical Models
+   * 62:353, sections 3.2.3 and 3.2.4) at the swivel, the elbow a pure hinge
+   * (theta_4) and the wrist's three angles read as one spherical joint, which a
+   * caller choosing the swivel and a free turn of the end rotation compares
+   * with the joints' ranges (section 3.3, "Joint limits").
+   *
+   * @param props The fit request: source pose, chain, rig tables and target; an
+   *   optional effector rotation.
+   * @param swivel The swivel, degrees, in the frame `IAutoMovieSwivelNear` and
+   *   the fit's seeds use.
+   * @param branch The bend branch, 0 or 1; clamped to the branches the target
+   *   has.
+   * @returns The angles, clinical degrees; null when the chain is not a hinged
+   *   two-bone chain or is degenerate.
+   */
+  export function free(
+    props: IAutoMovieFitChainToTargetProps,
+    swivel: number,
+    branch: number,
+  ): IFree | null {
+    const at: prepareHingedChainAt.IPrepared | null =
+      prepareHingedChainAt(props);
+    if (at === null) return null;
+    const index: number = Math.min(
+      Math.max(0, Math.round(branch)),
+      at.branches.length - 1,
+    );
+    const posed: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> =
+      hingedArmSwivel.pose(at.chain, at.branches[index]!.theta)(swivel);
+    const [upper, lower]: readonly [IAutoMovieJointPose, IAutoMovieJointPose] =
+      decomposed(props, at, posed);
+    const effector: IEffector | null = freeEffector(props, at, posed);
+    return {
+      upper,
+      lower,
+      effector: effector?.pose ?? null,
+      charts: {
+        upper: charts(
+          props.chain.upper,
+          posed.upper,
+          at.upperBasis,
+          props.restFrames?.[props.chain.upper],
+        ),
+        effector: effector?.charts ?? null,
+      },
+    };
+  }
+
+  /**
+   * A chain's joint angles at a swivel before the range of motion applies:
+   * Tolani, Goswami and Badler's theta_1 to theta_7 (2000, sections 3.2.3 and
+   * 3.2.4), clinical degrees, the end joint's three read as one spherical joint
+   * on its own basis.
+   */
+  export interface IFree {
+    /** The root joint (theta_1 to theta_3). */
+    upper: IAutoMovieJointPose;
+
+    /** The mid joint, its hinge only (theta_4). */
+    lower: IAutoMovieJointPose;
+
+    /**
+     * The end joint relative to the hinge-only mid bone (theta_5 to theta_7),
+     * its twist the distal twist the mid bone takes on a limb that twists
+     * distally; null without a requested effector rotation.
+     */
+    effector: IAutoMovieJointPose | null;
+
+    /**
+     * Both Euler charts of the root and the end joint (Tolani, Goswami and
+     * Badler 2000, section 3.3: two families of solutions for each, so four
+     * combinations), each read without a range: the principal and the
+     * alternate, in that order.
+     */
+    charts: ICharts;
+  }
+
+  /** A joint's two Euler readings: the principal chart, then the alternate. */
+  export type Charts = readonly [IAutoMovieJointPose, IAutoMovieJointPose];
+
+  /** The root's and the end joint's two Euler readings. */
+  export interface ICharts {
+    /** The root joint's (theta_1 to theta_3). */
+    upper: Charts;
+
+    /** The end joint's (theta_5 to theta_7); null without an effector rotation. */
+    effector: Charts | null;
+  }
+}
+
 /**
  * A hinged two-bone chain posed at a prescribed swivel and bend branch, with no
  * search, score or continuation: the closed-form articulation a caller that
@@ -259,129 +384,4 @@ function charts(
     };
   }
   return [lifted(rig), lifted(other)];
-}
-
-/** Companion types of `fitHingedChainAt`. */
-export namespace fitHingedChainAt {
-  /** Place a chain at a prescribed swivel without searching. */
-  export function place(
-    props: IAutoMovieFitChainToTargetProps,
-    swivel: number,
-    branch: number,
-  ): IPlaced | null {
-    return placeHingedChainAt(props, swivel, branch);
-  }
-
-  /** A chain placed at a swivel. */
-  export interface IPlaced extends IAutoMovieSeededChainFit {
-    /** How far the target lies beyond the branch's legal shell, metres. */
-    shortfall: number;
-
-    /** Whether the range of motion moved a joint off the swivel's own pose. */
-    clamped: boolean;
-
-    /**
-     * The request's obstruction read at the swivel's own mid and end joints
-     * (`IAutoMovieFitChainToTargetProps.obstruction`); 0 without one, positive
-     * where the chain passes through what the fit keeps clear of.
-     */
-    blocked: number;
-  }
-
-  /**
-   * A hinged chain's joint angles at a swivel and bend branch before the range
-   * of motion applies, with no placement, clamp or projection: the root's and
-   * the mid joint's decomposition of the swivel's pose, as `fitHingedChainAt`
-   * decomposes them before its clamp, and, for a requested effector rotation,
-   * the end joint's rotation relative to the hinge-only mid bone decomposed on
-   * the end joint's clinical basis, as `orientChainEffector` reads that
-   * rotation before it splits the twist and projects. These are the angles
-   * theta_1 to theta_7 of Tolani, Goswami and Badler 2000 (Graphical Models
-   * 62:353, sections 3.2.3 and 3.2.4) at the swivel, the elbow a pure hinge
-   * (theta_4) and the wrist's three angles read as one spherical joint, which a
-   * caller choosing the swivel and a free turn of the end rotation compares
-   * with the joints' ranges (section 3.3, "Joint limits").
-   *
-   * @param props The fit request: source pose, chain, rig tables and target; an
-   *   optional effector rotation.
-   * @param swivel The swivel, degrees, in the frame `IAutoMovieSwivelNear` and
-   *   the fit's seeds use.
-   * @param branch The bend branch, 0 or 1; clamped to the branches the target
-   *   has.
-   * @returns The angles, clinical degrees; null when the chain is not a hinged
-   *   two-bone chain or is degenerate.
-   */
-  export function free(
-    props: IAutoMovieFitChainToTargetProps,
-    swivel: number,
-    branch: number,
-  ): IFree | null {
-    const at: prepareHingedChainAt.IPrepared | null =
-      prepareHingedChainAt(props);
-    if (at === null) return null;
-    const index: number = Math.min(
-      Math.max(0, Math.round(branch)),
-      at.branches.length - 1,
-    );
-    const posed: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> =
-      hingedArmSwivel.pose(at.chain, at.branches[index]!.theta)(swivel);
-    const [upper, lower]: readonly [IAutoMovieJointPose, IAutoMovieJointPose] =
-      decomposed(props, at, posed);
-    const effector: IEffector | null = freeEffector(props, at, posed);
-    return {
-      upper,
-      lower,
-      effector: effector?.pose ?? null,
-      charts: {
-        upper: charts(
-          props.chain.upper,
-          posed.upper,
-          at.upperBasis,
-          props.restFrames?.[props.chain.upper],
-        ),
-        effector: effector?.charts ?? null,
-      },
-    };
-  }
-
-  /**
-   * A chain's joint angles at a swivel before the range of motion applies:
-   * Tolani, Goswami and Badler's theta_1 to theta_7 (2000, sections 3.2.3 and
-   * 3.2.4), clinical degrees, the end joint's three read as one spherical joint
-   * on its own basis.
-   */
-  export interface IFree {
-    /** The root joint (theta_1 to theta_3). */
-    upper: IAutoMovieJointPose;
-
-    /** The mid joint, its hinge only (theta_4). */
-    lower: IAutoMovieJointPose;
-
-    /**
-     * The end joint relative to the hinge-only mid bone (theta_5 to theta_7),
-     * its twist the distal twist the mid bone takes on a limb that twists
-     * distally; null without a requested effector rotation.
-     */
-    effector: IAutoMovieJointPose | null;
-
-    /**
-     * Both Euler charts of the root and the end joint (Tolani, Goswami and
-     * Badler 2000, section 3.3: two families of solutions for each, so four
-     * combinations), each read without a range: the principal and the
-     * alternate, in that order.
-     */
-    charts: ICharts;
-  }
-
-  /** A joint's two Euler readings: the principal chart, then the alternate. */
-  export type Charts = readonly [IAutoMovieJointPose, IAutoMovieJointPose];
-
-  /** The root's and the end joint's two Euler readings. */
-  export interface ICharts {
-    /** The root joint's (theta_1 to theta_3). */
-    upper: Charts;
-
-    /** The end joint's (theta_5 to theta_7); null without an effector rotation. */
-    effector: Charts | null;
-  }
 }

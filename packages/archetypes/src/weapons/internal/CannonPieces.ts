@@ -8,15 +8,6 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeCannon } from "../AutoMovieArchetypeCannon";
 
-/** A cannon under construction. */
-type Builder = AutoMovieArchetypeBuilder<
-  AutoMovieArchetypeCannon.Affordance,
-  AutoMovieArchetypeCannon.Dimension
->;
-
-/** A cannon's drawn and read dimensions. */
-type Drawn = Readonly<Partial<Record<AutoMovieArchetypeCannon.Dimension, number>>>;
-
 /**
  * The naval gun, the mortar and the swivel gun, built on their read figures: a
  * 32-pounder of 56 cwt on a four-truck carriage, a mortar on its bed at its
@@ -338,3 +329,12 @@ export namespace CannonPieces {
     });
   }
 }
+
+/** A cannon under construction. */
+type Builder = AutoMovieArchetypeBuilder<
+  AutoMovieArchetypeCannon.Affordance,
+  AutoMovieArchetypeCannon.Dimension
+>;
+
+/** A cannon's drawn and read dimensions. */
+type Drawn = Readonly<Partial<Record<AutoMovieArchetypeCannon.Dimension, number>>>;

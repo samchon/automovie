@@ -5,13 +5,6 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Resolution of the sine between normalized camera rays. Each component is
- * bounded by one. Allow 16 binary64 rounding units for rotation, normalization
- * and the difference of the two products in each cross-product component.
- */
-const PARALLEL_RAY_RESOLUTION: number = 16 * Number.EPSILON;
-
-/**
  * Triangulate one observation pair in the first-camera, unit-baseline gauge.
  * Original 4-by-4 DLT uses calibrated rays and P1=[I|0], P2=[R|t]. An
  * unresolved third design direction, parallel ray pair, point at infinity or
@@ -120,6 +113,13 @@ export function triangulateRecoveryCameraPoint(
     secondReprojectionPx,
   };
 }
+
+/**
+ * Resolution of the sine between normalized camera rays. Each component is
+ * bounded by one. Allow 16 binary64 rounding units for rotation, normalization
+ * and the difference of the two products in each cross-product component.
+ */
+const PARALLEL_RAY_RESOLUTION: number = 16 * Number.EPSILON;
 
 /** Measure the resolved angle between calibrated free rays in the first frame. */
 function measureParallax(

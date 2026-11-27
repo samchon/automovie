@@ -23,7 +23,48 @@ const GRANITE: string =
 
 /** Constructs the rock archetype from its recipe. */
 export namespace AutoMovieArchetypeRock {
-/**
+/** The kinds: the Udden-Wentworth cobble and boulder classes. */
+  export type Kind = "cobble" | "boulder";
+
+  /** The drawn forms: a seeded irregular convex stone, or the earlier ball. */
+  export type Form = "ball" | "irregular";
+
+  /**
+   * The affordance ids:
+   *
+   * - `grip`: a cobble, closed round from `-X`.
+   * - `top`: a boulder's highest point, facing up.
+   * - `side`: a boulder's `+Z` face at mid-height, facing out.
+   */
+  export type Affordance = "grip" | "top" | "side";
+
+  /**
+   * The free dimensions:
+   *
+   * - `diameter`: across, metres.
+   * - `gravity`: specific gravity, its density over water's.
+   */
+  export type Dimension = "diameter" | "gravity";
+
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Which class. */
+    kind: Kind;
+
+    /**
+     * The drawn form: `irregular`, a seeded convex stone on a flat base, by
+     * default; or `ball`, the earlier sphere resting on one point.
+     */
+    form?: Form;
+
+    /** The model's id, unique in a scene; `rock` when absent. */
+    id?: string;
+  }
+
+  /**
  * A loose stone: a cobble a hand picks up, or a boulder a person sits on, hides
  * behind or climbs.
  *
@@ -136,34 +177,11 @@ export function create(
   return builder.build(volume * d.gravity * 1000, { rests: "stone" });
 }
 
-  /** The kinds: the Udden-Wentworth cobble and boulder classes. */
-  export type Kind = "cobble" | "boulder";
-
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["cobble", "boulder"];
 
-  /** The drawn forms: a seeded irregular convex stone, or the earlier ball. */
-  export type Form = "ball" | "irregular";
-
   /** Every form, for a caller that reads one at run time. */
   export const FORMS: readonly Form[] = ["ball", "irregular"];
-
-  /**
-   * The affordance ids:
-   *
-   * - `grip`: a cobble, closed round from `-X`.
-   * - `top`: a boulder's highest point, facing up.
-   * - `side`: a boulder's `+Z` face at mid-height, facing out.
-   */
-  export type Affordance = "grip" | "top" | "side";
-
-  /**
-   * The free dimensions:
-   *
-   * - `diameter`: across, metres.
-   * - `gravity`: specific gravity, its density over water's.
-   */
-  export type Dimension = "diameter" | "gravity";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: Readonly<
@@ -172,24 +190,6 @@ export function create(
     diameter: "m",
     gravity: "",
   };
-
-  /**
-   * The parameters: the kind, and any free dimension fixed to a value inside
-   * its band.
-   */
-  export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which class. */
-    kind: Kind;
-
-    /**
-     * The drawn form: `irregular`, a seeded convex stone on a flat base, by
-     * default; or `ball`, the earlier sphere resting on one point.
-     */
-    form?: Form;
-
-    /** The model's id, unique in a scene; `rock` when absent. */
-    id?: string;
-  }
 
   /**
    * Granite's specific gravity, its mean density plus and minus one standard

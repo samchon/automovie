@@ -13,9 +13,6 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { walkFootStance } from "./walkFootStance";
 import { walkFootTakeoff } from "./walkFootTakeoff";
 
-/** The record of `ISwingRates`'s site. */
-type ISwingRates = { pitch: number; toes: number };
-
 /**
  * One foot of a stepping gait at an instant: the rockers of its stance on a
  * footprint (`walkFootStance`) and its swing between two reached stances.
@@ -295,3 +292,6 @@ export namespace walkFoot {
    */
   export const CLEARANCE: number = 0.015;
 }
+
+/** The record of `ISwingRates`'s site. */
+type ISwingRates = { pitch: number; toes: number };

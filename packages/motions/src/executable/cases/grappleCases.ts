@@ -7,9 +7,6 @@ import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/** The record of `IGrappleCasesWorst`'s site. */
-type IGrappleCasesWorst = { value: number; where: string };
-
 /**
  * Capture cases of the grappling family: performer `a` takes a clinch grip on
  * performer `b`, who stands 0.55 m away facing it, in the plum (`grapple-plum`)
@@ -110,3 +107,6 @@ export function grappleCases(
   }
   return out;
 }
+
+/** The record of `IGrappleCasesWorst`'s site. */
+type IGrappleCasesWorst = { value: number; where: string };

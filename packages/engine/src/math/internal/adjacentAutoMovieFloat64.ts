@@ -1,8 +1,5 @@
 import { overflowsBinary64 } from "./overflowsBinary64";
 
-/** Eight scratch bytes every call overwrites before it reads them back. */
-const bits: DataView = new DataView(new ArrayBuffer(8));
-
 /**
  * The binary64 number adjacent to a finite value, one unit in the last place
  * toward positive or negative infinity.
@@ -44,3 +41,6 @@ export function adjacentAutoMovieFloat64(
     );
   return result;
 }
+
+/** Eight scratch bytes every call overwrites before it reads them back. */
+const bits: DataView = new DataView(new ArrayBuffer(8));

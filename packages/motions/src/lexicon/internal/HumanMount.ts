@@ -11,12 +11,6 @@ import { sitPlace } from "../../everyday/internal/sitPlace";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/** The record of `IOVERItem`'s site. */
-type IOVERItem = { above: number; behind: number };
-
-/** The alternatives of `HANGEntryItem`'s site. */
-type HANGEntryItem = "ahead" | "astride";
-
 /**
  * The shapes of getting onto and off a high seat (`HumanMountOn`,
  * `HumanMountOff`): a bar stool, a saddle, a wall. Each length is a share of
@@ -262,3 +256,9 @@ export namespace HumanMount {
     };
   }
 }
+
+/** The record of `IOVERItem`'s site. */
+type IOVERItem = { above: number; behind: number };
+
+/** The alternatives of `HANGEntryItem`'s site. */
+type HANGEntryItem = "ahead" | "astride";

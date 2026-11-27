@@ -26,12 +26,6 @@ import { AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES } from "../AUTOMOVIE_SEMANTIC_MASK_
 import { AUTOMOVIE_SEMANTIC_MASK_SPACE_NODE } from "../AUTOMOVIE_SEMANTIC_MASK_SPACE_NODE";
 import { digestAutoMovieSemanticMask } from "./digestAutoMovieSemanticMask";
 
-/** Current full-payload semantic-mask format. */
-const SEMANTIC_MASK_VERSION: number = 2;
-
-/** Domain separator for the current full-payload semantic-mask format. */
-const SEMANTIC_MASK_PROTOCOL: string = "automovie.semantic-mask.v2";
-
 /**
  * Derive the stable semantic palette for one render subject.
  *
@@ -99,6 +93,12 @@ export function deriveAutoMovieSemanticMask(
   };
   return { ...payload, digest: digestAutoMovieSemanticMask(payload) };
 }
+
+/** Current full-payload semantic-mask format. */
+const SEMANTIC_MASK_VERSION: number = 2;
+
+/** Domain separator for the current full-payload semantic-mask format. */
+const SEMANTIC_MASK_PROTOCOL: string = "automovie.semantic-mask.v2";
 
 /** One entity awaiting a colour. */
 interface IClaim {

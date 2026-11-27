@@ -43,15 +43,6 @@ const HANDLE: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
  */
 const REACH: number = 0.4;
 
-/** One riding hand and where it holds the support as the ride starts. */
-interface IRideGrip {
-  /** The holding hand. */
-  side: AutoMovieHumanSide;
-
-  /** The held point, its normal and wrapped axis, world, at the ride's start. */
-  grip: IAutoMovieMotionHumanMountRider.IHoldGrip;
-}
-
 /** Hand subsequent actions a settled stance after the board transfer. */
 const END: IAutoMovieMotionHumanActionLaw["interrupts"] = {
   any: [{ window: [1, 1], kind: "inertialize", entry: 0 }],
@@ -461,4 +452,13 @@ export namespace HumanSurfaceBoard {
   ): IAutoMovieMotionHumanContactWindow {
     return { part, from, to, support, kind };
   }
+}
+
+/** One riding hand and where it holds the support as the ride starts. */
+interface IRideGrip {
+  /** The holding hand. */
+  side: AutoMovieHumanSide;
+
+  /** The held point, its normal and wrapped axis, world, at the ride's start. */
+  grip: IAutoMovieMotionHumanMountRider.IHoldGrip;
 }

@@ -241,24 +241,6 @@ export namespace AutoMoviePhysicalSpanPose {
     profile: Pick<IAutoMoviePhysicalSimulationInput.IBody["profile"], "joints">;
   };
 
-  /** The body's actual poses judged by `admissible`. */
-  function handable(bound: Pick<Bound, "segments">, body: IBody): boolean {
-    const segments = bound.segments?.get(body.id);
-    const limit: number | undefined = body.handoffLimits?.maximumLinearError;
-    if (!segments || limit === undefined) return true;
-    return admissible({
-      joints: body.profile.joints,
-      poses: Object.fromEntries(
-        [...segments].map(
-          ([bone, rigid]): [string, IAutoMovieRigidTransform] => [
-            bone,
-            { position: rigid.translation(), rotation: rigid.rotation() },
-          ],
-        ),
-      ),
-      limit,
-    });
-  }
   /**
    * The body's disturbance response handed back on the first substep after it
    * settles: the recovery state adopts where the response left the body, its
@@ -318,5 +300,23 @@ export namespace AutoMoviePhysicalSpanPose {
     delete state.seating;
     delete state.icp;
     state.revision = (state.revision ?? 0) + 1;
+  }
+  /** The body's actual poses judged by `admissible`. */
+  function handable(bound: Pick<Bound, "segments">, body: IBody): boolean {
+    const segments = bound.segments?.get(body.id);
+    const limit: number | undefined = body.handoffLimits?.maximumLinearError;
+    if (!segments || limit === undefined) return true;
+    return admissible({
+      joints: body.profile.joints,
+      poses: Object.fromEntries(
+        [...segments].map(
+          ([bone, rigid]): [string, IAutoMovieRigidTransform] => [
+            bone,
+            { position: rigid.translation(), rotation: rigid.rotation() },
+          ],
+        ),
+      ),
+      limit,
+    });
   }
 }

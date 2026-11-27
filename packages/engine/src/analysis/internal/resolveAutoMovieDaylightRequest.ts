@@ -15,9 +15,6 @@ import { autoMovieEnvironmentInstant } from "./autoMovieEnvironmentInstant";
 import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "../AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
 import { validateAutoMovieEnvironmentContext } from "./validateAutoMovieEnvironmentContext";
 
-/** Directions this short or shorter are degenerate. */
-const EPSILON: number = 1e-12;
-
 /**
  * Refuse a daylight request no honest study can be made from, and resolve the
  * instant and the workplane frame it names.
@@ -125,3 +122,6 @@ export function resolveAutoMovieDaylightRequest(
   assertAutoMovieAnalysisTargets(request.targets);
   return { instant, normal: Vector3.normalize(normal), axisU, axisV };
 }
+
+/** Directions this short or shorter are degenerate. */
+const EPSILON: number = 1e-12;

@@ -9,9 +9,6 @@ import type {
   IAutoMovieProductionSoundPlan,
 } from "@automovie/interface";
 
-/** The rate `admitAutoMovieFilmDialogue` decodes every line at. */
-const SAMPLE_RATE: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;
-
 /**
  * Plan a film's dialogue mouths from its admitted lines: what each line gives
  * its bound actor's mouth over its speech span.
@@ -93,3 +90,6 @@ export function planAutoMovieDialogueMouths(props: {
   }
   return { fps, lines };
 }
+
+/** The rate `admitAutoMovieFilmDialogue` decodes every line at. */
+const SAMPLE_RATE: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;

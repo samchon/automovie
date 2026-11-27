@@ -1,9 +1,6 @@
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
-/** The problem an instant reads (`HumanArmTrajectoryContext.IProblem`). */
-type IProblem = HumanArmTrajectoryContext.IProblem;
-
 /**
  * A hold instant's still context: the waypoint between its neighbours, read on
  * their seconds and bases, each arm's sites the problem's own or, for a
@@ -51,3 +48,6 @@ export function HumanArmSeedInstant(
     still: true,
   });
 }
+
+/** The problem an instant reads (`HumanArmTrajectoryContext.IProblem`). */
+type IProblem = HumanArmTrajectoryContext.IProblem;

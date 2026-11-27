@@ -174,47 +174,6 @@ export namespace AutoMovieHumanBodyTree {
     return parts;
   }
 
-  /** Resolve the original leaves without changing unchanged operator or head subtree identities. */
-  function sourceNode(
-    root: IAutoMovieConstructionNode,
-    parts: ReadonlyMap<string, IAutoMovieViewPart>,
-  ): IAutoMovieConstructionNode {
-    // Profiles resolve their own original functions through the engine's
-    // separate profiles context; they are not native view declarations.
-    if (root.type === "profile") return root;
-    if (root.type === "source") {
-      if (!parts.has(root.source))
-        throw new Error(
-          `Construction source ${root.name} has no original owner ${root.source}`,
-        );
-      return root;
-    }
-    if (root.type === "view") {
-      if (!parts.has(root.name))
-        throw new Error(`Construction view ${root.name} has no original owner`);
-      return { type: "source", name: root.name, source: root.name };
-    }
-    const host: IAutoMovieConstructionNode = sourceNode(root.host, parts);
-    if (root.type === "trim")
-      return host === root.host ? root : { ...root, host };
-    // A split's two children resolve like a join's part, each keeping its identity when unchanged.
-    if (root.type === "split") {
-      const children: IAutoMovieConstructionSplit["children"] = [
-        { ...root.children[0], part: sourceNode(root.children[0].part, parts) },
-        { ...root.children[1], part: sourceNode(root.children[1].part, parts) },
-      ];
-      return host === root.host &&
-        children[0].part === root.children[0].part &&
-        children[1].part === root.children[1].part
-        ? root
-        : { ...root, host, children };
-    }
-    const part: IAutoMovieConstructionNode = sourceNode(root.part, parts);
-    return host === root.host && part === root.part
-      ? root
-      : { ...root, host, part };
-  }
-
   /**
    * Realize a subtree's operators and publish its shared boundaries without drawing an unused engine skin.
    *
@@ -272,5 +231,46 @@ export namespace AutoMovieHumanBodyTree {
       ],
       body: result.body,
     };
+  }
+
+  /** Resolve the original leaves without changing unchanged operator or head subtree identities. */
+  function sourceNode(
+    root: IAutoMovieConstructionNode,
+    parts: ReadonlyMap<string, IAutoMovieViewPart>,
+  ): IAutoMovieConstructionNode {
+    // Profiles resolve their own original functions through the engine's
+    // separate profiles context; they are not native view declarations.
+    if (root.type === "profile") return root;
+    if (root.type === "source") {
+      if (!parts.has(root.source))
+        throw new Error(
+          `Construction source ${root.name} has no original owner ${root.source}`,
+        );
+      return root;
+    }
+    if (root.type === "view") {
+      if (!parts.has(root.name))
+        throw new Error(`Construction view ${root.name} has no original owner`);
+      return { type: "source", name: root.name, source: root.name };
+    }
+    const host: IAutoMovieConstructionNode = sourceNode(root.host, parts);
+    if (root.type === "trim")
+      return host === root.host ? root : { ...root, host };
+    // A split's two children resolve like a join's part, each keeping its identity when unchanged.
+    if (root.type === "split") {
+      const children: IAutoMovieConstructionSplit["children"] = [
+        { ...root.children[0], part: sourceNode(root.children[0].part, parts) },
+        { ...root.children[1], part: sourceNode(root.children[1].part, parts) },
+      ];
+      return host === root.host &&
+        children[0].part === root.children[0].part &&
+        children[1].part === root.children[1].part
+        ? root
+        : { ...root, host, children };
+    }
+    const part: IAutoMovieConstructionNode = sourceNode(root.part, parts);
+    return host === root.host && part === root.part
+      ? root
+      : { ...root, host, part };
   }
 }

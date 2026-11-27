@@ -8,63 +8,6 @@ import type {
   IAutoMovieMotionHumanThrowObjectParams,
 } from "@automovie/interface";
 
-/** The alternatives of `CastEntryItem5`'s site. */
-type CastEntryItem5 = "thrower" | "catcher";
-
-/** The alternatives of `PassParams`'s site. */
-type PassParams = "style" | "manner";
-
-/** The alternatives of `PassRole`'s site. */
-type PassRole = "thrower" | "catcher";
-
-/** The alternatives of `Pass2`'s site. */
-type Pass2 = "thrower" | "catcher";
-
-/** The alternatives of `Pass`'s site. */
-type Pass = "style" | "manner";
-
-/** The alternatives of `CastEntryItem4`'s site. */
-type CastEntryItem4 = "kisser" | "kissed";
-
-/** The alternatives of `KissParams`'s site. */
-type KissParams = "partner" | "handRole";
-
-/** The alternatives of `KissRole`'s site. */
-type KissRole = "kisser" | "kissed";
-
-/** The alternatives of `Kiss2`'s site. */
-type Kiss2 = "kisser" | "kissed";
-
-/** The alternatives of `Kiss`'s site. */
-type Kiss = "partner" | "handRole";
-
-/** The alternatives of `CastEntryItem3`'s site. */
-type CastEntryItem3 = "giver" | "receiver";
-
-/** The alternatives of `HandOverRole`'s site. */
-type HandOverRole = "giver" | "receiver";
-
-/** The alternatives of `HandOver`'s site. */
-type HandOver = "giver" | "receiver";
-
-/** The alternatives of `CastEntryItem2`'s site. */
-type CastEntryItem2 = "one" | "other";
-
-/** The alternatives of `HighFiveRole`'s site. */
-type HighFiveRole = "one" | "other";
-
-/** The alternatives of `HighFive`'s site. */
-type HighFive = "one" | "other";
-
-/** The alternatives of `CastEntryItem`'s site. */
-type CastEntryItem = "one" | "other";
-
-/** The alternatives of `HandshakeRole`'s site. */
-type HandshakeRole = "one" | "other";
-
-/** The alternatives of `Handshake`'s site. */
-type Handshake = "one" | "other";
-
 /** The vocabulary's mutual actions, for `HumanChain.mutual`. */
 export namespace HumanMutual {
   /** Two people shake hands; both perform `handshake`. */
@@ -227,3 +170,60 @@ export namespace HumanMutual {
     },
   };
 }
+
+/** The alternatives of `CastEntryItem5`'s site. */
+type CastEntryItem5 = "thrower" | "catcher";
+
+/** The alternatives of `PassParams`'s site. */
+type PassParams = "style" | "manner";
+
+/** The alternatives of `PassRole`'s site. */
+type PassRole = "thrower" | "catcher";
+
+/** The alternatives of `Pass2`'s site. */
+type Pass2 = "thrower" | "catcher";
+
+/** The alternatives of `Pass`'s site. */
+type Pass = "style" | "manner";
+
+/** The alternatives of `CastEntryItem4`'s site. */
+type CastEntryItem4 = "kisser" | "kissed";
+
+/** The alternatives of `KissParams`'s site. */
+type KissParams = "partner" | "handRole";
+
+/** The alternatives of `KissRole`'s site. */
+type KissRole = "kisser" | "kissed";
+
+/** The alternatives of `Kiss2`'s site. */
+type Kiss2 = "kisser" | "kissed";
+
+/** The alternatives of `Kiss`'s site. */
+type Kiss = "partner" | "handRole";
+
+/** The alternatives of `CastEntryItem3`'s site. */
+type CastEntryItem3 = "giver" | "receiver";
+
+/** The alternatives of `HandOverRole`'s site. */
+type HandOverRole = "giver" | "receiver";
+
+/** The alternatives of `HandOver`'s site. */
+type HandOver = "giver" | "receiver";
+
+/** The alternatives of `CastEntryItem2`'s site. */
+type CastEntryItem2 = "one" | "other";
+
+/** The alternatives of `HighFiveRole`'s site. */
+type HighFiveRole = "one" | "other";
+
+/** The alternatives of `HighFive`'s site. */
+type HighFive = "one" | "other";
+
+/** The alternatives of `CastEntryItem`'s site. */
+type CastEntryItem = "one" | "other";
+
+/** The alternatives of `HandshakeRole`'s site. */
+type HandshakeRole = "one" | "other";
+
+/** The alternatives of `Handshake`'s site. */
+type Handshake = "one" | "other";

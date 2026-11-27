@@ -22,6 +22,24 @@ import { hookSetTip } from "./hookSetTip";
  * `hookSetTip.LIFT` or a time of no length is refused; a grip the arm cannot
  * keep is refused by the reach check.
  */
+export const hookSet: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHookSet> =
+  {
+    name: "hookSet",
+    interrupts: {
+      any: [{ window: ["set", 1], kind: "inertialize", entry: 0 }],
+    },
+    plan: planHookSet,
+  };
+
+/**
+ * Set the hook. The hand holding the rod turns it about the grip, the tip
+ * rising by the authored angle on a minimum-jerk course in the authored time (a
+ * sharp lift), about the horizontal axis square to the rod; the grip stays
+ * where it is, so the rod turns in the hand's own rotation and the arm follows
+ * the hand's goal. The set is held a beat. A rod not held, a lift outside 0 to
+ * `hookSetTip.LIFT` or a time of no length is refused; a grip the arm cannot
+ * keep is refused by the reach check.
+ */
 function planHookSet(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHookSet>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -75,21 +93,3 @@ function planHookSet(
     posture,
   };
 }
-
-/**
- * Set the hook. The hand holding the rod turns it about the grip, the tip
- * rising by the authored angle on a minimum-jerk course in the authored time (a
- * sharp lift), about the horizontal axis square to the rod; the grip stays
- * where it is, so the rod turns in the hand's own rotation and the arm follows
- * the hand's goal. The set is held a beat. A rod not held, a lift outside 0 to
- * `hookSetTip.LIFT` or a time of no length is refused; a grip the arm cannot
- * keep is refused by the reach check.
- */
-export const hookSet: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHookSet> =
-  {
-    name: "hookSet",
-    interrupts: {
-      any: [{ window: ["set", 1], kind: "inertialize", entry: 0 }],
-    },
-    plan: planHookSet,
-  };

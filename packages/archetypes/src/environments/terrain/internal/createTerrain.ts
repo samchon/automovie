@@ -21,45 +21,6 @@ import { prepareTerrainGrades } from "../prepareTerrainGrades";
 import { terrainTrees } from "../terrainTrees";
 import { terrainWoods } from "../terrainWoods";
 
-/** Default coarse appearance for bare, dry ground. */
-const EARTH: string = "#85846a";
-
-/** Default coarse appearance for still inland water. */
-const WATER: string = "#618ca2";
-
-/** Default permitted vertical mesh error in metres. */
-const MESH_TOLERANCE: number = 0.01;
-
-/** A placed grade path ready to check against the approved ground lattice. */
-type IPath = ReturnType<typeof prepareTerrainGrades>["paths"][number];
-
-/**
- * The base relief before grades: an analytic rule or a sampler with its first
- * bake pitch.
- */
-interface ITerrainBase {
-  /**
-   * The analytic rule of level or planar relief; undefined when the relief must
-   * be baked.
-   */
-  rule: IAutoMovieHeightRule | undefined;
-
-  /**
-   * The first bake pitch in metres the relief alone needs; infinite for an
-   * analytic rule.
-   */
-  pitch: number;
-
-  /** The base height in world metres at a world plan point. */
-  sample: (point: { x: number; z: number }) => number;
-
-  /**
-   * What the author can change when the bake's sample budget refuses this
-   * relief.
-   */
-  advice?: string;
-}
-
 /**
  * Create a world-aligned terrain module with named placement and route frames.
  *
@@ -258,6 +219,45 @@ export function createTerrain(
       models: [...trees.models, ...woods.models],
     };
   };
+}
+
+/** Default coarse appearance for bare, dry ground. */
+const EARTH: string = "#85846a";
+
+/** Default coarse appearance for still inland water. */
+const WATER: string = "#618ca2";
+
+/** Default permitted vertical mesh error in metres. */
+const MESH_TOLERANCE: number = 0.01;
+
+/** A placed grade path ready to check against the approved ground lattice. */
+type IPath = ReturnType<typeof prepareTerrainGrades>["paths"][number];
+
+/**
+ * The base relief before grades: an analytic rule or a sampler with its first
+ * bake pitch.
+ */
+interface ITerrainBase {
+  /**
+   * The analytic rule of level or planar relief; undefined when the relief must
+   * be baked.
+   */
+  rule: IAutoMovieHeightRule | undefined;
+
+  /**
+   * The first bake pitch in metres the relief alone needs; infinite for an
+   * analytic rule.
+   */
+  pitch: number;
+
+  /** The base height in world metres at a world plan point. */
+  sample: (point: { x: number; z: number }) => number;
+
+  /**
+   * What the author can change when the bake's sample budget refuses this
+   * relief.
+   */
+  advice?: string;
 }
 
 /**

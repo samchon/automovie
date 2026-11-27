@@ -11,9 +11,6 @@ import { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "./AutoMovieEngi
 import { AutoMovieEnginePhysicalPushRecovery as Recovery } from "./AutoMovieEnginePhysicalPushRecovery";
 import { AutoMovieEnginePhysicalSupportSpanContacts as Contacts } from "./AutoMovieEnginePhysicalSupportSpanContacts";
 
-/** A planted foot. */
-type Foot = AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanFoot;
-
 /** The closed forms the response is laid with. */
 const {
   ZULU,
@@ -426,3 +423,6 @@ export namespace AutoMovieEnginePhysicalDisturbanceResponse {
     };
   }
 }
+
+/** A planted foot. */
+type Foot = AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanFoot;

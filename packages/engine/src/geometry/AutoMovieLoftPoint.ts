@@ -38,50 +38,6 @@ export namespace AutoMovieLoftPoint {
       : whole(chain, s);
   }
 
-  /** The sampler whose section and lift rows are combined whole, at once. */
-  function whole(
-    chain: IAutoMovieLoftChain,
-    s: number,
-  ): (t: number) => [number, number, number] {
-    const cap: ((phi: number) => IAutoMovieLoftPhaseReading) | null =
-      AutoMovieLoftCapRead.phase(chain, s);
-    if (cap !== null) return (t: number): [number, number, number] => cap(t).p;
-    const source: ((phi: number) => IAutoMovieLoftSectionPhase) | null =
-      AutoMovieLoftSection.phase(chain, s);
-    const c: number[] | null =
-      source === null ? AutoMovieLoftChain.coefficients(chain, s) : null;
-    const f: IAutoMovieLoftSectionFrame = AutoMovieLoftChain.frame(chain, s);
-
-    // A lifted section leaves its plane along the frame normal by the
-    // spline of its lift values, evaluated as the x block of a section
-    // whose z block repeats it.
-    const l: number[] | null = AutoMovieLoftChain.lift(chain, s);
-    const lifted: number[] | null = l === null ? null : [...l, ...l];
-    const n: [number, number, number] = normal(f);
-
-    return (t: number): [number, number, number] => {
-      const p: readonly number[] =
-        source === null
-          ? AutoMovieLoftChain.section(chain, c!, t)
-          : source(t).p;
-      const q: [number, number, number] = AutoMovieLoftFrame.place(
-        f,
-        p[0]!,
-        p[1]!,
-      );
-      if (lifted !== null) {
-        const h: number = AutoMovieSplineCurve.evaluate(
-          lifted,
-          chain.order,
-          t,
-        )[0];
-        for (let k: number = 0; k < 3; k++) q[k]! += h * n[k]!;
-      }
-      AutoMovieLoftReliefCompose.point(q, chain.reliefs ?? [], s, t);
-      return q;
-    };
-  }
-
   /**
    * One world point of the chain at station s and phase t, read directly: a
    * reader of many phases at one station takes {@link sampler} instead.
@@ -137,6 +93,50 @@ export namespace AutoMovieLoftPoint {
       }
       AutoMovieLoftReliefCompose.phase({ p, t: dt }, chain.reliefs ?? [], s, t);
       return { p, t: dt };
+    };
+  }
+
+  /** The sampler whose section and lift rows are combined whole, at once. */
+  function whole(
+    chain: IAutoMovieLoftChain,
+    s: number,
+  ): (t: number) => [number, number, number] {
+    const cap: ((phi: number) => IAutoMovieLoftPhaseReading) | null =
+      AutoMovieLoftCapRead.phase(chain, s);
+    if (cap !== null) return (t: number): [number, number, number] => cap(t).p;
+    const source: ((phi: number) => IAutoMovieLoftSectionPhase) | null =
+      AutoMovieLoftSection.phase(chain, s);
+    const c: number[] | null =
+      source === null ? AutoMovieLoftChain.coefficients(chain, s) : null;
+    const f: IAutoMovieLoftSectionFrame = AutoMovieLoftChain.frame(chain, s);
+
+    // A lifted section leaves its plane along the frame normal by the
+    // spline of its lift values, evaluated as the x block of a section
+    // whose z block repeats it.
+    const l: number[] | null = AutoMovieLoftChain.lift(chain, s);
+    const lifted: number[] | null = l === null ? null : [...l, ...l];
+    const n: [number, number, number] = normal(f);
+
+    return (t: number): [number, number, number] => {
+      const p: readonly number[] =
+        source === null
+          ? AutoMovieLoftChain.section(chain, c!, t)
+          : source(t).p;
+      const q: [number, number, number] = AutoMovieLoftFrame.place(
+        f,
+        p[0]!,
+        p[1]!,
+      );
+      if (lifted !== null) {
+        const h: number = AutoMovieSplineCurve.evaluate(
+          lifted,
+          chain.order,
+          t,
+        )[0];
+        for (let k: number = 0; k < 3; k++) q[k]! += h * n[k]!;
+      }
+      AutoMovieLoftReliefCompose.point(q, chain.reliefs ?? [], s, t);
+      return q;
     };
   }
 

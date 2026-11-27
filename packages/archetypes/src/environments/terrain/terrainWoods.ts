@@ -17,28 +17,6 @@ import type {
 import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { AutoMovieArchetypeTree } from "../../nature/AutoMovieArchetypeTree";
 
-/** One accepted site with its seeded order. */
-interface ISite {
-  /** The cell's fourth stream word, which orders the sites. */
-  key: number;
-
-  /** The cell's index, which breaks ties in that order. */
-  index: number;
-
-  /** The tree's placement relative to the terrain origin. */
-  transform: IAutoMovieExplicitInstanceTransform;
-}
-
-/** Most trees one wood plants: the slot bound of an instance set. */
-const MAX_TREES: number = 100_000;
-
-/**
- * Most grid cells one wood scans. The scan visits every cell of the outline's
- * bounding box, so this bounds its work, as the terrain lattice's
- * million-sample budget bounds the bake.
- */
-const MAX_CELLS: number = 1_000_000;
-
 /**
  * Plant each named wood of a terrain recipe as one explicit instance set.
  *
@@ -295,3 +273,25 @@ export function terrainWoods(
   }
   return { instanceSets, models };
 }
+
+/** One accepted site with its seeded order. */
+interface ISite {
+  /** The cell's fourth stream word, which orders the sites. */
+  key: number;
+
+  /** The cell's index, which breaks ties in that order. */
+  index: number;
+
+  /** The tree's placement relative to the terrain origin. */
+  transform: IAutoMovieExplicitInstanceTransform;
+}
+
+/** Most trees one wood plants: the slot bound of an instance set. */
+const MAX_TREES: number = 100_000;
+
+/**
+ * Most grid cells one wood scans. The scan visits every cell of the outline's
+ * bounding box, so this bounds its work, as the terrain lattice's
+ * million-sample budget bounds the bake.
+ */
+const MAX_CELLS: number = 1_000_000;

@@ -23,21 +23,6 @@ import { StrikingGuardBones } from "./StrikingGuardBones";
 import { StrikingLegGoals } from "./StrikingLegGoals";
 import { StrikingReach } from "./StrikingReach";
 
-/** The alternatives of `PrepareLegsResult`'s site. */
-type PrepareLegsResult = "leftLeg" | "rightLeg";
-
-/** The alternatives of `LegsResult`'s site. */
-type LegsResult = "leftLeg" | "rightLeg";
-
-/** The alternatives of `PrepareGuardResult2`'s site. */
-type PrepareGuardResult2 = "leftArm" | "rightArm";
-
-/** The alternatives of `PrepareGuardResult`'s site. */
-type PrepareGuardResult = "leftArm" | "rightArm";
-
-/** The alternatives of `GuardResult`'s site. */
-type GuardResult = "leftArm" | "rightArm";
-
 /**
  * The fighting stance uses separate tracks, soft knees, a leading shoulder and
  * glove goals measured from the performer's own head.
@@ -396,3 +381,18 @@ export namespace StrikingStance {
     };
   }
 }
+
+/** The alternatives of `PrepareLegsResult`'s site. */
+type PrepareLegsResult = "leftLeg" | "rightLeg";
+
+/** The alternatives of `LegsResult`'s site. */
+type LegsResult = "leftLeg" | "rightLeg";
+
+/** The alternatives of `PrepareGuardResult2`'s site. */
+type PrepareGuardResult2 = "leftArm" | "rightArm";
+
+/** The alternatives of `PrepareGuardResult`'s site. */
+type PrepareGuardResult = "leftArm" | "rightArm";
+
+/** The alternatives of `GuardResult`'s site. */
+type GuardResult = "leftArm" | "rightArm";

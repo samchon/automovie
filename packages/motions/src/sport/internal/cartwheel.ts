@@ -93,9 +93,6 @@ export namespace cartwheel {
     return ExerciseKey.from(body, {}, { spread: 35, raise: 150, elbow: 3 });
   }
 
-  /** A joint a wheel may bear on. */
-  type Spoke = "leftFoot" | "rightFoot" | "leftHand" | "rightHand";
-
   /** The joints a wheel to the left bears on, the leading side first. */
   const SPOKES: readonly Spoke[] = [
     "leftFoot",
@@ -124,6 +121,7 @@ export namespace cartwheel {
       angle <= 180 ? angle / SHAPE : (360 - angle) / SHAPE,
     );
   }
+
   /**
    * Plan a cartwheel.
    *
@@ -324,4 +322,6 @@ export namespace cartwheel {
     });
     return result;
   }
+  /** A joint a wheel may bear on. */
+  type Spoke = "leftFoot" | "rightFoot" | "leftHand" | "rightHand";
 }

@@ -87,15 +87,6 @@ export function readHumanSegmentLegs(
   return out;
 }
 
-/** A knot's swivel rates on its branch. */
-interface IRates {
-  /** Degrees per second. */
-  velocity: number;
-
-  /** Degrees per second squared. */
-  acceleration: number;
-}
-
 /** The plan-level leg chain the display's legs continue. */
 export namespace readHumanSegmentLegs {
   /**
@@ -296,4 +287,13 @@ export namespace readHumanSegmentLegs {
     "leftLeg",
     "rightLeg",
   ];
+}
+
+/** A knot's swivel rates on its branch. */
+interface IRates {
+  /** Degrees per second. */
+  velocity: number;
+
+  /** Degrees per second squared. */
+  acceleration: number;
 }

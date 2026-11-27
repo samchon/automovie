@@ -4,20 +4,6 @@ import { AUTOMOVIE_REC709_XYZ } from "../../AUTOMOVIE_REC709_XYZ";
 import { autoMoviePlanckianWhite } from "./autoMoviePlanckianWhite";
 
 /**
- * CIE CAT02 cone-response matrix (CIE 159:2004), row-major, from XYZ to the
- * sharpened LMS space the von Kries adaptation scales.
- */
-const CAT02: readonly number[] = [
-  0.7328, 0.4296, -0.1624, -0.7036, 1.6975, 0.0061, 0.003, 0.0136, 0.9834,
-];
-
-/**
- * The D65 working white's chromaticity, (0.3127, 0.3290), as IEC 61966-2-1
- * defines it for the Rec. 709 space.
- */
-const D65: readonly [number, number] = [0.3127, 0.329];
-
-/**
  * The linear part of a film's camera response, as one row-major 3 × 3 matrix
  * applied to linear Rec. 709 scene values: the exposure scale times the white
  * balance.
@@ -74,6 +60,20 @@ export function autoMovieFilmResponseMatrix(
   );
   return adaptation.map((value: number): number => value * scale);
 }
+
+/**
+ * CIE CAT02 cone-response matrix (CIE 159:2004), row-major, from XYZ to the
+ * sharpened LMS space the von Kries adaptation scales.
+ */
+const CAT02: readonly number[] = [
+  0.7328, 0.4296, -0.1624, -0.7036, 1.6975, 0.0061, 0.003, 0.0136, 0.9834,
+];
+
+/**
+ * The D65 working white's chromaticity, (0.3127, 0.3290), as IEC 61966-2-1
+ * defines it for the Rec. 709 space.
+ */
+const D65: readonly [number, number] = [0.3127, 0.329];
 
 /** The row-major product `a · b` of two 3 × 3 matrices. */
 function multiply(a: readonly number[], b: readonly number[]): number[] {

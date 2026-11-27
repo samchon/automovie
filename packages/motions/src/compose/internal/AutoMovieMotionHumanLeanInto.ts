@@ -14,12 +14,6 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { AutoMovieMotionHumanLean } from "./AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
 
-/** The record of `ISolvePitchNearest`'s site. */
-type ISolvePitchNearest = { pitch: number; beyond: number };
-
-/** The alternatives of `SolveLimb`'s site. */
-type SolveLimb = "leftArm" | "rightArm";
-
 /**
  * The lean of a standing body into a hand's work that lies beyond its standing
  * arm: the trunk tips about the hips by the least pitch that keeps the wrist
@@ -214,3 +208,9 @@ export namespace AutoMovieMotionHumanLeanInto {
     };
   }
 }
+
+/** The record of `ISolvePitchNearest`'s site. */
+type ISolvePitchNearest = { pitch: number; beyond: number };
+
+/** The alternatives of `SolveLimb`'s site. */
+type SolveLimb = "leftArm" | "rightArm";

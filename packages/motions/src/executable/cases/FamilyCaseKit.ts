@@ -19,43 +19,6 @@ import { MotionBodies } from "../internal/MotionBodies";
 import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/** The part of a segment its events are read from. */
-interface IEventSegment {
-  /** Its name, for a refusal. */
-  name: IAutoMovieMotionHumanSegment["name"];
-
-  /** Film seconds it starts. */
-  start: IAutoMovieMotionHumanSegment["start"];
-
-  /** Its plan's events and duration. */
-  plan: Pick<IAutoMovieMotionHumanSegment["plan"], "events" | "duration">;
-}
-
-/** A performance's segments, all an event reader reads. */
-interface IEventPerformance {
-  /** A subject's segments in order. */
-  segments(subject: string): readonly IEventSegment[];
-}
-/** The alternatives of `BandUnit`'s site. */
-type BandUnit = "mm" | "deg" | "s";
-
-/** The record of `IStabilityWorst`'s site. */
-type IStabilityWorst = { value: number; at: number };
-
-/** The record of `IStabilityResult`'s site. */
-type IStabilityResult = { value: number; at: number };
-
-/** The alternatives of `AngleAxis`'s site. */
-type AngleAxis = 0 | 1 | 2;
-
-/** The record of `IPerformPerformersItem`'s site. */
-type IPerformPerformersItem = {
-  subject: string;
-  body: IAutoMovieMotionHumanBody;
-  at?: IAutoMovieVector3;
-  yaw?: number;
-};
-
 /**
  * The shared steps of the step 2 to 5 family capture cases: a polygon man of
  * the population, one performance of a chain from quiet standing at the origin
@@ -388,3 +351,40 @@ export namespace FamilyCaseKit {
     return worst;
   }
 }
+
+/** The part of a segment its events are read from. */
+interface IEventSegment {
+  /** Its name, for a refusal. */
+  name: IAutoMovieMotionHumanSegment["name"];
+
+  /** Film seconds it starts. */
+  start: IAutoMovieMotionHumanSegment["start"];
+
+  /** Its plan's events and duration. */
+  plan: Pick<IAutoMovieMotionHumanSegment["plan"], "events" | "duration">;
+}
+/** A performance's segments, all an event reader reads. */
+interface IEventPerformance {
+  /** A subject's segments in order. */
+  segments(subject: string): readonly IEventSegment[];
+}
+
+/** The alternatives of `BandUnit`'s site. */
+type BandUnit = "mm" | "deg" | "s";
+
+/** The record of `IStabilityWorst`'s site. */
+type IStabilityWorst = { value: number; at: number };
+
+/** The record of `IStabilityResult`'s site. */
+type IStabilityResult = { value: number; at: number };
+
+/** The alternatives of `AngleAxis`'s site. */
+type AngleAxis = 0 | 1 | 2;
+
+/** The record of `IPerformPerformersItem`'s site. */
+type IPerformPerformersItem = {
+  subject: string;
+  body: IAutoMovieMotionHumanBody;
+  at?: IAutoMovieVector3;
+  yaw?: number;
+};

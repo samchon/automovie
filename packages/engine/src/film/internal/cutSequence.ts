@@ -13,18 +13,6 @@ import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEng
 import { checkCutPropContinuity } from "./checkCutPropContinuity";
 import { sequenceEventTimeline } from "./sequenceEventTimeline";
 
-/** A built shot with the index it was first supplied at. */
-interface IBuiltShot {
-  /** The first shot supplied under the id. */
-  shot: IAutoMovieShot;
-
-  /** Its index in `shots`, for duplicate and duration reports. */
-  index: number;
-}
-
-/** A requirement for one exact event on one play of a shot in the cut. */
-type RequiredEvent = NonNullable<IAutoMovieEditPlan["requiredEvents"]>[number];
-
 /**
  * The ASSEMBLE consumer: fold the editor's cut-list into an
  * {@link IAutoMovieSequence} over the shots the pipeline actually built, or
@@ -418,3 +406,15 @@ export function cutSequence(
   if (out.items.length > 0) return { success: false, violations: out.items };
   return { success: true, sequence, runtime };
 }
+
+/** A built shot with the index it was first supplied at. */
+interface IBuiltShot {
+  /** The first shot supplied under the id. */
+  shot: IAutoMovieShot;
+
+  /** Its index in `shots`, for duplicate and duration reports. */
+  index: number;
+}
+
+/** A requirement for one exact event on one play of a shot in the cut. */
+type RequiredEvent = NonNullable<IAutoMovieEditPlan["requiredEvents"]>[number];

@@ -3,22 +3,6 @@ import type {
   IAutoMovieSunPosition,
 } from "@automovie/interface";
 
-/** Degrees to radians. */
-const RADIAN: number = Math.PI / 180;
-
-/**
- * Unrefracted elevation in degrees below which refraction is not applied: the
- * sun's apparent radius, 0.26667 degrees, plus the 0.5667-degree refraction at
- * the horizon (Reda and Andreas 2004, NREL/TP-560-34302, section 3.14).
- */
-const REFRACTION_FLOOR: number = -(0.26667 + 0.5667);
-
-/** Equatorial radius of the Earth in metres (Reda and Andreas 2004, eq. 28). */
-const EARTH_RADIUS: number = 6378140;
-
-/** One minus the Earth's flattening, `b / a` (Reda and Andreas 2004, eq. 27). */
-const POLAR_RATIO: number = 0.99664719;
-
 /**
  * Solve the topocentric position of the sun for a site and a UTC instant.
  *
@@ -152,6 +136,22 @@ export function solveAutoMovieSunPosition(
   const azimuth: number = (((astronomers + 180) % 360) + 360) % 360;
   return { zenith: 90 - elevation, azimuth, elevation };
 }
+
+/** Degrees to radians. */
+const RADIAN: number = Math.PI / 180;
+
+/**
+ * Unrefracted elevation in degrees below which refraction is not applied: the
+ * sun's apparent radius, 0.26667 degrees, plus the 0.5667-degree refraction at
+ * the horizon (Reda and Andreas 2004, NREL/TP-560-34302, section 3.14).
+ */
+const REFRACTION_FLOOR: number = -(0.26667 + 0.5667);
+
+/** Equatorial radius of the Earth in metres (Reda and Andreas 2004, eq. 28). */
+const EARTH_RADIUS: number = 6378140;
+
+/** One minus the Earth's flattening, `b / a` (Reda and Andreas 2004, eq. 27). */
+const POLAR_RATIO: number = 0.99664719;
 
 /**
  * Julian Day of a proleptic Gregorian UTC instant (Meeus 1998, equation 7.1),

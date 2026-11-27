@@ -38,11 +38,6 @@ const PLATE: Readonly<{ width: number; depth: number; tilt: number }> = {
   tilt: 37,
 };
 
-type Build = AutoMovieArchetypeBuilder<
-  AutoMovieArchetypeDoubleScull.Affordance,
-  AutoMovieArchetypeDoubleScull.Dimension
->;
-
 /** Constructs the double scull archetype from its recipe. */
 export namespace AutoMovieArchetypeDoubleScull {
 /**
@@ -375,3 +370,8 @@ function scull(
     rides: dip,
   });
 }
+
+type Build = AutoMovieArchetypeBuilder<
+  AutoMovieArchetypeDoubleScull.Affordance,
+  AutoMovieArchetypeDoubleScull.Dimension
+>;

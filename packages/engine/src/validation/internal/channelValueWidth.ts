@@ -3,6 +3,15 @@ import type {
   IAutoMovieNodeChannel,
 } from "@automovie/interface";
 
+/** Read a channel's fixed component width, leaving weights undefined. */
+export function channelValueWidth(
+  channel: IAutoMovieChannel,
+): number | undefined {
+  return channel.kind === "node"
+    ? NODE_CHANNEL_WIDTHS[channel.path]
+    : CHANNEL_VALUE_WIDTHS[channel.valueType];
+}
+
 type IAutoMoviePointerChannel = Extract<IAutoMovieChannel, { kind: "pointer" }>;
 
 /**
@@ -27,12 +36,3 @@ const CHANNEL_VALUE_WIDTHS: Partial<
   vec4: 4,
   quaternion: 4,
 };
-
-/** Read a channel's fixed component width, leaving weights undefined. */
-export function channelValueWidth(
-  channel: IAutoMovieChannel,
-): number | undefined {
-  return channel.kind === "node"
-    ? NODE_CHANNEL_WIDTHS[channel.path]
-    : CHANNEL_VALUE_WIDTHS[channel.valueType];
-}

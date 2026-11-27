@@ -10,13 +10,6 @@ import type { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
 import { staggerCaptureDistance } from "./staggerCaptureDistance";
 
-/** The record of `IStaggerCaptureResult`'s site. */
-type IStaggerCaptureResult = {
-  distance: (steps: number) => number;
-  offset: number;
-  fewest: number;
-};
-
 /**
  * The N-step capture distance of a pushed body in closed form (Koolen et al.
  * 2012, Int J Robot Res 31:1094, eqs. 13, 25, 26): with `q = e^(-omega0 T_s)`
@@ -114,3 +107,10 @@ export function staggerCapture(
   while (fewest <= STEPS && distance(fewest) < offset) fewest++;
   return { distance, offset, fewest };
 }
+
+/** The record of `IStaggerCaptureResult`'s site. */
+type IStaggerCaptureResult = {
+  distance: (steps: number) => number;
+  offset: number;
+  fewest: number;
+};

@@ -16,19 +16,6 @@ import type { AutoMovieArchetypeQuadrupedRestPlan } from "./AutoMovieArchetypeQu
 import { QuadrupedCarriage } from "./quadruped/QuadrupedCarriage";
 import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
-/** A rest clip, sternal or lateral. */
-type Clip<Id extends string, D extends string> =
-  | AutoMovieArchetypeQuadrupedRestPlan.IClip<Id, D>
-  | AutoMovieArchetypeQuadrupedLateralRestPlan.IClip<Id, D>;
-
-/** A rest clip's sample. */
-type Shown<Id extends string, D extends string> =
-  | AutoMovieArchetypeQuadrupedRestPlan.ISample<Id, D>
-  | AutoMovieArchetypeQuadrupedLateralRestPlan.ISample<Id, D>;
-
-/** A named instant of a ride. */
-type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
-
 /**
  * A trained horse's liberty work after it halts: the bow, kneel and sit as
  * stance rows, then optionally a lie-down and stay or a lateral "dead" hold and
@@ -157,3 +144,16 @@ export namespace AutoMovieArchetypeEquineLiberty {
     };
   }
 }
+
+/** A rest clip, sternal or lateral. */
+type Clip<Id extends string, D extends string> =
+  | AutoMovieArchetypeQuadrupedRestPlan.IClip<Id, D>
+  | AutoMovieArchetypeQuadrupedLateralRestPlan.IClip<Id, D>;
+
+/** A rest clip's sample. */
+type Shown<Id extends string, D extends string> =
+  | AutoMovieArchetypeQuadrupedRestPlan.ISample<Id, D>
+  | AutoMovieArchetypeQuadrupedLateralRestPlan.ISample<Id, D>;
+
+/** A named instant of a ride. */
+type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];

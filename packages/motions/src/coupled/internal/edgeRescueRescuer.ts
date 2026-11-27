@@ -23,39 +23,6 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { stuntFallPose } from "../../reaction/internal/stuntFallPose";
 import { edgeRescueScene } from "./edgeRescueScene";
 
-/** A staged point on the ledge's top: its world point and its normal. */
-interface IStaged {
-  /** World metres. */
-  point: IAutoMovieVector3;
-
-  /** Outward normal. */
-  normal: IAutoMovieVector3;
-}
-
-/** The knees' half spacing across the edge, metres (provisional). */
-const KNEES: number = 0.12;
-
-/**
- * Lying prone reaching over the lip: the right arm hanging straight down to the
- * grip, the elbow nearly straight, the left arm resting along the body, out
- * clear of the hips (provisional angles, degrees).
- */
-const REACHING: IAutoMovieMotionHumanLieDown.IPose = {
-  ...lieDown.POSES.prone,
-  joints: {
-    ...lieDown.POSES.prone.joints,
-    rightUpperArm: [90, 0, 0],
-    rightLowerArm: [10, 0, 0],
-    leftUpperArm: [0, 25, 0],
-  },
-};
-
-/**
- * The free hand's place along the edge from the grip, metres (provisional: a
- * shoulder's width).
- */
-const BRACE: number = 0.3;
-
 /**
  * The rescuer's part in an edge rescue on the shared support law: from
  * standing, down onto the knees and hands at the lip, then prone with the right
@@ -354,3 +321,36 @@ export function edgeRescueRescuer(
     });
   return { ...plan, posture, contacts, base: { kind: "kneeling" } };
 }
+
+/** A staged point on the ledge's top: its world point and its normal. */
+interface IStaged {
+  /** World metres. */
+  point: IAutoMovieVector3;
+
+  /** Outward normal. */
+  normal: IAutoMovieVector3;
+}
+
+/** The knees' half spacing across the edge, metres (provisional). */
+const KNEES: number = 0.12;
+
+/**
+ * Lying prone reaching over the lip: the right arm hanging straight down to the
+ * grip, the elbow nearly straight, the left arm resting along the body, out
+ * clear of the hips (provisional angles, degrees).
+ */
+const REACHING: IAutoMovieMotionHumanLieDown.IPose = {
+  ...lieDown.POSES.prone,
+  joints: {
+    ...lieDown.POSES.prone.joints,
+    rightUpperArm: [90, 0, 0],
+    rightLowerArm: [10, 0, 0],
+    leftUpperArm: [0, 25, 0],
+  },
+};
+
+/**
+ * The free hand's place along the edge from the grip, metres (provisional: a
+ * shoulder's width).
+ */
+const BRACE: number = 0.3;

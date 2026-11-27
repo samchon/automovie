@@ -2,14 +2,6 @@ import type { IAutoMovieAngleRange } from "@automovie/interface";
 
 import { nearestAngleAlias } from "./nearestAngleAlias";
 
-/** Raw tuple adapters keep their original delayed live component reads. */
-interface IRawInputs {
-  /** Original matrix, read by its two original map operations after anchor lift. */
-  matrix: readonly [number, number, number, number];
-  /** Original reference, read inside each corresponding anchor expression. */
-  reference: readonly [number, number];
-}
-
 /**
  * Candidate full angles for maximizing the absolute bilinear form
  * `[cos(x/2),sin(x/2)] M [cos(y/2),sin(y/2)]^T` on a degree-valued box. Matrix
@@ -318,33 +310,6 @@ function enumerateBox(
   return representable ? points : null;
 }
 
-/** Fixed endpoint data owned by one unchanged box operation, never a target. */
-interface IBoxState {
-  /** Finite/ordered admission of the fixed ranges. */
-  admitted: boolean;
-
-  /** Whether each finite interval fits the exact bounded-index proof. */
-  bounded: readonly [boolean, boolean];
-
-  /** Whether each fixed axis proves one possible nearest turn. */
-  tight: readonly [boolean, boolean];
-
-  /** Exact endpoint order; signed-zero endpoints remain distinct. */
-  ends: [number[], number[]];
-
-  /** At most two lazy boundary readings for each axis. */
-  trigonometry: [Array<IBoundary | undefined>, Array<IBoundary | undefined>];
-
-  /** Range-only min/max lift prefixes; reference-nearest turn stays query-local. */
-  aliasBounds: [
-    Array<IAliasBounds | undefined>,
-    Array<IAliasBounds | undefined>,
-  ];
-
-  /** Each limiting family's fixed feasible line-intercept interval. */
-  familyIntervals: Partial<Record<1 | -1, IFamilyInterval>>;
-}
-
 /** Keep a one-degree margin from a half-turn and bound all lift intermediates. */
 function narrow(range: IAutoMovieAngleRange): boolean {
   return (
@@ -352,15 +317,6 @@ function narrow(range: IAutoMovieAngleRange): boolean {
     Math.abs(range.max) <= 1024 &&
     range.max - range.min <= 179
   );
-}
-
-/** Range-only line-intercept limits before the target's phase is subtracted. */
-interface IFamilyInterval {
-  /** Least x-sign*y on the unchanged rectangle, using the original grouping. */
-  minimum: number;
-
-  /** Greatest x-sign*y on the same rectangle, including nonfinite overflow. */
-  maximum: number;
 }
 
 /** Whether the ranges are ordered, read from the preparation when one exists. */
@@ -372,27 +328,6 @@ function admitRanges(
   return !ranges.some(
     (range: IAutoMovieAngleRange): boolean => range.min > range.max,
   );
-}
-
-/** Original raw whole-turn bounds and their unchanged safe-index admission. */
-interface IAliasBounds {
-  /** Ceil((range.min-fixedAngle)/360), with its original signed zero. */
-  first: number;
-
-  /** Floor((range.max-fixedAngle)/360), before the original safe-index guard. */
-  last: number;
-
-  /** Exact result of the two range-only safe-integer checks. */
-  safe: boolean;
-}
-
-/** One fixed full angle's half-angle components, used only as coefficients. */
-interface IBoundary {
-  /** Cosine, evaluated before the matching sine. */
-  cosine: number;
-
-  /** Sine of the same original angle-times-halfRadians expression. */
-  sine: number;
 }
 
 /** Share identical boundaries while keeping distinct signed zeros. */
@@ -525,4 +460,69 @@ export namespace bilinearAngleBoxCandidates {
       },
     );
   }
+}
+
+/** Raw tuple adapters keep their original delayed live component reads. */
+interface IRawInputs {
+  /** Original matrix, read by its two original map operations after anchor lift. */
+  matrix: readonly [number, number, number, number];
+  /** Original reference, read inside each corresponding anchor expression. */
+  reference: readonly [number, number];
+}
+
+/** Fixed endpoint data owned by one unchanged box operation, never a target. */
+interface IBoxState {
+  /** Finite/ordered admission of the fixed ranges. */
+  admitted: boolean;
+
+  /** Whether each finite interval fits the exact bounded-index proof. */
+  bounded: readonly [boolean, boolean];
+
+  /** Whether each fixed axis proves one possible nearest turn. */
+  tight: readonly [boolean, boolean];
+
+  /** Exact endpoint order; signed-zero endpoints remain distinct. */
+  ends: [number[], number[]];
+
+  /** At most two lazy boundary readings for each axis. */
+  trigonometry: [Array<IBoundary | undefined>, Array<IBoundary | undefined>];
+
+  /** Range-only min/max lift prefixes; reference-nearest turn stays query-local. */
+  aliasBounds: [
+    Array<IAliasBounds | undefined>,
+    Array<IAliasBounds | undefined>,
+  ];
+
+  /** Each limiting family's fixed feasible line-intercept interval. */
+  familyIntervals: Partial<Record<1 | -1, IFamilyInterval>>;
+}
+
+/** Range-only line-intercept limits before the target's phase is subtracted. */
+interface IFamilyInterval {
+  /** Least x-sign*y on the unchanged rectangle, using the original grouping. */
+  minimum: number;
+
+  /** Greatest x-sign*y on the same rectangle, including nonfinite overflow. */
+  maximum: number;
+}
+
+/** Original raw whole-turn bounds and their unchanged safe-index admission. */
+interface IAliasBounds {
+  /** Ceil((range.min-fixedAngle)/360), with its original signed zero. */
+  first: number;
+
+  /** Floor((range.max-fixedAngle)/360), before the original safe-index guard. */
+  last: number;
+
+  /** Exact result of the two range-only safe-integer checks. */
+  safe: boolean;
+}
+
+/** One fixed full angle's half-angle components, used only as coefficients. */
+interface IBoundary {
+  /** Cosine, evaluated before the matching sine. */
+  cosine: number;
+
+  /** Sine of the same original angle-times-halfRadians expression. */
+  sine: number;
 }

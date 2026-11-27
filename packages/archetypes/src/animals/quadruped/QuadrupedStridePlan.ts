@@ -210,6 +210,61 @@ export namespace QuadrupedStridePlan {
     };
   }
   /**
+   * The ride's stride events: every hoof landing, `<limb>On`, and each change
+   * of gait or lead, `gait:<from>-<to>` and `lead:<from>-<to>`, at the left
+   * fore's landing that starts the stride where it takes effect, which a shift
+   * at a change (`gaitChangeShift`) may move off the stride's integer phase.
+   *
+   * @param plan The built stride plan.
+   * @param standing Whether the ride departs from standing, so the hooves'
+   *   phase-zero landings are the neutral stance and not events.
+   * @param slide Film second hind landings stop being events because an arena
+   *   slide holds the hinds down; Infinity without one.
+   * @returns The events in limb then stride order.
+   */
+  export function events(
+    plan: IPlan,
+    standing: boolean,
+    slide: number,
+  ): IEvent[] {
+    const result: IEvent[] = [];
+    for (const limb of LIMBS)
+      for (let m: number = 0; plan.landing(limb, m) <= plan.total; m++) {
+        const phase: number = plan.landing(limb, m);
+        if (phase === 0 && standing) continue;
+        const seconds: number = plan.secondsAt(phase);
+        if (!limb.endsWith("Hind") || seconds < slide)
+          result.push({ seconds, label: `${limb}On` });
+      }
+    for (let n: number = 1; n <= plan.total; n++) {
+      const was: IStride = plan.strideOf(n);
+      const will: IStride = plan.strideOf(n + 1);
+      if (was.gait !== will.gait)
+        result.push({
+          seconds: plan.secondsAt(plan.landing("leftFore", n)),
+          label: `gait:${was.gait}-${will.gait}`,
+        });
+      else if (
+        was.lead !== will.lead &&
+        AutoMovieArchetypeQuadrupedGait.LEADED.includes(will.gait)
+      )
+        result.push({
+          seconds: plan.secondsAt(plan.landing("leftFore", n)),
+          label: `lead:${was.lead}-${will.lead}`,
+        });
+    }
+    return result;
+  }
+
+  /** One named film-second event of the stride plan. */
+  export interface IEvent {
+    /** Film second. */
+    seconds: number;
+    /** The event's name. */
+    label: string;
+  }
+
+  /**
    * The turn of the landing pattern at a change of gait or lead: the shift, in
    * strides, added to every landing from the new stride on.
    *
@@ -273,61 +328,6 @@ export namespace QuadrupedStridePlan {
     }
     if (low <= 0 && 0 <= high) return 0;
     return low <= high ? (low > 0 ? low : high) : (low + high) / 2;
-  }
-
-  /**
-   * The ride's stride events: every hoof landing, `<limb>On`, and each change
-   * of gait or lead, `gait:<from>-<to>` and `lead:<from>-<to>`, at the left
-   * fore's landing that starts the stride where it takes effect, which a shift
-   * at a change (`gaitChangeShift`) may move off the stride's integer phase.
-   *
-   * @param plan The built stride plan.
-   * @param standing Whether the ride departs from standing, so the hooves'
-   *   phase-zero landings are the neutral stance and not events.
-   * @param slide Film second hind landings stop being events because an arena
-   *   slide holds the hinds down; Infinity without one.
-   * @returns The events in limb then stride order.
-   */
-  export function events(
-    plan: IPlan,
-    standing: boolean,
-    slide: number,
-  ): IEvent[] {
-    const result: IEvent[] = [];
-    for (const limb of LIMBS)
-      for (let m: number = 0; plan.landing(limb, m) <= plan.total; m++) {
-        const phase: number = plan.landing(limb, m);
-        if (phase === 0 && standing) continue;
-        const seconds: number = plan.secondsAt(phase);
-        if (!limb.endsWith("Hind") || seconds < slide)
-          result.push({ seconds, label: `${limb}On` });
-      }
-    for (let n: number = 1; n <= plan.total; n++) {
-      const was: IStride = plan.strideOf(n);
-      const will: IStride = plan.strideOf(n + 1);
-      if (was.gait !== will.gait)
-        result.push({
-          seconds: plan.secondsAt(plan.landing("leftFore", n)),
-          label: `gait:${was.gait}-${will.gait}`,
-        });
-      else if (
-        was.lead !== will.lead &&
-        AutoMovieArchetypeQuadrupedGait.LEADED.includes(will.gait)
-      )
-        result.push({
-          seconds: plan.secondsAt(plan.landing("leftFore", n)),
-          label: `lead:${was.lead}-${will.lead}`,
-        });
-    }
-    return result;
-  }
-
-  /** One named film-second event of the stride plan. */
-  export interface IEvent {
-    /** Film second. */
-    seconds: number;
-    /** The event's name. */
-    label: string;
   }
 
   /** The four hooves in the body's order. */

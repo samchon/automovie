@@ -8,21 +8,6 @@ import {
 import { type AutoMovieArchetypeEquine } from "../AutoMovieArchetypeEquine";
 
 /**
- * A handful of mane, metres: the round aperture a fist closes on, a
- * construction estimate no source read gives.
- */
-const HANDFUL: number = 0.03;
-
-/**
- * The run of crest a rider's hand may take, metres along the neck from its
- * root, a construction estimate.
- */
-const RUN: number = 0.2;
-
-/** The colour of the mane's drawn rod, sRGB. */
-const HAIR: string = "#2b1d14";
-
-/**
  * Lay the `mane` contact a rider grips on the crest of a saddled horse's neck:
  * a round hold centred on the neck's top where it meets the withers, its axis
  * up the neck toward the poll, `+Y` out of the crest. The hold closes on a
@@ -78,3 +63,18 @@ export function EquineMane(
     length: RUN,
   });
 }
+
+/**
+ * A handful of mane, metres: the round aperture a fist closes on, a
+ * construction estimate no source read gives.
+ */
+const HANDFUL: number = 0.03;
+
+/**
+ * The run of crest a rider's hand may take, metres along the neck from its
+ * root, a construction estimate.
+ */
+const RUN: number = 0.2;
+
+/** The colour of the mane's drawn rod, sRGB. */
+const HAIR: string = "#2b1d14";

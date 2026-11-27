@@ -13,12 +13,6 @@ import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCo
 import { materialTextureSlots } from "./materialTextureSlots";
 
 /**
- * Absolute slack for normalized UV spans and relative multiplier slack for
- * surface-metre tile comparisons.
- */
-const SCALE_EPSILON: number = 1e-9;
-
-/**
  * Measure mesh UV bounding spans, reject normalized spans over1+1e-9 and warn
  * when repeating surface-metre tile size exceeds the span.
  */
@@ -61,6 +55,12 @@ export function validateTextureScale(
   });
   return out.toValidation();
 }
+
+/**
+ * Absolute slack for normalized UV spans and relative multiplier slack for
+ * surface-metre tile comparisons.
+ */
+const SCALE_EPSILON: number = 1e-9;
 
 /**
  * Fold finite resident mesh UV pairs into positive U/V bounding spans.

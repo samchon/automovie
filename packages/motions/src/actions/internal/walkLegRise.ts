@@ -2,9 +2,6 @@ import {AutoMovieEngineMotionSampling} from "@automovie/engine";
 
 import { walkLegLow } from "./walkLegLow";
 
-/** Which end of the bracket was kept last: the low, none, or the high. */
-type RiseStale = -1 | 0 | 1;
-
 /**
  * The pitch a planted foot's heel rises to so that a room it must keep, which
  * rising the heel buys, never runs out, with the onset rounded.
@@ -192,6 +189,7 @@ export namespace walkLegRise {
    */
   export const REACHED: number = 1e-6;
 }
+
 /**
  * Lower endpoint of the original reach bracket for a non-circular or unverified
  * input.
@@ -208,3 +206,5 @@ function reachBracket(
   }
   return low;
 }
+/** Which end of the bracket was kept last: the low, none, or the high. */
+type RiseStale = -1 | 0 | 1;

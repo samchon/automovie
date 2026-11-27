@@ -1,8 +1,5 @@
 import type { IAutoMovieColor } from "@automovie/interface";
 
-/** Planck's constant times the speed of light over Boltzmann's constant, m·K. */
-const SECOND_RADIATION: number = 1.438776877e-2;
-
 /**
  * Linear sRGB colour of a blackbody at `kelvin`, scaled so its largest channel
  * is 1, for a flame light's colour.
@@ -61,6 +58,9 @@ export function blackbodyAutoMovieColor(kelvin: number): IAutoMovieColor {
     hex: null,
   };
 }
+
+/** Planck's constant times the speed of light over Boltzmann's constant, m·K. */
+const SECOND_RADIATION: number = 1.438776877e-2;
 
 /**
  * One piecewise Gaussian lobe of the fit: width `below` left of `mean`, `above`

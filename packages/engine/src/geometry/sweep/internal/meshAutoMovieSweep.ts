@@ -179,18 +179,6 @@ export const meshAutoMovieSweep: (
   return { ...target, skin: null };
 };
 
-/**
- * One ring of the mesh: its plane, its distance along the spine, and its
- * canonical layout in the plane and in space.
- */
-interface IRing {
-  frame: IAutoMovieSweepFrame;
-  along: number;
-  winding: number[];
-  plan: Omit<IAutoMovieRegionTriangulation, "triangles">;
-  points: IAutoMovieVector3[];
-}
-
 /** Chord-length share of spine point `k`. */
 const chordShare = (points: IAutoMovieVector3[], k: number): number => {
   let before: number = 0;
@@ -281,3 +269,15 @@ const gap = (ring: IRing, a: number, b: number): number =>
     ring.plan.points[b]!.x - ring.plan.points[a]!.x,
     ring.plan.points[b]!.y - ring.plan.points[a]!.y,
   );
+
+/**
+ * One ring of the mesh: its plane, its distance along the spine, and its
+ * canonical layout in the plane and in space.
+ */
+interface IRing {
+  frame: IAutoMovieSweepFrame;
+  along: number;
+  winding: number[];
+  plan: Omit<IAutoMovieRegionTriangulation, "triangles">;
+  points: IAutoMovieVector3[];
+}

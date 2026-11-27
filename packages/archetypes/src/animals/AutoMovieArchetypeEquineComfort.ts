@@ -12,15 +12,6 @@ import { AutoMovieArchetypeEquineStance } from "./AutoMovieArchetypeEquineStance
 import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEquineStanceCue";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
-/** An idle act's kind. */
-type IdleKind = Exclude<
-  AutoMovieArchetypeEquineComfortCue.Act["kind"],
-  AutoMovieArchetypeEquineComfortCue.Elimination
->;
-
-/** Seconds bounds of an idle act or gap. */
-type Bounds = readonly [number, number];
-
 /** Each idle act's length bounds, seconds: authored. */
 const IDLE: Readonly<Record<IdleKind, Bounds>> = {
   rest: [8, 14],
@@ -285,3 +276,12 @@ export namespace AutoMovieArchetypeEquineComfort {
     } else cues.push({ kind: "tail", carriage: "raised", ...window(0.5) });
   }
 }
+
+/** An idle act's kind. */
+type IdleKind = Exclude<
+  AutoMovieArchetypeEquineComfortCue.Act["kind"],
+  AutoMovieArchetypeEquineComfortCue.Elimination
+>;
+
+/** Seconds bounds of an idle act or gap. */
+type Bounds = readonly [number, number];

@@ -8,10 +8,6 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core";
 import type { AutoMovieArchetypeEscalator } from "../AutoMovieArchetypeEscalator";
-/** A unit scale: the rides move rigid frames. */
-const ONE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
-/** The identity rotation of a level tread. */
-const LEVEL: IAutoMovieTransform["rotation"] = { x: 0, y: 0, z: 0, w: 1 };
 /**
  * An escalator running at its rated speed in one direction, read on the ride's
  * clock: second 0 is when each named station holds its tread.
@@ -91,3 +87,7 @@ export function rideEscalator(
     },
   };
 }
+/** A unit scale: the rides move rigid frames. */
+const ONE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
+/** The identity rotation of a level tread. */
+const LEVEL: IAutoMovieTransform["rotation"] = { x: 0, y: 0, z: 0, w: 1 };

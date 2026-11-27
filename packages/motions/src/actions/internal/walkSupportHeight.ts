@@ -10,15 +10,6 @@ import { walkReach } from "./walkReach";
 import { walkReachGround } from "./walkReachGround";
 import { walkRoot } from "./walkRoot";
 
-/** Walking pelvis height and the approaching ankle's claim at touchdown. */
-interface ISupport {
-  /** The scheduled horizontal path at its contact-constrained height. */
-  root: IAutoMovieMotionHumanWalkSteps.IPlan["root"];
-
-  /** A footfall's residual lowering under that root at its heel strike, metres. */
-  landing: (side: AutoMovieHumanSide, seconds: number) => number;
-}
-
 /**
  * Limit the walking pelvis's rise above the two adjacent double-support
  * heights.
@@ -138,4 +129,13 @@ export function walkSupportHeight(
     return lowering;
   };
   return { root: rootAt, landing };
+}
+
+/** Walking pelvis height and the approaching ankle's claim at touchdown. */
+interface ISupport {
+  /** The scheduled horizontal path at its contact-constrained height. */
+  root: IAutoMovieMotionHumanWalkSteps.IPlan["root"];
+
+  /** A footfall's residual lowering under that root at its heel strike, metres. */
+  landing: (side: AutoMovieHumanSide, seconds: number) => number;
 }

@@ -9,6 +9,61 @@ import {
 
 import { Transform } from "../../math/Transform";
 
+/**
+ * Bake a supported generic gesture or jump over the requested duration using
+ * engine-authored clinical stops; targeted strike and unknown kinds return
+ * null. Angles fit the default humanoid ROM, while custom rig admission belongs
+ * to validateMotion. The caller supplies finite positive duration.
+ */
+export function gestureMotion(
+  id: string,
+  skeleton: string,
+  kind: string,
+  duration: number,
+): IAutoMovieMotion | null {
+  if (kind === "jump") {
+    const keyframes: IAutoMovieKeyframe[] = JUMP_STOPS.map(
+      ([fraction, rootY, legFlex]: [
+        number,
+        number,
+        number,
+      ]): IAutoMovieKeyframe => ({
+        time: fraction * duration,
+        pose: jumpPose(skeleton, rootY, legFlex),
+        expression: null,
+        easing: "easeInOut",
+        bezier: null,
+      }),
+    );
+    return { id, skeleton, duration, loop: false, keyframes };
+  }
+  if (!GENERIC.has(kind)) return null;
+  const shape: [number, IAutoMovieJointPose[]][] =
+    SHAPES[kind as AutoMovieGenericGesture];
+  const keyframes: IAutoMovieKeyframe[] = shape.map(
+    ([fraction, joints]: [
+      number,
+      IAutoMovieJointPose[],
+    ]): IAutoMovieKeyframe => {
+      const pose: IAutoMoviePose = {
+        skeleton,
+        root: null,
+        joints: joints.map(
+          (joint: IAutoMovieJointPose): IAutoMovieJointPose => ({ ...joint }),
+        ),
+      };
+      return {
+        time: fraction * duration,
+        pose,
+        expression: null,
+        easing: "easeInOut",
+        bezier: null,
+      };
+    },
+  );
+  return { id, skeleton, duration, loop: false, keyframes };
+}
+
 const GENERIC: Set<string> = new Set<string>([
   "bow",
   "nod",
@@ -288,59 +343,4 @@ function jumpPose(
       j("spine", { flexion: legFlex * 0.12 }),
     ],
   };
-}
-
-/**
- * Bake a supported generic gesture or jump over the requested duration using
- * engine-authored clinical stops; targeted strike and unknown kinds return
- * null. Angles fit the default humanoid ROM, while custom rig admission belongs
- * to validateMotion. The caller supplies finite positive duration.
- */
-export function gestureMotion(
-  id: string,
-  skeleton: string,
-  kind: string,
-  duration: number,
-): IAutoMovieMotion | null {
-  if (kind === "jump") {
-    const keyframes: IAutoMovieKeyframe[] = JUMP_STOPS.map(
-      ([fraction, rootY, legFlex]: [
-        number,
-        number,
-        number,
-      ]): IAutoMovieKeyframe => ({
-        time: fraction * duration,
-        pose: jumpPose(skeleton, rootY, legFlex),
-        expression: null,
-        easing: "easeInOut",
-        bezier: null,
-      }),
-    );
-    return { id, skeleton, duration, loop: false, keyframes };
-  }
-  if (!GENERIC.has(kind)) return null;
-  const shape: [number, IAutoMovieJointPose[]][] =
-    SHAPES[kind as AutoMovieGenericGesture];
-  const keyframes: IAutoMovieKeyframe[] = shape.map(
-    ([fraction, joints]: [
-      number,
-      IAutoMovieJointPose[],
-    ]): IAutoMovieKeyframe => {
-      const pose: IAutoMoviePose = {
-        skeleton,
-        root: null,
-        joints: joints.map(
-          (joint: IAutoMovieJointPose): IAutoMovieJointPose => ({ ...joint }),
-        ),
-      };
-      return {
-        time: fraction * duration,
-        pose,
-        expression: null,
-        easing: "easeInOut",
-        bezier: null,
-      };
-    },
-  );
-  return { id, skeleton, duration, loop: false, keyframes };
 }

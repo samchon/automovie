@@ -11,27 +11,6 @@ import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 
-/** The column data the host rail needs from its blend. */
-type SolidClipColumns = Pick<
-  IAutoMovieSolidBlendChain.IBlend,
-  "across" | "seed"
-> & {
-  /** The columns' host chart and optional atlas face indices. */
-  host: Pick<IAutoMovieSolidBlendChain.IBlend["host"], "chart" | "faces">;
-};
-
-/** The original host face and its chart and world positions at a rail read. */
-type SolidClipSample = Pick<
-  IAutoMovieSolidRail.IRail,
-  "hostFace" | "host" | "hostPoint"
->;
-
-/** The join operation used to settle a crossing between adjacent columns. */
-interface SolidClipJoin {
-  /** Read the rail at curve parameter t in radians, or null on local failure. */
-  rail(t: number): SolidClipSample | null;
-}
-
 /**
  * A host rail laid onto the faces of a body: its points with the crossings
  * between faces, and each face it runs over trimmed by it.
@@ -974,4 +953,25 @@ export namespace AutoMovieSolidClip {
     }
     return count;
   }
+}
+
+/** The column data the host rail needs from its blend. */
+type SolidClipColumns = Pick<
+  IAutoMovieSolidBlendChain.IBlend,
+  "across" | "seed"
+> & {
+  /** The columns' host chart and optional atlas face indices. */
+  host: Pick<IAutoMovieSolidBlendChain.IBlend["host"], "chart" | "faces">;
+};
+
+/** The original host face and its chart and world positions at a rail read. */
+type SolidClipSample = Pick<
+  IAutoMovieSolidRail.IRail,
+  "hostFace" | "host" | "hostPoint"
+>;
+
+/** The join operation used to settle a crossing between adjacent columns. */
+interface SolidClipJoin {
+  /** Read the rail at curve parameter t in radians, or null on local failure. */
+  rail(t: number): SolidClipSample | null;
 }

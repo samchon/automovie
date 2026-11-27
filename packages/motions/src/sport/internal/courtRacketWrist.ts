@@ -17,27 +17,6 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 
-/** The racket face at contact and the grip-preserving goal on a wrist path. */
-interface IRacketWrist {
-  /** World displacement from the wrist to the face at the contact orientation. */
-  readonly faceOffset: IAutoMovieVector3;
-  /**
-   * Fit the strike approach and carry the entry wrist with the moving chest
-   * during recovery.
-   */
-  readonly goal: (
-    posture: IAutoMovieMotionHumanPosture,
-    wrist: IAutoMovieVector3,
-    alignment: number,
-    recovery: number,
-  ) => IAutoMovieHumanLimbGoal;
-}
-/** The alternatives of `CourtRacketWristHand`'s site. */
-type CourtRacketWristHand = "rightHand" | "leftHand";
-
-/** The alternatives of `CourtRacketWristContext`'s site. */
-type CourtRacketWristContext = "body" | "entry";
-
 /**
  * Orient a held racket at the strike and recover the actual entry wrist,
  * rigidly carried by the current chest. The grip remains fixed to the hand.
@@ -129,7 +108,6 @@ export function courtRacketWrist(
     },
   };
 }
-
 /** Reads a racket's actual held frame for wrist fitting. */
 export namespace courtRacketWrist {
   /**
@@ -176,3 +154,25 @@ export namespace courtRacketWrist {
     };
   }
 }
+
+/** The racket face at contact and the grip-preserving goal on a wrist path. */
+interface IRacketWrist {
+  /** World displacement from the wrist to the face at the contact orientation. */
+  readonly faceOffset: IAutoMovieVector3;
+  /**
+   * Fit the strike approach and carry the entry wrist with the moving chest
+   * during recovery.
+   */
+  readonly goal: (
+    posture: IAutoMovieMotionHumanPosture,
+    wrist: IAutoMovieVector3,
+    alignment: number,
+    recovery: number,
+  ) => IAutoMovieHumanLimbGoal;
+}
+
+/** The alternatives of `CourtRacketWristHand`'s site. */
+type CourtRacketWristHand = "rightHand" | "leftHand";
+
+/** The alternatives of `CourtRacketWristContext`'s site. */
+type CourtRacketWristContext = "body" | "entry";

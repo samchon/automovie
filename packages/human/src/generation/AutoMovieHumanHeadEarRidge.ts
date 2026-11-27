@@ -246,37 +246,6 @@ export namespace AutoMovieHumanHeadEarRidge {
   }
 
   /**
-   * Convert actual physical scalar2 into the child's two-pole normalized angle
-   * clock.
-   *
-   * @evidence contracts/common.md#principled-implementation Applies the analytic inverse-angle first/second chain rule and whole-parameter normalization.
-   * @evidence contracts/common.md#clear-and-simple-design One helper serves all four signed support sources.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Receives actual finite physical jets; no missing derivative is synthesized.
-   * @evidence contracts/common.md#meaningful-documentation Input uses physical station mm and output uses normalized angle units.
-   * @evidence contracts/performance.md#efficient-algorithms Constant trigonometric and scalar work.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The caller shares the actual port jets.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns one owned fixed-size record.
-   */
-  function radialJet(
-    value: readonly number[],
-    sign: number,
-    station: number,
-    length: number,
-  ): NonNullable<IAutoMovieViewPart.IKnot["jet"]> {
-    const theta: number = Math.acos(1 - (2 * station) / length);
-    const first: number = (length * Math.sin(theta)) / 2;
-    const second: number = (length * Math.cos(theta)) / 2;
-    return {
-      first: sign * value[1]! * first * Math.PI,
-      second:
-        sign *
-        (value[2]! * first * first + value[1]! * second) *
-        Math.PI *
-        Math.PI,
-    };
-  }
-
-  /**
    * Publish one complete regular fork from the identical authored ridge.
    *
    * @param owner The identical original ridge and coordinate sources.
@@ -345,6 +314,37 @@ export namespace AutoMovieHumanHeadEarRidge {
         ) as [number, number, number],
       ],
       phase: AutoMovieLoftSectionNative.phase(inputs),
+    };
+  }
+
+  /**
+   * Convert actual physical scalar2 into the child's two-pole normalized angle
+   * clock.
+   *
+   * @evidence contracts/common.md#principled-implementation Applies the analytic inverse-angle first/second chain rule and whole-parameter normalization.
+   * @evidence contracts/common.md#clear-and-simple-design One helper serves all four signed support sources.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Receives actual finite physical jets; no missing derivative is synthesized.
+   * @evidence contracts/common.md#meaningful-documentation Input uses physical station mm and output uses normalized angle units.
+   * @evidence contracts/performance.md#efficient-algorithms Constant trigonometric and scalar work.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The caller shares the actual port jets.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns one owned fixed-size record.
+   */
+  function radialJet(
+    value: readonly number[],
+    sign: number,
+    station: number,
+    length: number,
+  ): NonNullable<IAutoMovieViewPart.IKnot["jet"]> {
+    const theta: number = Math.acos(1 - (2 * station) / length);
+    const first: number = (length * Math.sin(theta)) / 2;
+    const second: number = (length * Math.cos(theta)) / 2;
+    return {
+      first: sign * value[1]! * first * Math.PI,
+      second:
+        sign *
+        (value[2]! * first * first + value[1]! * second) *
+        Math.PI *
+        Math.PI,
     };
   }
 

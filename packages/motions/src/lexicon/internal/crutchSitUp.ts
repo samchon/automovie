@@ -23,21 +23,6 @@ import { crutchSitKit } from "./crutchSitKit";
 import { crutchSitPath } from "./crutchSitPath";
 
 /**
- * The injured leg held off the floor standing, degrees: the crutch walk's
- * three-point gait's hip and knee flexion.
- */
-const STANDING: IAutoMovieHumanLimbReference = {
-  upper: [30, 0, 0],
-  lower: [80, 0, 0],
-};
-
-/**
- * How far a crutch tip stands beside and ahead of its foot after a rise,
- * metres: the tripod position (Physiopedia, Crutches).
- */
-const TRIPOD: number = 0.15;
-
-/**
  * Rise from a chair with two crutches held in the injured side's hand, in the
  * prescribed order (Cornell Health and HealthLinkBC, Using crutches), entered
  * as the crutch sit leaves the body.
@@ -288,3 +273,18 @@ export function crutchSitUp(
     base: plan.base,
   };
 }
+
+/**
+ * The injured leg held off the floor standing, degrees: the crutch walk's
+ * three-point gait's hip and knee flexion.
+ */
+const STANDING: IAutoMovieHumanLimbReference = {
+  upper: [30, 0, 0],
+  lower: [80, 0, 0],
+};
+
+/**
+ * How far a crutch tip stands beside and ahead of its foot after a rise,
+ * metres: the tripod position (Physiopedia, Crutches).
+ */
+const TRIPOD: number = 0.15;

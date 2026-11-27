@@ -19,9 +19,6 @@ import { walkPosture } from "./walkPosture";
 import { walkReach } from "./walkReach";
 import { walkSwing } from "./walkSwing";
 
-/** A leg's swing kept inside its ranges under a settled pelvis. */
-type Ranged = ReturnType<typeof walkReach.prepareSwing>;
-
 /**
  * A stepping gait's legs at a second: the pelvis settled against the stances
  * and each swinging foot reached inside its leg's ranges under it, the running
@@ -194,6 +191,9 @@ export namespace walkLocomoteSolve {
     };
   }
 }
+
+/** A leg's swing kept inside its ranges under a settled pelvis. */
+type Ranged = ReturnType<typeof walkReach.prepareSwing>;
 
 /**
  * A running swing's prepared departure excess.

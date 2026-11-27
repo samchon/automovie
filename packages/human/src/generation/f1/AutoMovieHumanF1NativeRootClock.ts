@@ -4,9 +4,6 @@ import type {
   IAutoMovieConstructionPortLoop,
 } from "@automovie/interface";
 
-/** World-space target controls; physical dimensions are owned by RootTypes. */
-type V = AutoMovieVector3Tuple;
-
 /**
  * The native root's sole periodic-clock, radial reparameterization and
  * target-clock2 owner.
@@ -248,3 +245,6 @@ export namespace AutoMovieHumanF1NativeRootClock {
     };
   }
 }
+
+/** World-space target controls; physical dimensions are owned by RootTypes. */
+type V = AutoMovieVector3Tuple;

@@ -9,12 +9,6 @@ import { HumanPopulationAccess } from "./HumanPopulationAccess";
 import { HumanPopulationConditional } from "./HumanPopulationConditional";
 import { HumanPopulationSurvey } from "./HumanPopulationSurvey";
 
-type P = IAutoMovieHumanParameters;
-type Sex = HumanPopulationSurvey.Sex;
-type Variable = HumanPopulationSurvey.Variable;
-type Key = IAutoMovieHumanBodyAnthropometry.TapeControl | "height";
-type Field = Exclude<keyof IAutoMovieHumanBodyAnatomy, "sex">;
-
 /**
  * The consistency check of a person's inputs against the declared domain and
  * the published population: each input inside its range and each relation
@@ -496,3 +490,9 @@ export namespace HumanPopulationAudit {
     };
   }
 }
+type P = IAutoMovieHumanParameters;
+type Sex = HumanPopulationSurvey.Sex;
+type Variable = HumanPopulationSurvey.Variable;
+type Key = IAutoMovieHumanBodyAnthropometry.TapeControl | "height";
+
+type Field = Exclude<keyof IAutoMovieHumanBodyAnatomy, "sex">;

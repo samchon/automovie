@@ -197,25 +197,6 @@ export namespace hingedArmSwivel {
     };
   }
 
-  /** A branch's fixed pose generator, shared by direct and prepared entries. */
-  function poseBranch(
-    chain: IAutoMovieHingedChainGeometry,
-    theta: number,
-    target?: ITargetFrame,
-    branch?: ReturnType<typeof aimed>,
-  ): ReturnType<typeof hingedArmSwivel.pose> {
-    const { lower, line, aim }: ReturnType<typeof aimed> =
-      branch ?? aimed(chain, theta, target);
-    const swivelRotation: ReturnType<typeof Quaternion.prepareAxisAngle> =
-      Quaternion.prepareAxisAngle(line);
-    return (
-      swivel: number,
-    ): ReturnType<ReturnType<typeof hingedArmSwivel.pose>> => ({
-      upper: Quaternion.multiply(aim, swivelRotation(swivel)),
-      lower,
-    });
-  }
-
   /**
    * The swivel of a posed chain: the root's turn about the chain's
    * root-to-effector line past the aim `pose` gives for its hinge angle.
@@ -242,6 +223,25 @@ export namespace hingedArmSwivel {
       : degrees <= -180
         ? degrees + 360
         : degrees;
+  }
+
+  /** A branch's fixed pose generator, shared by direct and prepared entries. */
+  function poseBranch(
+    chain: IAutoMovieHingedChainGeometry,
+    theta: number,
+    target?: ITargetFrame,
+    branch?: ReturnType<typeof aimed>,
+  ): ReturnType<typeof hingedArmSwivel.pose> {
+    const { lower, line, aim }: ReturnType<typeof aimed> =
+      branch ?? aimed(chain, theta, target);
+    const swivelRotation: ReturnType<typeof Quaternion.prepareAxisAngle> =
+      Quaternion.prepareAxisAngle(line);
+    return (
+      swivel: number,
+    ): ReturnType<ReturnType<typeof hingedArmSwivel.pose>> => ({
+      upper: Quaternion.multiply(aim, swivelRotation(swivel)),
+      lower,
+    });
   }
 
   /**

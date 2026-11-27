@@ -12,9 +12,6 @@ import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import { PhysicalRotationVector } from "./PhysicalRotationVector";
 import { AutoMovieEnginePhysicalStanceBalance } from "./AutoMovieEnginePhysicalStanceBalance";
 
-/** A support limb of the balance pattern. */
-type Limb = IAutoMovieFootfallPattern["limbs"][number];
-
 /**
  * The stance's hip strategy (`AutoMovieEnginePhysicalStanceBalance`): the trunk's inertia, the
  * hips' room and reach, and the strategy past the support's edge.
@@ -300,6 +297,9 @@ export namespace AutoMovieEnginePhysicalStanceHip {
     );
   }
 }
+
+/** A support limb of the balance pattern. */
+type Limb = IAutoMovieFootfallPattern["limbs"][number];
 
 /**
  * A stance limb's hip: its first joint's centre, world metres, and the moment

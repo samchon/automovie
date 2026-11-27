@@ -31,34 +31,6 @@ import { HumanArmTrajectoryMirror } from "../../posture/internal/HumanArmTraject
 import { HumanArmTrajectoryTerms } from "../../posture/internal/HumanArmTrajectoryTerms";
 import { inspectHumanArmFaceCourse } from "../../posture/internal/inspectHumanArmFaceCourse";
 
-/** The record of `IPrepareToolPlaybackProps`'s site. */
-type IPrepareToolPlaybackProps = {
-  plan: IAutoMovieMotionHumanActionPlan;
-  body: IAutoMovieMotionHumanBody;
-  side: AutoMovieHumanSide;
-  entry: IAutoMovieMotionHumanPosture;
-  base: IAutoMovieMotionHumanActionPlan["posture"];
-  clock: IAutoMovieMotionClock;
-  fingers: IAutoMovieMotionHumanPosture["joints"];
-  ready: number;
-  recover: number;
-  target: (
-    posture: IAutoMovieMotionHumanPosture,
-    seconds: number,
-  ) => IAutoMovieMotionHumanArmTarget.ITarget;
-  compose: (
-    target: IAutoMovieMotionHumanArmTarget.Frame,
-  ) => IAutoMovieMotionHumanActionPlan;
-  finish: (
-    posture: IAutoMovieMotionHumanPosture,
-  ) => IAutoMovieMotionHumanPosture;
-  work?: {
-    contact: IAutoMovieVector3;
-    speed: number;
-    face(seconds: number): IAutoMovieVector3;
-  };
-};
-
 /**
  * Prepare a placed stirring arm from its actual work poses and a free approach
  * and return, with one continuous course through both joins. A tool outside
@@ -128,6 +100,34 @@ export function prepareToolPlayback(props: IPrepareToolPlaybackProps): void {
     ],
   });
 }
+
+/** The record of `IPrepareToolPlaybackProps`'s site. */
+type IPrepareToolPlaybackProps = {
+  plan: IAutoMovieMotionHumanActionPlan;
+  body: IAutoMovieMotionHumanBody;
+  side: AutoMovieHumanSide;
+  entry: IAutoMovieMotionHumanPosture;
+  base: IAutoMovieMotionHumanActionPlan["posture"];
+  clock: IAutoMovieMotionClock;
+  fingers: IAutoMovieMotionHumanPosture["joints"];
+  ready: number;
+  recover: number;
+  target: (
+    posture: IAutoMovieMotionHumanPosture,
+    seconds: number,
+  ) => IAutoMovieMotionHumanArmTarget.ITarget;
+  compose: (
+    target: IAutoMovieMotionHumanArmTarget.Frame,
+  ) => IAutoMovieMotionHumanActionPlan;
+  finish: (
+    posture: IAutoMovieMotionHumanPosture,
+  ) => IAutoMovieMotionHumanPosture;
+  work?: {
+    contact: IAutoMovieVector3;
+    speed: number;
+    face(seconds: number): IAutoMovieVector3;
+  };
+};
 
 /** One real displayed pose and the work constraint it carries at its second. */
 interface IWaypoint {

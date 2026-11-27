@@ -10,9 +10,6 @@ import type {
 import { AutoMovieMotionHumanPlaced } from "../../compose/internal/AutoMovieMotionHumanPlaced";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/** A placed arm reads its world point and facing from the current posture. */
-type Place = IAutoMovieMotionHumanPlaced.IArm["place"];
-
 /**
  * Prepare the two overhead places carried along the chest in a side stretch.
  * The admitted motion keeps its entry chest and source grid fixed through reach
@@ -71,3 +68,6 @@ export function stretchOverheadPlace(
     };
   };
 }
+
+/** A placed arm reads its world point and facing from the current posture. */
+type Place = IAutoMovieMotionHumanPlaced.IArm["place"];

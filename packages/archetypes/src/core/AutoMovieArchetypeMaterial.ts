@@ -47,6 +47,18 @@ export namespace AutoMovieArchetypeMaterial {
     | "composite"
     | "felt";
 
+  /** One measured pair's static and kinetic friction. */
+  export interface IFriction {
+    /** Dimensionless static coefficient or observed minimum and maximum. */
+    readonly static: number | readonly [number, number];
+
+    /** Dimensionless kinetic coefficient or range; null when unmeasured. */
+    readonly kinetic: number | readonly [number, number] | null;
+
+    /** The publication and the conditions represented by this pair. */
+    readonly source: string;
+  }
+
   /** The admitted names, kept private so callers cannot edit the catalogue. */
   const KINDS: readonly Kind[] = Object.freeze([
     "rubber",
@@ -76,18 +88,6 @@ export namespace AutoMovieArchetypeMaterial {
     "composite",
     "felt",
   ]);
-
-  /** One measured pair's static and kinetic friction. */
-  export interface IFriction {
-    /** Dimensionless static coefficient or observed minimum and maximum. */
-    readonly static: number | readonly [number, number];
-
-    /** Dimensionless kinetic coefficient or range; null when unmeasured. */
-    readonly kinetic: number | readonly [number, number] | null;
-
-    /** The publication and the conditions represented by this pair. */
-    readonly source: string;
-  }
 
   /** Cited friction pairs, keyed by alphabetically ordered material names. */
   export const FRICTION: Readonly<Record<string, IFriction>> = {

@@ -19,9 +19,6 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { StrikingHeldFrame } from "./StrikingHeldFrame";
 import { StrikingHeldGoal } from "./StrikingHeldGoal";
 
-/** The alternatives of `OfContext`'s site. */
-type OfContext = "body" | "entry" | "prop" | "subject";
-
 /**
  * Read what a hand holds at an action's entry.
  *
@@ -352,3 +349,6 @@ export namespace StrikingHeld {
   /** The perpendicular axis construction shared with the held-point reader. */
   const square: typeof StrikingHeldFrame.square = StrikingHeldFrame.square;
 }
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "entry" | "prop" | "subject";

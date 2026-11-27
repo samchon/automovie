@@ -15,12 +15,6 @@ import { inspectFilmProduction } from "../../src/inspectFilmProduction";
 import { readFilmVerdicts } from "../../src/readFilmVerdicts";
 import { overlappingPerformance } from "../helpers/overlappingPerformance";
 
-/** Output frames per second of the inspected film. */
-const FPS: number = 10;
-
-/** Output frames of the inspected film. */
-const FRAMES: number = 6;
-
 /**
  * Drive the production's own inspection path, `inspectFilmProduction` behind a
  * draw subject mounted as `src/subjects.ts` mounts one, through playback, a
@@ -315,3 +309,9 @@ export async function test_inspect_film_production(): Promise<void> {
     subject.dispose();
   }
 }
+
+/** Output frames per second of the inspected film. */
+const FPS: number = 10;
+
+/** Output frames of the inspected film. */
+const FRAMES: number = 6;

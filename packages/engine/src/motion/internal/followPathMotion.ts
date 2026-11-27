@@ -11,44 +11,6 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { segmentIndex } from "../../math/internal/segmentIndex";
 
-const IDENTITY_ROT: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-
-const IDENTITY_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
-
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/** Rotations about the fixed world-up axis. */
-const yawRotation: ReturnType<typeof Quaternion.prepareAxisAngle> =
-  Quaternion.prepareAxisAngle(UP);
-
-const RAD2DEG: number = 180 / Math.PI;
-
-const DEG2RAD: number = Math.PI / 180;
-
-const MIN_SEGMENT: number = 1e-9;
-
-const DEFAULT_TURN_WINDOW: number = 0.5;
-
-/** One straight XZ stretch of the polyline, arc-length addressed. */
-interface ISegment {
-  /** Start of the stretch on the ground plan. */
-  x: number;
-  z: number;
-
-  /** Unit XZ direction. */
-  dirX: number;
-  dirZ: number;
-
-  /** Facing of this stretch, degrees about +Y. */
-  yawDeg: number;
-
-  /** Stretch length, meters. */
-  length: number;
-
-  /** Cumulative arc length at the stretch start. */
-  from: number;
-}
-
 /**
  * Bake an admitted in-place gait along an authored world XZ polyline, ignoring
  * waypoint Y and sampling height from optional ground. Whole cycles nearest
@@ -162,6 +124,44 @@ export function followPathMotion(
     speed,
     cycles,
   };
+}
+
+const IDENTITY_ROT: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+
+const IDENTITY_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
+
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/** Rotations about the fixed world-up axis. */
+const yawRotation: ReturnType<typeof Quaternion.prepareAxisAngle> =
+  Quaternion.prepareAxisAngle(UP);
+
+const RAD2DEG: number = 180 / Math.PI;
+
+const DEG2RAD: number = Math.PI / 180;
+
+const MIN_SEGMENT: number = 1e-9;
+
+const DEFAULT_TURN_WINDOW: number = 0.5;
+
+/** One straight XZ stretch of the polyline, arc-length addressed. */
+interface ISegment {
+  /** Start of the stretch on the ground plan. */
+  x: number;
+  z: number;
+
+  /** Unit XZ direction. */
+  dirX: number;
+  dirZ: number;
+
+  /** Facing of this stretch, degrees about +Y. */
+  yawDeg: number;
+
+  /** Stretch length, meters. */
+  length: number;
+
+  /** Cumulative arc length at the stretch start. */
+  from: number;
 }
 
 /** Validate the waypoints and cut them into arc-length-addressed stretches. */

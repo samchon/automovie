@@ -14,15 +14,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/** The alternatives of `BoundedMerged`'s site. */
-type BoundedMerged = IAutoMovieSwivelArcs.IArc[] | "all";
-
-/** The alternatives of `BoundedArc`'s site. */
-type BoundedArc = IAutoMovieSwivelArcs.IArc | "all" | null;
-
-/** The alternatives of `AdmitsArc`'s site. */
-type AdmitsArc = IAutoMovieSwivelArcs.IArc | "all" | null;
-
 /**
  * Half-plane bounds on an elbow's place, solved in closed form on the circle a
  * wrist's place leaves the elbow (the swivel of Tolani, Goswami and Badler
@@ -253,3 +244,12 @@ export namespace AutoMovieMotionHumanSwivelBound {
     return Vector3.add(shoulder, offset(swivel));
   }
 }
+
+/** The alternatives of `BoundedMerged`'s site. */
+type BoundedMerged = IAutoMovieSwivelArcs.IArc[] | "all";
+
+/** The alternatives of `BoundedArc`'s site. */
+type BoundedArc = IAutoMovieSwivelArcs.IArc | "all" | null;
+
+/** The alternatives of `AdmitsArc`'s site. */
+type AdmitsArc = IAutoMovieSwivelArcs.IArc | "all" | null;

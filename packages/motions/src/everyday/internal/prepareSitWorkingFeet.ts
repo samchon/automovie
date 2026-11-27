@@ -21,17 +21,6 @@ import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { seated } from "./seated";
 import { sitPlace } from "./sitPlace";
 
-type Feet = Record<AutoMovieHumanSide, IAutoMovieVector3>;
-
-/** Inclusive bounds of a sagittal ankle displacement in metres. */
-type AutoMovieFootShift = readonly [number, number];
-
-interface IWorkingFeet {
-  feet: Feet;
-  entry: IAutoMovieMotionHumanPosture;
-  prefix: IAutoMovieMotionHumanActionPlan;
-}
-
 /**
  * A fixed work seat may need a short stance adjustment before lowering. Find
  * where the ankles' sagittal reach intervals overlap at the seat, then use two
@@ -288,4 +277,15 @@ export namespace prepareSitWorkingFeet {
           : lowering.posture(second - prefix.duration, ...loan),
     };
   }
+}
+
+type Feet = Record<AutoMovieHumanSide, IAutoMovieVector3>;
+
+/** Inclusive bounds of a sagittal ankle displacement in metres. */
+type AutoMovieFootShift = readonly [number, number];
+
+interface IWorkingFeet {
+  feet: Feet;
+  entry: IAutoMovieMotionHumanPosture;
+  prefix: IAutoMovieMotionHumanActionPlan;
 }

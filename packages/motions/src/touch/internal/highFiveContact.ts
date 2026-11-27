@@ -25,9 +25,6 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { HumanSeatedReach } from "./HumanSeatedReach";
 
-/** The alternatives of `BlockingContext`'s site. */
-type BlockingContext = "performer" | "start";
-
 /**
  * The two opposed hand frames of a high five. Both hands approach one contact
  * plane defined by their approach. For a fixed hand attitude the wrist is a
@@ -234,6 +231,9 @@ export namespace highFiveContact {
     );
   }
 }
+
+/** The alternatives of `BlockingContext`'s site. */
+type BlockingContext = "performer" | "start";
 
 /**
  * Move an arm's reach sphere from wrist coordinates to shared contact

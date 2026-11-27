@@ -4,12 +4,6 @@ import type {
   IAutoMovieRecoveryChartBoundaryNetworkRegistry,
 } from "@automovie/interface";
 
-type Cut = {
-  key: string;
-  fraction: number;
-  point: Readonly<AutoMovieVector3Tuple>;
-  aliases: Set<string>;
-};
 /**
  * Augment copied chart banks with their registered physical cuts in original
  * triangle order.
@@ -288,3 +282,9 @@ export function RecoveryChartBoundaryNetworkAugment(
 
   return maximumPointChange;
 }
+type Cut = {
+  key: string;
+  fraction: number;
+  point: Readonly<AutoMovieVector3Tuple>;
+  aliases: Set<string>;
+};

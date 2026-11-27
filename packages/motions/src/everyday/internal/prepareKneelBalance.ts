@@ -12,40 +12,6 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanBalance } from "./HumanBalance";
 import type { kneelKeys } from "./kneelKeys";
 
-/** A root offset in metres along the kneeling step. */
-type Course = (seconds: number) => number;
-type Solver = (
-  from: number,
-  to: number,
-  start: number,
-  through: number,
-) => Course;
-
-/** The two neighbouring key numbers and the progress between them. */
-interface IKeyPair {
-  from: number;
-  to: number;
-}
-interface IPhaseReading {
-  phase: IKeyPair;
-  u: number;
-}
-
-interface IInputs {
-  body: IAutoMovieMotionHumanBody;
-  standing: IAutoMovieMotionHumanPosture;
-  forward: IAutoMovieVector3;
-  feet: kneelKeys.IKey["feet"];
-  yaw: number;
-  at: (seconds: number) => IPhaseReading;
-  write: (
-    posture: IAutoMovieMotionHumanPosture,
-    seconds: number,
-    along: number,
-    resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-  ) => IAutoMovieMotionHumanPosture;
-}
-
 /**
  * Resolve the fixed heading's initial centre and the middle of the planted
  * soles. Each moving phase follows its original target from its original start
@@ -122,4 +88,38 @@ export function prepareKneelBalance(props: IInputs): Solver {
       through,
     );
   return course;
+}
+/** A root offset in metres along the kneeling step. */
+type Course = (seconds: number) => number;
+
+type Solver = (
+  from: number,
+  to: number,
+  start: number,
+  through: number,
+) => Course;
+/** The two neighbouring key numbers and the progress between them. */
+interface IKeyPair {
+  from: number;
+  to: number;
+}
+
+interface IPhaseReading {
+  phase: IKeyPair;
+  u: number;
+}
+
+interface IInputs {
+  body: IAutoMovieMotionHumanBody;
+  standing: IAutoMovieMotionHumanPosture;
+  forward: IAutoMovieVector3;
+  feet: kneelKeys.IKey["feet"];
+  yaw: number;
+  at: (seconds: number) => IPhaseReading;
+  write: (
+    posture: IAutoMovieMotionHumanPosture,
+    seconds: number,
+    along: number,
+    resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+  ) => IAutoMovieMotionHumanPosture;
 }

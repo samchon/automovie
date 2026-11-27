@@ -10,30 +10,6 @@ import type {
 
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 
-/** Posed bones of the ankles, knees and actual sole sockets. */
-type Bones = Parameters<typeof HumanFoot.sockets>[1];
-
-/** One retained point of a sole, selected by the posture it bears on. */
-interface IPin {
-  /** The leg keeping this plant. */
-  side: AutoMovieHumanSide;
-
-  /** The point of the sole about which the foot rolls. */
-  socket: IAutoMovieMotionHumanFoot.Socket;
-
-  /** The foot's point of contact at the standing key, world metres. */
-  point: IAutoMovieVector3;
-
-  /** The toe hinge's available extension, degrees, when its skin bears. */
-  extension: number;
-}
-
-/** Place the actual landed root and its two foot goals. */
-type Write = (
-  posture: IAutoMovieMotionHumanPosture,
-  bones: Bones,
-) => IAutoMovieMotionHumanPosture;
-
 /**
  * Keep both soles fixed while a standing body lowers before it lies down. Each
  * foot pivots on its own bearing socket from the route's first key. The root's
@@ -134,6 +110,30 @@ export function prepareLieDownFootPins(
     return { ...posture, joints, limbs };
   };
 }
+
+/** Posed bones of the ankles, knees and actual sole sockets. */
+type Bones = Parameters<typeof HumanFoot.sockets>[1];
+
+/** One retained point of a sole, selected by the posture it bears on. */
+interface IPin {
+  /** The leg keeping this plant. */
+  side: AutoMovieHumanSide;
+
+  /** The point of the sole about which the foot rolls. */
+  socket: IAutoMovieMotionHumanFoot.Socket;
+
+  /** The foot's point of contact at the standing key, world metres. */
+  point: IAutoMovieVector3;
+
+  /** The toe hinge's available extension, degrees, when its skin bears. */
+  extension: number;
+}
+
+/** Place the actual landed root and its two foot goals. */
+type Write = (
+  posture: IAutoMovieMotionHumanPosture,
+  bones: Bones,
+) => IAutoMovieMotionHumanPosture;
 
 /** Fixed order for the feet of a standing posture. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];

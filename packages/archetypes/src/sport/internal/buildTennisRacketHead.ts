@@ -6,27 +6,6 @@ import type {
 
 import { TennisMesh } from "./TennisMesh";
 
-/** Number of samples around each oval, with stations on both axes. */
-const RIM_STATIONS: number = 32;
-
-/** Station at the bottom of the oval. */
-const BOTTOM_STATION: number = (3 * RIM_STATIONS) / 4;
-
-/** Angular distance in stations from the oval's bottom to each fork shoulder. */
-const SHOULDER_OFFSET: number = RIM_STATIONS / 8;
-
-/** Provisional radial inset of the composite rim from the outer bounds, metres. */
-const RIM_WIDTH: number = 0.011;
-
-/** Typical 1.3 mm tennis string gauge in metres. */
-const STRING_GAUGE: number = 0.0013;
-
-/** Distance in metres to seat each front string end beneath the frame surface. */
-const STRING_SEAT_DEPTH: number = 0.00035;
-
-/** Length in metres over which a front string approaches its seat. */
-const STRING_SEAT_LENGTH: number = 4 * STRING_GAUGE;
-
 /**
  * Build a composite rim with a split throat and a Babolat-style 16 by 19 string
  * bed at the tennis head's local origin. All dimensions are in metres.
@@ -120,3 +99,24 @@ export function buildTennisRacketHead(
     strings: bed.mesh,
   };
 }
+
+/** Number of samples around each oval, with stations on both axes. */
+const RIM_STATIONS: number = 32;
+
+/** Station at the bottom of the oval. */
+const BOTTOM_STATION: number = (3 * RIM_STATIONS) / 4;
+
+/** Angular distance in stations from the oval's bottom to each fork shoulder. */
+const SHOULDER_OFFSET: number = RIM_STATIONS / 8;
+
+/** Provisional radial inset of the composite rim from the outer bounds, metres. */
+const RIM_WIDTH: number = 0.011;
+
+/** Typical 1.3 mm tennis string gauge in metres. */
+const STRING_GAUGE: number = 0.0013;
+
+/** Distance in metres to seat each front string end beneath the frame surface. */
+const STRING_SEAT_DEPTH: number = 0.00035;
+
+/** Length in metres over which a front string approaches its seat. */
+const STRING_SEAT_LENGTH: number = 4 * STRING_GAUGE;

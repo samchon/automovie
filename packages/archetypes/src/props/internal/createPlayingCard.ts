@@ -9,19 +9,6 @@ import {
 import { TabletopStack } from "./TabletopStack";
 
 /**
- * A poker-size playing card: 3½ × 2½ in, Bicycle's poker deck listed as 88 × 63
- * mm (English Wikipedia, Standard 52-card deck, card-size table, read
- * 2026-11-21). The board's thickness and the card's mass are not read, so they
- * are provisional estimates.
- */
-const CARD: Readonly<AutoMovieArchetypePlayingCard.ICard> = {
-  width: 2.5 * 0.0254,
-  length: 3.5 * 0.0254,
-  thickness: 0.0003,
-  mass: 0.0018,
-};
-
-/**
  * One playing card lying flat, face down.
  *
  * The card lies in the `XZ` plane, its long side along `Z`, its origin the
@@ -67,3 +54,16 @@ export function createPlayingCard(
   TabletopStack.contacts(builder, CARD.thickness, CARD.thickness);
   return builder.build(CARD.mass);
 }
+
+/**
+ * A poker-size playing card: 3½ × 2½ in, Bicycle's poker deck listed as 88 × 63
+ * mm (English Wikipedia, Standard 52-card deck, card-size table, read
+ * 2026-11-21). The board's thickness and the card's mass are not read, so they
+ * are provisional estimates.
+ */
+const CARD: Readonly<AutoMovieArchetypePlayingCard.ICard> = {
+  width: 2.5 * 0.0254,
+  length: 3.5 * 0.0254,
+  thickness: 0.0003,
+  mass: 0.0018,
+};

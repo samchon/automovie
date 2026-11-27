@@ -99,15 +99,6 @@ export namespace HumanInteractionMeshSide {
     );
   }
 
-  /** The indexed gradient of one signed altitude. */
-  interface IGradient {
-    /** The affine coordinate index of each entry. */
-    index: number[];
-
-    /** The derivative of the altitude at each coordinate. */
-    coef: number[];
-  }
-
   /**
    * The gradient of a side's signed altitude for the barrier model.
    *
@@ -193,6 +184,15 @@ export namespace HumanInteractionMeshSide {
       if (fraction === 0) break;
     }
     return fraction;
+  }
+
+  /** The indexed gradient of one signed altitude. */
+  interface IGradient {
+    /** The affine coordinate index of each entry. */
+    index: number[];
+
+    /** The derivative of the altitude at each coordinate. */
+    coef: number[];
   }
 
   /**

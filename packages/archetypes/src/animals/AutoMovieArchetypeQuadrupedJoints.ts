@@ -8,22 +8,6 @@ import type {
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { QuadrupedAttachments } from "./quadruped/QuadrupedAttachments";
 
-/** One admitted rigid bar, with independently owned geometric observations. */
-interface Bar {
-  /** Primitive discriminator, not a reconstructed species assumption. */
-  kind: "cylinder" | "capsule";
-  /** Source primitive radius, metres. */
-  radius: number;
-  /** Source cylindrical span, excluding capsule caps, metres. */
-  height: number;
-  /** Primitive-centre frame, admitted rigid and copied. */
-  frame: IAutoMovieTransform;
-  /** Directed upper axis endpoint, source model metres. */
-  from: IAutoMovieVector3;
-  /** Directed lower axis endpoint, source model metres. */
-  to: IAutoMovieVector3;
-}
-
 /**
  * Admit the neutral quadruped bars and read their fixed body connections.
  *
@@ -293,4 +277,20 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
       )
     );
   }
+}
+
+/** One admitted rigid bar, with independently owned geometric observations. */
+interface Bar {
+  /** Primitive discriminator, not a reconstructed species assumption. */
+  kind: "cylinder" | "capsule";
+  /** Source primitive radius, metres. */
+  radius: number;
+  /** Source cylindrical span, excluding capsule caps, metres. */
+  height: number;
+  /** Primitive-centre frame, admitted rigid and copied. */
+  frame: IAutoMovieTransform;
+  /** Directed upper axis endpoint, source model metres. */
+  from: IAutoMovieVector3;
+  /** Directed lower axis endpoint, source model metres. */
+  to: IAutoMovieVector3;
 }

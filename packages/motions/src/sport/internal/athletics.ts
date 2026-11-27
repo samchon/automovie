@@ -36,15 +36,6 @@ import { athleticsSetPrimitives } from "./athleticsSetPrimitives";
 import { sprintStartBlocks } from "./sprintStartBlocks";
 import { sprintStartSet } from "./sprintStartSet";
 
-/** The alternatives of `PlanFlexedBone2`'s site. */
-type PlanFlexedBone2 = "spine" | "chest";
-
-/** The alternatives of `PlanFlexionsEntry`'s site. */
-type PlanFlexionsEntry = "spine" | "chest";
-
-/** The alternatives of `CENTREEntryItem`'s site. */
-type CENTREEntryItem = "female" | "male";
-
 /**
  * The sprint start's crouch into the set position and its hold until the gun :
  * the hands on the start line, the front foot and the rear foot on their
@@ -451,3 +442,12 @@ export namespace athletics {
     });
   }
 }
+
+/** The alternatives of `PlanFlexedBone2`'s site. */
+type PlanFlexedBone2 = "spine" | "chest";
+
+/** The alternatives of `PlanFlexionsEntry`'s site. */
+type PlanFlexionsEntry = "spine" | "chest";
+
+/** The alternatives of `CENTREEntryItem`'s site. */
+type CENTREEntryItem = "female" | "male";

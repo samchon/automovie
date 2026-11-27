@@ -28,12 +28,6 @@ import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { selectHumanDigitGoals } from "./selectHumanDigitGoals";
 
-/** The record of `IFittedWorld`'s site. */
-type IFittedWorld = { point: IAutoMovieVector3; normal?: IAutoMovieVector3 };
-
-/** The alternatives of `FittedSide`'s site. */
-type FittedSide = "Left" | "Right";
-
 /**
  * A posture's digit goals fitted on a pose whose arms are already placed: each
  * digit with a goal, in `HumanPosture.DIGITS` order, brings its tip or pad to
@@ -396,6 +390,12 @@ export namespace HumanDigitFit {
     );
   }
 }
+
+/** The record of `IFittedWorld`'s site. */
+type IFittedWorld = { point: IAutoMovieVector3; normal?: IAutoMovieVector3 };
+
+/** The alternatives of `FittedSide`'s site. */
+type FittedSide = "Left" | "Right";
 
 /**
  * The distal interphalangeal joint's flexion as a share of the proximal one's:

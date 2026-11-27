@@ -32,36 +32,6 @@ import { foldRoot } from "./foldRoot";
 import { nodeSubjectBox } from "./nodeSubjectBox";
 import { resolveCameraAt } from "./resolveCameraAt";
 
-/** One take's input to the evaluator. */
-type IEvaluation = [IAutoMovieCameraClearanceEvaluation][0];
-
-/** One obstacle's world box at one instant, as the evaluator reads it. */
-type IObstacleState = IEvaluation["samples"][number]["obstacles"][number];
-
-/** A staged node with its measured bound. */
-interface IMeasuredObstacle {
-  /** The staged node. */
-  node: IAutoMovieScene["nodes"][number];
-
-  /** World box of a node nothing animates, fixed for the whole shot. */
-  bounds: IAutoMovieSubjectBox | null;
-
-  /** Model-space radius holding the model in any pose, for a moving node. */
-  radius: number;
-}
-
-/** One camera that plays in the shot and declares a clearance envelope. */
-interface ITake {
-  /** The staged camera, with its envelope. */
-  camera: IAutoMovieCamera;
-
-  /** Index of the camera in the staged scene, for violation paths. */
-  index: number;
-
-  /** The take's camera clip, or null for a locked-off camera. */
-  motion: IAutoMovieShot["cameraMotion"];
-}
-
 /**
  * Check that no camera body or parent rig in a performed shot touches a staged
  * node, and return one clear report per envelope-bearing take.
@@ -260,6 +230,36 @@ export function compileCameraClearanceReports(
     if (report.status === "clear") reports.push(report);
   }
   return refused() ? undefined : reports;
+}
+
+/** One take's input to the evaluator. */
+type IEvaluation = [IAutoMovieCameraClearanceEvaluation][0];
+
+/** One obstacle's world box at one instant, as the evaluator reads it. */
+type IObstacleState = IEvaluation["samples"][number]["obstacles"][number];
+
+/** A staged node with its measured bound. */
+interface IMeasuredObstacle {
+  /** The staged node. */
+  node: IAutoMovieScene["nodes"][number];
+
+  /** World box of a node nothing animates, fixed for the whole shot. */
+  bounds: IAutoMovieSubjectBox | null;
+
+  /** Model-space radius holding the model in any pose, for a moving node. */
+  radius: number;
+}
+
+/** One camera that plays in the shot and declares a clearance envelope. */
+interface ITake {
+  /** The staged camera, with its envelope. */
+  camera: IAutoMovieCamera;
+
+  /** Index of the camera in the staged scene, for violation paths. */
+  index: number;
+
+  /** The take's camera clip, or null for a locked-off camera. */
+  motion: IAutoMovieShot["cameraMotion"];
 }
 
 /**

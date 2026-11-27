@@ -9,19 +9,6 @@ import {
 } from "../../core/index";
 
 /**
- * Household scissors of eight inches overall (8 × 0.0254 m), the blades about
- * the front half. No source is read: every size here, the rings' bore, the
- * blades' opening and the mass are provisional construction estimates.
- */
-const SIZE: Readonly<AutoMovieArchetypeScissors.ISize> = {
-  length: 8 * 0.0254,
-  blade: 0.1,
-  ring: 0.022,
-  opening: 30,
-  mass: 0.08,
-};
-
-/**
  * A pair of scissors lying flat, its two blades on one pivot.
  *
  * The pivot is at the origin, the blades running along `+Z` and the rings along
@@ -131,3 +118,16 @@ export function createScissors(
   });
   return builder.build(SIZE.mass);
 }
+
+/**
+ * Household scissors of eight inches overall (8 × 0.0254 m), the blades about
+ * the front half. No source is read: every size here, the rings' bore, the
+ * blades' opening and the mass are provisional construction estimates.
+ */
+const SIZE: Readonly<AutoMovieArchetypeScissors.ISize> = {
+  length: 8 * 0.0254,
+  blade: 0.1,
+  ring: 0.022,
+  opening: 30,
+  mass: 0.08,
+};

@@ -15,32 +15,6 @@ import type {
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import type { HumanPrehension } from "./HumanPrehension";
 
-/** The physical clasp, its three transport windows and the base the hand rides. */
-interface ITrack {
-  body: IAutoMovieMotionHumanBody;
-  side: AutoMovieHumanSide;
-  base: IAutoMovieMotionHumanActionPlan;
-  reach: number;
-  shake: number;
-  back: number;
-  duration: number;
-  release: number;
-  clasp: IAutoMovieMotionHumanHand.IWrist;
-  fingers: IAutoMovieMotionHumanPosture["joints"];
-  reference: IAutoMovieHumanLimbReference;
-  out: IAutoMovieMotionHumanPrehension.ITransport;
-  home: IAutoMovieMotionHumanPrehension.ITransport;
-  shapeAt: ReturnType<typeof HumanPrehension.prepareShape>;
-  returnShape: ReturnType<typeof HumanPrehension.prepareShape>;
-  amplitude: number;
-  frequency: number;
-}
-/** The record of `IHandshakePlaybackResult`'s site. */
-type IHandshakePlaybackResult = {
-  posture: IAutoMovieMotionHumanActionPlan["posture"];
-  phases: readonly IAutoMovieMotionHumanPlayback.IPhase[];
-};
-
 /** Sample the reach, held handshake and withdrawal by their actual events. */
 export function handshakePlayback(track: ITrack): IHandshakePlaybackResult {
   const {
@@ -163,3 +137,29 @@ export function handshakePlayback(track: ITrack): IHandshakePlaybackResult {
     ],
   };
 }
+/** The physical clasp, its three transport windows and the base the hand rides. */
+interface ITrack {
+  body: IAutoMovieMotionHumanBody;
+  side: AutoMovieHumanSide;
+  base: IAutoMovieMotionHumanActionPlan;
+  reach: number;
+  shake: number;
+  back: number;
+  duration: number;
+  release: number;
+  clasp: IAutoMovieMotionHumanHand.IWrist;
+  fingers: IAutoMovieMotionHumanPosture["joints"];
+  reference: IAutoMovieHumanLimbReference;
+  out: IAutoMovieMotionHumanPrehension.ITransport;
+  home: IAutoMovieMotionHumanPrehension.ITransport;
+  shapeAt: ReturnType<typeof HumanPrehension.prepareShape>;
+  returnShape: ReturnType<typeof HumanPrehension.prepareShape>;
+  amplitude: number;
+  frequency: number;
+}
+
+/** The record of `IHandshakePlaybackResult`'s site. */
+type IHandshakePlaybackResult = {
+  posture: IAutoMovieMotionHumanActionPlan["posture"];
+  phases: readonly IAutoMovieMotionHumanPlayback.IPhase[];
+};

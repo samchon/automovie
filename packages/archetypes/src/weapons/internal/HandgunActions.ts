@@ -9,15 +9,6 @@ import {
 import { AutoMovieArchetypeFirearm } from "./AutoMovieArchetypeFirearm";
 import type { AutoMovieArchetypeHandgun } from "../AutoMovieArchetypeHandgun";
 
-/** A handgun under construction. */
-type Builder = AutoMovieArchetypeBuilder<
-  AutoMovieArchetypeHandgun.Affordance,
-  AutoMovieArchetypeHandgun.Dimension
->;
-
-/** A handgun's drawn and read dimensions. */
-type Drawn = Readonly<Partial<Record<AutoMovieArchetypeHandgun.Dimension, number>>>;
-
 /**
  * The revolver's and the flintlock pistol's bodies and mechanisms, the handgun
  * standing as `createHandgun` stands it: on the base of its grip at the origin,
@@ -400,3 +391,12 @@ export namespace HandgunActions {
     });
   }
 }
+
+/** A handgun under construction. */
+type Builder = AutoMovieArchetypeBuilder<
+  AutoMovieArchetypeHandgun.Affordance,
+  AutoMovieArchetypeHandgun.Dimension
+>;
+
+/** A handgun's drawn and read dimensions. */
+type Drawn = Readonly<Partial<Record<AutoMovieArchetypeHandgun.Dimension, number>>>;

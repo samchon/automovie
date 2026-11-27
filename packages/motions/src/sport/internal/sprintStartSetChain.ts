@@ -1,14 +1,3 @@
-/** The record of `IOfNext`'s site. */
-type IOfNext = { miss: number };
-
-/** The record of `IOfLast`'s site. */
-type IOfLast = { miss: number };
-
-/** The record of `IOfPlacedResult`'s site. */
-type IOfPlacedResult = { miss: number };
-
-/** The record of `IOfPlaced`'s site. */
-type IOfPlaced = { miss: number };
 /**
  * The set on the chain.
  *
@@ -214,7 +203,6 @@ function at(
 ): sprintStartSetChain.IPoint {
   return { u: from.u + d.u * length, v: from.v + d.v * length };
 }
-
 /** The higher of two points. */
 function higher(
   a: sprintStartSetChain.IPoint,
@@ -222,3 +210,15 @@ function higher(
 ): sprintStartSetChain.IPoint {
   return a.v >= b.v ? a : b;
 }
+
+/** The record of `IOfNext`'s site. */
+type IOfNext = { miss: number };
+
+/** The record of `IOfLast`'s site. */
+type IOfLast = { miss: number };
+
+/** The record of `IOfPlacedResult`'s site. */
+type IOfPlacedResult = { miss: number };
+
+/** The record of `IOfPlaced`'s site. */
+type IOfPlaced = { miss: number };

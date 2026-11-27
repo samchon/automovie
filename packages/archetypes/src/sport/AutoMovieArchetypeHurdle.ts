@@ -17,6 +17,42 @@ const RULE: string =
 /** Constructs the hurdle archetype from its recipe. */
 export namespace AutoMovieArchetypeHurdle {
 /**
+   * The races: the men's 110 m and the women's 100 m sprint hurdles, and the
+   * men's and the women's 400 m hurdles.
+   */
+  export type Kind = "men110" | "women100" | "men400" | "women400";
+
+  /**
+   * The affordance ids:
+   *
+   * - `top`: the top bar's upper front edge along `+X`, `+Y` up, `+Z` toward the
+   *   runner.
+   * - `bar`: the top bar, taken from the runner's side.
+   */
+  export type Affordance = "top" | "bar";
+
+  /**
+   * The free dimensions, metres unless stated:
+   *
+   * - `height`: the top bar's top above the track.
+   * - `width`: across the lane, the uprights' outsides.
+   * - `mass`: kilograms.
+   */
+  export type Dimension = "height" | "width" | "mass";
+
+  /**
+   * The parameters: the race, and any free dimension fixed to a value inside
+   * its band.
+   */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Which race. */
+    kind: Kind;
+
+    /** The model's id, unique in a scene; `hurdle` when absent. */
+    id?: string;
+  }
+
+  /**
  * A track hurdle of a sprint or a 400 m hurdles race.
  *
  * It stands across the lane, its top bar along `X` centred over the origin with
@@ -115,12 +151,6 @@ export function create(
   return builder.build(d.mass);
 }
 
-  /**
-   * The races: the men's 110 m and the women's 100 m sprint hurdles, and the
-   * men's and the women's 400 m hurdles.
-   */
-  export type Kind = "men110" | "women100" | "men400" | "women400";
-
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
     "men110",
@@ -147,24 +177,6 @@ export function create(
   /** The uprights' and feet's thickness, metres: an estimate. */
   export const POST: number = 0.03;
 
-  /**
-   * The affordance ids:
-   *
-   * - `top`: the top bar's upper front edge along `+X`, `+Y` up, `+Z` toward the
-   *   runner.
-   * - `bar`: the top bar, taken from the runner's side.
-   */
-  export type Affordance = "top" | "bar";
-
-  /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `height`: the top bar's top above the track.
-   * - `width`: across the lane, the uprights' outsides.
-   * - `mass`: kilograms.
-   */
-  export type Dimension = "height" | "width" | "mass";
-
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
@@ -173,18 +185,6 @@ export function create(
     width: "m",
     mass: "kg",
   };
-
-  /**
-   * The parameters: the race, and any free dimension fixed to a value inside
-   * its band.
-   */
-  export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which race. */
-    kind: Kind;
-
-    /** The model's id, unique in a scene; `hurdle` when absent. */
-    id?: string;
-  }
 
   /** A height band: the rule's height to 3 mm either way. */
   const height = (metres: number, race: string): IAutoMovieArchetypeBand =>

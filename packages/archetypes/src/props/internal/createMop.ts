@@ -4,9 +4,6 @@ import { Vector3 } from "@automovie/engine";
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { LongImplementDraw } from "./LongImplementDraw";
 
-/** The pad block's height, metres. */
-const PAD: number = 0.03;
-
 /**
  * Mop with a wide pad and a two-hand shaft. Fixed `upperGrip` and `lowerGrip`
  * handles on the clear shaft take the two hands of a floor stroke.
@@ -66,3 +63,6 @@ export function createMop(
     });
   return builder.build(d.mass!);
 }
+
+/** The pad block's height, metres. */
+const PAD: number = 0.03;

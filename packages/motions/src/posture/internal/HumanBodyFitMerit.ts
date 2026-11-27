@@ -18,47 +18,6 @@ import { HumanFloorReading } from "./HumanFloorReading";
 import { HumanSequentialConvex } from "./HumanSequentialConvex";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
-/** The record of `IOfReadBearers`'s site. */
-type IOfReadBearers = {
-  points: IAutoMovieVector3[];
-  owners: AutoMovieHumanoidBone[];
-};
-
-/** The record of `IOfSupportsResult`'s site. */
-type IOfSupportsResult = {
-  points: IAutoMovieVector3[];
-  owners: AutoMovieHumanoidBone[];
-};
-
-/** The record of `IOfSupports`'s site. */
-type IOfSupports = {
-  points: IAutoMovieVector3[];
-  owners: AutoMovieHumanoidBone[];
-};
-
-/** The alternatives of `Of`'s site. */
-type Of =
-  | "body"
-  | "posture"
-  | "variables"
-  | "targets"
-  | "bearing"
-  | "pairs"
-  | "key"
-  | "price";
-
-/** The alternatives of `Props`'s site. */
-type Props = "body" | "posture" | "balance" | "centre";
-
-/** The rows' violations as they are added: their sum and their greatest. */
-interface ISummed {
-  /** The sum, in the misses' units. */
-  violation: number;
-
-  /** The greatest single row's, in the same units. */
-  greatest: number;
-}
-
 /**
  * The merit of a fit.
  *
@@ -422,4 +381,45 @@ export namespace HumanBodyFitMerit {
      */
     holds(misses: IMisses): boolean;
   }
+}
+
+/** The record of `IOfReadBearers`'s site. */
+type IOfReadBearers = {
+  points: IAutoMovieVector3[];
+  owners: AutoMovieHumanoidBone[];
+};
+
+/** The record of `IOfSupportsResult`'s site. */
+type IOfSupportsResult = {
+  points: IAutoMovieVector3[];
+  owners: AutoMovieHumanoidBone[];
+};
+
+/** The record of `IOfSupports`'s site. */
+type IOfSupports = {
+  points: IAutoMovieVector3[];
+  owners: AutoMovieHumanoidBone[];
+};
+
+/** The alternatives of `Of`'s site. */
+type Of =
+  | "body"
+  | "posture"
+  | "variables"
+  | "targets"
+  | "bearing"
+  | "pairs"
+  | "key"
+  | "price";
+
+/** The alternatives of `Props`'s site. */
+type Props = "body" | "posture" | "balance" | "centre";
+
+/** The rows' violations as they are added: their sum and their greatest. */
+interface ISummed {
+  /** The sum, in the misses' units. */
+  violation: number;
+
+  /** The greatest single row's, in the same units. */
+  greatest: number;
 }

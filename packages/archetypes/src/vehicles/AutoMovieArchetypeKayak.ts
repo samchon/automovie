@@ -21,11 +21,6 @@ const v: typeof Vector3.create = Vector3.create;
 const WALL: number = 0.012;
 const FLOOR: number = -0.14;
 
-type Build = AutoMovieArchetypeBuilder<
-  AutoMovieArchetypeKayak.Affordance,
-  AutoMovieArchetypeKayak.Dimension
->;
-
 /** The canonical producer and authoring contract for a kayak. */
 export namespace AutoMovieArchetypeKayak {
   /**
@@ -278,3 +273,8 @@ function brace(
     depth: 0.105,
   });
 }
+
+type Build = AutoMovieArchetypeBuilder<
+  AutoMovieArchetypeKayak.Affordance,
+  AutoMovieArchetypeKayak.Dimension
+>;

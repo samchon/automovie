@@ -6,19 +6,6 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-const AXES: readonly ["flexion", "abduction", "twist"] = [
-  "flexion",
-  "abduction",
-  "twist",
-] as const;
-
-interface IAxisAccumulator {
-  /** Summed weight of the layers that set each axis (non-null). */
-  weight: [number, number, number];
-  /** Summed weight×value of those layers. */
-  weighted: [number, number, number];
-}
-
 /**
  * Blend a nonempty list of admitted same-skeleton clinical poses by positive
  * finite weights per non-null axis. Bone order follows first appearance; root
@@ -85,4 +72,17 @@ export function blendPoses(layers: IAutoMoviePoseLayer[]): IAutoMoviePose {
       if (layer.pose.root !== null) root = layer.pose.root;
 
   return { skeleton: layers[0]!.pose.skeleton, root, joints };
+}
+
+const AXES: readonly ["flexion", "abduction", "twist"] = [
+  "flexion",
+  "abduction",
+  "twist",
+] as const;
+
+interface IAxisAccumulator {
+  /** Summed weight of the layers that set each axis (non-null). */
+  weight: [number, number, number];
+  /** Summed weight×value of those layers. */
+  weighted: [number, number, number];
 }

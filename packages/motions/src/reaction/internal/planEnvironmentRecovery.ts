@@ -30,15 +30,6 @@ import { environmentRecoveryCue } from "./environmentRecoveryCue";
 import { perturb } from "./perturb";
 
 /**
- * The longest interval over which the lost foot is released, seconds
- * (provisional).
- */
-const RELEASE: number = 0.14;
-
-/** How far a slipping sole glides before release, foot lengths (provisional). */
-const GLIDE: number = 0.09;
-
-/**
  * Cut a walk at a staged trip or slip and resolve the lost support. The cue is
  * measured on the displayed entry before anything is published: a trip needs
  * the swinging foot's toe at the named obstruction and moving forward, a slip a
@@ -175,6 +166,15 @@ export function planEnvironmentRecovery(
     yields: [],
   };
 }
+
+/**
+ * The longest interval over which the lost foot is released, seconds
+ * (provisional).
+ */
+const RELEASE: number = 0.14;
+
+/** How far a slipping sole glides before release, foot lengths (provisional). */
+const GLIDE: number = 0.09;
 
 /** Admit a trip: the swinging toe at the obstruction and moving forward. */
 function trip(

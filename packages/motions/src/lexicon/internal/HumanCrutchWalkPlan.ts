@@ -29,57 +29,6 @@ import { carryCrutchHands } from "./carryCrutchHands";
 import { crutchHeldLeg } from "./crutchHeldLeg";
 import { crutchWalkCourse } from "./crutchWalkCourse";
 
-/** How far a staged crutch tip may stand off the floor, metres. */
-const FLOOR: number = 0.01;
-
-/**
- * How far a swung-through foot lands past the crutch tips, metres: 12 inches,
- * "Land on your good foot, about 12 inches in front of the crutches" (UMass
- * Memorial Health, "Discharge Instructions: Using Crutches
- * (Non-Weight-Bearing)", content by WebMD Ignite), measured, as a swing-to
- * landing's level is, from the middle of the foot's support between heel and
- * ball.
- */
-const THROUGH: number = 12 * 0.0254;
-/** The alternatives of `HELDEntryItem`'s site. */
-type HELDEntryItem = "hip" | "knee";
-
-/**
- * The hip's and knee's flexion that hold a three-point gait's injured foot off
- * the floor, degrees (provisional: the knee bent near a right angle and the hip
- * a little forward, so the foot clears the floor by a hand's breadth even as
- * the sound knee gives under the swing).
- */
-const HELD: Readonly<Record<HELDEntryItem, number>> = { hip: 30, knee: 80 };
-
-/**
- * How far above the crutch pads the axillae stay while the body swings, metres:
- * two to three finger widths (provisional, the axillary crutch fitting's
- * clearance).
- */
-const PAD: number = 0.05;
-
-/** World vertical. */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/** No offset: a planted crutch's grip lies on the support course. */
-const STILL: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-
-/** One staged crutch with its own contact points and prepared advances. */
-interface ICrutch {
-  /** The staged frame at the action's start. */
-  start: IAutoMovieRigidTransform;
-
-  /** The grip's place in the crutch's frame, metres. */
-  grip: IAutoMovieVector3;
-
-  /** The tip's place in the crutch's frame, metres. */
-  tip: IAutoMovieVector3;
-
-  /** Its advances over the walk. */
-  moves: crutchWalkCourse.IAdvance[];
-}
-
 /**
  * Plan a walk on two crutches: the crutch gait on the support law, the crutches
  * advancing on their own track and the body swinging on the hands
@@ -483,4 +432,55 @@ export function HumanCrutchWalkPlan(
         a.share - b.share,
     ),
   };
+}
+
+/** How far a staged crutch tip may stand off the floor, metres. */
+const FLOOR: number = 0.01;
+/**
+ * How far a swung-through foot lands past the crutch tips, metres: 12 inches,
+ * "Land on your good foot, about 12 inches in front of the crutches" (UMass
+ * Memorial Health, "Discharge Instructions: Using Crutches
+ * (Non-Weight-Bearing)", content by WebMD Ignite), measured, as a swing-to
+ * landing's level is, from the middle of the foot's support between heel and
+ * ball.
+ */
+const THROUGH: number = 12 * 0.0254;
+
+/** The alternatives of `HELDEntryItem`'s site. */
+type HELDEntryItem = "hip" | "knee";
+
+/**
+ * The hip's and knee's flexion that hold a three-point gait's injured foot off
+ * the floor, degrees (provisional: the knee bent near a right angle and the hip
+ * a little forward, so the foot clears the floor by a hand's breadth even as
+ * the sound knee gives under the swing).
+ */
+const HELD: Readonly<Record<HELDEntryItem, number>> = { hip: 30, knee: 80 };
+
+/**
+ * How far above the crutch pads the axillae stay while the body swings, metres:
+ * two to three finger widths (provisional, the axillary crutch fitting's
+ * clearance).
+ */
+const PAD: number = 0.05;
+
+/** World vertical. */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/** No offset: a planted crutch's grip lies on the support course. */
+const STILL: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+
+/** One staged crutch with its own contact points and prepared advances. */
+interface ICrutch {
+  /** The staged frame at the action's start. */
+  start: IAutoMovieRigidTransform;
+
+  /** The grip's place in the crutch's frame, metres. */
+  grip: IAutoMovieVector3;
+
+  /** The tip's place in the crutch's frame, metres. */
+  tip: IAutoMovieVector3;
+
+  /** Its advances over the walk. */
+  moves: crutchWalkCourse.IAdvance[];
 }

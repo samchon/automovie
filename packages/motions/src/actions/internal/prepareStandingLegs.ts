@@ -10,14 +10,6 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { standingLegs } from "./standingLegs";
 
-/** The record of `IFootResult`'s site. */
-type IFootResult = {
-  yaw: number;
-  rotation: IAutoMovieQuaternion;
-  contact: IAutoMovieVector3;
-  knee: (root: IAutoMovieVector3) => IAutoMovieVector3;
-};
-
 /**
  * Prepare a standing body's two toe-out headings and metatarsophalangeal
  * contacts for one fixed yaw. Each query places the knees from its current root
@@ -60,3 +52,11 @@ export function prepareStandingLegs(
   ): IAutoMovieMotionHumanPosture["limbs"] =>
     standingLegs(body, root, yaw, feet, toeOut, fixed);
 }
+
+/** The record of `IFootResult`'s site. */
+type IFootResult = {
+  yaw: number;
+  rotation: IAutoMovieQuaternion;
+  contact: IAutoMovieVector3;
+  knee: (root: IAutoMovieVector3) => IAutoMovieVector3;
+};

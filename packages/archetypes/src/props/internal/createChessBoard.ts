@@ -9,44 +9,6 @@ import {
 } from "../../core/index";
 
 /**
- * FIDE's Standards of Chess Equipment, section 3.3: "The side of the square
- * should measure 5-6 cm. Four pawns should fit on one square"
- * (handbook.fide.com, version effective until 28 February 2026, read
- * 2026-11-21). The board's border, thickness and mass are not read, so they are
- * provisional estimates.
- */
-const BOARD: Readonly<AutoMovieArchetypeChessBoard.IBoard> = {
-  square: 0.055,
-  border: 0.02,
-  thickness: 0.015,
-  mass: 1.2,
-};
-
-/** The files from White's left, along `+X`. */
-const FILES: readonly AutoMovieArchetypeChessBoard.File[] = [
-  "a",
-  "b",
-  "c",
-  "d",
-  "e",
-  "f",
-  "g",
-  "h",
-];
-
-/** The ranks from White's side, along `+Z`. */
-const RANKS: readonly AutoMovieArchetypeChessBoard.Rank[] = [
-  "1",
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-];
-
-/**
  * A chessboard lying flat with a socket on every named square.
  *
  * The board lies in the `XZ` plane, its origin the centre of its underside. The
@@ -111,3 +73,41 @@ export function createChessBoard(
   );
   return builder.build(BOARD.mass);
 }
+
+/**
+ * FIDE's Standards of Chess Equipment, section 3.3: "The side of the square
+ * should measure 5-6 cm. Four pawns should fit on one square"
+ * (handbook.fide.com, version effective until 28 February 2026, read
+ * 2026-11-21). The board's border, thickness and mass are not read, so they are
+ * provisional estimates.
+ */
+const BOARD: Readonly<AutoMovieArchetypeChessBoard.IBoard> = {
+  square: 0.055,
+  border: 0.02,
+  thickness: 0.015,
+  mass: 1.2,
+};
+
+/** The files from White's left, along `+X`. */
+const FILES: readonly AutoMovieArchetypeChessBoard.File[] = [
+  "a",
+  "b",
+  "c",
+  "d",
+  "e",
+  "f",
+  "g",
+  "h",
+];
+
+/** The ranks from White's side, along `+Z`. */
+const RANKS: readonly AutoMovieArchetypeChessBoard.Rank[] = [
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+];

@@ -12,9 +12,6 @@ import type {
 import { AutoMovieMotionHumanTrunk } from "../../compose/internal/AutoMovieMotionHumanTrunk";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/** The alternatives of `StanceContext`'s site. */
-type StanceContext = "body" | "carrier" | "entry";
-
 /** Geometry added by the three precision delivery styles to the shared throw. */
 export namespace precisionThrow {
   /**
@@ -118,3 +115,6 @@ export namespace precisionThrow {
     );
   }
 }
+
+/** The alternatives of `StanceContext`'s site. */
+type StanceContext = "body" | "carrier" | "entry";

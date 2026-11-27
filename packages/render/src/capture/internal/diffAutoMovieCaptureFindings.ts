@@ -7,38 +7,6 @@ import type {
 import { compareAutoMovieInspectionFindings } from "../../scene/inspection/internal/compareAutoMovieInspectionFindings.js";
 import { sameAutoMovieInspectionShotClock } from "../../scene/inspection/internal/sameAutoMovieInspectionShotClock.js";
 
-/** The reducer's saved clocks and sample count for one finding episode. */
-type IEpisode = IAutoMovieInspectionDiagnostics.IEpisode;
-
-/** The reducer's saved coverage of consecutive frames or one isolated sample. */
-type ICoverageRange = IAutoMovieInspectionDiagnostics.ICoverageRange;
-
-/** A captured film sample or exact witness clock. */
-type ITime = IAutoMovieInspectionDiagnostics.ITime;
-
-type IInterval = IAutoMovieInspectionDiagnostics.IInterval;
-
-interface IUncovered {
-  cause: IAutoMovieCaptureFindingDiff.Cause;
-
-  uncovered: IInterval[];
-}
-
-/** One finding identity within one round. */
-interface ISummary {
-  /** Fields that identify the finding across rounds. */
-  identity: Omit<IAutoMovieCaptureFindingDiff.IIdentity, "category">;
-
-  /** Address of the coverage shared by the findings of this obligation. */
-  obligation: string;
-
-  /** The worst observation across the identity's episodes. */
-  worst: IAutoMovieInspectionDiagnostics.IObservation;
-
-  /** Episodes whose actual samples must be covered. */
-  episodes: IEpisode[];
-}
-
 /**
  * Compare this round's inspection findings with an earlier round's and decide
  * the round outcome from its errors.
@@ -140,6 +108,38 @@ export function diffAutoMovieCaptureFindings(
       ? "better"
       : "same";
   return { state: "compared", outcome, entries };
+}
+
+/** The reducer's saved clocks and sample count for one finding episode. */
+type IEpisode = IAutoMovieInspectionDiagnostics.IEpisode;
+
+/** The reducer's saved coverage of consecutive frames or one isolated sample. */
+type ICoverageRange = IAutoMovieInspectionDiagnostics.ICoverageRange;
+
+/** A captured film sample or exact witness clock. */
+type ITime = IAutoMovieInspectionDiagnostics.ITime;
+
+type IInterval = IAutoMovieInspectionDiagnostics.IInterval;
+
+interface IUncovered {
+  cause: IAutoMovieCaptureFindingDiff.Cause;
+
+  uncovered: IInterval[];
+}
+
+/** One finding identity within one round. */
+interface ISummary {
+  /** Fields that identify the finding across rounds. */
+  identity: Omit<IAutoMovieCaptureFindingDiff.IIdentity, "category">;
+
+  /** Address of the coverage shared by the findings of this obligation. */
+  obligation: string;
+
+  /** The worst observation across the identity's episodes. */
+  worst: IAutoMovieInspectionDiagnostics.IObservation;
+
+  /** Episodes whose actual samples must be covered. */
+  episodes: IEpisode[];
 }
 
 /**

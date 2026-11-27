@@ -11,12 +11,6 @@ import type {
 import { courseArmGoal } from "./courseArmGoal";
 
 /**
- * Samples a second the goal's path is read at: well above the film rate, so a
- * stroke's peak is not stepped over.
- */
-const RATE: number = 240;
-
-/**
  * Course a law's moving arm goal (`courseArmGoal`) at the law's own pace: the
  * fastest the law's goal moves its hand's site or any task point it limits over
  * the span (its contact surface and a held tool's points turned with the hand,
@@ -66,6 +60,12 @@ export function courseArmAtPace(
     pace: (): number => peak,
   });
 }
+
+/**
+ * Samples a second the goal's path is read at: well above the film rate, so a
+ * stroke's peak is not stepped over.
+ */
+const RATE: number = 240;
 
 /**
  * The points the goal moves: its site and every task point it limits (a held

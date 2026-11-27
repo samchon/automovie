@@ -6,16 +6,6 @@ import type {
   IAutoMovieRecoverySourceHalfedge,
 } from "@automovie/interface";
 
-type Node = ReturnType<
-  ReturnType<IAutoMovieRecoveryEventRegion.Operation>
->["nodes"][number];
-type Cell = ReturnType<
-  ReturnType<IAutoMovieRecoveryEventRegion.Operation>
->["cells"][number];
-type Component = ReturnType<
-  ReturnType<IAutoMovieRecoveryEventRegion.Operation>
->["components"][number];
-
 /**
  * Observe component incidence, orientation parity, links and boundary cycles in
  * one query.
@@ -380,3 +370,13 @@ export function RecoveryEventRegionTopology(
 
   return { edges, cellOccurrences, vertexComponents, vertexCells, incidence };
 }
+type Node = ReturnType<
+  ReturnType<IAutoMovieRecoveryEventRegion.Operation>
+>["nodes"][number];
+type Cell = ReturnType<
+  ReturnType<IAutoMovieRecoveryEventRegion.Operation>
+>["cells"][number];
+
+type Component = ReturnType<
+  ReturnType<IAutoMovieRecoveryEventRegion.Operation>
+>["components"][number];

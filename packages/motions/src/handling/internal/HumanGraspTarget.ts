@@ -13,21 +13,6 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import type { HumanGrasp } from "./HumanGrasp";
 
-/** The record of `IHumanGraspTargetResult`'s site. */
-type IHumanGraspTargetResult = {
-  /** The handle's world grip point. */
-  point: (frame: IAutoMovieRigidTransform) => IAutoMovieVector3;
-
-  /** The handle's grip point, approach, wrapped axis and width. */
-  frame: (frame: IAutoMovieRigidTransform) => HumanGrasp.IFrame;
-
-  /**
-   * The hand frame with the prop's colliders and the handle's grip kind
-   * (`power` when it names none).
-   */
-  at: (frame: IAutoMovieRigidTransform) => IAutoMovieMotionHumanGrasp.ITarget;
-};
-
 /**
  * Prepare one prop's handle as a grasp target at changing world frames of the
  * prop: its grip point alone, its hand frame (point, inward approach, wrapped
@@ -150,3 +135,18 @@ export function HumanGraspTarget(
     }),
   };
 }
+
+/** The record of `IHumanGraspTargetResult`'s site. */
+type IHumanGraspTargetResult = {
+  /** The handle's world grip point. */
+  point: (frame: IAutoMovieRigidTransform) => IAutoMovieVector3;
+
+  /** The handle's grip point, approach, wrapped axis and width. */
+  frame: (frame: IAutoMovieRigidTransform) => HumanGrasp.IFrame;
+
+  /**
+   * The hand frame with the prop's colliders and the handle's grip kind
+   * (`power` when it names none).
+   */
+  at: (frame: IAutoMovieRigidTransform) => IAutoMovieMotionHumanGrasp.ITarget;
+};

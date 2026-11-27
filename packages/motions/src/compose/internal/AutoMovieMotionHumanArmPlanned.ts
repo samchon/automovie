@@ -34,9 +34,6 @@ const SPACING: number = 0.08;
  */
 const PEAK: number = 0.55;
 
-/** The alternatives of `PlannedPlan`'s site. */
-type PlannedPlan = "warm" | "last" | "stretches" | "tempo" | "ordinal";
-
 /**
  * An arm's whole action planned as one trajectory (`HumanArmTrajectory`): its
  * reach from rest, its hold on the goal's site and its return, read off the
@@ -45,17 +42,38 @@ type PlannedPlan = "warm" | "last" | "stretches" | "tempo" | "ordinal";
  */
 export namespace AutoMovieMotionHumanArmPlanned {
   /**
+   * An earlier plan's solution of a group's arms, handed to the next plan of
+   * the same action (`IAutoMovieMotionHumanArmPlanned.IWarm`).
+   */
+  export type IWarm = IAutoMovieMotionHumanArmPlanned.IWarm;
+
+  /** The group of a plan whose solve refused (`within`). */
+  export interface IRefusal {
+    /**
+     * The refusing group's handover key (`IWarm`'s key with its ordinal);
+     * absent until a group of the plan refuses.
+     */
+    group?: string;
+
+    /** What that group's solve threw. */
+    error?: unknown;
+  }
+
+  /** One instant of a hold to check: the arms holding there and the second. */
+  export interface IStill {
+    /** The arms, each with its goal on its hold at the second. */
+    carries: readonly IAutoMovieMotionHumanArmPlanned.IPlanned[];
+
+    /** The second, the plan's own. */
+    seconds: number;
+  }
+
+  /**
    * The least waypoints a second of a reach, a return or a hold: a site moving
    * as fast as a daily reach's peak travels at most `SPACING` between two of
    * them.
    */
   export const LEAST: number = Math.ceil(PEAK / SPACING);
-
-  /**
-   * An earlier plan's solution of a group's arms, handed to the next plan of
-   * the same action (`IAutoMovieMotionHumanArmPlanned.IWarm`).
-   */
-  export type IWarm = IAutoMovieMotionHumanArmPlanned.IWarm;
 
   /**
    * A group for arms moved together.
@@ -129,33 +147,6 @@ export namespace AutoMovieMotionHumanArmPlanned {
     }
   }
 
-  /** The group of a plan whose solve refused (`within`). */
-  export interface IRefusal {
-    /**
-     * The refusing group's handover key (`IWarm`'s key with its ordinal);
-     * absent until a group of the plan refuses.
-     */
-    group?: string;
-
-    /** What that group's solve threw. */
-    error?: unknown;
-  }
-
-  /**
-   * The plan in scope (`within`): its action's handover, how many groups it has
-   * made and where a refusing group is named.
-   */
-  interface IScope {
-    /** The action's handover. */
-    handover: IAutoMovieMotionHumanActionContext.IHandover;
-
-    /** The groups the plan has made so far. */
-    made: number;
-
-    /** Where a refusing group is named. */
-    refusal?: IRefusal;
-  }
-
   /** The plan in scope, while one runs (`within`). */
   let scope: IScope | undefined;
 
@@ -177,15 +168,6 @@ export namespace AutoMovieMotionHumanArmPlanned {
    */
   export const reaching: typeof AutoMovieMotionHumanArmObservation.reaching =
     AutoMovieMotionHumanArmObservation.reaching;
-  /** One instant of a hold to check: the arms holding there and the second. */
-  export interface IStill {
-    /** The arms, each with its goal on its hold at the second. */
-    carries: readonly IAutoMovieMotionHumanArmPlanned.IPlanned[];
-
-    /** The second, the plan's own. */
-    seconds: number;
-  }
-
   /**
    * Whether the arms can hold at one instant: the course's own still problem
    * there (`HumanArmSeed.held`), on the bases, sites and starts the course
@@ -404,6 +386,21 @@ export namespace AutoMovieMotionHumanArmPlanned {
    */
   export const moved: typeof AutoMovieMotionHumanArmObservation.moved =
     AutoMovieMotionHumanArmObservation.moved;
+
+  /**
+   * The plan in scope (`within`): its action's handover, how many groups it has
+   * made and where a refusing group is named.
+   */
+  interface IScope {
+    /** The action's handover. */
+    handover: IAutoMovieMotionHumanActionContext.IHandover;
+
+    /** The groups the plan has made so far. */
+    made: number;
+
+    /** Where a refusing group is named. */
+    refusal?: IRefusal;
+  }
 }
 
 /**
@@ -411,3 +408,6 @@ export namespace AutoMovieMotionHumanArmPlanned {
  * (`AutoMovieMotionHumanArmCourse.STEP`).
  */
 const STEP: number = AutoMovieMotionHumanArmCourse.STEP;
+
+/** The alternatives of `PlannedPlan`'s site. */
+type PlannedPlan = "warm" | "last" | "stretches" | "tempo" | "ordinal";

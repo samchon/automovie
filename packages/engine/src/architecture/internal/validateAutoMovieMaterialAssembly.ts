@@ -9,27 +9,6 @@ import {
 
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 
-const AXES: readonly IAutoMovieMaterialAssembly["axis"][] = ["x", "y", "z"];
-
-const SENSES: readonly IAutoMovieMaterialAssembly["sense"][] = [
-  "positive",
-  "negative",
-];
-
-const SUBSTANCES: readonly IAutoMovieMaterialLayer["substance"][] = [
-  "solid",
-  "cavity",
-  "membrane",
-];
-
-const EXPOSURES: readonly IAutoMovieMaterialAssembly["faces"]["first"][] = [
-  "exposed",
-  "concealed",
-];
-
-/** Largest metre slack a summed build-up may differ from its host by. */
-const THICKNESS_EPSILON: number = 1e-9;
-
 /**
  * Judge one layered build-up: its layers, its finishes, and its total.
  *
@@ -206,6 +185,27 @@ export function validateAutoMovieMaterialAssembly(
 
   return collector.toValidation();
 }
+
+const AXES: readonly IAutoMovieMaterialAssembly["axis"][] = ["x", "y", "z"];
+
+const SENSES: readonly IAutoMovieMaterialAssembly["sense"][] = [
+  "positive",
+  "negative",
+];
+
+const SUBSTANCES: readonly IAutoMovieMaterialLayer["substance"][] = [
+  "solid",
+  "cavity",
+  "membrane",
+];
+
+const EXPOSURES: readonly IAutoMovieMaterialAssembly["faces"]["first"][] = [
+  "exposed",
+  "concealed",
+];
+
+/** Largest metre slack a summed build-up may differ from its host by. */
+const THICKNESS_EPSILON: number = 1e-9;
 
 /**
  * Report every finish contradiction between a stack and the faces it presents.

@@ -9,9 +9,6 @@ import type {
 
 import { AutoMovieMeshExtract } from "./AutoMovieMeshExtract";
 
-/** A polyline segment, chart millimetres, start then end. */
-type Segment = readonly [AutoMovieVector2Tuple, AutoMovieVector2Tuple];
-
 /**
  * Sections of a dense mesh on the planes of a course: one exact plane cut per
  * station (`AutoMovieMeshExtract.outline` on that station's own plane, so a
@@ -615,3 +612,6 @@ export namespace AutoMovieMeshCourse {
     ];
   }
 }
+
+/** A polyline segment, chart millimetres, start then end. */
+type Segment = readonly [AutoMovieVector2Tuple, AutoMovieVector2Tuple];

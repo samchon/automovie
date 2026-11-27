@@ -11,12 +11,6 @@ import { HumanPopulationEnds } from "./HumanPopulationEnds";
 import { HumanPopulationSurvey } from "./HumanPopulationSurvey";
 import { f1, m1 } from "./human-parameters/index";
 
-type P = IAutoMovieHumanParameters;
-type Sex = HumanPopulationSurvey.Sex;
-type Variable = HumanPopulationSurvey.Variable;
-/** The alternatives of `BodyK`'s site. */
-type BodyK = 0 | 1;
-
 /**
  * A population end as a full public input set, written from the end's surveyed
  * measures and never from a generated figure.
@@ -177,3 +171,9 @@ export namespace HumanPopulationBuild {
     };
   }
 }
+type P = IAutoMovieHumanParameters;
+type Sex = HumanPopulationSurvey.Sex;
+type Variable = HumanPopulationSurvey.Variable;
+
+/** The alternatives of `BodyK`'s site. */
+type BodyK = 0 | 1;

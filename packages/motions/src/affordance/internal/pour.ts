@@ -39,12 +39,6 @@ const UPRIGHT: number = Math.cos((5 * Math.PI) / 180);
 const TIP_ALIGNMENT: number = Math.cos((10 * Math.PI) / 180);
 /** World vertical for the stationary vessel and the gravity cue. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-/** The alternatives of `LiquidPlan`'s site. */
-type LiquidPlan = "duration" | "events";
-
-/** The record of `IPlanOpening`'s site. */
-type IPlanOpening = { center: IAutoMovieVector3; radius: number };
-
 /**
  * A registered, stationary-base pour. Bring the held source above a fixed
  * recipient, tip about its rim lip, transfer, right it and retreat. Register
@@ -351,6 +345,7 @@ export namespace pour {
     };
   }
 }
+
 /** Admit finite quantities before arithmetic or planning. */
 function validateVolumes(params: IAutoMovieMotionHumanPour.IParams): void {
   if (
@@ -371,8 +366,6 @@ function validateVolumes(params: IAutoMovieMotionHumanPour.IParams): void {
       fix: "supply the initial fills and capacity in millilitres and discharge at most the available source volume",
     });
 }
-/** The record of `IOpeningOfResult`'s site. */
-type IOpeningOfResult = { center: IAutoMovieVector3; radius: number };
 
 /**
  * Read the stationary recipient's upright circular opening from its centre and
@@ -445,9 +438,6 @@ function rimOf(
       site.id === "lip" && site.kind === "ledge" && site.rides === undefined,
   );
 }
-/** The alternatives of `VesselRefusalAxis`'s site. */
-type VesselRefusalAxis = "source" | "target";
-
 /** Report the vessel feature that must change. */
 function vesselRefusal(
   axis: VesselRefusalAxis,
@@ -465,3 +455,13 @@ function vesselRefusal(
         : "place a fixed upright recipient with a mouth socket and rim lip",
   });
 }
+
+/** The alternatives of `LiquidPlan`'s site. */
+type LiquidPlan = "duration" | "events";
+/** The record of `IPlanOpening`'s site. */
+type IPlanOpening = { center: IAutoMovieVector3; radius: number };
+/** The record of `IOpeningOfResult`'s site. */
+type IOpeningOfResult = { center: IAutoMovieVector3; radius: number };
+
+/** The alternatives of `VesselRefusalAxis`'s site. */
+type VesselRefusalAxis = "source" | "target";

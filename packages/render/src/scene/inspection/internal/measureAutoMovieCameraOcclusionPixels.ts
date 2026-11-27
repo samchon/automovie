@@ -13,30 +13,6 @@ import { hasMaterialDisplacement } from "./hasMaterialDisplacement.js";
 import { isAutoMovieFloat32Point } from "../isAutoMovieFloat32Point.js";
 import { renderAutoMovieCameraOcclusionMasks } from "./renderAutoMovieCameraOcclusionMasks.js";
 
-/** One full audit of an original placed Draw frame. */
-interface IProps {
-  /** Native Draw renderer, with the default framebuffer selected. */
-  renderer: THREE.WebGLRenderer;
-
-  /** Original scene before inspection, with its source semantic binding. */
-  scene: THREE.Scene;
-
-  /** Original delivery camera with the delivery aspect and crop realized. */
-  camera: THREE.PerspectiveCamera;
-
-  /** Source-resolved root of the current subject requirement. */
-  target: THREE.Object3D;
-
-  /** Delivered raster width in pixels. */
-  width: number;
-
-  /** Delivered raster height in pixels. */
-  height: number;
-
-  /** Native Draw samples along a side of each delivered pixel. */
-  factor: 1 | 2;
-}
-
 /**
  * Measure target-only and composited pixel occupancy for an admitted Draw
  * frame.
@@ -392,4 +368,28 @@ function projectRange(
         max.max(point);
       }
   return { min, max };
+}
+
+/** One full audit of an original placed Draw frame. */
+interface IProps {
+  /** Native Draw renderer, with the default framebuffer selected. */
+  renderer: THREE.WebGLRenderer;
+
+  /** Original scene before inspection, with its source semantic binding. */
+  scene: THREE.Scene;
+
+  /** Original delivery camera with the delivery aspect and crop realized. */
+  camera: THREE.PerspectiveCamera;
+
+  /** Source-resolved root of the current subject requirement. */
+  target: THREE.Object3D;
+
+  /** Delivered raster width in pixels. */
+  width: number;
+
+  /** Delivered raster height in pixels. */
+  height: number;
+
+  /** Native Draw samples along a side of each delivered pixel. */
+  factor: 1 | 2;
 }

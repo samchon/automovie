@@ -181,16 +181,6 @@ export namespace EquineFlightClock {
     };
   }
 
-  /** A goal's support plane: its own, else the model floor under it. */
-  function floor(end: IAim): AutoMovieArchetypeQuadrupedFooting.ISurface {
-    return (
-      end.surface ?? {
-        point: { x: end.x ?? 0, y: 0, z: end.z },
-        normal: { x: 0, y: 1, z: 0 },
-      }
-    );
-  }
-
   /** One assembly's flight events. */
   export interface IClock {
     /** Film second both hinds are down for the push-off. */
@@ -208,5 +198,15 @@ export namespace EquineFlightClock {
      * jump.
      */
     pitch?: EquinePitch.IPlan;
+  }
+
+  /** A goal's support plane: its own, else the model floor under it. */
+  function floor(end: IAim): AutoMovieArchetypeQuadrupedFooting.ISurface {
+    return (
+      end.surface ?? {
+        point: { x: end.x ?? 0, y: 0, z: end.z },
+        normal: { x: 0, y: 1, z: 0 },
+      }
+    );
   }
 }

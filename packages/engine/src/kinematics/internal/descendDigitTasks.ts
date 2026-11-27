@@ -296,27 +296,6 @@ export function descendDigitTasks(
   return { values: x, primary: r1, primaryJacobian: J1 };
 }
 
-/** Quantities fixed by one accepted iterate, independent of damping retries. */
-interface ILinearization {
-  /** Existing primary reach tolerance, metres, at this exact x/Jacobian. */
-  met: number;
-
-  /** Whether the primary is served under that unchanged tolerance. */
-  served: boolean;
-
-  /** Active-set complement, in the original variable order. */
-  free: number[];
-
-  /** Primary normal matrix before adding the changing damping. */
-  gram: number[][];
-
-  /** Negative primary gradient restricted to those free variables. */
-  right: number[];
-
-  /** Secondary Jacobian restricted to the same free variables. */
-  secondary: number[][];
-}
-
 /** Completed task data of one descent, with no caller admission flag. */
 export namespace descendDigitTasks {
   /**
@@ -337,9 +316,30 @@ export namespace descendDigitTasks {
     primaryJacobian: readonly (readonly number[])[];
   }
 }
+
 /**
  * The damping start of Levenberg-Marquardt relative to the largest diagonal
  * entry of the normal matrix (Madsen, Nielsen and Tingleff 2004, section 3.2,
  * tau = 1e-3 for a start believed close).
  */
 const TAU: number = 1e-3;
+/** Quantities fixed by one accepted iterate, independent of damping retries. */
+interface ILinearization {
+  /** Existing primary reach tolerance, metres, at this exact x/Jacobian. */
+  met: number;
+
+  /** Whether the primary is served under that unchanged tolerance. */
+  served: boolean;
+
+  /** Active-set complement, in the original variable order. */
+  free: number[];
+
+  /** Primary normal matrix before adding the changing damping. */
+  gram: number[][];
+
+  /** Negative primary gradient restricted to those free variables. */
+  right: number[];
+
+  /** Secondary Jacobian restricted to the same free variables. */
+  secondary: number[][];
+}

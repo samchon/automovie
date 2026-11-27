@@ -14,9 +14,6 @@ import {
 import { AUTOMOVIE_DRAWING_ROLES } from "../AUTOMOVIE_DRAWING_ROLES";
 import { AUTOMOVIE_DRAWING_SVG_MARGIN } from "../AUTOMOVIE_DRAWING_SVG_MARGIN";
 
-/** One SVG attribute as a name and its unescaped value. */
-type Attribute = [string, string];
-
 /**
  * Serialize one derived drawing as a self-describing SVG sheet.
  *
@@ -240,6 +237,9 @@ export const autoMovieDrawingToSvg = (
     "</svg>",
   ].join("\n");
 };
+
+/** One SVG attribute as a name and its unescaped value. */
+type Attribute = [string, string];
 
 /** One element: indented and self-closing, or an unindented opening tag. */
 const tag = (

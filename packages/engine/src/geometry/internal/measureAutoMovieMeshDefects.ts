@@ -6,21 +6,6 @@ import type {
 import { MESH_WELD_GRID } from "../../constants/MESH_WELD_GRID";
 
 /**
- * Shape state of a triangle with three distinct cells whose aspect is within
- * the limit, or was not asked about.
- */
-const SOUND: number = 0;
-
-/** Shape state of a triangle whose corners weld onto fewer than three cells. */
-const DEGENERATE: number = 1;
-
-/**
- * Shape state of a triangle on three distinct cells whose aspect exceeds the
- * limit.
- */
-const SLIVER: number = 2;
-
-/**
  * List every defect of a triangle mesh with the vertices that carry it, so an
  * inspection can draw each one where it is instead of reading a count.
  *
@@ -246,6 +231,21 @@ export function measureAutoMovieMeshDefects(
   }
   return defects;
 }
+
+/**
+ * Shape state of a triangle with three distinct cells whose aspect is within
+ * the limit, or was not asked about.
+ */
+const SOUND: number = 0;
+
+/** Shape state of a triangle whose corners weld onto fewer than three cells. */
+const DEGENERATE: number = 1;
+
+/**
+ * Shape state of a triangle on three distinct cells whose aspect exceeds the
+ * limit.
+ */
+const SLIVER: number = 2;
 
 /**
  * Welded corner id of every vertex: vertices whose three rounded lattice

@@ -40,26 +40,6 @@ import { HumanMountPush } from "./HumanMountPush";
 import { HumanSwungLeg } from "./HumanSwungLeg";
 import { prepareMountOffFloor } from "./prepareMountOffFloor";
 
-/** The alternatives of `Frame2`'s site. */
-type Frame2 = "root" | "yaw" | "pitch" | "roll" | "joints";
-
-/**
- * Where the pelvis is at an instant of getting off: the root, the heading, the
- * pelvis pitch and the set joints.
- */
-type Frame = Pick<IAutoMovieMotionHumanPosture, Frame2>;
-/** The alternatives of `PlanLowerLimb`'s site. */
-type PlanLowerLimb = "leftLeg" | "rightLeg";
-
-/** The alternatives of `PlanPart`'s site. */
-type PlanPart = "leftFoot" | "rightFoot";
-
-/** The record of `IPlanFrameAtTilt`'s site. */
-type IPlanFrameAtTilt = {
-  pitch: number;
-  joints: IAutoMovieMotionHumanPosture["joints"];
-};
-
 /** Samples per second of the action clock used to find floor reach. */
 const REACH_RATE: number = 60;
 
@@ -70,7 +50,6 @@ const TRUNK: readonly AutoMovieHumanoidBone[] = [
   "chest",
   "upperChest",
 ];
-
 /**
  * Getting off a high seat onto the floor: what `rise` plans where a foot is off
  * the floor, on a rest or hanging.
@@ -747,3 +726,24 @@ export namespace HumanMountOff {
     };
   }
 }
+
+/** The alternatives of `Frame2`'s site. */
+type Frame2 = "root" | "yaw" | "pitch" | "roll" | "joints";
+
+/**
+ * Where the pelvis is at an instant of getting off: the root, the heading, the
+ * pelvis pitch and the set joints.
+ */
+type Frame = Pick<IAutoMovieMotionHumanPosture, Frame2>;
+
+/** The alternatives of `PlanLowerLimb`'s site. */
+type PlanLowerLimb = "leftLeg" | "rightLeg";
+
+/** The alternatives of `PlanPart`'s site. */
+type PlanPart = "leftFoot" | "rightFoot";
+
+/** The record of `IPlanFrameAtTilt`'s site. */
+type IPlanFrameAtTilt = {
+  pitch: number;
+  joints: IAutoMovieMotionHumanPosture["joints"];
+};

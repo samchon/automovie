@@ -15,19 +15,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { seatedPairDepth } from "./seatedPairDepth";
 
-/** A loaded palm's fixed tangent turn and actual hand-local contact frame. */
-interface IRoll {
-  /** The side that needs forearm clearance. */
-  side: AutoMovieHumanSide;
-  /**
-   * The tangent-plane rotation from fingers toward the projected forearm,
-   * degrees.
-   */
-  angle: number;
-  /** The material frame that stays on its site when the wrist turns. */
-  palm: IAutoMovieMotionHumanHand.IFrame;
-}
-
 /**
  * At seat-off, let a loaded palm turn in its tangent plane where its forearm
  * runs into the trunk. Align the fingers with the incoming forearm projected on
@@ -110,4 +97,17 @@ export function prepareRisePalmRoll(
     }
     return { ...posture, limbs };
   };
+}
+
+/** A loaded palm's fixed tangent turn and actual hand-local contact frame. */
+interface IRoll {
+  /** The side that needs forearm clearance. */
+  side: AutoMovieHumanSide;
+  /**
+   * The tangent-plane rotation from fingers toward the projected forearm,
+   * degrees.
+   */
+  angle: number;
+  /** The material frame that stays on its site when the wrist turns. */
+  palm: IAutoMovieMotionHumanHand.IFrame;
 }

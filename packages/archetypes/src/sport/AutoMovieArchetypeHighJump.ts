@@ -25,7 +25,58 @@ const BAR: string = `${WA}, Technical Rule 26.7: the circular part of the crossb
 
 /** Constructs the high jump archetype from its recipe. */
 export namespace AutoMovieArchetypeHighJump {
-/**
+/** The kinds: the high jump and the pole vault. */
+  export type Kind = "highJump" | "poleVault";
+
+  /**
+   * The affordance ids:
+   *
+   * - `bar`: the crossbar's axis, a bar along `+X` facing up.
+   * - `box`: a pole vault's planting box, the socket at the stop board's foot.
+   */
+  export type Affordance = "bar" | "box";
+
+  /**
+   * The free dimensions, metres unless stated:
+   *
+   * - `height`: the crossbar's top above the floor, the height jumped.
+   * - `length`: the crossbar's.
+   * - `diameter`: the crossbar's.
+   * - `span`: between the uprights' axes, or a pole vault's pegs.
+   * - `setback`: a pole vault's standards beyond the zero line.
+   * - `boxLength`, `boxFloor`, `boxDepth`: a pole vault box's length at runway
+   *   level, its floor's length along its slope and the stop board's foot below
+   *   the runway.
+   * - `boxWidth`, `boxEnd`: the box's width at its front and at the stop board's
+   *   foot.
+   * - `mass`: the apparatus, kilograms.
+   */
+  export type Dimension =
+    | "height"
+    | "length"
+    | "diameter"
+    | "span"
+    | "setback"
+    | "boxLength"
+    | "boxFloor"
+    | "boxDepth"
+    | "boxWidth"
+    | "boxEnd"
+    | "mass";
+
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Which apparatus; `highJump` when absent. */
+    kind?: Kind;
+
+    /** The model's id, unique in a scene; `highJump` when absent. */
+    id?: string;
+  }
+
+  /**
  * A vertical jump's apparatus: the high jump's two uprights and crossbar, or
  * the pole vault's standards, crossbar and planting box.
  *
@@ -142,9 +193,6 @@ export function create(
   return builder.build(d.mass!);
 }
 
-  /** The kinds: the high jump and the pole vault. */
-  export type Kind = "highJump" | "poleVault";
-
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["highJump", "poleVault"];
 
@@ -159,42 +207,6 @@ export function create(
 
   /** The thickness of the box's floor and stop board, metres: an estimate. */
   export const PLATE: number = 0.02;
-
-  /**
-   * The affordance ids:
-   *
-   * - `bar`: the crossbar's axis, a bar along `+X` facing up.
-   * - `box`: a pole vault's planting box, the socket at the stop board's foot.
-   */
-  export type Affordance = "bar" | "box";
-
-  /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `height`: the crossbar's top above the floor, the height jumped.
-   * - `length`: the crossbar's.
-   * - `diameter`: the crossbar's.
-   * - `span`: between the uprights' axes, or a pole vault's pegs.
-   * - `setback`: a pole vault's standards beyond the zero line.
-   * - `boxLength`, `boxFloor`, `boxDepth`: a pole vault box's length at runway
-   *   level, its floor's length along its slope and the stop board's foot below
-   *   the runway.
-   * - `boxWidth`, `boxEnd`: the box's width at its front and at the stop board's
-   *   foot.
-   * - `mass`: the apparatus, kilograms.
-   */
-  export type Dimension =
-    | "height"
-    | "length"
-    | "diameter"
-    | "span"
-    | "setback"
-    | "boxLength"
-    | "boxFloor"
-    | "boxDepth"
-    | "boxWidth"
-    | "boxEnd"
-    | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: Readonly<
@@ -212,18 +224,6 @@ export function create(
     boxEnd: "m",
     mass: "kg",
   };
-
-  /**
-   * The parameters: the kind, and any free dimension fixed to a value inside
-   * its band.
-   */
-  export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which apparatus; `highJump` when absent. */
-    kind?: Kind;
-
-    /** The model's id, unique in a scene; `highJump` when absent. */
-    id?: string;
-  }
 
   /** The pole vault box, read. */
   const BOX: string = `${WA}, Technical Rule 28.8 and Figure (a) TR28: 1.00 m along the inside of the bottom, 1.08 m at runway level, 0.60 m wide at the front tapering to 0.15 m at the bottom of the stop board, its foot 0.20 m below the runway`;

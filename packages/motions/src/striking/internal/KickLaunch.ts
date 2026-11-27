@@ -27,9 +27,6 @@ import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { strikingStepSupport } from "./strikingStepSupport";
 
-/** The alternatives of `OfLevel`'s site. */
-type OfLevel = "low" | "middle" | "high";
-
 /**
  * A kick's launch.
  *
@@ -352,3 +349,6 @@ export namespace KickLaunch {
     launched: IPlanned;
   }
 }
+
+/** The alternatives of `OfLevel`'s site. */
+type OfLevel = "low" | "middle" | "high";

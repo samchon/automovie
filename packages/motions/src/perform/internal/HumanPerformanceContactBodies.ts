@@ -12,9 +12,6 @@ import { StrikingWeapon } from "../../striking/internal/StrikingWeapon";
 import type { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanSegmentStill } from "./HumanSegmentStill";
 
-/** The record of `IContactsEventsBest`'s site. */
-type IContactsEventsBest = { key: string; distance: number };
-
 /**
  * The people a performance's contact resolution sweeps its weapons against
  * (`HumanPerformanceContacts.contacts`): each person's colliders on the bones
@@ -173,3 +170,6 @@ export namespace HumanPerformanceContactBodies {
     apply: (stops: IAutoMovieResolveContactEvents.IStops) => void;
   }
 }
+
+/** The record of `IContactsEventsBest`'s site. */
+type IContactsEventsBest = { key: string; distance: number };

@@ -5,32 +5,6 @@ import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovie
 import "../constants/BAG_BANDS";
 
 /**
- * HSE's guideline load for a load held close to the body below the elbow by a
- * woman, kilograms (INDG143, Figure 1,
- * https://www.hse.gov.uk/pubns/indg143.pdf): the bound of every bag carried by
- * hand or on the back.
- */
-const HSE_CLOSE_LOAD: number = 16;
-
-/**
- * The greatest load each kind may carry, kilograms: HSE's 16 kg for a load held
- * close below the elbow by a woman (INDG143, Figure 1,
- * https://www.hse.gov.uk/pubns/indg143.pdf) for a carried bag, case or toolbox,
- * and for a suitcase IATA's 32 kg piece limit
- * (https://www.iata.org/en/programs/ops-infra/baggage/passenger-baggage-rules/)
- * less the heaviest empty case of 4.3 kg.
- */
-const LOADS: Readonly<Record<AutoMovieArchetypeBag.Kind, number>> = {
-  tote: HSE_CLOSE_LOAD,
-  backpack: HSE_CLOSE_LOAD,
-  suitcase: 32 - 4.3,
-  briefcase: HSE_CLOSE_LOAD,
-  toolbox: HSE_CLOSE_LOAD,
-  handbag: HSE_CLOSE_LOAD,
-  duffel: HSE_CLOSE_LOAD,
-};
-
-/**
  * A carried bag: a tote open at the top with handles and a shoulder strap, its
  * hollow reached through its `opening` and its floor the `inside` surface, a
  * backpack, a cabin suitcase with a telescopic handle, a briefcase, a toolbox,
@@ -305,3 +279,29 @@ export function createBag(
   }
   return builder.build(d.mass! + load);
 }
+
+/**
+ * HSE's guideline load for a load held close to the body below the elbow by a
+ * woman, kilograms (INDG143, Figure 1,
+ * https://www.hse.gov.uk/pubns/indg143.pdf): the bound of every bag carried by
+ * hand or on the back.
+ */
+const HSE_CLOSE_LOAD: number = 16;
+
+/**
+ * The greatest load each kind may carry, kilograms: HSE's 16 kg for a load held
+ * close below the elbow by a woman (INDG143, Figure 1,
+ * https://www.hse.gov.uk/pubns/indg143.pdf) for a carried bag, case or toolbox,
+ * and for a suitcase IATA's 32 kg piece limit
+ * (https://www.iata.org/en/programs/ops-infra/baggage/passenger-baggage-rules/)
+ * less the heaviest empty case of 4.3 kg.
+ */
+const LOADS: Readonly<Record<AutoMovieArchetypeBag.Kind, number>> = {
+  tote: HSE_CLOSE_LOAD,
+  backpack: HSE_CLOSE_LOAD,
+  suitcase: 32 - 4.3,
+  briefcase: HSE_CLOSE_LOAD,
+  toolbox: HSE_CLOSE_LOAD,
+  handbag: HSE_CLOSE_LOAD,
+  duffel: HSE_CLOSE_LOAD,
+};

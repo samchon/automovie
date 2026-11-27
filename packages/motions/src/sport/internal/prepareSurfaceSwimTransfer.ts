@@ -15,18 +15,6 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
 import { mixHumanPosture } from "../../posture/internal/mixHumanPosture";
 import { turnHumanPosture } from "../../posture/internal/turnHumanPosture";
 
-/** The time for a swimmer to change their surface posture, seconds. */
-const CHANGE: number = 0.65;
-
-/** The angle of a stroke's long axis from the upright root, degrees. */
-const PITCH: Readonly<Record<IAutoMovieMotionHumanSwim.Kind, number>> = {
-  treadWater: 0,
-  frontCrawl: 90,
-  breaststroke: 90,
-  backstroke: -90,
-  float: -90,
-};
-
 /** Settle a change of stroke in the water around the displayed hips. */
 export function prepareSurfaceSwimTransfer(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSwim.IParams>,
@@ -154,3 +142,15 @@ export function prepareSurfaceSwimTransfer(
     },
   };
 }
+
+/** The time for a swimmer to change their surface posture, seconds. */
+const CHANGE: number = 0.65;
+
+/** The angle of a stroke's long axis from the upright root, degrees. */
+const PITCH: Readonly<Record<IAutoMovieMotionHumanSwim.Kind, number>> = {
+  treadWater: 0,
+  frontCrawl: 90,
+  breaststroke: 90,
+  backstroke: -90,
+  float: -90,
+};

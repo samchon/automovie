@@ -4,21 +4,6 @@ import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion
 import { HumanColliders } from "./HumanColliders";
 import { poseBones } from "./poseBones";
 
-/** The alternatives of `TipSide`'s site. */
-type TipSide = "Left" | "Right";
-
-/** The alternatives of `AimToward`'s site. */
-type AimToward = "up" | "down";
-
-/** The alternatives of `DigitAtSegment2`'s site. */
-type DigitAtSegment2 = "Proximal" | "Distal";
-
-/** The alternatives of `DigitAtSegment`'s site. */
-type DigitAtSegment = "Proximal" | "Distal";
-
-/** The alternatives of `DigitName`'s site. */
-type DigitName = "Thumb" | "Index";
-
 /**
  * The finger joints of a hand shape, clinical degrees.
  *
@@ -402,3 +387,18 @@ function padOf(
  * the joint's admitted -25 (`DEFAULT_HUMANOID_ROM`).
  */
 const FLAT_THUMB: number = -25;
+
+/** The alternatives of `TipSide`'s site. */
+type TipSide = "Left" | "Right";
+
+/** The alternatives of `AimToward`'s site. */
+type AimToward = "up" | "down";
+
+/** The alternatives of `DigitAtSegment2`'s site. */
+type DigitAtSegment2 = "Proximal" | "Distal";
+
+/** The alternatives of `DigitAtSegment`'s site. */
+type DigitAtSegment = "Proximal" | "Distal";
+
+/** The alternatives of `DigitName`'s site. */
+type DigitName = "Thumb" | "Index";

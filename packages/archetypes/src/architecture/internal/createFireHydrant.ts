@@ -8,28 +8,6 @@ import {
 } from "../../core/index";
 import { StreetFixtureDraw } from "./StreetFixtureDraw";
 
-/** The shape of {@link HYDRANT}. */
-interface IHydrant {
-  /** The `pumper` entry. */
-  pumper: number;
-
-  /** The `hose` entry. */
-  hose: number;
-
-  /** The `nut` entry. */
-  nut: number;
-}
-
-/**
- * The Mueller hydrant's nozzle bores, metres: the 4 1/2 in pumper and the 2 1/2
- * in hose nozzles; its 1 1/2 in operating nut.
- */
-const HYDRANT: Readonly<IHydrant> = {
-  pumper: 4.5 * AutoMovieArchetypeUnits.INCH,
-  hose: 2.5 * AutoMovieArchetypeUnits.INCH,
-  nut: 1.5 * AutoMovieArchetypeUnits.INCH,
-};
-
 /**
  * A ground-standing hydrant with one pumper and two hose socket frames, plus
  * its operating nut.
@@ -118,3 +96,25 @@ export function createFireHydrant(
   });
   return builder.build(d.mass!);
 }
+
+/** The shape of {@link HYDRANT}. */
+interface IHydrant {
+  /** The `pumper` entry. */
+  pumper: number;
+
+  /** The `hose` entry. */
+  hose: number;
+
+  /** The `nut` entry. */
+  nut: number;
+}
+
+/**
+ * The Mueller hydrant's nozzle bores, metres: the 4 1/2 in pumper and the 2 1/2
+ * in hose nozzles; its 1 1/2 in operating nut.
+ */
+const HYDRANT: Readonly<IHydrant> = {
+  pumper: 4.5 * AutoMovieArchetypeUnits.INCH,
+  hose: 2.5 * AutoMovieArchetypeUnits.INCH,
+  nut: 1.5 * AutoMovieArchetypeUnits.INCH,
+};

@@ -9,39 +9,6 @@ import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMoti
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { staggerBounds } from "./staggerBounds";
 
-/** The record of `IStaggerLeanTrunk`'s site. */
-type IStaggerLeanTrunk = { pitch: number; roll: number };
-
-/** The record of `IStaggerLeanResult2`'s site. */
-type IStaggerLeanResult2 = {
-  trunk: IStaggerLeanTrunkResult2;
-  root: IAutoMovieVector3;
-  ease: number;
-};
-
-/** The record of `IStaggerLeanTrunkResult2`'s site. */
-type IStaggerLeanTrunkResult2 = { pitch: number; roll: number };
-
-/** The record of `IStaggerLeanResult`'s site. */
-type IStaggerLeanResult = {
-  trunk: IStaggerLeanTrunkResult;
-  root: IAutoMovieVector3;
-  ease: number;
-};
-
-/** The record of `IStaggerLeanTrunkResult`'s site. */
-type IStaggerLeanTrunkResult = { pitch: number; roll: number };
-
-/** The alternatives of `StaggerLeanBendEntry`'s site. */
-type StaggerLeanBendEntry = "pitch" | "roll";
-
-/** The record of `IStaggerLeanWalk`'s site. */
-type IStaggerLeanWalk = {
-  course: (seconds: number) => IAutoMovieVector3;
-  extrapolated: (seconds: number) => IAutoMovieVector3;
-  centre: IAutoMovieVector3;
-};
-
 /**
  * A stagger's trunk and the root that carries it, as prepared curves of the
  * recovery's courses (`staggerRecover`).
@@ -149,3 +116,36 @@ export function staggerLean(
     };
   };
 }
+
+/** The record of `IStaggerLeanTrunk`'s site. */
+type IStaggerLeanTrunk = { pitch: number; roll: number };
+
+/** The record of `IStaggerLeanResult2`'s site. */
+type IStaggerLeanResult2 = {
+  trunk: IStaggerLeanTrunkResult2;
+  root: IAutoMovieVector3;
+  ease: number;
+};
+
+/** The record of `IStaggerLeanTrunkResult2`'s site. */
+type IStaggerLeanTrunkResult2 = { pitch: number; roll: number };
+
+/** The record of `IStaggerLeanResult`'s site. */
+type IStaggerLeanResult = {
+  trunk: IStaggerLeanTrunkResult;
+  root: IAutoMovieVector3;
+  ease: number;
+};
+
+/** The record of `IStaggerLeanTrunkResult`'s site. */
+type IStaggerLeanTrunkResult = { pitch: number; roll: number };
+
+/** The alternatives of `StaggerLeanBendEntry`'s site. */
+type StaggerLeanBendEntry = "pitch" | "roll";
+
+/** The record of `IStaggerLeanWalk`'s site. */
+type IStaggerLeanWalk = {
+  course: (seconds: number) => IAutoMovieVector3;
+  extrapolated: (seconds: number) => IAutoMovieVector3;
+  centre: IAutoMovieVector3;
+};

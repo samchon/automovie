@@ -34,17 +34,11 @@ import { measureRidePalmDepth } from "./measureRidePalmDepth";
 import { readRideHandles } from "./readRideHandles";
 import { sideRideGrips } from "./sideRideGrips";
 
-/** The alternatives of `OfBowAngles`'s site. */
-type OfBowAngles = "yaw" | "pitch" | "roll";
-
 /**
  * Fixed-seat thorax excursion from finish to catch (Agius et al. 2023, §4.1),
  * degrees.
  */
 const ROWING: readonly [number, number] = [-28, 49];
-
-/** Each hand's current, complete support-relative hold. */
-type Grips = Partial<Record<AutoMovieHumanSide, HumanRideHands.IMaterialGrip>>;
 
 /**
  * Read the hands of a ride.
@@ -482,3 +476,9 @@ export namespace HumanRideHands {
   /** {@link IHumanRideHandsHands}, read through this namespace. */
   export type IHands = IHumanRideHandsHands;
 }
+
+/** The alternatives of `OfBowAngles`'s site. */
+type OfBowAngles = "yaw" | "pitch" | "roll";
+
+/** Each hand's current, complete support-relative hold. */
+type Grips = Partial<Record<AutoMovieHumanSide, HumanRideHands.IMaterialGrip>>;

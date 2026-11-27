@@ -4,31 +4,6 @@ import { Vector3 } from "@automovie/engine";
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { StreetFixtureDraw } from "./StreetFixtureDraw";
 
-/** The shape of {@link CONE}. */
-interface ICone {
-  /** The `base` entry. */
-  base: number;
-
-  /** The `foot` entry. */
-  foot: number;
-
-  /** The `top` entry. */
-  top: number;
-}
-
-/**
- * The Brimar 28 in cone's proportions to its height: its square base, its
- * cone's foot and its top (13.4, 9.8 and 2.1 in of 28).
- */
-const CONE: Readonly<ICone> = {
-  base: 13.4 / 28,
-  foot: 9.8 / 28,
-  top: 2.1 / 28,
-};
-
-/** The estimated share of the cone height used by its base plate. */
-const PLATE_RATIO: number = 0.04;
-
 /**
  * A stepped traffic cone with its top grasp and square base on the pavement.
  *
@@ -94,3 +69,28 @@ export function createTrafficCone(
   });
   return builder.build(d.mass!);
 }
+
+/** The shape of {@link CONE}. */
+interface ICone {
+  /** The `base` entry. */
+  base: number;
+
+  /** The `foot` entry. */
+  foot: number;
+
+  /** The `top` entry. */
+  top: number;
+}
+
+/**
+ * The Brimar 28 in cone's proportions to its height: its square base, its
+ * cone's foot and its top (13.4, 9.8 and 2.1 in of 28).
+ */
+const CONE: Readonly<ICone> = {
+  base: 13.4 / 28,
+  foot: 9.8 / 28,
+  top: 2.1 / 28,
+};
+
+/** The estimated share of the cone height used by its base plate. */
+const PLATE_RATIO: number = 0.04;

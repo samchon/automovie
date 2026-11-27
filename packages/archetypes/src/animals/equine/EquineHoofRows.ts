@@ -37,21 +37,6 @@ const STAMP: number = 0.12;
  */
 const COW_KICK: readonly [number, number, number, number] = [-45, 30, -60, 30];
 
-/** The pawing stroke's authored shape. */
-interface IPawShape {
-  /** Metres ahead of the hoof's place a stroke reaches. */
-  reach: number;
-
-  /** Metres behind it a stroke scrapes to. */
-  drag: number;
-
-  /** Metres a stroke's swing rises. */
-  lift: number;
-
-  /** Metres the trunk settles while pawing. */
-  settle: number;
-}
-
 /**
  * The comfort rows that move one hoof: pawing, stamping and the cow-kick.
  *
@@ -278,4 +263,19 @@ export namespace EquineHoofRows {
             },
     };
   }
+}
+
+/** The pawing stroke's authored shape. */
+interface IPawShape {
+  /** Metres ahead of the hoof's place a stroke reaches. */
+  reach: number;
+
+  /** Metres behind it a stroke scrapes to. */
+  drag: number;
+
+  /** Metres a stroke's swing rises. */
+  lift: number;
+
+  /** Metres the trunk settles while pawing. */
+  settle: number;
 }

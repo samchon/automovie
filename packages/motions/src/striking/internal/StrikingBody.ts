@@ -89,26 +89,6 @@ export namespace StrikingBody {
   }
 
   /**
-   * The exact original complete admission/digit path with only limb goals
-   * cleared.
-   */
-  function trunkPose(
-    body: IAutoMovieMotionHumanBody,
-    posture: IAutoMovieMotionHumanPosture,
-    read?: ReturnType<typeof prepareHumanPoseResolution>,
-    projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): IAutoMoviePose {
-    return resolveHumanPosture.seeded(
-      body,
-      { ...posture, limbs: {} },
-      undefined,
-      undefined,
-      read,
-      undefined,
-      projection,
-    ).pose;
-  }
-  /**
    * A region of a body at its resolved bones.
    *
    * @param body The body.
@@ -139,7 +119,6 @@ export namespace StrikingBody {
     );
     return placed;
   }
-
   /**
    * A region's fixed bone-local frame, including an authored tangent offset.
    *
@@ -311,5 +290,26 @@ export namespace StrikingBody {
           }),
         ),
     );
+  }
+
+  /**
+   * The exact original complete admission/digit path with only limb goals
+   * cleared.
+   */
+  function trunkPose(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    read?: ReturnType<typeof prepareHumanPoseResolution>,
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
+  ): IAutoMoviePose {
+    return resolveHumanPosture.seeded(
+      body,
+      { ...posture, limbs: {} },
+      undefined,
+      undefined,
+      read,
+      undefined,
+      projection,
+    ).pose;
   }
 }

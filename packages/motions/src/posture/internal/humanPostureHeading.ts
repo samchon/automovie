@@ -5,9 +5,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** The alternatives of `HumanPostureHeadingPosture`'s site. */
-type HumanPostureHeadingPosture = "yaw" | "pitch" | "roll";
-
 /**
  * Compose the existing world-Y yaw, local-X pitch and local-Z roll using three
  * private fixed-axis readers. Angle reads and product grouping remain yaw, then
@@ -23,8 +20,6 @@ export function humanPostureHeading(
     ),
   );
 }
-/** The alternatives of `HumanPostureHeadingAnglesResult`'s site. */
-type HumanPostureHeadingAnglesResult = "yaw" | "pitch" | "roll";
 
 /** Original numerical inverse of the shared heading convention. */
 export namespace humanPostureHeading {
@@ -58,13 +53,18 @@ export namespace humanPostureHeading {
     };
   }
 }
-
 /** Private world-up yaw geometry. */
 const YAW: ReturnType<typeof Quaternion.prepareAxisAngle> =
   Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });
+
 /** Private intrinsic left-axis pitch geometry. */
 const PITCH: ReturnType<typeof Quaternion.prepareAxisAngle> =
   Quaternion.prepareAxisAngle({ x: 1, y: 0, z: 0 });
+
 /** Private intrinsic forward-axis roll geometry. */
 const ROLL: ReturnType<typeof Quaternion.prepareAxisAngle> =
   Quaternion.prepareAxisAngle({ x: 0, y: 0, z: 1 });
+/** The alternatives of `HumanPostureHeadingPosture`'s site. */
+type HumanPostureHeadingPosture = "yaw" | "pitch" | "roll";
+/** The alternatives of `HumanPostureHeadingAnglesResult`'s site. */
+type HumanPostureHeadingAnglesResult = "yaw" | "pitch" | "roll";

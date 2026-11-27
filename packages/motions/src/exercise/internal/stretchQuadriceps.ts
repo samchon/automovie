@@ -7,16 +7,6 @@ import type {
 
 import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
 
-/** The record of `IStretchQuadricepsProps`'s site. */
-type IStretchQuadricepsProps = {
-  body: IAutoMovieMotionHumanBody;
-  side: AutoMovieHumanSide;
-  hip: IAutoMovieVector3;
-  shoulder: IAutoMovieVector3;
-  forward: IAutoMovieVector3;
-  least: number;
-};
-
 /**
  * Where the lifted ankle is held in the standing quadriceps stretch: the least
  * fold of the leg that brings the ankle within the same-side arm's length of
@@ -84,3 +74,13 @@ export function stretchQuadriceps(
   }
   return ankle(knee, hip);
 }
+
+/** The record of `IStretchQuadricepsProps`'s site. */
+type IStretchQuadricepsProps = {
+  body: IAutoMovieMotionHumanBody;
+  side: AutoMovieHumanSide;
+  hip: IAutoMovieVector3;
+  shoulder: IAutoMovieVector3;
+  forward: IAutoMovieVector3;
+  least: number;
+};

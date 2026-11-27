@@ -20,9 +20,6 @@ import { StrikingReach } from "./StrikingReach";
 import { StrikingWeapon } from "./StrikingWeapon";
 import { kickChainRead } from "./kickChainRead";
 
-/** The alternatives of `PropsTechnique`'s site. */
-type PropsTechnique = "round" | "push";
-
 /**
  * The kicking leg at contact: the two-segment solve ({@link StrikingReach}) that
  * puts the round kick's lower shin or the push kick's ball of the foot on the
@@ -49,23 +46,6 @@ export namespace KickChain {
     /** The foot's world rotation from its rest. */
     asked: IAutoMovieQuaternion;
   }
-
-  /**
-   * How many times a fit is repeated from its own answer. Each round moves the
-   * ankle's goal by the weapon's remaining error, which shrinks geometrically
-   * when the leg can reach the point; provisional, chosen so a first error of a
-   * tenth of a metre halving each round ends under the contact tolerance
-   * ({@link KickForm.TOLERANCE}).
-   */
-  const REFITS: number = 8;
-
-  /**
-   * How far short of a weightless ankle's dorsiflexion
-   * (`ANKLE_DORSIFLEXION.unloaded`) the push foot is asked to stay, degrees:
-   * the fitted foot turns a little from the asked one (provisional, as
-   * `unloadedFoot`'s margin).
-   */
-  export const DORSAL_MARGIN: number = 3;
 
   /** What a contact solve reads; a prepared fit keeps these values unchanged. */
   export interface IProps {
@@ -121,6 +101,23 @@ export namespace KickChain {
      */
     status: IAutoMovieMotionHumanStrikingReach.ISolution["status"];
   }
+
+  /**
+   * How many times a fit is repeated from its own answer. Each round moves the
+   * ankle's goal by the weapon's remaining error, which shrinks geometrically
+   * when the leg can reach the point; provisional, chosen so a first error of a
+   * tenth of a metre halving each round ends under the contact tolerance
+   * ({@link KickForm.TOLERANCE}).
+   */
+  const REFITS: number = 8;
+
+  /**
+   * How far short of a weightless ankle's dorsiflexion
+   * (`ANKLE_DORSIFLEXION.unloaded`) the push foot is asked to stay, degrees:
+   * the fitted foot turns a little from the asked one (provisional, as
+   * `unloadedFoot`'s margin).
+   */
+  export const DORSAL_MARGIN: number = 3;
 
   /**
    * The push kick's foot rotation: the sole facing the target with the toes up.
@@ -409,6 +406,9 @@ export namespace KickChain {
     );
   }
 }
+
+/** The alternatives of `PropsTechnique`'s site. */
+type PropsTechnique = "round" | "push";
 
 /** Read-back needs the kicking knee/foot and the planted support foot only. */
 const CONTACT_BONES: Readonly<

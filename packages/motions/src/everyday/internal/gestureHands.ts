@@ -26,25 +26,6 @@ import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotion
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { HumanHandShape } from "../../posture/internal/HumanHandShape";
 
-/** The alternatives of `FingersGoal`'s site. */
-type FingersGoal = "shape" | "curl";
-
-/** The alternatives of `PrepareFingersGoal`'s site. */
-type PrepareFingersGoal = "shape" | "curl";
-
-/** The record of `IPrepareTarget`'s site. */
-type IPrepareTarget = {
-  surface: IAutoMovieMotionHumanHand.Surface;
-  shape: IAutoMovieMotionHumanHand.Shape;
-  emit: ReturnType<typeof AutoMovieMotionHumanArmTarget.prepareSidedTarget>;
-};
-
-/** The stroke fields a gesture hand is prepared on. */
-type PrepareStroke = "surface" | "shape";
-
-/** The alternatives of `PrepareP`'s site. */
-type PrepareP = "turn" | "shape" | "aim";
-
 /**
  * A gesture's hands: each moving hand's request on the stroke's goal and its
  * fingers' shape at a second, and the moving arms planned over the whole
@@ -411,3 +392,22 @@ export namespace gestureHands {
     curls: boolean;
   }
 }
+
+/** The alternatives of `FingersGoal`'s site. */
+type FingersGoal = "shape" | "curl";
+
+/** The alternatives of `PrepareFingersGoal`'s site. */
+type PrepareFingersGoal = "shape" | "curl";
+
+/** The record of `IPrepareTarget`'s site. */
+type IPrepareTarget = {
+  surface: IAutoMovieMotionHumanHand.Surface;
+  shape: IAutoMovieMotionHumanHand.Shape;
+  emit: ReturnType<typeof AutoMovieMotionHumanArmTarget.prepareSidedTarget>;
+};
+
+/** The stroke fields a gesture hand is prepared on. */
+type PrepareStroke = "surface" | "shape";
+
+/** The alternatives of `PrepareP`'s site. */
+type PrepareP = "turn" | "shape" | "aim";

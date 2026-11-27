@@ -15,9 +15,6 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/** The alternatives of `PocketContext`'s site. */
-type PocketContext = "body" | "entry" | "prop" | "start" | "subject";
-
 /**
  * A glove a catching hand wears, as a catch reads it: where its `pocket` stands
  * from the palm (`createGlove`'s contacts).
@@ -98,3 +95,6 @@ export namespace HumanGlove {
     );
   }
 }
+
+/** The alternatives of `PocketContext`'s site. */
+type PocketContext = "body" | "entry" | "prop" | "start" | "subject";

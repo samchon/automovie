@@ -14,15 +14,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { handToFaceSheet } from "./handToFaceSheet";
 
-/** The alternatives of `HandToFaceRegionPlace`'s site. */
-type HandToFaceRegionPlace = "point" | "normal";
-
-/** The alternatives of `HandToFaceRegionResult2`'s site. */
-type HandToFaceRegionResult2 = "point" | "normal";
-
-/** The alternatives of `HandToFaceRegionResult`'s site. */
-type HandToFaceRegionResult = "point" | "normal";
-
 /**
  * The place a hand-to-face task aims a hand at, as a reader of the posture and
  * the action's second: the face region the row names, read on the performer's
@@ -109,3 +100,12 @@ export function handToFaceRegion(
         : place;
     };
 }
+
+/** The alternatives of `HandToFaceRegionPlace`'s site. */
+type HandToFaceRegionPlace = "point" | "normal";
+
+/** The alternatives of `HandToFaceRegionResult2`'s site. */
+type HandToFaceRegionResult2 = "point" | "normal";
+
+/** The alternatives of `HandToFaceRegionResult`'s site. */
+type HandToFaceRegionResult = "point" | "normal";

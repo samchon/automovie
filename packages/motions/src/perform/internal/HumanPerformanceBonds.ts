@@ -22,48 +22,6 @@ import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanSegment } from "./HumanSegment";
 
-/** The kind of limb a bone lies on. */
-type LimbKind = "Arm" | "Leg";
-
-/** A value a refused link names. */
-type Refused = string | number;
-
-/** A limb channel of the posture. */
-type Limb = keyof IAutoMovieMotionHumanPosture["limbs"];
-
-/** A limb a binding holds: its channel and the bones that end and bend it. */
-interface IBound {
-  /** The limb's channel. */
-  limb: Limb;
-
-  /**
-   * The bone at its end: the hand or the foot, whose origin is the wrist or the
-   * ankle.
-   */
-  end: AutoMovieHumanoidBone;
-
-  /**
-   * The bone at its middle joint: the forearm or the shin, whose origin is the
-   * elbow or the knee.
-   */
-  middle: AutoMovieHumanoidBone;
-}
-
-/** One bound limb's end and middle joint, kept from the binding. */
-interface IKept {
-  /** The wrist or the ankle. */
-  point: IAutoMovieVector3;
-
-  /** The elbow or the knee. */
-  bend: IAutoMovieVector3;
-
-  /**
-   * The hand's or the foot's rotation from its rest, so the bound hand keeps
-   * the turn it was bound in.
-   */
-  rotation: IAutoMovieQuaternion;
-}
-
 /** The bones under each limb, by the part of the bone's name after its side. */
 const LIMBS: Readonly<Record<string, LimbKind>> = {
   Shoulder: "Arm",
@@ -361,4 +319,46 @@ function layer(
       return { ...posture, limbs: goals };
     },
   };
+}
+
+/** The kind of limb a bone lies on. */
+type LimbKind = "Arm" | "Leg";
+
+/** A value a refused link names. */
+type Refused = string | number;
+
+/** A limb channel of the posture. */
+type Limb = keyof IAutoMovieMotionHumanPosture["limbs"];
+
+/** A limb a binding holds: its channel and the bones that end and bend it. */
+interface IBound {
+  /** The limb's channel. */
+  limb: Limb;
+
+  /**
+   * The bone at its end: the hand or the foot, whose origin is the wrist or the
+   * ankle.
+   */
+  end: AutoMovieHumanoidBone;
+
+  /**
+   * The bone at its middle joint: the forearm or the shin, whose origin is the
+   * elbow or the knee.
+   */
+  middle: AutoMovieHumanoidBone;
+}
+
+/** One bound limb's end and middle joint, kept from the binding. */
+interface IKept {
+  /** The wrist or the ankle. */
+  point: IAutoMovieVector3;
+
+  /** The elbow or the knee. */
+  bend: IAutoMovieVector3;
+
+  /**
+   * The hand's or the foot's rotation from its rest, so the bound hand keeps
+   * the turn it was bound in.
+   */
+  rotation: IAutoMovieQuaternion;
 }

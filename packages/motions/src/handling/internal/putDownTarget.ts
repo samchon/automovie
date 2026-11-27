@@ -19,27 +19,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { StrikingRoll } from "../../striking/internal/StrikingRoll";
 
-/** The supplier of the body's pose at the entry. */
-type OfPose = () => IAutoMoviePose;
-
-/** The alternatives of `OfContext`'s site. */
-type OfContext = "params" | "body" | "prop" | "start";
-
-/** The alternatives of `SeatedContext`'s site. */
-type SeatedContext = "params" | "prop" | "start";
-
-/** The record of `ITrackMountsItem2`'s site. */
-type ITrackMountsItem2 = {
-  parent: IAutoMovieMotionHumanPropReader;
-  point: string;
-};
-
-/** The record of `ITrackMountsItem`'s site. */
-type ITrackMountsItem = {
-  parent: IAutoMovieMotionHumanPropReader;
-  point: string;
-};
-
 /** The raw rigid socket frame at the prop's displayed articulation state. */
 function socketFrame(
   reader: IAutoMovieMotionHumanPropReader,
@@ -392,14 +371,6 @@ export namespace putDownTarget {
     return undefined;
   }
 
-  /** The authored track and raw ancestor sockets used to reach it. */
-  interface ITrack {
-    /** The prop that owns the world track. */
-    reader: IAutoMovieMotionHumanPropReader;
-    /** Links in order from the receiver toward the track. */
-    mounts: readonly ITrackMountsItem2[];
-  }
-
   /**
    * The prop's frame in the frame of the socket it is set on (`onto`): the
    * inverse of its own `via` socket, so that socket lands on the receiving one,
@@ -438,4 +409,33 @@ export namespace putDownTarget {
       rotation: inverse,
     };
   }
+
+  /** The authored track and raw ancestor sockets used to reach it. */
+  interface ITrack {
+    /** The prop that owns the world track. */
+    reader: IAutoMovieMotionHumanPropReader;
+    /** Links in order from the receiver toward the track. */
+    mounts: readonly ITrackMountsItem2[];
+  }
 }
+
+/** The supplier of the body's pose at the entry. */
+type OfPose = () => IAutoMoviePose;
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "params" | "body" | "prop" | "start";
+
+/** The alternatives of `SeatedContext`'s site. */
+type SeatedContext = "params" | "prop" | "start";
+
+/** The record of `ITrackMountsItem2`'s site. */
+type ITrackMountsItem2 = {
+  parent: IAutoMovieMotionHumanPropReader;
+  point: string;
+};
+
+/** The record of `ITrackMountsItem`'s site. */
+type ITrackMountsItem = {
+  parent: IAutoMovieMotionHumanPropReader;
+  point: string;
+};

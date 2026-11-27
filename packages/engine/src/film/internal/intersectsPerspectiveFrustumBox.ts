@@ -12,29 +12,6 @@ import { deliveryCropNdc } from "./deliveryCropNdc";
 import { localSegmentMeetsPerspectiveFrustum } from "./localSegmentMeetsPerspectiveFrustum";
 
 /**
- * The twelve edges of any eight-corner box, as index pairs.
- *
- * Both corner lists below are built by nesting three two-valued choices, so a
- * corner's index is those three choices read as bits and an edge is a pair
- * differing in exactly one of them. The same twelve pairs therefore name the
- * box's edges and the frustum's.
- */
-const BOX_EDGES: ReadonlyArray<readonly [number, number]> = [
-  [0, 1],
-  [0, 2],
-  [0, 4],
-  [1, 3],
-  [1, 5],
-  [2, 3],
-  [2, 6],
-  [3, 7],
-  [4, 5],
-  [4, 6],
-  [5, 7],
-  [6, 7],
-];
-
-/**
  * Whether a world-space axis-aligned box intersects a perspective-camera
  * frustum under finite, ordered geometry and a valid lens.
  *
@@ -100,6 +77,29 @@ export function intersectsPerspectiveFrustumBox(
       return true;
   return false;
 }
+
+/**
+ * The twelve edges of any eight-corner box, as index pairs.
+ *
+ * Both corner lists below are built by nesting three two-valued choices, so a
+ * corner's index is those three choices read as bits and an edge is a pair
+ * differing in exactly one of them. The same twelve pairs therefore name the
+ * box's edges and the frustum's.
+ */
+const BOX_EDGES: ReadonlyArray<readonly [number, number]> = [
+  [0, 1],
+  [0, 2],
+  [0, 4],
+  [1, 3],
+  [1, 5],
+  [2, 3],
+  [2, 6],
+  [3, 7],
+  [4, 5],
+  [4, 6],
+  [5, 7],
+  [6, 7],
+];
 
 /** The eight corners of a box, indexed by the x, y, z choice bits. */
 function boxCorners(

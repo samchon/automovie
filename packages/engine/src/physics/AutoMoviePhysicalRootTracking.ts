@@ -25,117 +25,6 @@ import { AutoMoviePhysicalRootServo } from "./AutoMoviePhysicalRootServo";
 
 import type { AutoMovieEnginePhysicalStanceBalance } from "./AutoMovieEnginePhysicalStanceBalance";
 
-/**
- * The torque the swinging hip exerts on its thigh, world N m: the swing drive's
- * demand already accumulated at that hip (`advancePhysicalBalance`). Its
- * reaction turns the torso, so the stance supports add it to the torso's moment
- * (Yin, Loken and van de Panne 2007, Section 3.2). None while no limb swings.
- */
-function swingHip(
-  body: IAutoMoviePhysicalSimulationInput.IBody,
-  segments: ReadonlyMap<string, AutoMovieXpbdBody>,
-  swing: string | undefined,
-  torques: ReadonlyMap<string, IAutoMovieVector3>,
-): IAutoMovieVector3 {
-  const limb: IAutoMovieFootfallPattern["limbs"][number] | undefined = (
-    body.supportTracking?.pattern ?? body.balance?.pattern
-  )?.limbs.find(
-    (candidate: IAutoMovieFootfallPattern["limbs"][number]): boolean =>
-      candidate.bone === swing,
-  );
-  const joint: IAutoMoviePhysicalJoint | undefined = limb
-    ? body.profile.joints.find(
-        (candidate: IAutoMoviePhysicalJoint): boolean =>
-          candidate.child === limb.chain[0],
-      )
-    : undefined;
-  const local: IAutoMovieVector3 | undefined = joint
-    ? torques.get(joint.id)
-    : undefined;
-  if (!joint || !local) return { x: 0, y: 0, z: 0 };
-  const frame: IAutoMovieQuaternion = Quaternion.multiply(
-    segments.get(joint.parent)!.rotation(),
-    joint.parentFrame.rotation,
-  );
-  return Quaternion.rotateVector(frame, local);
-}
-
-/**
- * Set a body's momentum task for the motors' whole-body solve while a stance
- * limb presses the floor, with its support transitions
- * (`physicalRootTransitions`), and keep in the cache, at its instants, the
- * task's feasible split over the measured support points, a diagnostic of what
- * the supports were asked.
- */
-function submit(
-  input: AutoMoviePhysicalRootTracking.IInput,
-  limbs: readonly IAutoMovieFootfallPattern["limbs"][number][],
-  wrench: AutoMovieXpbdWorld.IRootTask,
-): void {
-  const { settings, body, bound, step, seconds } = input;
-  const task: AutoMovieXpbdWorld.IRootTask = {
-    ...wrench,
-    ...AutoMovieEnginePhysics.physicalRootTransitions({
-      pattern: (
-        body.supportTracking?.pattern ??
-        body.balance?.pattern ?? { limbs: [] }
-      ).limbs,
-      segments: bound.segments.get(body.id)!,
-      stance: limbs,
-      requested: input.requested ?? [],
-      lifted: input.recoveryBones ?? [],
-      ...(input.seating ? { seating: input.seating } : {}),
-      force: Math.max(0, wrench.force.y),
-    }),
-  };
-  const points: (IAutoMovieCollectPhysicalSupports.IPoint & {
-    bone: string;
-  })[] = input.supports
-    .filter((support: IAutoMovieCollectPhysicalSupports.ISupport): boolean =>
-      limbs.some(
-        (limb: IAutoMovieFootfallPattern["limbs"][number]): boolean =>
-          limb.bone === support.bone,
-      ),
-    )
-    .flatMap(
-      (
-        support: IAutoMovieCollectPhysicalSupports.ISupport,
-      ): (IAutoMovieCollectPhysicalSupports.IPoint & { bone: string })[] =>
-        support.samples.map(
-          (
-            sample: IAutoMovieCollectPhysicalSupports.IPoint,
-          ): IAutoMovieCollectPhysicalSupports.IPoint & { bone: string } => ({
-            bone: support.bone,
-            ...sample,
-          }),
-        ),
-    );
-  if (points.length > 0) input.world.rootTasks.set(input.base, task);
-  if (
-    Math.round(seconds * settings.rate * settings.substeps!) %
-      settings.substeps! !==
-    0
-  )
-    return;
-  const allocated: IAutoMovieDistributePhysicalSupportWrench.IResult =
-    distributePhysicalSupportWrench({
-      origin: task.origin,
-      force: task.force,
-      torque: task.torque,
-      maximumForce: body.maximumRootForce * input.target.strength,
-      points,
-    });
-  bound.supportWrenches.push({
-    body: body.id,
-    seconds: step / settings.rate,
-    origin: task.origin,
-    requested: { force: task.force, torque: task.torque },
-    allocated: { force: allocated.force, torque: allocated.torque },
-    residual: allocated.residual,
-    pointCount: allocated.forces.length,
-  });
-}
-
 /** The root tracker's stance moment and input. */
 export namespace AutoMoviePhysicalRootTracking {
   /**
@@ -411,4 +300,115 @@ export namespace AutoMoviePhysicalRootTracking {
     position: { x: number; z: number };
     velocity: { x: number; z: number };
   };
+}
+
+/**
+ * The torque the swinging hip exerts on its thigh, world N m: the swing drive's
+ * demand already accumulated at that hip (`advancePhysicalBalance`). Its
+ * reaction turns the torso, so the stance supports add it to the torso's moment
+ * (Yin, Loken and van de Panne 2007, Section 3.2). None while no limb swings.
+ */
+function swingHip(
+  body: IAutoMoviePhysicalSimulationInput.IBody,
+  segments: ReadonlyMap<string, AutoMovieXpbdBody>,
+  swing: string | undefined,
+  torques: ReadonlyMap<string, IAutoMovieVector3>,
+): IAutoMovieVector3 {
+  const limb: IAutoMovieFootfallPattern["limbs"][number] | undefined = (
+    body.supportTracking?.pattern ?? body.balance?.pattern
+  )?.limbs.find(
+    (candidate: IAutoMovieFootfallPattern["limbs"][number]): boolean =>
+      candidate.bone === swing,
+  );
+  const joint: IAutoMoviePhysicalJoint | undefined = limb
+    ? body.profile.joints.find(
+        (candidate: IAutoMoviePhysicalJoint): boolean =>
+          candidate.child === limb.chain[0],
+      )
+    : undefined;
+  const local: IAutoMovieVector3 | undefined = joint
+    ? torques.get(joint.id)
+    : undefined;
+  if (!joint || !local) return { x: 0, y: 0, z: 0 };
+  const frame: IAutoMovieQuaternion = Quaternion.multiply(
+    segments.get(joint.parent)!.rotation(),
+    joint.parentFrame.rotation,
+  );
+  return Quaternion.rotateVector(frame, local);
+}
+
+/**
+ * Set a body's momentum task for the motors' whole-body solve while a stance
+ * limb presses the floor, with its support transitions
+ * (`physicalRootTransitions`), and keep in the cache, at its instants, the
+ * task's feasible split over the measured support points, a diagnostic of what
+ * the supports were asked.
+ */
+function submit(
+  input: AutoMoviePhysicalRootTracking.IInput,
+  limbs: readonly IAutoMovieFootfallPattern["limbs"][number][],
+  wrench: AutoMovieXpbdWorld.IRootTask,
+): void {
+  const { settings, body, bound, step, seconds } = input;
+  const task: AutoMovieXpbdWorld.IRootTask = {
+    ...wrench,
+    ...AutoMovieEnginePhysics.physicalRootTransitions({
+      pattern: (
+        body.supportTracking?.pattern ??
+        body.balance?.pattern ?? { limbs: [] }
+      ).limbs,
+      segments: bound.segments.get(body.id)!,
+      stance: limbs,
+      requested: input.requested ?? [],
+      lifted: input.recoveryBones ?? [],
+      ...(input.seating ? { seating: input.seating } : {}),
+      force: Math.max(0, wrench.force.y),
+    }),
+  };
+  const points: (IAutoMovieCollectPhysicalSupports.IPoint & {
+    bone: string;
+  })[] = input.supports
+    .filter((support: IAutoMovieCollectPhysicalSupports.ISupport): boolean =>
+      limbs.some(
+        (limb: IAutoMovieFootfallPattern["limbs"][number]): boolean =>
+          limb.bone === support.bone,
+      ),
+    )
+    .flatMap(
+      (
+        support: IAutoMovieCollectPhysicalSupports.ISupport,
+      ): (IAutoMovieCollectPhysicalSupports.IPoint & { bone: string })[] =>
+        support.samples.map(
+          (
+            sample: IAutoMovieCollectPhysicalSupports.IPoint,
+          ): IAutoMovieCollectPhysicalSupports.IPoint & { bone: string } => ({
+            bone: support.bone,
+            ...sample,
+          }),
+        ),
+    );
+  if (points.length > 0) input.world.rootTasks.set(input.base, task);
+  if (
+    Math.round(seconds * settings.rate * settings.substeps!) %
+      settings.substeps! !==
+    0
+  )
+    return;
+  const allocated: IAutoMovieDistributePhysicalSupportWrench.IResult =
+    distributePhysicalSupportWrench({
+      origin: task.origin,
+      force: task.force,
+      torque: task.torque,
+      maximumForce: body.maximumRootForce * input.target.strength,
+      points,
+    });
+  bound.supportWrenches.push({
+    body: body.id,
+    seconds: step / settings.rate,
+    origin: task.origin,
+    requested: { force: task.force, torque: task.torque },
+    allocated: { force: allocated.force, torque: allocated.torque },
+    residual: allocated.residual,
+    pointCount: allocated.forces.length,
+  });
 }

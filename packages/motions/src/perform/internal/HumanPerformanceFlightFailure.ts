@@ -11,56 +11,6 @@ import type {
 
 import { poseBones } from "../../posture/internal/poseBones";
 
-/** Metres, or a raw action's heading/pitch/roll in degrees. */
-type Vector = [number, number, number];
-
-/** Quaternion components in x/y/z/w order. */
-type Rotation = [number, number, number, number];
-/** The record of `IShapeRawLimbsItem`'s site. */
-type IShapeRawLimbsItem = {
-  limb: string;
-  point: Vector;
-  bend: Vector;
-  rotation: Rotation | null;
-  contact: Vector | null;
-  planted: boolean | null;
-  on: string | null;
-};
-
-/** Owned raw-law and final displayed-shape numbers at one requested second. */
-interface IShape {
-  /** The law's world root in metres, before composition and fitting. */
-  rawRoot: Vector;
-
-  /** Degrees in yaw/pitch/roll order. */
-  rawHeading: Vector;
-
-  /** Directly authored bone and clinical degree triples. */
-  rawJoints: [string, number, number, number][];
-
-  /** Named world goals and their contact/plant branch, with owned tuples. */
-  rawLimbs: IShapeRawLimbsItem[];
-
-  /** Displayed world root position before its removal from shape FK. */
-  rootPosition: Vector | null;
-
-  /** Displayed world root rotation before its removal from shape FK. */
-  rootRotation: Rotation | null;
-
-  /** Final displayed clinical degrees, retaining neutral nulls. */
-  joints: [string, number | null, number | null, number | null][];
-
-  /** Final root-frame bone position in metres and quaternion x/y/z/w. */
-  bones: [string, Vector, Rotation][];
-}
-/** The record of `IHumanPerformanceFlightFailureBoundaryItem`'s site. */
-type IHumanPerformanceFlightFailureBoundaryItem = {
-  time: number;
-  local: number;
-  shape: IShape | null;
-  error: string | null;
-};
-
 /**
  * Explain a failed flight with the same performance's takeoff boundary shape.
  *
@@ -161,6 +111,56 @@ export function HumanPerformanceFlightFailure(
   error.message += `; takeoff ${JSON.stringify(boundary)}`;
   return Object.assign(error, { takeoffBoundary: boundary });
 }
+
+/** Metres, or a raw action's heading/pitch/roll in degrees. */
+type Vector = [number, number, number];
+/** Quaternion components in x/y/z/w order. */
+type Rotation = [number, number, number, number];
+
+/** The record of `IShapeRawLimbsItem`'s site. */
+type IShapeRawLimbsItem = {
+  limb: string;
+  point: Vector;
+  bend: Vector;
+  rotation: Rotation | null;
+  contact: Vector | null;
+  planted: boolean | null;
+  on: string | null;
+};
+/** Owned raw-law and final displayed-shape numbers at one requested second. */
+interface IShape {
+  /** The law's world root in metres, before composition and fitting. */
+  rawRoot: Vector;
+
+  /** Degrees in yaw/pitch/roll order. */
+  rawHeading: Vector;
+
+  /** Directly authored bone and clinical degree triples. */
+  rawJoints: [string, number, number, number][];
+
+  /** Named world goals and their contact/plant branch, with owned tuples. */
+  rawLimbs: IShapeRawLimbsItem[];
+
+  /** Displayed world root position before its removal from shape FK. */
+  rootPosition: Vector | null;
+
+  /** Displayed world root rotation before its removal from shape FK. */
+  rootRotation: Rotation | null;
+
+  /** Final displayed clinical degrees, retaining neutral nulls. */
+  joints: [string, number | null, number | null, number | null][];
+
+  /** Final root-frame bone position in metres and quaternion x/y/z/w. */
+  bones: [string, Vector, Rotation][];
+}
+
+/** The record of `IHumanPerformanceFlightFailureBoundaryItem`'s site. */
+type IHumanPerformanceFlightFailureBoundaryItem = {
+  time: number;
+  local: number;
+  shape: IShape | null;
+  error: string | null;
+};
 
 /** Preserve all three numbers without retaining the source vector. */
 function vector(value: IAutoMovieVector3): Vector {

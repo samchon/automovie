@@ -28,9 +28,6 @@ import { propSupportFace } from "./propSupportFace";
 import { propSupportGap } from "./propSupportGap";
 import { unionSubjectBoxes } from "./unionSubjectBoxes";
 
-/** Tolerance for containment and support-contact comparisons, in metres. */
-const PLACEMENT_EPSILON: number = 1e-9;
-
 /**
  * Judge every volume the sound part of a prop registry claims: keep-out
  * clearances, pairwise occupancy, support contact, space containment, opening
@@ -96,6 +93,9 @@ export function validatePropPlacementGeometry(
     }
   }
 }
+
+/** Tolerance for containment and support-contact comparisons, in metres. */
+const PLACEMENT_EPSILON: number = 1e-9;
 
 /**
  * A sound prop with the one piece staging it and its measured world occupancy,

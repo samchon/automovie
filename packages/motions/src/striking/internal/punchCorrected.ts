@@ -9,9 +9,6 @@ import { PreparedHumanIntervals } from "../../perform/internal/PreparedHumanInte
 import type { punchContact } from "./punchContact";
 import type { punchReach } from "./punchReach";
 
-/** The correction's displacement and its minimum-jerk time window. */
-type Correction = Pick<punchReach.ICorrection, "end" | "start" | "duration">;
-
 /**
  * The delivery's tracker: the planned contact point, with each correction a
  * minimum-jerk unit carrying the wrist to where its own solution lands
@@ -65,3 +62,6 @@ export namespace punchCorrected {
     };
   }
 }
+
+/** The correction's displacement and its minimum-jerk time window. */
+type Correction = Pick<punchReach.ICorrection, "end" | "start" | "duration">;

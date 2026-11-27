@@ -191,9 +191,6 @@ export const HumanAssistedTransfer: IAutoMovieMotionHumanAssistedTransfer.ILaw =
     },
   };
 
-/** Roles performing the same support phase. */
-type Role = IAutoMovieMotionHumanAssistedTransfer.Role;
-
 /** Attach the actual displayed palm to the shared clasp over its nominated span. */
 function gripReader(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanAssistedTransfer.IRoleParams>,
@@ -317,3 +314,6 @@ function gripReader(
     return { ...source, limbs, joints };
   };
 }
+
+/** Roles performing the same support phase. */
+type Role = IAutoMovieMotionHumanAssistedTransfer.Role;

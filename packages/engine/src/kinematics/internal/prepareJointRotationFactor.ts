@@ -10,9 +10,6 @@ import { Quaternion } from "../../math/Quaternion";
 import { AutoMovieEngineRigAngle } from "../../rom/internal/AutoMovieEngineRigAngle";
 import type { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 
-/** Clinical coordinates owned by the inverse's resolved-angle representation. */
-type ClinicalAxis = keyof IAutoMovieResolvedJointAngles;
-
 /**
  * Prepare one query's admitted clinical-to-axis-angle factor on a fixed axis.
  * Every call first checks the current clinical value. Fixed-frame readers may
@@ -202,3 +199,6 @@ export namespace prepareJointRotationFactor {
     return prepared;
   }
 }
+
+/** Clinical coordinates owned by the inverse's resolved-angle representation. */
+type ClinicalAxis = keyof IAutoMovieResolvedJointAngles;

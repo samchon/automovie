@@ -13,9 +13,6 @@ import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/** The alternatives of `OfContext`'s site. */
-type OfContext = "prop" | "start";
-
 /**
  * The ladder a prop declares, where it stands at a film second.
  *
@@ -240,3 +237,6 @@ export namespace HumanLadder {
     };
   }
 }
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "prop" | "start";

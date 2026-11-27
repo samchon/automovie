@@ -13,16 +13,6 @@ import { AutoMovieGravity } from "../../physics/AutoMovieGravity";
 import { projectileTrajectory } from "../../physics/internal/projectileTrajectory";
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
 
-const DEFAULT_MARGIN: number = 0.02;
-
-const DEFAULT_GRAVITY: IAutoMovieVector3 = AutoMovieGravity.DOWN;
-
-const DEFAULT_VELOCITY: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-
-const DEFAULT_FALL_DURATION: number = 1;
-
-const DEFAULT_FPS: number = 30;
-
 /**
  * Advise free fall for an unsupported, unattached body that is not already
  * falling.
@@ -105,6 +95,16 @@ export function detectFreeFall(
   );
   return { validation: collector.toValidation(), events: [event], trajectory };
 }
+
+const DEFAULT_MARGIN: number = 0.02;
+
+const DEFAULT_GRAVITY: IAutoMovieVector3 = AutoMovieGravity.DOWN;
+
+const DEFAULT_VELOCITY: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+
+const DEFAULT_FALL_DURATION: number = 1;
+
+const DEFAULT_FPS: number = 30;
 
 const empty: (
   collector: IAutoMovieViolationCollector,

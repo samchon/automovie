@@ -17,30 +17,6 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
 import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
 
-/** The alternatives of `HumanArmTrajectoryEvaluateNoteTerm`'s site. */
-type HumanArmTrajectoryEvaluateNoteTerm =
-  | "speed"
-  | "range"
-  | "swept"
-  | "site"
-  | "lift"
-  | "limit"
-  | "probe"
-  | "embedded"
-  | "crossing";
-
-/** The record of `IHumanArmTrajectoryEvaluateKept`'s site. */
-type IHumanArmTrajectoryEvaluateKept = {
-  reading: M.IEvaluation;
-  laid: readonly boolean[];
-};
-
-/** Placements of immutable waypoints, indexed by arm and waypoint. */
-type FixedPlacements = readonly (readonly (
-  | IAutoMovieMotionHumanArmGeometry.IPlaced
-  | undefined
-)[])[];
-
 /**
  * The objective and the constraints' violations of an arms' trajectory at an
  * iterate (`HumanArmTrajectoryModel.evaluate`, which states the terms).
@@ -489,6 +465,30 @@ export function HumanArmTrajectoryEvaluate(
     failing,
   };
 }
+
+/** The alternatives of `HumanArmTrajectoryEvaluateNoteTerm`'s site. */
+type HumanArmTrajectoryEvaluateNoteTerm =
+  | "speed"
+  | "range"
+  | "swept"
+  | "site"
+  | "lift"
+  | "limit"
+  | "probe"
+  | "embedded"
+  | "crossing";
+
+/** The record of `IHumanArmTrajectoryEvaluateKept`'s site. */
+type IHumanArmTrajectoryEvaluateKept = {
+  reading: M.IEvaluation;
+  laid: readonly boolean[];
+};
+
+/** Placements of immutable waypoints, indexed by arm and waypoint. */
+type FixedPlacements = readonly (readonly (
+  | IAutoMovieMotionHumanArmGeometry.IPlaced
+  | undefined
+)[])[];
 
 /**
  * The strongest reading other than a site's at one waypoint: its excess,

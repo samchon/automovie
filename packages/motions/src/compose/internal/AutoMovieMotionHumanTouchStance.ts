@@ -16,9 +16,6 @@ import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
 import { AutoMovieMotionHumanTouchStanceMoves } from "./AutoMovieMotionHumanTouchStanceMoves";
 import { AutoMovieMotionHumanTouchStancePrimitives } from "./AutoMovieMotionHumanTouchStancePrimitives";
 
-/** The alternatives of `SolveShoulder`'s site. */
-type SolveShoulder = "leftShoulder" | "rightShoulder";
-
 /**
  * What the body behind the arm does so a hand reaches a region its arm alone
  * does not: the shoulder girdle lifted and a rise onto the toes for a region
@@ -299,6 +296,18 @@ export namespace AutoMovieMotionHumanTouchStance {
     return attempt(reach, candidate) !== undefined;
   }
 
+  /** A law's declared candidates and the check of one. */
+  export interface IChoice<Candidate, Stance> {
+    /** The candidates, in the law's declared order of preference. */
+    candidates: readonly Candidate[];
+
+    /**
+     * Algorithm 1's check of one candidate: its stance when the arm reaches
+     * clear, a reach refusal when it does not.
+     */
+    reach: (candidate: Candidate) => Stance;
+  }
+
   /**
    * A candidate's stance, or nothing with its reach refusal kept: Algorithm 1's
    * try of one base pose. Any other error propagates.
@@ -316,18 +325,6 @@ export namespace AutoMovieMotionHumanTouchStance {
       refused.push(error);
       return undefined;
     }
-  }
-
-  /** A law's declared candidates and the check of one. */
-  export interface IChoice<Candidate, Stance> {
-    /** The candidates, in the law's declared order of preference. */
-    candidates: readonly Candidate[];
-
-    /**
-     * Algorithm 1's check of one candidate: its stance when the arm reaches
-     * clear, a reach refusal when it does not.
-     */
-    reach: (candidate: Candidate) => Stance;
   }
 
   /**
@@ -351,6 +348,9 @@ export namespace AutoMovieMotionHumanTouchStance {
     });
   }
 }
+
+/** The alternatives of `SolveShoulder`'s site. */
+type SolveShoulder = "leftShoulder" | "rightShoulder";
 
 /** The two facings a one-handed stance is chosen between. */
 type Facing = "ahead" | "turned";

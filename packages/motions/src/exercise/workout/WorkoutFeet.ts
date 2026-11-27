@@ -9,39 +9,6 @@ import type {
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 
-/** The alternatives of `Plan`'s site. */
-type Plan = IPlan3 | IPlan4;
-
-/** The record of `IPlan4`'s site. */
-type IPlan4 = {
-  /** A turn about the metatarsophalangeal contact. */
-  kind: "pivot";
-  /** The fixed contact in world metres. */
-  at: ReturnType<typeof HumanFoot.point>;
-  /** The entry heading in degrees. */
-  heading: number;
-};
-
-/** The record of `IPlan3`'s site. */
-type IPlan3 = {
-  /** An unturned plant. */
-  kind: "plant";
-  /**
-   * The fixed entry placement's goal reader, with its current-root knee
-   * hint.
-   */
-  goal: ReturnType<typeof AutoMovieMotionHumanLeg.prepareGoal>;
-};
-
-/** The record of `IPlan2`'s site. */
-type IPlan2 = {
-  /** The bearing leg. */
-  side: AutoMovieHumanSide;
-};
-
-/** The alternatives of `KeepContext`'s site. */
-type KeepContext = "body" | "entry";
-
 /**
  * The feet of a workout that stands: a foot the kind never moves is held by the
  * leg's solve on the place it stands on at the entry, and a foot the body turns
@@ -142,3 +109,36 @@ export namespace WorkoutFeet {
   /** Fixed entry geometry needed by each support's actual contact rule. */
   type IPlan = IPlan2 & Plan;
 }
+
+/** The alternatives of `Plan`'s site. */
+type Plan = IPlan3 | IPlan4;
+
+/** The record of `IPlan4`'s site. */
+type IPlan4 = {
+  /** A turn about the metatarsophalangeal contact. */
+  kind: "pivot";
+  /** The fixed contact in world metres. */
+  at: ReturnType<typeof HumanFoot.point>;
+  /** The entry heading in degrees. */
+  heading: number;
+};
+
+/** The record of `IPlan3`'s site. */
+type IPlan3 = {
+  /** An unturned plant. */
+  kind: "plant";
+  /**
+   * The fixed entry placement's goal reader, with its current-root knee
+   * hint.
+   */
+  goal: ReturnType<typeof AutoMovieMotionHumanLeg.prepareGoal>;
+};
+
+/** The record of `IPlan2`'s site. */
+type IPlan2 = {
+  /** The bearing leg. */
+  side: AutoMovieHumanSide;
+};
+
+/** The alternatives of `KeepContext`'s site. */
+type KeepContext = "body" | "entry";

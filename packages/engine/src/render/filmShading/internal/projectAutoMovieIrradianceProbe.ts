@@ -6,22 +6,6 @@ import type {
 import { autoMovieSphericalBasis } from "./autoMovieSphericalBasis";
 
 /**
- * Cosine-lobe convolution of bands 0, 1 and 2: π, 2π/3 and π/4 (Ramamoorthi and
- * Hanrahan 2001, equation 8).
- */
-const LOBE: readonly number[] = [
-  Math.PI,
-  (2 * Math.PI) / 3,
-  (2 * Math.PI) / 3,
-  (2 * Math.PI) / 3,
-  Math.PI / 4,
-  Math.PI / 4,
-  Math.PI / 4,
-  Math.PI / 4,
-  Math.PI / 4,
-];
-
-/**
  * Bake one irradiance probe from its cube: project the radiance the six faces
  * saw onto order-2 spherical harmonics and convolve them with the clamped
  * cosine, so `autoMovieIrradianceOf` gives the irradiance in lux of a receiver
@@ -101,3 +85,19 @@ export function projectAutoMovieIrradianceProbe(
     valid: back <= 0.25 * 6 * size * size,
   };
 }
+
+/**
+ * Cosine-lobe convolution of bands 0, 1 and 2: π, 2π/3 and π/4 (Ramamoorthi and
+ * Hanrahan 2001, equation 8).
+ */
+const LOBE: readonly number[] = [
+  Math.PI,
+  (2 * Math.PI) / 3,
+  (2 * Math.PI) / 3,
+  (2 * Math.PI) / 3,
+  Math.PI / 4,
+  Math.PI / 4,
+  Math.PI / 4,
+  Math.PI / 4,
+  Math.PI / 4,
+];

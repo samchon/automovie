@@ -21,9 +21,6 @@ export namespace AutoMovieArchetypeShot {
   /** The categories. */
   export type Kind = "men" | "women";
 
-  /** Every category, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["men", "women"];
-
   /** The affordance ids: `grip`, the shot as a hand holds it, at its centre. */
   export type Affordance = "grip";
 
@@ -34,14 +31,6 @@ export namespace AutoMovieArchetypeShot {
    * - `mass`: kilograms.
    */
   export type Dimension = "diameter" | "mass";
-
-  /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<
-    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
-  > = {
-    diameter: "m",
-    mass: "kg",
-  };
 
   /**
    * The parameters: the category, and any free dimension fixed to a value
@@ -54,6 +43,17 @@ export namespace AutoMovieArchetypeShot {
     /** The model's id, unique in a scene; `shot` when absent. */
     id?: string;
   }
+
+  /** Every category, for a caller that reads one at run time. */
+  export const KINDS: readonly Kind[] = ["men", "women"];
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
+    diameter: "m",
+    mass: "kg",
+  };
 
   /** A band of the rule. */
   const band = (

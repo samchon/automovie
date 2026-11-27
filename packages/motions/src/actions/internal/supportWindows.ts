@@ -8,17 +8,6 @@ import type {
 import { HumanContactWindow } from "../../law/internal/HumanContactWindow";
 import { supportContact } from "./supportContact";
 
-/** Only the subject and target parameters identify a support frame. */
-type ContextField = "subject" | "params";
-/** The alternatives of `OfHolds`'s site. */
-type OfHolds = "heel" | "ball" | undefined;
-
-/** The alternatives of `OfSocket`'s site. */
-type OfSocket = "heel" | "ball" | undefined;
-
-/** The alternatives of `BearingResult`'s site. */
-type BearingResult = "part" | "kind" | "support";
-
 /**
  * Windows on the target's actual support frame.
  *
@@ -77,7 +66,6 @@ export function supportWindows(
   }
   return contacts;
 }
-
 /**
  * A support sequence's declared windows, including the frame each target
  * belongs to. The contact identity keeps separate placements and targets.
@@ -145,3 +133,15 @@ export namespace supportWindows {
     contact: IAutoMovieMotionHumanSupport.IContact,
   ) => void;
 }
+
+/** Only the subject and target parameters identify a support frame. */
+type ContextField = "subject" | "params";
+
+/** The alternatives of `OfHolds`'s site. */
+type OfHolds = "heel" | "ball" | undefined;
+
+/** The alternatives of `OfSocket`'s site. */
+type OfSocket = "heel" | "ball" | undefined;
+
+/** The alternatives of `BearingResult`'s site. */
+type BearingResult = "part" | "kind" | "support";

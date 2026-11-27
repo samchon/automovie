@@ -8,48 +8,6 @@ import { readNormalizedQuaternion } from "../../math/internal/readNormalizedQuat
 import { prepareJointProjectionClamp } from "./prepareJointProjectionClamp";
 import type { AutoMovieEngineMotionJointProjection } from "../AutoMovieEngineMotionJointProjection";
 
-/** Original degree-valued clinical coordinate names. */
-type ClinicalAxis = "flexion" | "abduction" | "twist";
-
-/** Fixed rig/scorer dependencies shared by one projector's independent queries. */
-interface IProps {
-  /** One or two positive-width coordinates, in the original stable order. */
-  mobile: readonly ClinicalAxis[];
-  /** Original query-owned composition factory with fixed rig arithmetic. */
-  composition: ReturnType<typeof jointToQuaternionOnBasis.prepareScalarQueries>;
-  /** Original rig-to-clinical conversion owner, including lazy frame admission. */
-  clinical: (axis: ClinicalAxis, angle: number) => number;
-  /** Exact original bone/F/A/T equality, including null and signed zero. */
-  sameJoint: (a: IAutoMovieJointPose, b: IAutoMovieJointPose) => boolean;
-}
-
-/** Original joint-only or explicitly requested paired projection output. */
-type IEvaluation =
-  | IAutoMovieJointPose
-  | AutoMovieEngineMotionJointProjection.IProjection;
-
-/** Scores and raw components of each ordered candidate; links use -1 as absent. */
-const enum ScoreField {
-  /** Absolute normalized actual-target dot. */
-  VALUE = 0,
-  /** Existing four-product roundoff radius. */
-  ERROR = 1,
-  /** Squared clinical distance from the unchanged query reference. */
-  DISTANCE = 2,
-  /** Previous candidate index in this first-coordinate row, or -1. */
-  PREVIOUS = 3,
-  /** Original unnormalized composition, retained without a quaternion record. */
-  RAW_X = 4,
-  /** Original raw vector Y component. */
-  RAW_Y = 5,
-  /** Original raw vector Z component. */
-  RAW_Z = 6,
-  /** Original raw scalar component. */
-  RAW_W = 7,
-  /** Fixed cells per candidate, independent of the query's numerical inputs. */
-  STRIDE = 8,
-}
-
 /**
  * Rank the analytic box projector's actual admitted candidates under its
  * original normalized-dot, summation-error and nearest-reference tie policy.
@@ -246,6 +204,48 @@ export function prepareJointProjectionScores(
       queryStorage.release(storage);
     }
   };
+}
+
+/** Original degree-valued clinical coordinate names. */
+type ClinicalAxis = "flexion" | "abduction" | "twist";
+
+/** Fixed rig/scorer dependencies shared by one projector's independent queries. */
+interface IProps {
+  /** One or two positive-width coordinates, in the original stable order. */
+  mobile: readonly ClinicalAxis[];
+  /** Original query-owned composition factory with fixed rig arithmetic. */
+  composition: ReturnType<typeof jointToQuaternionOnBasis.prepareScalarQueries>;
+  /** Original rig-to-clinical conversion owner, including lazy frame admission. */
+  clinical: (axis: ClinicalAxis, angle: number) => number;
+  /** Exact original bone/F/A/T equality, including null and signed zero. */
+  sameJoint: (a: IAutoMovieJointPose, b: IAutoMovieJointPose) => boolean;
+}
+
+/** Original joint-only or explicitly requested paired projection output. */
+type IEvaluation =
+  | IAutoMovieJointPose
+  | AutoMovieEngineMotionJointProjection.IProjection;
+
+/** Scores and raw components of each ordered candidate; links use -1 as absent. */
+const enum ScoreField {
+  /** Absolute normalized actual-target dot. */
+  VALUE = 0,
+  /** Existing four-product roundoff radius. */
+  ERROR = 1,
+  /** Squared clinical distance from the unchanged query reference. */
+  DISTANCE = 2,
+  /** Previous candidate index in this first-coordinate row, or -1. */
+  PREVIOUS = 3,
+  /** Original unnormalized composition, retained without a quaternion record. */
+  RAW_X = 4,
+  /** Original raw vector Y component. */
+  RAW_Y = 5,
+  /** Original raw vector Z component. */
+  RAW_Z = 6,
+  /** Original raw scalar component. */
+  RAW_W = 7,
+  /** Fixed cells per candidate, independent of the query's numerical inputs. */
+  STRIDE = 8,
 }
 
 /** Empty-on-release containers for one active analytic projection. */

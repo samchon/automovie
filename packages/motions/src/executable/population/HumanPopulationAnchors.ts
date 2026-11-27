@@ -8,10 +8,6 @@ import { HumanPopulationAccess } from "./HumanPopulationAccess";
 import { HumanPopulationConditional } from "./HumanPopulationConditional";
 import type { HumanPopulationSurvey } from "./HumanPopulationSurvey";
 
-type P = IAutoMovieHumanParameters;
-type Sex = HumanPopulationSurvey.Sex;
-type Variable = HumanPopulationSurvey.Variable;
-
 /**
  * How a body measure reads from the survey: directly where the survey measures
  * its definition, through an anchor where it does not.
@@ -85,9 +81,6 @@ export namespace HumanPopulationAnchors {
     "forearmCircumference",
     "inseam",
   ];
-  /** The alternatives of `ANCHORSEntry`'s site. */
-  type ANCHORSEntry = Anchored | Part;
-
   /** Each anchored course and its carrier. */
   export const ANCHORS: Record<ANCHORSEntry, IAnchor> = {
     // Neck to waist over the natural waist back length (cervicale to waist).
@@ -188,6 +181,9 @@ export namespace HumanPopulationAnchors {
     );
   }
 
+  /** The alternatives of `ANCHORSEntry`'s site. */
+  type ANCHORSEntry = Anchored | Part;
+
   /**
    * A reference's surveyed input.
    *
@@ -213,3 +209,7 @@ export namespace HumanPopulationAnchors {
     return table[v]!();
   }
 }
+type P = IAutoMovieHumanParameters;
+type Sex = HumanPopulationSurvey.Sex;
+
+type Variable = HumanPopulationSurvey.Variable;

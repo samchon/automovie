@@ -14,21 +14,6 @@ import { StrikingHeld } from "./StrikingHeld";
 import { StrikingRoll } from "./StrikingRoll";
 import { StrikingStrain } from "./StrikingStrain";
 
-/** The record of `IStrikingRollHandCandidate`'s site. */
-type IStrikingRollHandCandidate = { values: number[] };
-
-/** The record of `IStrikingRollHandB`'s site. */
-type IStrikingRollHandB = { rank: number };
-
-/** The record of `IStrikingRollHandA`'s site. */
-type IStrikingRollHandA = { rank: number };
-
-/** The record of `IStrikingRollHandCandidatesResult`'s site. */
-type IStrikingRollHandCandidatesResult = { values: number[]; rank: number };
-
-/** The record of `IStrikingRollHandCandidatesItem`'s site. */
-type IStrikingRollHandCandidatesItem = { values: number[]; rank: number };
-
 /**
  * Prepare the unchanged tool and world-axis geometry of a roll search. Every
  * placement still ranks the original grid against its actual posture, then
@@ -207,3 +192,18 @@ function key(values: readonly number[]): string {
     )
     .join("/");
 }
+
+/** The record of `IStrikingRollHandCandidate`'s site. */
+type IStrikingRollHandCandidate = { values: number[] };
+
+/** The record of `IStrikingRollHandB`'s site. */
+type IStrikingRollHandB = { rank: number };
+
+/** The record of `IStrikingRollHandA`'s site. */
+type IStrikingRollHandA = { rank: number };
+
+/** The record of `IStrikingRollHandCandidatesResult`'s site. */
+type IStrikingRollHandCandidatesResult = { values: number[]; rank: number };
+
+/** The record of `IStrikingRollHandCandidatesItem`'s site. */
+type IStrikingRollHandCandidatesItem = { values: number[]; rank: number };

@@ -30,24 +30,6 @@ export namespace PreparedHumanIntervals {
     return bound(length, at, second, true);
   }
 
-  /** Search a sorted prefix whose keys precede the selected boundary. */
-  function bound(
-    length: number,
-    at: (index: number) => number,
-    second: number,
-    skipEqual: boolean,
-  ): number {
-    let low: number = 0;
-    let high: number = length;
-    while (low < high) {
-      const mid: number = Math.floor((low + high) / 2);
-      const time: number = at(mid);
-      if (time < second || (skipEqual && time === second)) low = mid + 1;
-      else high = mid;
-    }
-    return low;
-  }
-
   /**
    * Index closed intervals by their declared priority. Store every endpoint and
    * each open space between consecutive endpoints as separate leaves, so a
@@ -114,5 +96,23 @@ export namespace PreparedHumanIntervals {
       const slot: number = 2 * upper - (times[upper] === second ? 0 : 1);
       return admitted[owners[size + slot]!];
     };
+  }
+
+  /** Search a sorted prefix whose keys precede the selected boundary. */
+  function bound(
+    length: number,
+    at: (index: number) => number,
+    second: number,
+    skipEqual: boolean,
+  ): number {
+    let low: number = 0;
+    let high: number = length;
+    while (low < high) {
+      const mid: number = Math.floor((low + high) / 2);
+      const time: number = at(mid);
+      if (time < second || (skipEqual && time === second)) low = mid + 1;
+      else high = mid;
+    }
+    return low;
   }
 }

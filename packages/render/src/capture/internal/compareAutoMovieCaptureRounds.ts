@@ -17,27 +17,6 @@ import { diffAutoMovieCaptureFindings } from "./diffAutoMovieCaptureFindings.js"
 import { markAutoMovieCaptureCell } from "./markAutoMovieCaptureCell.js";
 import { planAutoMovieCaptureLayout } from "./planAutoMovieCaptureLayout.js";
 
-/** The sides shown on one comparison row and any reason they could not pair. */
-interface IRowPair {
-  /** The earlier still, if this entry represents one. */
-  earlier: IAutoMovieCaptureCellRecord | null;
-
-  /** This capture's still, if this entry represents one. */
-  current: IAutoMovieCaptureCellRecord | null;
-
-  /** Why a row with no counterpart stayed unmatched, if known. */
-  cause?: string;
-}
-
-/** Every row from both captures at one matching key. */
-interface IRowGroup {
-  /** The earlier capture rows, in plan order. */
-  earlier: IAutoMovieCaptureCellRecord[];
-
-  /** The current capture rows, in plan order. */
-  current: IAutoMovieCaptureCellRecord[];
-}
-
 /**
  * Compare the cells a capture just wrote against an earlier round's, write a
  * difference image for every changed pair, and lay every pair on comparison
@@ -236,6 +215,27 @@ export async function compareAutoMovieCaptureRounds(
       current: props.diagnostics,
     }),
   };
+}
+
+/** The sides shown on one comparison row and any reason they could not pair. */
+interface IRowPair {
+  /** The earlier still, if this entry represents one. */
+  earlier: IAutoMovieCaptureCellRecord | null;
+
+  /** This capture's still, if this entry represents one. */
+  current: IAutoMovieCaptureCellRecord | null;
+
+  /** Why a row with no counterpart stayed unmatched, if known. */
+  cause?: string;
+}
+
+/** Every row from both captures at one matching key. */
+interface IRowGroup {
+  /** The earlier capture rows, in plan order. */
+  earlier: IAutoMovieCaptureCellRecord[];
+
+  /** The current capture rows, in plan order. */
+  current: IAutoMovieCaptureCellRecord[];
 }
 
 /** Index every occurrence of a row key, keeping the two captures distinct. */

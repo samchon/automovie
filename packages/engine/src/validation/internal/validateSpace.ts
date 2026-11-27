@@ -17,14 +17,6 @@ import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCo
 import { validateColor } from "./validateColor";
 import { validateSurfaceHeightRule } from "./validateSurfaceHeightRule";
 
-const MIN_RAMP_AXIS: number = 1e-9;
-
-/**
- * Absolute double-plan-area admission threshold of 1e-9 square metres; very
- * small nonzero rings are deliberately refused.
- */
-const MIN_RING_DOUBLE_AREA: number = 1e-9;
-
 /**
  * Admit unique surface ids and resolving walkable ids, finite XZ footprint
  * rings with strictly interior disjoint holes, one ground rule and optional
@@ -68,6 +60,14 @@ export function validateSpace(
 
   return collector.toValidation();
 }
+
+const MIN_RAMP_AXIS: number = 1e-9;
+
+/**
+ * Absolute double-plan-area admission threshold of 1e-9 square metres; very
+ * small nonzero rings are deliberately refused.
+ */
+const MIN_RING_DOUBLE_AREA: number = 1e-9;
 
 /**
  * Delegate footprint and ground admission, then check color and availability.

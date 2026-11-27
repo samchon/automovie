@@ -8,32 +8,6 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { GymnasticsFlight } from "../internal/GymnasticsFlight";
 
-/** The record of `IPreparePoleVaultPlantLast`'s site. */
-type IPreparePoleVaultPlantLast = { y: number; miss: number };
-
-/** The record of `IPreparePoleVaultPlantResult`'s site. */
-type IPreparePoleVaultPlantResult = {
-  posture: IAutoMovieMotionHumanPosture;
-  tip: IAutoMovieVector3;
-  grip: IAutoMovieVector3;
-  centre: IAutoMovieVector3;
-};
-
-/** The record of `IPreparePoleVaultPlantProps`'s site. */
-type IPreparePoleVaultPlantProps = {
-  body: IAutoMovieMotionHumanBody;
-  model: IAutoMovieResolveCenterOfMass.IModel;
-  side: AutoMovieHumanSide;
-  end: IAutoMovieVector3;
-  height: number;
-  passes: number;
-  posture: (
-    height: number,
-    resolution: ReturnType<typeof prepareHumanPoseResolution>,
-    projection: ReturnType<typeof prepareHumanPostureProjection>,
-  ) => IAutoMovieMotionHumanPosture;
-};
-
 /**
  * Fit the pole end to the floor with the vault's original wrist-height secant
  * corrections. Every actual trial keeps its full source solve, original
@@ -115,6 +89,32 @@ export function preparePoleVaultPlant(
     centre: AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(props.model, bones),
   };
 }
+
+/** The record of `IPreparePoleVaultPlantLast`'s site. */
+type IPreparePoleVaultPlantLast = { y: number; miss: number };
+
+/** The record of `IPreparePoleVaultPlantResult`'s site. */
+type IPreparePoleVaultPlantResult = {
+  posture: IAutoMovieMotionHumanPosture;
+  tip: IAutoMovieVector3;
+  grip: IAutoMovieVector3;
+  centre: IAutoMovieVector3;
+};
+
+/** The record of `IPreparePoleVaultPlantProps`'s site. */
+type IPreparePoleVaultPlantProps = {
+  body: IAutoMovieMotionHumanBody;
+  model: IAutoMovieResolveCenterOfMass.IModel;
+  side: AutoMovieHumanSide;
+  end: IAutoMovieVector3;
+  height: number;
+  passes: number;
+  posture: (
+    height: number,
+    resolution: ReturnType<typeof prepareHumanPoseResolution>,
+    projection: ReturnType<typeof prepareHumanPostureProjection>,
+  ) => IAutoMovieMotionHumanPosture;
+};
 
 /**
  * One actual frozen raw view, its independently admitted canonical pose and

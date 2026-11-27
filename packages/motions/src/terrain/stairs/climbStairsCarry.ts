@@ -247,12 +247,6 @@ export function climbStairsCarry(
 /** Companions of {@link climbStairsCarry}. */
 export namespace climbStairsCarry {
   /**
-   * How far above the world floor a standing ankle's own height may lie and
-   * still stand on it, metres (provisional: a sole's give).
-   */
-  const FLOOR: number = 0.02;
-
-  /**
    * What the carry reads of an action's context: its start and its props'
    * frames.
    */
@@ -278,6 +272,12 @@ export namespace climbStairsCarry {
     /** The body's ankle height. */
     body: { measure: Pick<IAutoMovieBodyMeasure, "ankleHeight"> };
   }
+
+  /**
+   * How far above the world floor a standing ankle's own height may lie and
+   * still stand on it, metres (provisional: a sole's give).
+   */
+  const FLOOR: number = 0.02;
 
   /**
    * Whether the body already stands on the moving prop at the climb's start, a

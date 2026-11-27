@@ -15,17 +15,6 @@ import type {
 import type { Object3D } from "three";
 
 
-type ICheck = IObserveAutoMoviePlacedSceneCheck;
-type IObservation = Exclude<
-  Extract<
-    IAutoMoviePlacedContinuity.IProps,
-    { kind: "transform" }
-  >["observation"],
-  undefined
->;
-type IScheduleEntry = ISelectAutoMoviePlacedChecksCustody["schedule"][number];
-type IEnvelope = Pick<ICheck, "key" | "required" | "paths" | "observedContact">;
-
 /**
  * Select the production's declared checks active at one placed sample, for
  * `AutoMovieRenderInspection.observePlacedScene`.
@@ -128,6 +117,17 @@ export function selectAutoMoviePlacedChecks(
       checks.push(...trackChecks(props, props.continuity, track));
   return checks;
 }
+type ICheck = IObserveAutoMoviePlacedSceneCheck;
+type IObservation = Exclude<
+  Extract<
+    IAutoMoviePlacedContinuity.IProps,
+    { kind: "transform" }
+  >["observation"],
+  undefined
+>;
+type IScheduleEntry = ISelectAutoMoviePlacedChecksCustody["schedule"][number];
+
+type IEnvelope = Pick<ICheck, "key" | "required" | "paths" | "observedContact">;
 
 /** Whether a half-open window owns the film second. */
 function contains(

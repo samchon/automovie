@@ -15,26 +15,6 @@ import { recompose } from "./recompose";
 import { validateInfluence } from "./validateInfluence";
 
 /**
- * Default finite iteration budget when the driver leaves iterations null. It
- * bounds solver work without promising convergence for every chain.
- */
-const DEFAULT_ITERATIONS: number = 10;
-
-/**
- * Tip-to-goal early-out tolerance in metres; this numeric residual does not
- * certify a visual threshold or joint range of motion.
- */
-const CONVERGENCE_EPSILON: number = 1e-6;
-
-/**
- * Deterministic fallback direction for the measure-zero degenerate where a
- * FABRIK pass lands two adjacent joints on the same point (the segment
- * direction is undefined). Any fixed unit vector restores totality without
- * hurting determinism.
- */
-const FALLBACK_DIR: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-
-/**
  * Solve an admitted world-space chain by CCD or FABRIK with a positive
  * safe-integer iteration budget, default 10, and a 1e-6 metre residual
  * early-out. Blend positions and shortest-arc rotations by influence, then
@@ -82,6 +62,26 @@ export function applyIterativeIK(
 
   writeChain(d, world, matrices, before, after, childrenById, localById);
 }
+
+/**
+ * Default finite iteration budget when the driver leaves iterations null. It
+ * bounds solver work without promising convergence for every chain.
+ */
+const DEFAULT_ITERATIONS: number = 10;
+
+/**
+ * Tip-to-goal early-out tolerance in metres; this numeric residual does not
+ * certify a visual threshold or joint range of motion.
+ */
+const CONVERGENCE_EPSILON: number = 1e-6;
+
+/**
+ * Deterministic fallback direction for the measure-zero degenerate where a
+ * FABRIK pass lands two adjacent joints on the same point (the segment
+ * direction is undefined). Any fixed unit vector restores totality without
+ * hurting determinism.
+ */
+const FALLBACK_DIR: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 
 const readIterations: (iterations: number | null) => number = (
   iterations: number | null,

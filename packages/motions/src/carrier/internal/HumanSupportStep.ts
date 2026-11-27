@@ -25,14 +25,8 @@ import { HumanSupportCarry } from "./HumanSupportCarry";
 import { HumanSupportFrame } from "./HumanSupportFrame";
 import { HumanSupportStepPlants } from "./HumanSupportStepPlants";
 
-type Params = IAutoMovieMotionHumanSurface.ISupportStepParams;
-type Plan = IAutoMovieMotionHumanActionPlan;
-type Posture = IAutoMovieMotionHumanPosture;
-type Window = IAutoMovieMotionHumanContactWindow;
-
 /** The two feet. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-
 /** Goals carried by either the individual foot's support or by the body. */
 const LIMBS: readonly AutoMovieHumanLimb[] = [
   "leftArm",
@@ -40,19 +34,11 @@ const LIMBS: readonly AutoMovieHumanLimb[] = [
   "leftLeg",
   "rightLeg",
 ];
-
-/** One plant of a foot and the support it bears on. */
-type IPlant = HumanSupportStepPlants.IPlant;
-
-/** A plant keyed by its planned window. */
-type WindowPlant = [Window, IPlant];
-
 /**
  * Seconds over which a foot's share of the body eases from its plant into its
  * swing (provisional staging).
  */
 const EASE: number = 0.1;
-
 /** World vertical. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
@@ -531,3 +517,17 @@ export namespace HumanSupportStep {
       });
   }
 }
+
+type Params = IAutoMovieMotionHumanSurface.ISupportStepParams;
+
+type Plan = IAutoMovieMotionHumanActionPlan;
+
+type Posture = IAutoMovieMotionHumanPosture;
+
+type Window = IAutoMovieMotionHumanContactWindow;
+
+/** One plant of a foot and the support it bears on. */
+type IPlant = HumanSupportStepPlants.IPlant;
+
+/** A plant keyed by its planned window. */
+type WindowPlant = [Window, IPlant];

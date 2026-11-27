@@ -7,11 +7,6 @@ import type {
 
 import { HumanFrame } from "./HumanFrame";
 
-/** The unchanged floor directions for one side, before turning by yaw. */
-type IAxes = Readonly<
-  Record<IAutoMovieMotionHumanHand.Axis, Readonly<IAutoMovieVector3>>
->;
-
 /** The named axes mirror about the performer's centreline. */
 const AXES: Readonly<Record<AutoMovieHumanSide, IAxes>> = {
   left: axes(1),
@@ -106,3 +101,8 @@ function axes(sign: number): IAxes {
     back: { x: 0, y: 0, z: -1 },
   };
 }
+
+/** The unchanged floor directions for one side, before turning by yaw. */
+type IAxes = Readonly<
+  Record<IAutoMovieMotionHumanHand.Axis, Readonly<IAutoMovieVector3>>
+>;

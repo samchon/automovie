@@ -15,12 +15,6 @@ import type { prepareSupportHeldFrames } from "./prepareSupportHeldFrames";
 import { supportContact } from "./supportContact";
 import type { supportPlan } from "./supportPlan";
 
-/** The alternatives of `SupportHeldSocketResult`'s site. */
-type SupportHeldSocketResult = "heel" | "ball" | undefined;
-
-/** The alternatives of `SupportHeldSocketHeldEntry`'s site. */
-type SupportHeldSocketHeldEntry = "heel" | "ball";
-
 /**
  * The sole socket each floor foot holds through its window: its ball, the point
  * a turning foot pivots on, unless at the key it is set down on the ball is off
@@ -81,3 +75,9 @@ export function supportHeldSocket(
     contact: IAutoMovieMotionHumanSupport.IContact,
   ): SupportHeldSocketResult => held.get(supportContact.id(contact));
 }
+
+/** The alternatives of `SupportHeldSocketResult`'s site. */
+type SupportHeldSocketResult = "heel" | "ball" | undefined;
+
+/** The alternatives of `SupportHeldSocketHeldEntry`'s site. */
+type SupportHeldSocketHeldEntry = "heel" | "ball";

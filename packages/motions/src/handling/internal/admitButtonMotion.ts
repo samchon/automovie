@@ -2,9 +2,6 @@ import type { IAutoMovieMotionHumanButton } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** The physical dimensions and time of one authored button stroke. */
-type ButtonMotion = "travel" | "radius" | "thickness" | "duration";
-
 /**
  * Admit a signed slider displacement and positive dimensions in metres and
  * duration in seconds before reading the garment model.
@@ -27,3 +24,6 @@ export function admitButtonMotion(
       fix: "give the measured slider travel, sphere radius, panel thickness and push duration",
     });
 }
+
+/** The physical dimensions and time of one authored button stroke. */
+type ButtonMotion = "travel" | "radius" | "thickness" | "duration";

@@ -24,9 +24,6 @@ import { AutoMovieHumanHeadTree } from "./AutoMovieHumanHeadTree";
  * @evidence contracts/performance.md#bound-retention-and-release-resources All temporary views, prepared curves and candidate arrays are call-owned; only the resulting layout survives.
  */
 export namespace AutoMovieHumanHeadCaliper {
-  /** One actual source and the identical metre declaration that produced it. */
-  type Source = { part: IAutoMovieViewPart; view: IAutoMovieConstructionView };
-
   /**
    * Close L on the actual posterior cranial source after tragion placement. The
    * domain runs from that retained cranial-base station to the crown; it
@@ -214,6 +211,9 @@ export namespace AutoMovieHumanHeadCaliper {
     closed.vault = AutoMovieHumanHeadVault.closing(closed);
     return closed;
   }
+
+  /** One actual source and the identical metre declaration that produced it. */
+  type Source = { part: IAutoMovieViewPart; view: IAutoMovieConstructionView };
 
   /** Required runtime source site, not a guessed world-height query. */
   function named(outline: IAutoMovieViewPart.IOutline, site: string): number {

@@ -25,12 +25,6 @@ import { KickSwingTurned } from "./KickSwingTurned";
 import { KickThrust } from "./KickThrust";
 import { StrikingStroke } from "./StrikingStroke";
 
-/** The record of `IPropsFlexion`'s site. */
-type IPropsFlexion = { chamber: number; contact: number; least: number };
-
-/** The alternatives of `PropsPath`'s site. */
-type PropsPath = "hinge" | "thrust";
-
 /**
  * The kicking leg's path: from its plant up to the chamber, out to the contact,
  * back to the chamber and down to the replant.
@@ -464,3 +458,9 @@ export namespace KickSwing {
     return AutoMovieEngineMotionSampling.minimumJerkTime(travel);
   }
 }
+
+/** The record of `IPropsFlexion`'s site. */
+type IPropsFlexion = { chamber: number; contact: number; least: number };
+
+/** The alternatives of `PropsPath`'s site. */
+type PropsPath = "hinge" | "thrust";

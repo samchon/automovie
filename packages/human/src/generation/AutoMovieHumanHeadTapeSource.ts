@@ -119,6 +119,47 @@ export namespace AutoMovieHumanHeadTapeSource {
   }
 
   /**
+   * Integrate the actual source spans with the shared engine rule.
+   *
+   * @evidence contracts/common.md#principled-implementation Integrates the actual world-mm tangent norm in its radian chart using the engine's existing K/2K Gauss-Legendre owner.
+   * @evidence contracts/common.md#clear-and-simple-design Original knot-plane crossings split the four phase quarters before quadrature; length and K/2K difference remain separate observations.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Neither the difference nor a specified-course length is a global maximum or interval error certificate.
+   * @evidence contracts/common.md#meaningful-documentation Returns mm and preserves all original source/root/derivative failures.
+   * @evidence contracts/performance.md#efficient-algorithms N original knot planes use bounded native phase inversions, then the resulting O(N) pieces use the shared K/2K quadrature policy and at's source-query bound.
+   * @evidence contracts/performance.md#reuse-equivalent-work Every derivative query borrows the same actual source and plane; the two exact endpoint Point0 preparations are shared across phases and each selected trial supplies its final phase geometry.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The synchronous measure retains two successful endpoint readers and its active bracket; selected-trial numeric data expires after its final phase read.
+   */
+  export function measure(
+    reader: IAutoMovieHumanHeadTapeSource.IReader,
+    plane: IAutoMovieHumanHeadTapeSource.IPlane,
+    subdivisions: number = 1,
+  ): IAutoMovieHumanHeadTapeSource.MeasureResult {
+    const sites: number[] = AutoMovieHumanHeadTapeStation.partition(
+      reader,
+      plane,
+    );
+
+    const sources: IAutoMovieHumanHeadTapeStation.IOutput =
+      AutoMovieHumanHeadTapeStation.create(reader, plane.range);
+
+    return AutoMovieEngineCurve.measureCurveLength64(
+      sites
+        .slice(1)
+        .map(
+          (
+            high: number,
+            index: number,
+          ): Parameters<typeof AutoMovieEngineCurve.measureCurveLength64>[0][number] => ({
+            domain: [sites[index]!, high],
+            derivative: (phase: number): AutoMovieVector3Tuple =>
+              course(reader, plane, phase, sources).derivative,
+          }),
+        ),
+      subdivisions,
+    );
+  }
+
+  /**
    * The unchanged final phase/physical2 reading, with a caller-owned Point0
    * inverse.
    */
@@ -172,47 +213,6 @@ export namespace AutoMovieHumanHeadTapeSource {
     if (!derivative.every(Number.isFinite))
       throw new Error("Head tape has a nonfinite original world tangent");
     return { station, point: original.point, derivative };
-  }
-
-  /**
-   * Integrate the actual source spans with the shared engine rule.
-   *
-   * @evidence contracts/common.md#principled-implementation Integrates the actual world-mm tangent norm in its radian chart using the engine's existing K/2K Gauss-Legendre owner.
-   * @evidence contracts/common.md#clear-and-simple-design Original knot-plane crossings split the four phase quarters before quadrature; length and K/2K difference remain separate observations.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Neither the difference nor a specified-course length is a global maximum or interval error certificate.
-   * @evidence contracts/common.md#meaningful-documentation Returns mm and preserves all original source/root/derivative failures.
-   * @evidence contracts/performance.md#efficient-algorithms N original knot planes use bounded native phase inversions, then the resulting O(N) pieces use the shared K/2K quadrature policy and at's source-query bound.
-   * @evidence contracts/performance.md#reuse-equivalent-work Every derivative query borrows the same actual source and plane; the two exact endpoint Point0 preparations are shared across phases and each selected trial supplies its final phase geometry.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The synchronous measure retains two successful endpoint readers and its active bracket; selected-trial numeric data expires after its final phase read.
-   */
-  export function measure(
-    reader: IAutoMovieHumanHeadTapeSource.IReader,
-    plane: IAutoMovieHumanHeadTapeSource.IPlane,
-    subdivisions: number = 1,
-  ): IAutoMovieHumanHeadTapeSource.MeasureResult {
-    const sites: number[] = AutoMovieHumanHeadTapeStation.partition(
-      reader,
-      plane,
-    );
-
-    const sources: IAutoMovieHumanHeadTapeStation.IOutput =
-      AutoMovieHumanHeadTapeStation.create(reader, plane.range);
-
-    return AutoMovieEngineCurve.measureCurveLength64(
-      sites
-        .slice(1)
-        .map(
-          (
-            high: number,
-            index: number,
-          ): Parameters<typeof AutoMovieEngineCurve.measureCurveLength64>[0][number] => ({
-            domain: [sites[index]!, high],
-            derivative: (phase: number): AutoMovieVector3Tuple =>
-              course(reader, plane, phase, sources).derivative,
-          }),
-        ),
-      subdivisions,
-    );
   }
 
   /**

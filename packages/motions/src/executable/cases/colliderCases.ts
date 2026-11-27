@@ -21,9 +21,6 @@ import { MotionBodies } from "../internal/MotionBodies";
 import { colliderCaseInside } from "./internal/colliderCaseInside";
 import { colliderCaseNearest } from "./internal/colliderCaseNearest";
 
-/** The alternatives of `ColliderCasesWorstEntry`'s site. */
-type ColliderCasesWorstEntry = "vertex" | "band" | "face" | "digit";
-
 /**
  * Capture cases of the polygon man's colliders against its drawn surface
  * (`colliders-<body>`), one for each body of `MotionBodies.SWEEP`: the body
@@ -229,6 +226,9 @@ export function* colliderCases(
     };
   }
 }
+
+/** The alternatives of `ColliderCasesWorstEntry`'s site. */
+type ColliderCasesWorstEntry = "vertex" | "band" | "face" | "digit";
 
 /** One drawn module's triangles at the T-pose rest, canonical metres. */
 interface IMesh {

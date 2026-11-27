@@ -5,13 +5,6 @@ import type {
 
 import { pushViolation } from "./pushViolation";
 
-/**
- * The slack the shot-local event clock carries at its upper bound, matching
- * `performShot`'s own landing comparison so the two cannot disagree about an
- * event that lands exactly on the shot end.
- */
-const EVENT_TIME_EPSILON: number = 1e-9;
-
 /** Append shot-event findings using the canonical shot-local clock policy. */
 export function appendShotEventsArtifact(
   events: readonly IAutoMovieInteractionEvent[],
@@ -48,3 +41,10 @@ export function appendShotEventsArtifact(
       );
   });
 }
+
+/**
+ * The slack the shot-local event clock carries at its upper bound, matching
+ * `performShot`'s own landing comparison so the two cannot disagree about an
+ * event that lands exactly on the shot end.
+ */
+const EVENT_TIME_EPSILON: number = 1e-9;

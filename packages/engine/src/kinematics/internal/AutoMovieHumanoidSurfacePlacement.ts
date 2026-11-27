@@ -7,15 +7,6 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 
 /**
- * Existing bone-local surface data; geometry and direction admission belongs to
- * its producer.
- */
-type IFrame = IAutoMovieHumanoidSurfaces.IFrame;
-
-/** The actual current placement fields read by every surface projection. */
-type IBone = Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">;
-
-/**
  * Place an admitted bone-local surface frame in the bone's world frame.
  * Point/normal reads precede the optional forward read as in the original full
  * placement. Every returned vector and wrapper is caller-owned.
@@ -76,3 +67,12 @@ export namespace AutoMovieHumanoidSurfacePlacement {
     };
   }
 }
+
+/**
+ * Existing bone-local surface data; geometry and direction admission belongs to
+ * its producer.
+ */
+type IFrame = IAutoMovieHumanoidSurfaces.IFrame;
+
+/** The actual current placement fields read by every surface projection. */
+type IBone = Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">;

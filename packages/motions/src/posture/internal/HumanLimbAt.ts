@@ -21,12 +21,6 @@ import { HumanLimbMirror } from "./HumanLimbMirror";
 import { HumanLimbView } from "./HumanLimbView";
 import { poseBones } from "./poseBones";
 
-/** The record of `IAtPosed`'s site. */
-type IAtPosed = { shortfall: number };
-
-/** The record of `IAtResult`'s site. */
-type IAtResult = { shortfall: number };
-
 /**
  * A limb posed at a prescribed swivel and bend branch, and the swivel and
  * branch a posed limb has, in the frame its fits' seeds use: the closed-form
@@ -181,6 +175,12 @@ export namespace HumanLimbAt {
     );
   }
 }
+
+/** The record of `IAtPosed`'s site. */
+type IAtPosed = { shortfall: number };
+
+/** The record of `IAtResult`'s site. */
+type IAtResult = { shortfall: number };
 
 /**
  * A goal that rides no bone, for a reading that has none: only its absent

@@ -337,6 +337,28 @@ export namespace HumanPropDynamics {
     return joined(from, to, pieces);
   }
 
+  /**
+   * The lean that balances a horizontal push's reaction, degrees forward, or
+   * null when the body's weight cannot balance it.
+   *
+   * @param mass The body's mass, kilograms.
+   * @param height Its centre-of-mass height, metres.
+   * @param force The push, newtons, positive forward.
+   * @param hands The hands' height, metres.
+   * @returns Degrees, or null.
+   */
+  export function lean(
+    mass: number,
+    height: number,
+    force: number,
+    hands: number,
+  ): number | null {
+    const ratio: number =
+      (force * hands) / (mass * AutoMovieGravity.STANDARD * height);
+    if (Math.abs(ratio) > 1) return null;
+    return (Math.asin(ratio) * 180) / Math.PI;
+  }
+
   /** One integrated stretch of a drive, read up to its last second. */
   interface IPiece {
     to: number;
@@ -378,7 +400,6 @@ export namespace HumanPropDynamics {
       Math.max(Number.MIN_VALUE, Math.abs(x) * Number.EPSILON);
     return Math.min(end - ulp(end), Math.max(start + ulp(start), t));
   }
-
   /** The stretches' trajectories as one, each piece's knots within its span. */
   function joined(
     from: number,
@@ -403,26 +424,5 @@ export namespace HumanPropDynamics {
           time,
         ),
     };
-  }
-  /**
-   * The lean that balances a horizontal push's reaction, degrees forward, or
-   * null when the body's weight cannot balance it.
-   *
-   * @param mass The body's mass, kilograms.
-   * @param height Its centre-of-mass height, metres.
-   * @param force The push, newtons, positive forward.
-   * @param hands The hands' height, metres.
-   * @returns Degrees, or null.
-   */
-  export function lean(
-    mass: number,
-    height: number,
-    force: number,
-    hands: number,
-  ): number | null {
-    const ratio: number =
-      (force * hands) / (mass * AutoMovieGravity.STANDARD * height);
-    if (Math.abs(ratio) > 1) return null;
-    return (Math.asin(ratio) * 180) / Math.PI;
   }
 }

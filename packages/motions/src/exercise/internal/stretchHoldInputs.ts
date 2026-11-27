@@ -5,9 +5,6 @@ import type {
   IAutoMovieMotionHumanStretch,
 } from "@automovie/interface";
 
-/** One support the entry stands on. */
-type Support = IAutoMovieMotionHumanEntryState["supports"][number];
-
 /**
  * Whether the law's own standing entry admits the compact hold: standing on the
  * ground alone, nothing held or used, and a posture without digits, a rotation
@@ -39,3 +36,6 @@ export function stretchHoldInputs(
     )
   );
 }
+
+/** One support the entry stands on. */
+type Support = IAutoMovieMotionHumanEntryState["supports"][number];

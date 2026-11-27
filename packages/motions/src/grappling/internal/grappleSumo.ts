@@ -11,9 +11,6 @@ import { getUp } from "../../floor/internal/getUp";
 import { lieDown } from "../../floor/internal/lieDown";
 import { grappleFront } from "./grappleFront";
 
-/** The alternatives of `Kind2`'s site. */
-type Kind2 = "oshiDashi" | "yoriKiri" | "uwateNage";
-
 /**
  * The sumo bouts of the grapple law: both wrestlers crouch at the shikiri lines
  * with their fists down, charge at the tachiai into contact, and the initiator
@@ -361,3 +358,6 @@ export namespace grappleSumo {
     },
   };
 }
+
+/** The alternatives of `Kind2`'s site. */
+type Kind2 = "oshiDashi" | "yoriKiri" | "uwateNage";

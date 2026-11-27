@@ -5,39 +5,6 @@ import { StaggerPendulum } from "./StaggerPendulum";
 import type { staggerRecover } from "./staggerRecover";
 import { staggerTransfer } from "./staggerTransfer";
 
-/** The record of `IStaggerPendulumCoursesStateAtStart`'s site. */
-type IStaggerPendulumCoursesStateAtStart = {
-  s: IAutoMovieVector3;
-  v: IAutoMovieVector3;
-  p: IAutoMovieVector3;
-};
-
-/** The record of `IStaggerPendulumCoursesStateAtResult`'s site. */
-type IStaggerPendulumCoursesStateAtResult = {
-  s: IAutoMovieVector3;
-  v: IAutoMovieVector3;
-  p: IAutoMovieVector3;
-};
-
-/** The record of `IStaggerPendulumCoursesStateAt`'s site. */
-type IStaggerPendulumCoursesStateAt = {
-  s: IAutoMovieVector3;
-  v: IAutoMovieVector3;
-  p: IAutoMovieVector3;
-};
-
-/** The record of `IStaggerPendulumCoursesPhaseAtResult`'s site. */
-type IStaggerPendulumCoursesPhaseAtResult = {
-  phase: staggerRecover.IPhase;
-  u: number;
-};
-
-/** The record of `IStaggerPendulumCoursesPhaseAt`'s site. */
-type IStaggerPendulumCoursesPhaseAt = {
-  phase: staggerRecover.IPhase;
-  u: number;
-};
-
 /**
  * Read the pendulum's held-pressure spans at action-local seconds.
  *
@@ -107,3 +74,36 @@ export function staggerPendulumCourses(
     },
   };
 }
+
+/** The record of `IStaggerPendulumCoursesStateAtStart`'s site. */
+type IStaggerPendulumCoursesStateAtStart = {
+  s: IAutoMovieVector3;
+  v: IAutoMovieVector3;
+  p: IAutoMovieVector3;
+};
+
+/** The record of `IStaggerPendulumCoursesStateAtResult`'s site. */
+type IStaggerPendulumCoursesStateAtResult = {
+  s: IAutoMovieVector3;
+  v: IAutoMovieVector3;
+  p: IAutoMovieVector3;
+};
+
+/** The record of `IStaggerPendulumCoursesStateAt`'s site. */
+type IStaggerPendulumCoursesStateAt = {
+  s: IAutoMovieVector3;
+  v: IAutoMovieVector3;
+  p: IAutoMovieVector3;
+};
+
+/** The record of `IStaggerPendulumCoursesPhaseAtResult`'s site. */
+type IStaggerPendulumCoursesPhaseAtResult = {
+  phase: staggerRecover.IPhase;
+  u: number;
+};
+
+/** The record of `IStaggerPendulumCoursesPhaseAt`'s site. */
+type IStaggerPendulumCoursesPhaseAt = {
+  phase: staggerRecover.IPhase;
+  u: number;
+};

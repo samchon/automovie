@@ -38,21 +38,6 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { handGoals } from "./handGoals";
 import { restGoals } from "./restGoals";
 
-/** The alternatives of `PlanWriteKept`'s site. */
-type PlanWriteKept = "joints" | "limbs";
-
-/** The alternatives of `PlanHoldingResult`'s site. */
-type PlanHoldingResult = "joints" | "limbs";
-
-/** The alternatives of `PlanHolding`'s site. */
-type PlanHolding = "joints" | "limbs";
-
-/** The record of `IBeginEntryItem`'s site. */
-type IBeginEntryItem = {
-  angles: IAutoMovieMotionHumanArmAngles.IAngles;
-  travel: number;
-};
-
 /**
  * Standing with the hands at rest places: in the front pockets, on the hips,
  * arms crossed, clasped in front or behind, behind the head, or the chin on a
@@ -488,3 +473,18 @@ export namespace rest {
     return restGoals(body, posture, places);
   }
 }
+
+/** The alternatives of `PlanWriteKept`'s site. */
+type PlanWriteKept = "joints" | "limbs";
+
+/** The alternatives of `PlanHoldingResult`'s site. */
+type PlanHoldingResult = "joints" | "limbs";
+
+/** The alternatives of `PlanHolding`'s site. */
+type PlanHolding = "joints" | "limbs";
+
+/** The record of `IBeginEntryItem`'s site. */
+type IBeginEntryItem = {
+  angles: IAutoMovieMotionHumanArmAngles.IAngles;
+  travel: number;
+};

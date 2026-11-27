@@ -25,15 +25,6 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import type { touchHold } from "./touchHold";
 
-/** The record of `IPlaceEntry`'s site. */
-type IPlaceEntry = {
-  posture: IAutoMovieMotionHumanPosture;
-  pose: IAutoMoviePose;
-};
-
-/** The alternatives of `MeetingSurface`'s site. */
-type MeetingSurface = "palm" | "fist";
-
 /**
  * How long a touch's reach must take for its arms to keep within the audit's
  * travel bound (`AutoMovieMotionHumanArmPlanned.reaching`).
@@ -184,6 +175,15 @@ export namespace touchReach {
     );
   }
 }
+
+/** The record of `IPlaceEntry`'s site. */
+type IPlaceEntry = {
+  posture: IAutoMovieMotionHumanPosture;
+  pose: IAutoMoviePose;
+};
+
+/** The alternatives of `MeetingSurface`'s site. */
+type MeetingSurface = "palm" | "fist";
 /** The record of `ILaidReachPlace`'s site. */
 type ILaidReachPlace = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
 

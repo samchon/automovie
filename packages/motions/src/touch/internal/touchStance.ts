@@ -14,9 +14,6 @@ import { pickUpAdjust } from "../../handling/internal/pickUpAdjust";
 import type { pickUpPosture } from "../../handling/internal/pickUpPosture";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** The alternatives of `TouchStanceContext`'s site. */
-type TouchStanceContext = "carrier" | "entry";
-
 /**
  * A touch's stance, chosen between two candidates in this order as Vahrenkamp
  * et al. 2013's Algorithm 1 tries base poses
@@ -201,3 +198,6 @@ function stepped(
     },
   };
 }
+
+/** The alternatives of `TouchStanceContext`'s site. */
+type TouchStanceContext = "carrier" | "entry";

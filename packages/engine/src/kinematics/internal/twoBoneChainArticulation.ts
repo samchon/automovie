@@ -112,69 +112,6 @@ export namespace twoBoneChainArticulation {
 }
 
 /**
- * Direct source/target inputs in resolved world coordinates (the interface
- * contract).
- */
-type IProps = IAutoMovieTwoBoneChainArticulation.IProps;
-
-/**
- * One fixed source, with inverses first completed at their original evaluation
- * sites.
- */
-interface ISource {
-  /**
-   * Original frame owner, retaining each late world-rotation read at its
-   * original site.
-   */
-  frames: Pick<IProps, "upper" | "lower" | "end">;
-
-  /** Source root point in world metres. */
-  root: IAutoMovieVector3;
-
-  /** Actual root-to-mid segment length. */
-  l1: number;
-
-  /** Actual mid-to-end segment length. */
-  l2: number;
-
-  /** Original normalized upper-segment direction. */
-  restUpperDir: IAutoMovieVector3;
-
-  /** Original normalized fore-segment direction. */
-  restForeDir: IAutoMovieVector3;
-
-  /** Exact inverse of the source upper world rotation. */
-  upperInverse: IAutoMovieQuaternion;
-
-  /** Exact inverse of the source lower world rotation. */
-  lowerInverse: IAutoMovieQuaternion;
-
-  /** Fixed fore direction lowered through that same inverse. */
-  localFore: IAutoMovieVector3;
-
-  /** Actual aim from the unchanged source upper direction. */
-  aimUpper: ReturnType<typeof AutoMovieEngineKinematics.prepareAimRotation>;
-
-  /** Actual aim from the unchanged lowered fore direction. */
-  aimLower: ReturnType<typeof AutoMovieEngineKinematics.prepareAimRotation>;
-}
-
-/** One fixed target's triangle data, before selecting any bend normal. */
-interface ITarget {
-  /**
-   * Original point owner, retaining the second target read at the candidate's
-   * fore-direction stage.
-   */
-  goal: Pick<IProps, "target">;
-
-  /** Original normalized source-root-to-target direction. */
-  axis: IAutoMovieVector3;
-
-  /** Original solveTwoBoneIK lift, degrees. */
-  lift: number;
-}
-
-/**
  * Keep length degeneracy before rest directions or any target read, as in the
  * direct solve.
  */
@@ -287,4 +224,67 @@ function evaluate(
     : AutoMovieEngineKinematics.aimRotation(source.localFore, localGoal);
 
   return { upper, lower };
+}
+
+/**
+ * Direct source/target inputs in resolved world coordinates (the interface
+ * contract).
+ */
+type IProps = IAutoMovieTwoBoneChainArticulation.IProps;
+
+/**
+ * One fixed source, with inverses first completed at their original evaluation
+ * sites.
+ */
+interface ISource {
+  /**
+   * Original frame owner, retaining each late world-rotation read at its
+   * original site.
+   */
+  frames: Pick<IProps, "upper" | "lower" | "end">;
+
+  /** Source root point in world metres. */
+  root: IAutoMovieVector3;
+
+  /** Actual root-to-mid segment length. */
+  l1: number;
+
+  /** Actual mid-to-end segment length. */
+  l2: number;
+
+  /** Original normalized upper-segment direction. */
+  restUpperDir: IAutoMovieVector3;
+
+  /** Original normalized fore-segment direction. */
+  restForeDir: IAutoMovieVector3;
+
+  /** Exact inverse of the source upper world rotation. */
+  upperInverse: IAutoMovieQuaternion;
+
+  /** Exact inverse of the source lower world rotation. */
+  lowerInverse: IAutoMovieQuaternion;
+
+  /** Fixed fore direction lowered through that same inverse. */
+  localFore: IAutoMovieVector3;
+
+  /** Actual aim from the unchanged source upper direction. */
+  aimUpper: ReturnType<typeof AutoMovieEngineKinematics.prepareAimRotation>;
+
+  /** Actual aim from the unchanged lowered fore direction. */
+  aimLower: ReturnType<typeof AutoMovieEngineKinematics.prepareAimRotation>;
+}
+
+/** One fixed target's triangle data, before selecting any bend normal. */
+interface ITarget {
+  /**
+   * Original point owner, retaining the second target read at the candidate's
+   * fore-direction stage.
+   */
+  goal: Pick<IProps, "target">;
+
+  /** Original normalized source-root-to-target direction. */
+  axis: IAutoMovieVector3;
+
+  /** Original solveTwoBoneIK lift, degrees. */
+  lift: number;
 }

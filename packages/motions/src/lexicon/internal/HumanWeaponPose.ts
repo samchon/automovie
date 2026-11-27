@@ -26,9 +26,6 @@ import type { IHumanWeaponPosePosed } from "./IHumanWeaponPosePosed";
  * (provisional).
  */
 const PASSES: number = 3;
-/** The alternatives of `OfContext`'s site. */
-type OfContext = "params" | "body" | "aim";
-
 /**
  * A presentation's stance and pose with the weapon as a setup holds it.
  *
@@ -481,3 +478,6 @@ export namespace HumanWeaponPose {
   /** {@link IHumanWeaponPosePosed}, read through this namespace. */
   export type IPosed = IHumanWeaponPosePosed;
 }
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "params" | "body" | "aim";

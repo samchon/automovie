@@ -18,15 +18,6 @@ import { walkLeg } from "./walkLeg";
 import { walkReachShort } from "./walkReachShort";
 import { walkReachStance } from "./walkReachStance";
 
-/** The alternatives of `EXTENSIONBone`'s site. */
-type EXTENSIONBone = "leftUpperLeg" | "rightUpperLeg";
-
-/** The alternatives of `TurnResult`'s site. */
-type TurnResult = "yaw" | "pivots";
-
-/** The alternatives of `Pelvis`'s site. */
-type Pelvis = "yaw" | "pivots";
-
 /**
  * Makes every foot goal of a stepping gait reachable on the actual pelvis, the
  * footskate cleanup of Kovar, Schreiner and Gleicher (2002): the contacts are
@@ -64,19 +55,6 @@ type Pelvis = "yaw" | "pivots";
  * swing leaving and joining its stances where they stand.
  */
 export namespace walkReach {
-  /**
-   * The share of a swing over which its foot's claim on the pelvis fades out
-   * after toe-off and in before heel strike (provisional).
-   */
-  export const FADE: number = 0.25;
-
-  /**
-   * The difference, metres, under which the claims on the root's height blend
-   * (provisional); a foot that asks nothing claims this much less than none, so
-   * it leaves the blend alone.
-   */
-  export const CLAIM: number = 0.01;
-
   /** A pelvis turned toward its stances, before it is lowered. */
   export interface IPelvis {
     /** The heading, degrees. */
@@ -120,6 +98,19 @@ export namespace walkReach {
      */
     pelvis?: IAutoMovieQuaternion;
   }
+
+  /**
+   * The share of a swing over which its foot's claim on the pelvis fades out
+   * after toe-off and in before heel strike (provisional).
+   */
+  export const FADE: number = 0.25;
+
+  /**
+   * The difference, metres, under which the claims on the root's height blend
+   * (provisional); a foot that asks nothing claims this much less than none, so
+   * it leaves the blend alone.
+   */
+  export const CLAIM: number = 0.01;
 
   /**
    * A scheduled foot's claim on the pelvis.
@@ -351,3 +342,12 @@ export namespace walkReach {
    */
   const HEEL_UP: number = 30;
 }
+
+/** The alternatives of `EXTENSIONBone`'s site. */
+type EXTENSIONBone = "leftUpperLeg" | "rightUpperLeg";
+
+/** The alternatives of `TurnResult`'s site. */
+type TurnResult = "yaw" | "pivots";
+
+/** The alternatives of `Pelvis`'s site. */
+type Pelvis = "yaw" | "pivots";

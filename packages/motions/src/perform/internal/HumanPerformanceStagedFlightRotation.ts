@@ -7,14 +7,6 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanPerformanceFlightRotation } from "./HumanPerformanceFlightRotation";
 
-interface IStagedFlight extends Omit<
-  Parameters<typeof HumanPerformanceFlightRotation>[0],
-  "orientation"
-> {
-  readonly turns: IAutoMovieMotionHumanFlightTurns;
-  readonly turnedLanding: boolean;
-}
-
 /**
  * Author a flight's requested turns about its unchanged composed centre.
  *
@@ -108,6 +100,14 @@ export function HumanPerformanceStagedFlightRotation(
     table: props.table,
     orientation,
   });
+}
+
+interface IStagedFlight extends Omit<
+  Parameters<typeof HumanPerformanceFlightRotation>[0],
+  "orientation"
+> {
+  readonly turns: IAutoMovieMotionHumanFlightTurns;
+  readonly turnedLanding: boolean;
 }
 
 /**

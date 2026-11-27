@@ -78,9 +78,6 @@ export namespace HumanDigitReach {
     }
     return deepest;
   }
-  /** The record of `INearBodyBall`'s site. */
-  type INearBodyBall = { centre: IAutoMovieVector3; radius: number };
-
   /**
    * The body's colliders near a hand, in the world: every shape but its own
    * hand's and forearm's whose bounding sphere lies within a hand's length of the
@@ -151,11 +148,6 @@ export namespace HumanDigitReach {
     );
     return points;
   };
-  /** The record of `ICarriedResult`'s site. */
-  type ICarriedResult = {
-    point: IAutoMovieVector3;
-    normal?: IAutoMovieVector3;
-  };
 
   /** The record of `ICarried`'s site. */
   export type ICarried = {
@@ -165,7 +157,6 @@ export namespace HumanDigitReach {
     /** The rotated world normal when the goal specifies one. */
     normal?: IAutoMovieVector3;
   };
-
   /** A goal's point and normal carried from a bone's posed frame into the world. */
   export const carried: (
     body: IAutoMovieMotionHumanBody,
@@ -197,6 +188,15 @@ export namespace HumanDigitReach {
             normal: Quaternion.rotateVector(placed.worldRotation, goal.normal),
           }),
     };
+  };
+
+  /** The record of `INearBodyBall`'s site. */
+  type INearBodyBall = { centre: IAutoMovieVector3; radius: number };
+
+  /** The record of `ICarriedResult`'s site. */
+  type ICarriedResult = {
+    point: IAutoMovieVector3;
+    normal?: IAutoMovieVector3;
   };
 
 }

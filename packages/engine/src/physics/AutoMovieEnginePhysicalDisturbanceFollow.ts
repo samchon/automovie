@@ -6,18 +6,6 @@ import { AutoMovieEnginePhysicalIcpPlannerTools as Tools } from "./AutoMovieEngi
 import { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "./AutoMovieEnginePhysicalPlanarPolygon";
 import { AutoMovieEnginePhysicalSupportSpanContacts as Contacts } from "./AutoMovieEnginePhysicalSupportSpanContacts";
 
-/** One closed form of a plan's capture point (`AutoMovieEnginePhysicalDisturbanceForm`). */
-type IForm = AutoMovieEnginePhysicalDisturbanceForm.IForm;
-
-/** A plan's capture point as consecutive closed forms. */
-type IReference = AutoMovieEnginePhysicalDisturbanceForm.IReference;
-
-/** One closed-form piece of the response. */
-type IPiece = AutoMovieEnginePhysicalDisturbanceForm.IPiece;
-
-/** A capture point and centre of mass at an instant. */
-type IState = AutoMovieEnginePhysicalDisturbanceForm.IState;
-
 /** The closed forms the response follows and samples. */
 const {
   ZULU,
@@ -379,3 +367,15 @@ export namespace AutoMovieEnginePhysicalDisturbanceFollow {
     };
   }
 }
+
+/** One closed form of a plan's capture point (`AutoMovieEnginePhysicalDisturbanceForm`). */
+type IForm = AutoMovieEnginePhysicalDisturbanceForm.IForm;
+
+/** A plan's capture point as consecutive closed forms. */
+type IReference = AutoMovieEnginePhysicalDisturbanceForm.IReference;
+
+/** One closed-form piece of the response. */
+type IPiece = AutoMovieEnginePhysicalDisturbanceForm.IPiece;
+
+/** A capture point and centre of mass at an instant. */
+type IState = AutoMovieEnginePhysicalDisturbanceForm.IState;

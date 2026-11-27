@@ -2,17 +2,6 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
- * The nearest wrist on the circle traced by rotating a palm about its contact
- * normal.
- */
-interface ICarriedWristCircle {
-  /** Distance from the fixed shoulder to that wrist, metres. */
-  distance: number;
-  /** Signed turn about the outward normal, degrees. */
-  degrees: number;
-}
-
-/**
  * The wrist and the shoulder project to two radii in the plane orthogonal to
  * the contact normal. Aligning those radii minimizes their separation while
  * preserving the exact contact point and palm normal.
@@ -47,4 +36,15 @@ export function HumanCarriedWristCircle(
         180) /
       Math.PI,
   };
+}
+
+/**
+ * The nearest wrist on the circle traced by rotating a palm about its contact
+ * normal.
+ */
+interface ICarriedWristCircle {
+  /** Distance from the fixed shoulder to that wrist, metres. */
+  distance: number;
+  /** Signed turn about the outward normal, degrees. */
+  degrees: number;
 }

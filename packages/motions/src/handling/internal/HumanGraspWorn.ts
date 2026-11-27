@@ -21,24 +21,6 @@ import { HumanFreedomChoice } from "../../posture/internal/HumanFreedomChoice";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/** The record of `IKeyProps`'s site. */
-type IKeyProps = {
-  context: Pick<IAutoMovieMotionHumanActionContext, KeyPropsContext>;
-  held: IAutoMovieMotionHumanPropReader;
-  world: IAutoMovieRigidTransform;
-  tip: IAutoMovieAffordance;
-  at: AutoMovieHumanoidRegion;
-  site: IAutoMovieVector3;
-
-  side: AutoMovieHumanSide;
-  wrist: IAutoMovieMotionHumanHand.IWrist;
-  round?: boolean;
-  clear?: (wrist: IAutoMovieMotionHumanHand.IWrist) => number;
-};
-
-/** The alternatives of `KeyPropsContext`'s site. */
-type KeyPropsContext = "body" | "entry" | "start";
-
 /**
  * The key pose a grasp taken to wear a thing must also hold
  * (`HumanGraspUse.IUse`, line `worn`): the thing's whole frame where it is worn
@@ -198,3 +180,21 @@ export namespace HumanGraspWorn {
     };
   }
 }
+
+/** The record of `IKeyProps`'s site. */
+type IKeyProps = {
+  context: Pick<IAutoMovieMotionHumanActionContext, KeyPropsContext>;
+  held: IAutoMovieMotionHumanPropReader;
+  world: IAutoMovieRigidTransform;
+  tip: IAutoMovieAffordance;
+  at: AutoMovieHumanoidRegion;
+  site: IAutoMovieVector3;
+
+  side: AutoMovieHumanSide;
+  wrist: IAutoMovieMotionHumanHand.IWrist;
+  round?: boolean;
+  clear?: (wrist: IAutoMovieMotionHumanHand.IWrist) => number;
+};
+
+/** The alternatives of `KeyPropsContext`'s site. */
+type KeyPropsContext = "body" | "entry" | "start";

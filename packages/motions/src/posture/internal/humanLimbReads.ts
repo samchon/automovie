@@ -10,11 +10,6 @@ import type {
 
 import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
 
-/** The alternatives of `HumanLimbReadsReadObstacles`'s site. */
-type HumanLimbReadsReadObstacles =
-  | ReadonlySet<AutoMovieHumanoidBone>
-  | readonly AutoMovieHumanoidBone[];
-
 /**
  * What each limb's fit reads of a pose, read once off the rig: per limb and per
  * whether the other arm is already placed (an arm's obstacles include it then),
@@ -106,3 +101,8 @@ export namespace humanLimbReads {
   /** The interface contract (`IAutoMovieMotionHumanLimbReads.IReads`). */
   export type IReads = IAutoMovieMotionHumanLimbReads.IReads;
 }
+
+/** The alternatives of `HumanLimbReadsReadObstacles`'s site. */
+type HumanLimbReadsReadObstacles =
+  | ReadonlySet<AutoMovieHumanoidBone>
+  | readonly AutoMovieHumanoidBone[];

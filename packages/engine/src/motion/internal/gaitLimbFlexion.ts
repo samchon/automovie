@@ -4,21 +4,6 @@ import { positiveModulo } from "../../math/internal/positiveModulo";
 import { cubicBezierEasing } from "./cubicBezierEasing";
 import { ease } from "./ease";
 
-/** Wrap a cycle position into `[0, 1)`. */
-function wrap01(x: number): number {
-  return positiveModulo(x, 1);
-}
-
-function gaitPhaseEase(
-  curve: IAutoMovieGaitLimb["stanceEasing"],
-  bezier: IAutoMovieGaitLimb["stanceBezier"],
-  t: number,
-): number {
-  return curve === "cubicBezier" && bezier !== undefined && bezier !== null
-    ? cubicBezierEasing(bezier, t)
-    : ease(curve ?? "linear", t);
-}
-
 /**
  * Evaluate one gait row's clinical-axis angle in degrees at cycle time t in
  * seconds. Stance sweeps +amplitude to -amplitude, swing returns, phase offsets
@@ -53,4 +38,19 @@ export function gaitLimbFlexion(
             (u - limb.duty) / (1 - limb.duty),
           );
   return (limb.neutral ?? 0) + swing;
+}
+
+/** Wrap a cycle position into `[0, 1)`. */
+function wrap01(x: number): number {
+  return positiveModulo(x, 1);
+}
+
+function gaitPhaseEase(
+  curve: IAutoMovieGaitLimb["stanceEasing"],
+  bezier: IAutoMovieGaitLimb["stanceBezier"],
+  t: number,
+): number {
+  return curve === "cubicBezier" && bezier !== undefined && bezier !== null
+    ? cubicBezierEasing(bezier, t)
+    : ease(curve ?? "linear", t);
 }

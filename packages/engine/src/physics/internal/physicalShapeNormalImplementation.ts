@@ -55,20 +55,6 @@ function physicalShapeNormal(
   return normal(shape, point, fallback, prepareNormal(frame, shape));
 }
 
-/** Fixed collider geometry can lend only its invariant normal prerequisites. */
-
-/**
- * One fixed box face's unit normal and the half-extent axis that gives its
- * offset.
- */
-interface IBoxPlane {
-  /** The face's outward unit normal in box-local coordinates. */
-  normal: IAutoMovieVector3;
-
-  /** Which current half extent supplies the plane's offset, metres. */
-  axis: "x" | "y" | "z";
-}
-
 /**
  * Canonical face order: negative then positive X, Y and Z, as in the original
  * plane construction.
@@ -92,24 +78,6 @@ const SMOOTH: number = 0.005;
 
 /** Metres under which a radius or a normal has no direction. */
 const BOUNDARY: number = 1e-9;
-
-/** Fixed metadata of one framed collider; no query point is retained. */
-interface IPrepared {
-  /** Actual parent/local centre. */
-  centre: IAutoMovieVector3;
-
-  /** Actual composed rotation. */
-  rotation: IAutoMovieQuaternion;
-
-  /** Capsule length direction in the query's common frame. */
-  axis: IAutoMovieVector3;
-
-  /** Common-to-polytope rotation. */
-  inverse: IAutoMovieQuaternion;
-
-  /** Hull owner planes or six original-order box planes; empty otherwise. */
-  planes: readonly { normal: IAutoMovieVector3; offset: number }[];
-}
 
 /** Prepare one framed collider's centre, orientation and planes. */
 function prepareNormal(
@@ -223,6 +191,7 @@ function centreOfShape(
   centre.z = origin.z + centre.z;
   return centre;
 }
+
 /** Internal implementations shared by the one-function entry modules. */
 /** Internal typed runtime implementations shared by the query entry modules. */
 export const physicalShapeNormalImplementation: {
@@ -232,3 +201,34 @@ export const physicalShapeNormalImplementation: {
   physicalShapeNormal,
   physicalShapeNormalPrepare,
 };
+
+/** Fixed collider geometry can lend only its invariant normal prerequisites. */
+
+/**
+ * One fixed box face's unit normal and the half-extent axis that gives its
+ * offset.
+ */
+interface IBoxPlane {
+  /** The face's outward unit normal in box-local coordinates. */
+  normal: IAutoMovieVector3;
+
+  /** Which current half extent supplies the plane's offset, metres. */
+  axis: "x" | "y" | "z";
+}
+/** Fixed metadata of one framed collider; no query point is retained. */
+interface IPrepared {
+  /** Actual parent/local centre. */
+  centre: IAutoMovieVector3;
+
+  /** Actual composed rotation. */
+  rotation: IAutoMovieQuaternion;
+
+  /** Capsule length direction in the query's common frame. */
+  axis: IAutoMovieVector3;
+
+  /** Common-to-polytope rotation. */
+  inverse: IAutoMovieQuaternion;
+
+  /** Hull owner planes or six original-order box planes; empty otherwise. */
+  planes: readonly { normal: IAutoMovieVector3; offset: number }[];
+}

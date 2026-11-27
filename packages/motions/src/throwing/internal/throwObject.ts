@@ -113,16 +113,6 @@ export namespace throwObject {
     walk: [after()],
   };
 
-  /** The cut once the follow-through ends. */
-  function after(): IAutoMovieMotionHumanInterruptRow {
-    return {
-      window: ["followThrough", 1],
-      kind: "inertialize",
-      entry: 0,
-      blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
-    };
-  }
-
   /**
    * May be performed over a carrier, such as seated or while another action
    * carries the body: it claims only the parts it moves.
@@ -470,6 +460,16 @@ export namespace throwObject {
           target,
         }),
       ),
+    };
+  }
+
+  /** The cut once the follow-through ends. */
+  function after(): IAutoMovieMotionHumanInterruptRow {
+    return {
+      window: ["followThrough", 1],
+      kind: "inertialize",
+      entry: 0,
+      blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
     };
   }
 }

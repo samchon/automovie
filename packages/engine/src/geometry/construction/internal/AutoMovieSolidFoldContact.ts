@@ -6,11 +6,6 @@ import type {
 
 import { AutoMovieSolidVector } from "../../AutoMovieSolidVector";
 
-/** World vector, mm. */
-type Vec3 = AutoMovieVector3Tuple;
-
-/** A surface's 2-jet. */
-type IJet = IAutoMovieSolidSurface.IJet;
 const {
   combine,
   cross,
@@ -188,3 +183,8 @@ export namespace AutoMovieSolidFoldContact {
       : null;
   }
 }
+/** World vector, mm. */
+type Vec3 = AutoMovieVector3Tuple;
+
+/** A surface's 2-jet. */
+type IJet = IAutoMovieSolidSurface.IJet;

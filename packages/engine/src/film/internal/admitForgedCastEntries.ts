@@ -10,15 +10,6 @@ import {
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { validateModel } from "../../validation/internal/validateModel";
 
-/** A cast member with the index it was first declared at. */
-interface IDeclaredMember {
-  /** The script's first declaration of the node. */
-  member: IAutoMovieCastMember;
-
-  /** Its index in `script.cast`, for duplicate reports. */
-  index: number;
-}
-
 /**
  * The FORGE consumer: accept the stand-in rigs the forge stage built for the
  * script's `modelRef: null` cast members, keyed by cast node, or every
@@ -138,4 +129,13 @@ export function admitForgedCastEntries(
   const models: Record<string, IAutoMovieModel> = Object.create(null);
   for (const entry of entries) models[entry.node] = entry.model;
   return { success: true, models };
+}
+
+/** A cast member with the index it was first declared at. */
+interface IDeclaredMember {
+  /** The script's first declaration of the node. */
+  member: IAutoMovieCastMember;
+
+  /** Its index in `script.cast`, for duplicate reports. */
+  index: number;
 }

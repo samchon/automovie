@@ -4,12 +4,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** The record of `IRowsResult`'s site. */
-type IRowsResult = { point: number; value: number };
-
-/** The record of `IRowItem`'s site. */
-type IRowItem = { point: number; value: number };
-
 /**
  * The Laplacian of an interaction mesh (Ho, Komura and Tai 2010, sections 5 and
  * 5.1): nearby parts influence each other by inverse-distance weights; the
@@ -68,3 +62,9 @@ export namespace HumanInteractionMeshLaplacian {
     });
   }
 }
+
+/** The record of `IRowsResult`'s site. */
+type IRowsResult = { point: number; value: number };
+
+/** The record of `IRowItem`'s site. */
+type IRowItem = { point: number; value: number };

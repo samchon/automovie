@@ -18,26 +18,8 @@ const NAMES: Readonly<Record<AutoMovieArchetypeLight.Kind, string>> = {
   lantern: "lantern",
 };
 
-/** The model-space construction for the selected contact IDs. */
-type Builder<Id extends AutoMovieArchetypeLight.Affordance> = AutoMovieArchetypeBuilder<
-  Id,
-  AutoMovieArchetypeLight.Dimension
->;
-
-/** Model dimensions in the legacy family's recorded units. */
-type Dimensions = Partial<Record<AutoMovieArchetypeLight.Dimension, number>>;
-
 /** Practical-light geometry in metres and model-space coordinates. */
 const v: typeof Vector3.create = Vector3.create;
-
-/** A started construction: its builder and its drawn dimensions. */
-interface IDrawn<Id extends AutoMovieArchetypeLight.Affordance> {
-  /** The model-space builder for the selected contact ids. */
-  builder: Builder<Id>;
-
-  /** The drawn and fixed dimensions in the family's recorded units. */
-  d: Dimensions;
-}
 
 /** Open the saved draw stream for the light's particular body and mounting form. */
 function draw<Id extends AutoMovieArchetypeLight.Affordance>(
@@ -310,4 +292,22 @@ export namespace PracticalLightConstruction {
     });
     return builder.build(d.mass!);
   }
+}
+
+/** The model-space construction for the selected contact IDs. */
+type Builder<Id extends AutoMovieArchetypeLight.Affordance> = AutoMovieArchetypeBuilder<
+  Id,
+  AutoMovieArchetypeLight.Dimension
+>;
+
+/** Model dimensions in the legacy family's recorded units. */
+type Dimensions = Partial<Record<AutoMovieArchetypeLight.Dimension, number>>;
+
+/** A started construction: its builder and its drawn dimensions. */
+interface IDrawn<Id extends AutoMovieArchetypeLight.Affordance> {
+  /** The model-space builder for the selected contact ids. */
+  builder: Builder<Id>;
+
+  /** The drawn and fixed dimensions in the family's recorded units. */
+  d: Dimensions;
 }

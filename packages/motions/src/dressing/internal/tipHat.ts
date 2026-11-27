@@ -44,9 +44,6 @@ export const tipHat: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTipHat>
     },
     plan,
   };
-/** The alternatives of `PlanLimb`'s site. */
-type PlanLimb = "leftArm" | "rightArm";
-
 /**
  * Plan the right or left arm's grasp, lift, reseat and return over the entry
  * stance.
@@ -310,11 +307,6 @@ function plan(
     wears: [{ prop: params.prop, bone: "head", from: to }],
   };
 }
-/** The record of `IWornFrameResult`'s site. */
-type IWornFrameResult = {
-  frame: IAutoMovieRigidTransform;
-  socket: IAutoMovieVector3;
-};
 
 /** Admit the staged attachment only when the displayed socket meets the crown. */
 function wornFrame(
@@ -392,8 +384,16 @@ function wornFrame(
     fix: "stage a hat worn on this performer's head with a wear socket and a precision brim handle",
   });
 }
-
 /** World distance between two points, metres. */
 function gap(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
   return Vector3.length(Vector3.subtract(a, b));
 }
+
+/** The alternatives of `PlanLimb`'s site. */
+type PlanLimb = "leftArm" | "rightArm";
+
+/** The record of `IWornFrameResult`'s site. */
+type IWornFrameResult = {
+  frame: IAutoMovieRigidTransform;
+  socket: IAutoMovieVector3;
+};

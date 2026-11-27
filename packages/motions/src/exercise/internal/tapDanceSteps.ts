@@ -1,8 +1,5 @@
 import type { IAutoMovieMotionHumanTapDance } from "@automovie/interface";
 
-/** The alternatives of `StrikeFoot`'s site. */
-type StrikeFoot = "lead" | "other";
-
 /**
  * The strike tables of the tap steps: each strike's foot, quarter beat,
  * setting, landing place, bearing and sound.
@@ -248,3 +245,6 @@ export namespace tapDanceSteps {
     },
   };
 }
+
+/** The alternatives of `StrikeFoot`'s site. */
+type StrikeFoot = "lead" | "other";

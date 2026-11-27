@@ -6,15 +6,6 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/** Match the displayed-action seam precision in HumanSegmentPose. */
-const SEAM_SECONDS: number = 1e-12;
-
-/** The 50 mm reference grip in AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfaces, in metres. */
-const REFERENCE_GRIP_RADIUS: number = 0.025;
-
-/** The measured 7/8-inch barrel used by the standard rope archetype, in metres. */
-const DEFAULT_HANDLE_DIAMETER: number = (7 / 8) * 0.0254;
-
 /**
  * Drive a visible rope on the clock of a placed two-foot skip.
  *
@@ -348,6 +339,15 @@ export function prepareRopeSkip(
   sample(under);
   return sample;
 }
+
+/** Match the displayed-action seam precision in HumanSegmentPose. */
+const SEAM_SECONDS: number = 1e-12;
+
+/** The 50 mm reference grip in AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfaces, in metres. */
+const REFERENCE_GRIP_RADIUS: number = 0.025;
+
+/** The measured 7/8-inch barrel used by the standard rope archetype, in metres. */
+const DEFAULT_HANDLE_DIAMETER: number = (7 / 8) * 0.0254;
 
 /** Project the sole's cited perimeter frames with the actual foot and toe bones. */
 function solePoints(

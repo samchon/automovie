@@ -1,30 +1,3 @@
-/** One native black-and-white coverage read from the delivery mask. */
-interface IProps {
-  /** Full RGBA8 framebuffer, with opaque binary RGB entries. */
-  bytes: Uint8Array;
-
-  /** Width of the native framebuffer before delivery reduction. */
-  sampleWidth: number;
-
-  /** Height of the native framebuffer before delivery reduction. */
-  sampleHeight: number;
-
-  /** Whole native samples along a side of a delivered pixel. */
-  factor: 1 | 2;
-
-  /** Previously read isolated occupancy, when grading the composite. */
-  isolated?: Uint8Array;
-}
-
-/** A delivered pixel count and its packed occupancy in native row order. */
-interface ICount {
-  /** Number of delivered pixels with at least one subject sample. */
-  count: number;
-
-  /** One bit per delivered pixel, low bit first. */
-  occupancy: Uint8Array;
-}
-
 /** Count membership after the same box reduction as the Draw picture. */
 export function countAutoMovieCameraOcclusionPixels(
   props: IProps,
@@ -73,4 +46,31 @@ export function countAutoMovieCameraOcclusionPixels(
       ++count;
     }
   return { count, occupancy };
+}
+
+/** One native black-and-white coverage read from the delivery mask. */
+interface IProps {
+  /** Full RGBA8 framebuffer, with opaque binary RGB entries. */
+  bytes: Uint8Array;
+
+  /** Width of the native framebuffer before delivery reduction. */
+  sampleWidth: number;
+
+  /** Height of the native framebuffer before delivery reduction. */
+  sampleHeight: number;
+
+  /** Whole native samples along a side of a delivered pixel. */
+  factor: 1 | 2;
+
+  /** Previously read isolated occupancy, when grading the composite. */
+  isolated?: Uint8Array;
+}
+
+/** A delivered pixel count and its packed occupancy in native row order. */
+interface ICount {
+  /** Number of delivered pixels with at least one subject sample. */
+  count: number;
+
+  /** One bit per delivered pixel, low bit first. */
+  occupancy: Uint8Array;
 }

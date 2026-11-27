@@ -19,8 +19,6 @@ import { productionFilmEffectFrameRate } from "./productionFilmEffectFrameRate";
 import { sortProductionFilmEffectCues } from "./sortProductionFilmEffectCues";
 import { validateProductionFilmEffectIdentity } from "./validateProductionFilmEffectIdentity";
 
-type FilmEffectCue = IAutoMovieFilmTimeline["tracks"]["effects"][number];
-
 /**
  * Materialize normalized film cues into current, deterministic effect streams.
  *
@@ -153,6 +151,8 @@ export const materializeProductionFilmEffects = (
     };
   });
 };
+
+type FilmEffectCue = IAutoMovieFilmTimeline["tracks"]["effects"][number];
 
 const validateCue = (cue: FilmEffectCue): void => {
   if (

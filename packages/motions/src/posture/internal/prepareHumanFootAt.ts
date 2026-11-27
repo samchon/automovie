@@ -9,9 +9,6 @@ import type {
 
 import { HumanFoot } from "./HumanFoot";
 
-/** The alternatives of `PrepareHumanFootAtPivot`'s site. */
-type PrepareHumanFootAtPivot = "heel" | "ball" | "toe" | "sole" | "mtp";
-
 /**
  * Prepare a foot's fixed articulation while its sole contact moves in space.
  *
@@ -48,3 +45,6 @@ export function prepareHumanFootAt(
     rotation: { ...rotation },
   });
 }
+
+/** The alternatives of `PrepareHumanFootAtPivot`'s site. */
+type PrepareHumanFootAtPivot = "heel" | "ball" | "toe" | "sole" | "mtp";

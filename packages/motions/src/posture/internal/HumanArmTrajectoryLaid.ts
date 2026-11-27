@@ -50,40 +50,6 @@ export namespace HumanArmTrajectoryLaid {
     read: IRead;
   }
 
-  /** The prepared inputs and verdict shared by admission and fallback. */
-  interface IRead {
-    /** The input in the frame the context was prepared in. */
-    readonly problem: HumanArmTrajectory.IProblem;
-
-    /** The context builder. */
-    of: ReturnType<typeof HumanArmTrajectoryContext.prepare>;
-
-    /** The context at the course's waypoints, the frame grid of the span. */
-    context: M.IContext;
-
-    /** The course's coordinates at those waypoints, each arm's. */
-    x: number[][][];
-
-    /** The bounded rates given to the returned trajectory reader. */
-    rates?: Knots.IRates;
-
-    /**
-     * The model's reading of the course there; absent for a stretch cut from a
-     * refused course (`HumanArmTrajectory.solve`), which is solved from that
-     * course alone.
-     */
-    evaluation?: M.IEvaluation;
-  }
-
-  /** The inputs shared by every admission of a different hold in one problem. */
-  type IPrepared = Pick<IRead, "problem" | "of" | "context">;
-
-  /** Each arm's coordinates at authored hold waypoints, in problem order. */
-  type IHeld = readonly (readonly (
-    | IAutoMovieMotionHumanArmClearance.IArm
-    | undefined
-  )[])[];
-
   /**
    * A course laid without optimisation, admitted when it meets what a solved
    * trajectory must meet. The caller gives each arm on the hold, where its
@@ -169,6 +135,40 @@ export namespace HumanArmTrajectoryLaid {
       course.read,
     );
   }
+
+  /** The prepared inputs and verdict shared by admission and fallback. */
+  interface IRead {
+    /** The input in the frame the context was prepared in. */
+    readonly problem: HumanArmTrajectory.IProblem;
+
+    /** The context builder. */
+    of: ReturnType<typeof HumanArmTrajectoryContext.prepare>;
+
+    /** The context at the course's waypoints, the frame grid of the span. */
+    context: M.IContext;
+
+    /** The course's coordinates at those waypoints, each arm's. */
+    x: number[][][];
+
+    /** The bounded rates given to the returned trajectory reader. */
+    rates?: Knots.IRates;
+
+    /**
+     * The model's reading of the course there; absent for a stretch cut from a
+     * refused course (`HumanArmTrajectory.solve`), which is solved from that
+     * course alone.
+     */
+    evaluation?: M.IEvaluation;
+  }
+
+  /** The inputs shared by every admission of a different hold in one problem. */
+  type IPrepared = Pick<IRead, "problem" | "of" | "context">;
+
+  /** Each arm's coordinates at authored hold waypoints, in problem order. */
+  type IHeld = readonly (readonly (
+    | IAutoMovieMotionHumanArmClearance.IArm
+    | undefined
+  )[])[];
 
   /** Lay, time and certify the path on the prepared problem's frames. */
   function layCourse(

@@ -56,26 +56,6 @@ export const pianoScore: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPia
     plan,
   };
 
-/** A hand placement shared by every key in a voicing. */
-type IVoicing = resolvePianoScoreVoicing.Voicing;
-/** The record of `IPlanContactsItem`'s site. */
-type IPlanContactsItem = { voicing: IVoicing; end?: ContactsEndItem };
-
-/** The alternatives of `ContactsEndItem`'s site. */
-type ContactsEndItem = 0 | 1;
-
-/** The record of `IPlanCheckedItem`'s site. */
-type IPlanCheckedItem = { seconds: number; end?: CheckedEndItem };
-
-/** The alternatives of `CheckedEndItem`'s site. */
-type CheckedEndItem = 0 | 1;
-
-/** The record of `IBoundariesItemEntry`'s site. */
-type IBoundariesItemEntry = { voicing: IVoicing; end?: EndItemEntry };
-
-/** The alternatives of `EndItemEntry`'s site. */
-type EndItemEntry = 0 | 1;
-
 /** Resolve the score over the seated entry's existing supports. */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPianoScore>,
@@ -358,7 +338,6 @@ function plan(
     },
   };
 }
-
 /** Minimum-jerk progress from the undepressed surface to the key's stop. */
 function depression(
   score: IAutoMovieMotionHumanPianoScore.INote,
@@ -447,8 +426,6 @@ function goal(
 ): IAutoMovieHumanDigitGoal {
   return { point, normal, surface: "tip", contact: true };
 }
-/** The alternatives of `RefuseValue`'s site. */
-type RefuseValue = string | number;
 
 /** Report the score field and its corrected authoring direction. */
 function refuse(axis: string, value: RefuseValue, fix: string): never {
@@ -460,3 +437,26 @@ function refuse(axis: string, value: RefuseValue, fix: string): never {
     fix,
   });
 }
+
+/** A hand placement shared by every key in a voicing. */
+type IVoicing = resolvePianoScoreVoicing.Voicing;
+
+/** The record of `IPlanContactsItem`'s site. */
+type IPlanContactsItem = { voicing: IVoicing; end?: ContactsEndItem };
+
+/** The alternatives of `ContactsEndItem`'s site. */
+type ContactsEndItem = 0 | 1;
+
+/** The record of `IPlanCheckedItem`'s site. */
+type IPlanCheckedItem = { seconds: number; end?: CheckedEndItem };
+
+/** The alternatives of `CheckedEndItem`'s site. */
+type CheckedEndItem = 0 | 1;
+
+/** The record of `IBoundariesItemEntry`'s site. */
+type IBoundariesItemEntry = { voicing: IVoicing; end?: EndItemEntry };
+/** The alternatives of `EndItemEntry`'s site. */
+type EndItemEntry = 0 | 1;
+
+/** The alternatives of `RefuseValue`'s site. */
+type RefuseValue = string | number;

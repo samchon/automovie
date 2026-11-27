@@ -8,13 +8,6 @@ import { turnHumanPosture } from "../../posture/internal/turnHumanPosture";
 import { addHumanTrunkInclination } from "./addHumanTrunkInclination";
 import { authoredHumanTrunkPose } from "./authoredHumanTrunkPose";
 
-/** The record of `IRHYTHMItem`'s site. */
-type IRHYTHMItem = {
-  pelvis: number;
-  lumbar: number;
-  thorax: number;
-};
-
 /**
  * The trunk and head of a posture placed in the world without solving its
  * limbs: forward kinematics of the root and the directly set joints only.
@@ -367,6 +360,36 @@ export namespace HumanTrunk {
     return reading(body, bones);
   }
 
+  /** Operation-owned trunk frames for several region or ray queries. */
+  export interface IReading {
+    /**
+     * Demanded bone frames, with limb goals ignored; caller must not mutate
+     * them.
+     */
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+
+    /** A demanded region's world-metre point and unit outward normal. */
+    region(region: AutoMovieHumanoidRegion): HumanTrunk.ISurface;
+
+    /**
+     * A world ray's hit on midline colliders, throwing when it misses within
+     * two statures.
+     */
+    surface(
+      from: IAutoMovieVector3,
+      toward: IAutoMovieVector3,
+    ): HumanTrunk.ISurface;
+  }
+
+  /** A point and normal on an actual trunk surface. */
+  export interface ISurface {
+    /** Point on the surface, world metres. */
+    point: IAutoMovieVector3;
+
+    /** Unit outward normal in the world frame. */
+    normal: IAutoMovieVector3;
+  }
+
   /**
    * Bind actual resolved frames in a scope that cannot retain the parent FK
    * loan.
@@ -399,36 +422,6 @@ export namespace HumanTrunk {
     };
   }
 
-  /** Operation-owned trunk frames for several region or ray queries. */
-  export interface IReading {
-    /**
-     * Demanded bone frames, with limb goals ignored; caller must not mutate
-     * them.
-     */
-    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-
-    /** A demanded region's world-metre point and unit outward normal. */
-    region(region: AutoMovieHumanoidRegion): HumanTrunk.ISurface;
-
-    /**
-     * A world ray's hit on midline colliders, throwing when it misses within
-     * two statures.
-     */
-    surface(
-      from: IAutoMovieVector3,
-      toward: IAutoMovieVector3,
-    ): HumanTrunk.ISurface;
-  }
-
-  /** A point and normal on an actual trunk surface. */
-  export interface ISurface {
-    /** Point on the surface, world metres. */
-    point: IAutoMovieVector3;
-
-    /** Unit outward normal in the world frame. */
-    normal: IAutoMovieVector3;
-  }
-
   /** Apply the existing ray policy to a fixed midline frame map. */
   function cast(
     body: IAutoMovieMotionHumanBody,
@@ -448,6 +441,13 @@ export namespace HumanTrunk {
     return { point: hit.point, normal: hit.normal };
   }
 }
+
+/** The record of `IRHYTHMItem`'s site. */
+type IRHYTHMItem = {
+  pelvis: number;
+  lumbar: number;
+  thorax: number;
+};
 
 /** The bones a trunk ray is tested against: the midline ones, none with a side. */
 const MIDLINE: ReadonlySet<AutoMovieHumanoidBone> =

@@ -11,9 +11,6 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** The alternatives of `OfContext`'s site. */
-type OfContext = "prop" | "start";
-
 /**
  * Read a push's two handles.
  *
@@ -94,3 +91,6 @@ export namespace pushSledHandles {
     length: number;
   }
 }
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "prop" | "start";

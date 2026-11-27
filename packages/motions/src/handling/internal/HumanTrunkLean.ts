@@ -212,6 +212,36 @@ export namespace HumanTrunkLean {
     return (low * 180) / Math.PI;
   }
 
+  /** A free arm as it hangs before a hinge (`hang`), world. */
+  export interface IHanging {
+    /** The arm. */
+    side: AutoMovieHumanSide;
+
+    /** The shoulder joint. */
+    shoulder: IAutoMovieVector3;
+
+    /** The elbow joint. */
+    elbow: IAutoMovieVector3;
+
+    /** The wrist joint. */
+    wrist: IAutoMovieVector3;
+
+    /** The hand's attitude. */
+    rotation: IAutoMovieQuaternion;
+  }
+
+  /** A wrist a law asks of an arm. */
+  export interface IWrist {
+    /** The arm. */
+    side: AutoMovieHumanSide;
+
+    /** The wrist, world metres. */
+    point: IAutoMovieVector3;
+
+    /** The hand's attitude, world. */
+    rotation: IAutoMovieQuaternion;
+  }
+
   /**
    * The hip joints' axis of a posture: their midpoint and the unit direction
    * from the right joint to the left.
@@ -282,36 +312,6 @@ export namespace HumanTrunkLean {
       undefined,
       new Set<AutoMovieHumanoidBone>([bone]),
     ).get(bone)!.worldPosition;
-  }
-
-  /** A free arm as it hangs before a hinge (`hang`), world. */
-  export interface IHanging {
-    /** The arm. */
-    side: AutoMovieHumanSide;
-
-    /** The shoulder joint. */
-    shoulder: IAutoMovieVector3;
-
-    /** The elbow joint. */
-    elbow: IAutoMovieVector3;
-
-    /** The wrist joint. */
-    wrist: IAutoMovieVector3;
-
-    /** The hand's attitude. */
-    rotation: IAutoMovieQuaternion;
-  }
-
-  /** A wrist a law asks of an arm. */
-  export interface IWrist {
-    /** The arm. */
-    side: AutoMovieHumanSide;
-
-    /** The wrist, world metres. */
-    point: IAutoMovieVector3;
-
-    /** The hand's attitude, world. */
-    rotation: IAutoMovieQuaternion;
   }
 
   /** The hip joints' axis: a point on it and its unit direction, world. */

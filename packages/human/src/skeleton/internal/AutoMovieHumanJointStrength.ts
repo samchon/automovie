@@ -1,20 +1,6 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 /**
- * A sex-specific peak-torque regression: intercept, age, height and mass
- * coefficients.
- */
-type Model = readonly [number, number, number, number];
-
-/** One motion's male and female models. */
-interface IMotion {
-  /** Men. */
-  male: Model;
-  /** Women. */
-  female: Model;
-}
-
-/**
  * Peak joint torque models of Harbo, Brincks and Andersen (2012), "Maximal
  * isokinetic and isometric muscle strength of major muscle groups related to
  * age, body mass, height, and sex in 178 healthy subjects", Eur J Appl Physiol
@@ -185,4 +171,18 @@ export namespace AutoMovieHumanJointStrength {
     };
     return { toMaximum: torque(motions[0]), toMinimum: torque(motions[1]) };
   }
+}
+
+/**
+ * A sex-specific peak-torque regression: intercept, age, height and mass
+ * coefficients.
+ */
+type Model = readonly [number, number, number, number];
+
+/** One motion's male and female models. */
+interface IMotion {
+  /** Men. */
+  male: Model;
+  /** Women. */
+  female: Model;
 }

@@ -1,14 +1,5 @@
 import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 
-/** The record of `IWorkActive`'s site. */
-type IWorkActive = { rows: number[]; bounds: number[] };
-
-/** The record of `IMemorySpare`'s site. */
-type IMemorySpare = { x: Float64Array; z: Float64Array; y: Float64Array };
-
-/** The record of `IMemoryAdapted`'s site. */
-type IMemoryAdapted = { rho: Float64Array; thresholds: Float64Array };
-
 /**
  * Bind the solver's existing rhs, xt and before without allocating another
  * numeric vector. The returned object lives for that solve only.
@@ -356,3 +347,12 @@ export namespace HumanQuadraticWorkspace {
     }
   }
 }
+
+/** The record of `IWorkActive`'s site. */
+type IWorkActive = { rows: number[]; bounds: number[] };
+
+/** The record of `IMemorySpare`'s site. */
+type IMemorySpare = { x: Float64Array; z: Float64Array; y: Float64Array };
+
+/** The record of `IMemoryAdapted`'s site. */
+type IMemoryAdapted = { rho: Float64Array; thresholds: Float64Array };

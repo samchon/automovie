@@ -6,10 +6,6 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { minimumJerk as minimumJerkImplementation } from "./minimumJerk";
 
-/** Rotations about the fixed world-up axis. */
-const yawRotation: ReturnType<typeof Quaternion.prepareAxisAngle> =
-  Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });
-
 /**
  * Warp a motion's root so it arrives at a different place and heading by a
  * named instant, leaving the motion's own shape intact.
@@ -49,3 +45,7 @@ export function warpRoot(
     scale: root.scale,
   };
 }
+
+/** Rotations about the fixed world-up axis. */
+const yawRotation: ReturnType<typeof Quaternion.prepareAxisAngle> =
+  Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });

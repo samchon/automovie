@@ -15,9 +15,6 @@ import { Vector3 } from "../../math/Vector3";
 import { validateServiceNetwork } from "./validateServiceNetwork";
 import { validateWetZones } from "./validateWetZones";
 
-/** Default number of sides a swept run is drawn with. */
-const DEFAULT_SIDES: number = 8;
-
 /**
  * Lower one service network to the models and staged pieces that draw it.
  *
@@ -108,6 +105,9 @@ export function lowerServiceNetwork(
   }
   return { models, set };
 }
+
+/** Default number of sides a swept run is drawn with. */
+const DEFAULT_SIDES: number = 8;
 
 /**
  * A direction across a route's first leg for the section plane's first axis:

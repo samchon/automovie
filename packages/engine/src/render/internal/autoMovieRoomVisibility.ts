@@ -12,9 +12,6 @@ import { builtSpaceContainsPoint } from "../../architecture/internal/builtSpaceC
 import { builtSpaceStatesVolume } from "../../architecture/internal/builtSpaceStatesVolume";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 
-/** The exterior, as a node of the portal graph rather than the absence of one. */
-const EXTERIOR: string = " exterior";
-
 /**
  * Decide which logical spaces a camera cannot possibly see.
  *
@@ -144,6 +141,9 @@ export function autoMovieRoomVisibility(
     inconclusive: null,
   };
 }
+
+/** The exterior, as a node of the portal graph rather than the absence of one. */
+const EXTERIOR: string = " exterior";
 
 /**
  * Every space kept visible from `origin`.

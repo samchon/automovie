@@ -3,11 +3,6 @@ import type {
   IAutoMovieRecoveryEventRegionSource,
 } from "@automovie/interface";
 
-type V =
-  Parameters<IAutoMovieRecoveryEventRegion.Operation>[0]["verticesMm"][number];
-type Triangle =
-  Parameters<IAutoMovieRecoveryEventRegion.Operation>[0]["triangles"][number];
-
 /** Prepare immutable source rank and incidence once for all scalar queries. */
 export function RecoveryEventRegionSource(
   source: Parameters<IAutoMovieRecoveryEventRegionSource.Operation>[0],
@@ -111,3 +106,8 @@ export function RecoveryEventRegionSource(
 
   return { size, ranks, duplicate, collapsed, sourceEdges, address, pair };
 }
+type V =
+  Parameters<IAutoMovieRecoveryEventRegion.Operation>[0]["verticesMm"][number];
+
+type Triangle =
+  Parameters<IAutoMovieRecoveryEventRegion.Operation>[0]["triangles"][number];

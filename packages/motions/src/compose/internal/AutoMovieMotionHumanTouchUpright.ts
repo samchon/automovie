@@ -14,15 +14,6 @@ import type {
 import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
 import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
 
-/** The alternatives of `FacingsFirst`'s site. */
-type FacingsFirst = 1 | -1;
-
-/** The alternatives of `TiltPlace`'s site. */
-type TiltPlace = "point" | "normal";
-
-/** The alternatives of `SolvePlace`'s site. */
-type SolvePlace = "point" | "normal";
-
 /**
  * How a held vessel is turned about its own upright axis at a region, so the
  * arm that brings it there keeps it upright, and how far it is leaned.
@@ -206,3 +197,12 @@ export namespace AutoMovieMotionHumanTouchUpright {
     return out;
   }
 }
+
+/** The alternatives of `FacingsFirst`'s site. */
+type FacingsFirst = 1 | -1;
+
+/** The alternatives of `TiltPlace`'s site. */
+type TiltPlace = "point" | "normal";
+
+/** The alternatives of `SolvePlace`'s site. */
+type SolvePlace = "point" | "normal";

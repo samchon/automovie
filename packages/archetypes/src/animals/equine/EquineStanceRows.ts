@@ -41,17 +41,6 @@ const LOAD: number = 0.35;
 /** A stepping hoof's peak lift, metres: authored. */
 const LIFT: number = 0.08;
 
-/** A folded limb pose of the rows. */
-type Fold = "foreLift" | "hindLift" | "rear" | "kick";
-
-/** A limb end of the body. */
-type End = "Fore" | "Hind";
-
-/** A response that pitches the trunk. */
-type Pitched =
-  | AutoMovieArchetypeEquineStanceCue.IRear
-  | AutoMovieArchetypeEquineStanceCue.IBuck;
-
 /**
  * Folded limbs' joint turns, degrees, shoulder or hip first, positive swinging
  * the distal end back: authored poses.
@@ -489,3 +478,14 @@ export namespace EquineStanceRows {
     };
   }
 }
+
+/** A folded limb pose of the rows. */
+type Fold = "foreLift" | "hindLift" | "rear" | "kick";
+
+/** A limb end of the body. */
+type End = "Fore" | "Hind";
+
+/** A response that pitches the trunk. */
+type Pitched =
+  | AutoMovieArchetypeEquineStanceCue.IRear
+  | AutoMovieArchetypeEquineStanceCue.IBuck;

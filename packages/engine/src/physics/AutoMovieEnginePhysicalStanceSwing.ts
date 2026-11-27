@@ -11,9 +11,6 @@ import { Vector3 } from "../math/Vector3";
 import { AutoMoviePhysicalBalance } from "./AutoMoviePhysicalBalance";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 
-/** A support limb of the balance pattern. */
-type Limb = IAutoMovieFootfallPattern["limbs"][number];
-
 /**
  * The stance's swing terms (`AutoMovieEnginePhysicalStanceBalance`): the reach of a step, the
  * swinging leg's bound, mass and clearance, the body's momentum and spin, and
@@ -262,3 +259,6 @@ export namespace AutoMovieEnginePhysicalStanceSwing {
     };
   }
 }
+
+/** A support limb of the balance pattern. */
+type Limb = IAutoMovieFootfallPattern["limbs"][number];

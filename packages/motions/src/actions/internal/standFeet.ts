@@ -19,27 +19,6 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
 import { stand } from "./stand";
 
-/** One foot's fixed-contact evaluations. */
-interface IPlan {
-  /** The foot. */
-  side: AutoMovieHumanSide;
-  /** The ankle and rotation at a share. */
-  at(share: number): IAutoMovieMotionHumanFoot.IPlacement;
-  /** Toe flexion, degrees, at a share. */
-  toes(share: number): number;
-  /** The bearing offset in the foot's frame. */
-  contact(share: number): IAutoMovieVector3;
-}
-
-/** Fixed share-one geometry used by both flat targets and completed rockers. */
-interface ISettled {
-  /** The final ankle and foot rotation in the world. */
-  placement: IAutoMovieMotionHumanFoot.IPlacement;
-
-  /** The final bearing offset in the foot's local frame, metres. */
-  contact: IAutoMovieVector3;
-}
-
 /**
  * Build the foot course from the displayed entry.
  *
@@ -264,4 +243,25 @@ export namespace standFeet {
       carry?: IAutoMovieMotionHumanSupportCarry.ICarry,
     ): IAutoMovieMotionHumanPosture;
   }
+}
+
+/** One foot's fixed-contact evaluations. */
+interface IPlan {
+  /** The foot. */
+  side: AutoMovieHumanSide;
+  /** The ankle and rotation at a share. */
+  at(share: number): IAutoMovieMotionHumanFoot.IPlacement;
+  /** Toe flexion, degrees, at a share. */
+  toes(share: number): number;
+  /** The bearing offset in the foot's frame. */
+  contact(share: number): IAutoMovieVector3;
+}
+
+/** Fixed share-one geometry used by both flat targets and completed rockers. */
+interface ISettled {
+  /** The final ankle and foot rotation in the world. */
+  placement: IAutoMovieMotionHumanFoot.IPlacement;
+
+  /** The final bearing offset in the foot's local frame, metres. */
+  contact: IAutoMovieVector3;
 }

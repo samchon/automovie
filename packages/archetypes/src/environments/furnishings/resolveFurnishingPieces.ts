@@ -12,27 +12,6 @@ import type {
 
 import { FurnishingRect } from "./FurnishingRect";
 
-/** A wall's heading and its map from run and inward distance to room XZ. */
-interface IWallFrame {
-  /** The heading that faces a piece's front into the room. */
-  heading: number;
-
-  /**
-   * The room-frame X and Z of a point `u` metres along the run from its start
-   * corner and `v` metres out from the wall's inner face.
-   */
-  at: (u: number, v: number) => readonly [x: number, z: number];
-}
-
-/** One wall piece's run interval, for an `after` relation. */
-interface IRun {
-  /** The wall the piece stands on. */
-  wall: AutoMovieFurnishingWall;
-
-  /** Distance in metres from the run's start corner to the box's far end. */
-  end: number;
-}
-
 /**
  * Place a room's individually related pieces in record order and reserve the
  * floor each keeps clear.
@@ -342,4 +321,25 @@ export namespace resolveFurnishingPieces {
     /** The wall of each piece a `wall` relation placed, by role. */
     walls: Map<string, AutoMovieFurnishingWall>;
   }
+}
+
+/** A wall's heading and its map from run and inward distance to room XZ. */
+interface IWallFrame {
+  /** The heading that faces a piece's front into the room. */
+  heading: number;
+
+  /**
+   * The room-frame X and Z of a point `u` metres along the run from its start
+   * corner and `v` metres out from the wall's inner face.
+   */
+  at: (u: number, v: number) => readonly [x: number, z: number];
+}
+
+/** One wall piece's run interval, for an `after` relation. */
+interface IRun {
+  /** The wall the piece stands on. */
+  wall: AutoMovieFurnishingWall;
+
+  /** Distance in metres from the run's start corner to the box's far end. */
+  end: number;
 }

@@ -8,12 +8,6 @@ import type {
 
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 
-/** The alternatives of `NormalsCount`'s site. */
-type NormalsCount = 1 | 2 | 3;
-
-/** The alternatives of `UniformsCount`'s site. */
-type UniformsCount = 1 | 2 | 3;
-
 /**
  * The draws and the bound rules every slot function of the seeded variation
  * shares.
@@ -208,6 +202,12 @@ export namespace AutoMovieMotionHumanVariationDraw {
     );
   }
 }
+
+/** The alternatives of `NormalsCount`'s site. */
+type NormalsCount = 1 | 2 | 3;
+
+/** The alternatives of `UniformsCount`'s site. */
+type UniformsCount = 1 | 2 | 3;
 
 /** The mass of the standard normal below `-TRUNCATE`: `Phi(-2)`. */
 const TAIL: number = 0.022750131948179195;

@@ -24,12 +24,6 @@ const FILLIS = {
   eye: 1.25 * AutoMovieArchetypeUnits.INCH,
 };
 
-/** A point in a section through the equid's barrel, world-aligned metres. */
-interface ISection {
-  x: number;
-  y: number;
-}
-
 /**
  * Lay the physical tread, arch, eye and leather of one conventional stirrup.
  * WO2007052127A1, figures 1 and 2, shows the tread at the bases of the arch and
@@ -273,4 +267,10 @@ function tangents(radius: number, from: number, to: number): ISection[] {
     points.push(polar(corner, from + (index + 0.5) * step));
   points.push(polar(radius, to));
   return points;
+}
+
+/** A point in a section through the equid's barrel, world-aligned metres. */
+interface ISection {
+  x: number;
+  y: number;
 }

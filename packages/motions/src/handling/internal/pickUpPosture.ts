@@ -19,9 +19,6 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { pickUpPostureLeaned } from "./pickUpPostureLeaned";
 import { pickUpPostureShoulder } from "./pickUpPostureShoulder";
 
-/** The record of `IStanceStep`'s site. */
-type IStanceStep = { side: AutoMovieHumanSide; off: number; on: number };
-
 /**
  * The body a pick up reaches from, and the reach it reads.
  *
@@ -282,6 +279,9 @@ export namespace pickUpPosture {
       });
   }
 }
+
+/** The record of `IStanceStep`'s site. */
+type IStanceStep = { side: AutoMovieHumanSide; off: number; on: number };
 
 /**
  * Optional parent-owned exact FK source for this same current person

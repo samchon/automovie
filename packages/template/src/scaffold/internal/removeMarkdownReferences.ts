@@ -1,8 +1,3 @@
-interface IFence {
-  character: "`" | "~";
-  length: number;
-}
-
 /** Remove authored `@reference` notes without changing fenced Markdown samples. */
 export const removeMarkdownReferences = {
   /** Remove one-line `@reference` comments outside Markdown fences. */
@@ -39,6 +34,11 @@ export const removeMarkdownReferences = {
     return restored;
   },
 };
+
+interface IFence {
+  character: "`" | "~";
+  length: number;
+}
 
 const REFERENCE_LINE: RegExp =
   /^<!-- @reference (?:(?!-->)[^\r\n])+ -->[ \t]*$/u;

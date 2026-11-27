@@ -1,15 +1,6 @@
 import type { IAutoMovieSurfaceGraphicLayer } from "@automovie/interface";
 import * as THREE from "three";
 
-/** Maximum texture width or height, in pixels. */
-const MAX_EDGE: number = 1024;
-
-/** Largest box edge or line height accepted, in em-scaled pixels. */
-const MAX_BOX: number = 1 << 20;
-
-/** Canvas pixels per em before the texture edge limit. */
-const EM: number = 96;
-
 /**
  * Draw white glyph coverage on transparent pixels using the current browser's
  * system UI font and script fallback. The surface material supplies the
@@ -115,3 +106,12 @@ export function createAutoMovieSystemTextTexture(
   texture.flipY = false;
   return texture;
 }
+
+/** Maximum texture width or height, in pixels. */
+const MAX_EDGE: number = 1024;
+
+/** Largest box edge or line height accepted, in em-scaled pixels. */
+const MAX_BOX: number = 1 << 20;
+
+/** Canvas pixels per em before the texture edge limit. */
+const EM: number = 96;

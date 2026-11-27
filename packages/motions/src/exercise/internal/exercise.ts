@@ -7,9 +7,6 @@ import type {
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { exercisePlan } from "./exercisePlan";
 
-/** The record of `IDropM`'s site. */
-type IDropM = { thigh: number; shank: number };
-
 /**
  * A standing bodyweight exercise counted in repetitions: the squat, the forward
  * lunge, high knees and the jumping jack (ACSM's Guidelines for Exercise
@@ -113,3 +110,6 @@ export namespace exercise {
   /** {@link exercisePlan}, read through this namespace. */
   export const plan: typeof exercisePlan = exercisePlan;
 }
+
+/** The record of `IDropM`'s site. */
+type IDropM = { thigh: number; shank: number };

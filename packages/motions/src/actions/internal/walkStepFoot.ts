@@ -12,50 +12,6 @@ import { stand } from "./stand";
 import { walkFoot } from "./walkFoot";
 import { walkReach } from "./walkReach";
 
-/** The record of `IScheduleEndsResult`'s site. */
-type IScheduleEndsResult = {
-  from: IAutoMovieMotionHumanWalkFoot.IFoot;
-  to: IAutoMovieMotionHumanWalkFoot.IFoot;
-};
-
-/** The record of `IScheduleEndsItem`'s site. */
-type IScheduleEndsItem = {
-  from: IAutoMovieMotionHumanWalkFoot.IFoot;
-  to: IAutoMovieMotionHumanWalkFoot.IFoot;
-};
-
-/** The record of `IWindowsStancesItem`'s site. */
-type IWindowsStancesItem = {
-  side: AutoMovieHumanSide;
-  from: number;
-  to: number;
-};
-
-/** The record of `IWindowsB`'s site. */
-type IWindowsB = { name: string; seconds: number };
-
-/** The record of `IWindowsA`'s site. */
-type IWindowsA = { name: string; seconds: number };
-
-/** The record of `IWindowsEventsItem`'s site. */
-type IWindowsEventsItem = { name: string; seconds: number };
-
-/** The record of `IWindowsResult`'s site. */
-type IWindowsResult = {
-  events: IWindowsEventsItemResult[];
-  stances: IWindowsStancesItemResult[];
-};
-
-/** The record of `IWindowsStancesItemResult`'s site. */
-type IWindowsStancesItemResult = {
-  side: AutoMovieHumanSide;
-  from: number;
-  to: number;
-};
-
-/** The record of `IWindowsEventsItemResult`'s site. */
-type IWindowsEventsItemResult = { name: string; seconds: number };
-
 /**
  * Each foot's schedule in a walk's footstep plan (`walkSteps`): from its
  * footfalls, the stance it holds before its first toe-off, the swing between a
@@ -361,6 +317,50 @@ export namespace walkStepFoot {
     };
   }
 }
+
+/** The record of `IScheduleEndsResult`'s site. */
+type IScheduleEndsResult = {
+  from: IAutoMovieMotionHumanWalkFoot.IFoot;
+  to: IAutoMovieMotionHumanWalkFoot.IFoot;
+};
+
+/** The record of `IScheduleEndsItem`'s site. */
+type IScheduleEndsItem = {
+  from: IAutoMovieMotionHumanWalkFoot.IFoot;
+  to: IAutoMovieMotionHumanWalkFoot.IFoot;
+};
+
+/** The record of `IWindowsStancesItem`'s site. */
+type IWindowsStancesItem = {
+  side: AutoMovieHumanSide;
+  from: number;
+  to: number;
+};
+
+/** The record of `IWindowsB`'s site. */
+type IWindowsB = { name: string; seconds: number };
+
+/** The record of `IWindowsA`'s site. */
+type IWindowsA = { name: string; seconds: number };
+
+/** The record of `IWindowsEventsItem`'s site. */
+type IWindowsEventsItem = { name: string; seconds: number };
+
+/** The record of `IWindowsResult`'s site. */
+type IWindowsResult = {
+  events: IWindowsEventsItemResult[];
+  stances: IWindowsStancesItemResult[];
+};
+
+/** The record of `IWindowsStancesItemResult`'s site. */
+type IWindowsStancesItemResult = {
+  side: AutoMovieHumanSide;
+  from: number;
+  to: number;
+};
+
+/** The record of `IWindowsEventsItemResult`'s site. */
+type IWindowsEventsItemResult = { name: string; seconds: number };
 
 /**
  * Ease a previously scheduled landing into its new gait about the same sole

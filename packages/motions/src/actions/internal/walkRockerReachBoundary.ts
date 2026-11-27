@@ -1,17 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/** Degrees per radian. */
-const DEGREES: number = 180 / Math.PI;
-
-/** Circular-ankle reach entry over a signed pitch bracket. */
-type ReachBoundary = (
-  hip: IAutoMovieVector3,
-  low: number,
-  high: number,
-  tolerance: number,
-) => number | undefined;
-
 /**
  * Prepare the intersection of a rigid ankle's pitch orbit and the leg's reach
  * sphere.
@@ -68,3 +57,14 @@ export function walkRockerReachBoundary(
       : undefined;
   };
 }
+
+/** Degrees per radian. */
+const DEGREES: number = 180 / Math.PI;
+
+/** Circular-ankle reach entry over a signed pitch bracket. */
+type ReachBoundary = (
+  hip: IAutoMovieVector3,
+  low: number,
+  high: number,
+  tolerance: number,
+) => number | undefined;

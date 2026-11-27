@@ -17,18 +17,6 @@ import { alignHumanHandSurface } from "./alignHumanHandSurface";
 import { placeHumanHandSurface } from "./placeHumanHandSurface";
 import { readHumanHandFrame } from "./readHumanHandFrame";
 
-/** The alternatives of `FrameBonesEntry`'s site. */
-type FrameBonesEntry = "worldPosition" | "worldRotation";
-
-/** The alternatives of `AlignWorld`'s site. */
-type AlignWorld = "normal" | "forward";
-
-/** The alternatives of `AlignRest`'s site. */
-type AlignRest = "normal" | "forward";
-
-/** The alternatives of `OffsetSide`'s site. */
-type OffsetSide = "Left" | "Right";
-
 /**
  * A hand brought to a target: which wrist point and hand rotation put a chosen
  * hand surface (the palm, the grip centre, the fist, the back of the hand, a
@@ -473,6 +461,18 @@ export namespace HumanHand {
     );
   }
 }
+
+/** The alternatives of `FrameBonesEntry`'s site. */
+type FrameBonesEntry = "worldPosition" | "worldRotation";
+
+/** The alternatives of `AlignWorld`'s site. */
+type AlignWorld = "normal" | "forward";
+
+/** The alternatives of `AlignRest`'s site. */
+type AlignRest = "normal" | "forward";
+
+/** The alternatives of `OffsetSide`'s site. */
+type OffsetSide = "Left" | "Right";
 
 /** Canonical left rest basis, inverted once at construction. */
 const LEFT_ROTATION: ReturnType<typeof alignHumanHandSurface.prepare> =

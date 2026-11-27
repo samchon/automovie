@@ -4,43 +4,6 @@ import { Vector3 } from "@automovie/engine";
 import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal } from "../../core";
 import "../constants/DRINKWARE_BANDS";
 
-/** The readable name of each kind. */
-const NAMES: Readonly<Record<AutoMovieArchetypeDrinkware.Kind, string>> = {
-  mug: "mug",
-  cup: "cup",
-  glass: "drinking glass",
-  wineGlass: "wine glass",
-  beerBottle: "beer bottle",
-  waterBottle: "water bottle",
-  wineBottle: "wine bottle",
-};
-
-/**
- * The flat colour each kind is drawn in, picture only: a glazed mug, clear
- * glass, brown glass for beer, a clear pale blue for water and dark green glass
- * for wine, so the bottles are told apart on a still.
- */
-const COLORS: Readonly<Record<AutoMovieArchetypeDrinkware.Kind, string>> = {
-  mug: "#e8e4da",
-  cup: "#f4f2ec",
-  glass: "#a9c8d8",
-  wineGlass: "#a9c8d8",
-  beerBottle: "#6b3f1d",
-  waterBottle: "#cdeaf8",
-  wineBottle: "#1f4d2b",
-};
-
-/** What each kind holds when full, litres: the capacity its sources state. */
-const CAPACITY: Readonly<Record<AutoMovieArchetypeDrinkware.Kind, number>> = {
-  mug: 0.24,
-  cup: 0.18,
-  glass: 0.473,
-  wineGlass: 0.215,
-  beerBottle: 0.33,
-  waterBottle: 0.5,
-  wineBottle: 0.75,
-};
-
 /**
  * A drinking vessel: a mug, a cup, a drinking glass, a wine glass, or a beer,
  * water or wine bottle.
@@ -287,3 +250,40 @@ export function createDrinkware(
     breaking === undefined ? undefined : { outcome: { fracture: breaking } },
   );
 }
+
+/** The readable name of each kind. */
+const NAMES: Readonly<Record<AutoMovieArchetypeDrinkware.Kind, string>> = {
+  mug: "mug",
+  cup: "cup",
+  glass: "drinking glass",
+  wineGlass: "wine glass",
+  beerBottle: "beer bottle",
+  waterBottle: "water bottle",
+  wineBottle: "wine bottle",
+};
+
+/**
+ * The flat colour each kind is drawn in, picture only: a glazed mug, clear
+ * glass, brown glass for beer, a clear pale blue for water and dark green glass
+ * for wine, so the bottles are told apart on a still.
+ */
+const COLORS: Readonly<Record<AutoMovieArchetypeDrinkware.Kind, string>> = {
+  mug: "#e8e4da",
+  cup: "#f4f2ec",
+  glass: "#a9c8d8",
+  wineGlass: "#a9c8d8",
+  beerBottle: "#6b3f1d",
+  waterBottle: "#cdeaf8",
+  wineBottle: "#1f4d2b",
+};
+
+/** What each kind holds when full, litres: the capacity its sources state. */
+const CAPACITY: Readonly<Record<AutoMovieArchetypeDrinkware.Kind, number>> = {
+  mug: 0.24,
+  cup: 0.18,
+  glass: 0.473,
+  wineGlass: 0.215,
+  beerBottle: 0.33,
+  waterBottle: 0.5,
+  wineBottle: 0.75,
+};

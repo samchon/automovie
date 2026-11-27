@@ -25,22 +25,6 @@ export namespace AutoMovieConicHermiteField {
     return sumAtMaximum(ops, values, largest);
   }
 
-  /**
-   * Preserve the ordered log-sum arithmetic while reusing an already read
-   * primal gauge.
-   */
-  function sumAtMaximum<T>(
-    ops: IAutoMovieAlgebra<T>,
-    values: readonly T[],
-    largest: number,
-  ): T {
-    const gauge: T = ops.constant(largest);
-    let sum: T = ops.constant(0);
-    for (const value of values)
-      sum = ops.add(sum, ops.exp(ops.subtract(value, gauge)));
-    return ops.add(gauge, ops.log(sum));
-  }
-
   /** Rational cubic point at a fixed log-odds clock or an explicit endpoint. */
   export function projective<T>(
     ops: IAutoMovieAlgebra<T>,
@@ -247,6 +231,22 @@ export namespace AutoMovieConicHermiteField {
       position,
       reverse: false,
     };
+  }
+
+  /**
+   * Preserve the ordered log-sum arithmetic while reusing an already read
+   * primal gauge.
+   */
+  function sumAtMaximum<T>(
+    ops: IAutoMovieAlgebra<T>,
+    values: readonly T[],
+    largest: number,
+  ): T {
+    const gauge: T = ops.constant(largest);
+    let sum: T = ops.constant(0);
+    for (const value of values)
+      sum = ops.add(sum, ops.exp(ops.subtract(value, gauge)));
+    return ops.add(gauge, ops.log(sum));
   }
 
   /**

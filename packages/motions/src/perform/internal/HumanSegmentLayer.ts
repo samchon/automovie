@@ -15,9 +15,6 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 
-/** The alternatives of `ApplyPhase`'s site. */
-type ApplyPhase = "display" | "entry";
-
 /** The ordered additive layers of one person's posture at a film second. */
 export namespace HumanSegmentLayer {
   /**
@@ -129,6 +126,9 @@ export namespace HumanSegmentLayer {
     }
   }
 }
+
+/** The alternatives of `ApplyPhase`'s site. */
+type ApplyPhase = "display" | "entry";
 
 /** A layer may borrow only a same-body exact FK getter during its current apply. */
 type Resolution = NonNullable<

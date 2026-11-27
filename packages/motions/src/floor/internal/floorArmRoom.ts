@@ -22,20 +22,6 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  */
 const SCAN: number = 16;
 
-/** Arm rooms by side, degrees. */
-type Rooms = Record<AutoMovieHumanSide, number>;
-/** The record of `IPrepareEnds`'s site. */
-type IPrepareEnds = { from: Rooms; to: Rooms };
-
-/** The record of `IPrepareBlend`'s site. */
-type IPrepareBlend = { from: Rooms; to: Rooms; flagged: boolean };
-
-/** The record of `IPrepareAllowedEnds`'s site. */
-type IPrepareAllowedEnds = { from: Rooms; to: Rooms };
-
-/** The record of `IPrepareBlendsItem`'s site. */
-type IPrepareBlendsItem = { from: Rooms; to: Rooms; flagged: boolean };
-
 /**
  * The trunk as a constraint on a floor law's way between two of its postures.
  * Arm angles blended between two postures can carry a forearm through the body
@@ -130,7 +116,6 @@ export namespace floorArmRoom {
     return samples(reaches(body), from, to);
   }
 }
-
 /**
  * The shares a blend's scan reads, enough that no arm can sink, between two of
  * them, more than the audit's self-penetration allowance
@@ -178,9 +163,6 @@ function samples(
   );
 }
 
-/** A joint's three clinical angles, degrees. */
-type JointAngles = readonly [number, number, number];
-
 /** The angles of a joint a posture leaves out. */
 const ZERO: readonly [0, 0, 0] = [0, 0, 0];
 
@@ -196,15 +178,6 @@ const READ: ReadonlySet<string> = new Set<string>([
   "rightLowerArm",
   "rightHand",
 ]);
-
-/** A profile joint's furthest carried collider. */
-interface IJointReach {
-  /** The child bone's declared profile identity. */
-  bone: string;
-
-  /** The maximum carried distance from the joint, metres. */
-  reach: number;
-}
 
 /**
  * Read a body's joint reaches from its profile at rest: for each joint that
@@ -282,6 +255,7 @@ function reaches(
   }
   return out;
 }
+
 /** The posture with each arm kept within its allowed room. */
 function cleared(
   body: IAutoMovieMotionHumanBody,
@@ -351,4 +325,30 @@ function arm(
     lower: angles(`${side}LowerArm`),
     hand: angles(`${side}Hand`),
   };
+}
+
+/** Arm rooms by side, degrees. */
+type Rooms = Record<AutoMovieHumanSide, number>;
+
+/** The record of `IPrepareEnds`'s site. */
+type IPrepareEnds = { from: Rooms; to: Rooms };
+
+/** The record of `IPrepareBlend`'s site. */
+type IPrepareBlend = { from: Rooms; to: Rooms; flagged: boolean };
+/** The record of `IPrepareAllowedEnds`'s site. */
+type IPrepareAllowedEnds = { from: Rooms; to: Rooms };
+
+/** The record of `IPrepareBlendsItem`'s site. */
+type IPrepareBlendsItem = { from: Rooms; to: Rooms; flagged: boolean };
+
+/** A joint's three clinical angles, degrees. */
+type JointAngles = readonly [number, number, number];
+
+/** A profile joint's furthest carried collider. */
+interface IJointReach {
+  /** The child bone's declared profile identity. */
+  bone: string;
+
+  /** The maximum carried distance from the joint, metres. */
+  reach: number;
 }

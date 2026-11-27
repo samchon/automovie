@@ -33,48 +33,6 @@ import { addressPrecisionStroke } from "./addressPrecisionStroke";
 import { coursePrecisionStroke } from "./coursePrecisionStroke";
 import { precisionStrokeTool } from "./precisionStrokeTool";
 
-/** The shared authorship contract. Cue strokes also name a supporting surface. */
-type Stroke = IAutoMovieMotionHumanLexiconPrecisionSportParams.IHand &
-  Partial<
-    Pick<IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke, "tool">
-  > &
-  Partial<
-    Pick<IAutoMovieMotionHumanLexiconPrecisionSportParams.ICue, "bridge">
-  >;
-
-/** The held implement an implement row names; a bare-hand row names none. */
-function implement(params: Stroke): string {
-  if (params.tool !== undefined) return params.tool;
-  throw new HumanRefusal({
-    kind: "parameter",
-    axis: "tool",
-    value: params.tool,
-    reason: "an implement stroke needs the implement its hand holds",
-    fix: "name the held implement in tool",
-  });
-}
-
-/**
- * The cue's least lean over the bed while the bridge hand bears on it, degrees;
- * provisional.
- */
-const BRIDGE_INCLINE: number = 27;
-
-/**
- * Positive, finite authored timing and speed, with admission kept at the
- * stroke.
- */
-function positive(axis: string, value: number): number {
-  if (value > 0) return value;
-  throw new HumanRefusal({
-    kind: "parameter",
-    axis,
-    value,
-    reason: `${axis} must be finite and positive`,
-    fix: `give a positive ${axis}`,
-  });
-}
-
 /**
  * Build one row of the held stroke planner. All rows use a resolved ball
  * surface, with a witnessed hand-to-implement-to-ball chain at the authored
@@ -465,4 +423,46 @@ export function createPrecisionSportStroke<P extends Stroke>(
           );
     },
   };
+}
+
+/** The shared authorship contract. Cue strokes also name a supporting surface. */
+type Stroke = IAutoMovieMotionHumanLexiconPrecisionSportParams.IHand &
+  Partial<
+    Pick<IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke, "tool">
+  > &
+  Partial<
+    Pick<IAutoMovieMotionHumanLexiconPrecisionSportParams.ICue, "bridge">
+  >;
+
+/** The held implement an implement row names; a bare-hand row names none. */
+function implement(params: Stroke): string {
+  if (params.tool !== undefined) return params.tool;
+  throw new HumanRefusal({
+    kind: "parameter",
+    axis: "tool",
+    value: params.tool,
+    reason: "an implement stroke needs the implement its hand holds",
+    fix: "name the held implement in tool",
+  });
+}
+
+/**
+ * The cue's least lean over the bed while the bridge hand bears on it, degrees;
+ * provisional.
+ */
+const BRIDGE_INCLINE: number = 27;
+
+/**
+ * Positive, finite authored timing and speed, with admission kept at the
+ * stroke.
+ */
+function positive(axis: string, value: number): number {
+  if (value > 0) return value;
+  throw new HumanRefusal({
+    kind: "parameter",
+    axis,
+    value,
+    reason: `${axis} must be finite and positive`,
+    fix: `give a positive ${axis}`,
+  });
 }

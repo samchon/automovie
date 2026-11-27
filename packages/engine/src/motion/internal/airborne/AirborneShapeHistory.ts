@@ -15,30 +15,6 @@ import { AirborneShapeStatistics } from "./AirborneShapeStatistics";
 import { AirborneTabulatedShapeHistory } from "./AirborneTabulatedShapeHistory";
 import type { AutoMovieEngineMotionAirborneRotation } from "../../AutoMovieEngineMotionAirborneRotation";
 
-/** The numeric sufficient statistics that survive a shape query. */
-type IInstant = IAutoMovieIntegrateAirborneRotation.IInstant;
-
-/** The public query signature, shared without a second state model. */
-type IHistory = IAutoMovieIntegrateAirborneRotation.IHistory;
-
-/** The memo's explicit owner can clear it after planning. */
-type ICachedHistory = AutoMovieEngineMotionAirborneRotation.ICachedHistory;
-
-/** A private exact-time mass node retains only numeric physical sufficient data. */
-interface INode extends AutoMovieEngineKinematics.IPosedBody {
-  /** Rated nodes admit their tensor before evaluating the current rate producer. */
-  rated?: {
-    /** The same actual posed node's aggregate root-frame tensor. */
-    matrix: number[][];
-
-    /**
-     * A complete valid derivative reduction, or explicit unavailable stencil
-     * selection.
-     */
-    relative: IAutoMovieVector3 | undefined;
-  };
-}
-
 /**
  * Reduce pure root-frame shapes to exact-time inertia and relative momentum.
  *
@@ -380,4 +356,28 @@ function sameRotation(
     Object.is(a.z, b.z) &&
     Object.is(a.w, b.w)
   );
+}
+
+/** The numeric sufficient statistics that survive a shape query. */
+type IInstant = IAutoMovieIntegrateAirborneRotation.IInstant;
+
+/** The public query signature, shared without a second state model. */
+type IHistory = IAutoMovieIntegrateAirborneRotation.IHistory;
+
+/** The memo's explicit owner can clear it after planning. */
+type ICachedHistory = AutoMovieEngineMotionAirborneRotation.ICachedHistory;
+
+/** A private exact-time mass node retains only numeric physical sufficient data. */
+interface INode extends AutoMovieEngineKinematics.IPosedBody {
+  /** Rated nodes admit their tensor before evaluating the current rate producer. */
+  rated?: {
+    /** The same actual posed node's aggregate root-frame tensor. */
+    matrix: number[][];
+
+    /**
+     * A complete valid derivative reduction, or explicit unavailable stencil
+     * selection.
+     */
+    relative: IAutoMovieVector3 | undefined;
+  };
 }

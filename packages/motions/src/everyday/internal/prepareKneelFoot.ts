@@ -9,20 +9,6 @@ import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionH
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { kneelKeys } from "./kneelKeys";
 
-/** The record of `IPrepareKneelFootResult2`'s site. */
-type IPrepareKneelFootResult2 = {
-  placement: IAutoMovieMotionHumanFoot.IPlacement;
-  planted: boolean;
-  toes: number;
-};
-
-/** The record of `IPrepareKneelFootResult`'s site. */
-type IPrepareKneelFootResult = {
-  placement: IAutoMovieMotionHumanFoot.IPlacement;
-  planted: boolean;
-  toes: number;
-};
-
 /**
  * Prepare one foot's course between fixed kneeling keys. A stationary toe joint
  * remains the pivot while pitch changes; a moving one follows the foot's
@@ -156,3 +142,17 @@ export namespace prepareKneelFoot {
     return !kneelKeys.still(from, to) && from.pitch < 0 ? 1 - STRIKE : 0;
   }
 }
+
+/** The record of `IPrepareKneelFootResult2`'s site. */
+type IPrepareKneelFootResult2 = {
+  placement: IAutoMovieMotionHumanFoot.IPlacement;
+  planted: boolean;
+  toes: number;
+};
+
+/** The record of `IPrepareKneelFootResult`'s site. */
+type IPrepareKneelFootResult = {
+  placement: IAutoMovieMotionHumanFoot.IPlacement;
+  planted: boolean;
+  toes: number;
+};

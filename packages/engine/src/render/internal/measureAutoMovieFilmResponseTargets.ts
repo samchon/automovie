@@ -1,14 +1,5 @@
 import { AUTOMOVIE_FILM_GLARE_KERNELS } from "../AUTOMOVIE_FILM_GLARE_KERNELS";
 
-/** Bytes of one RGBA half-float texel. */
-const HALF: number = 8;
-
-/**
- * Bytes of one depth texel: three.js's default depth texture holds 24 bits in a
- * 32-bit word.
- */
-const DEPTH: number = 4;
-
 /**
  * The GPU targets one film response stage allocates at a `width × height` pixel
  * raster, as render's `allocateAutoMovieFilmTargets` makes them.
@@ -54,3 +45,12 @@ export function measureAutoMovieFilmResponseTargets(
     bytes: width * height * (HALF + DEPTH) + pyramid + kernels,
   };
 }
+
+/** Bytes of one RGBA half-float texel. */
+const HALF: number = 8;
+
+/**
+ * Bytes of one depth texel: three.js's default depth texture holds 24 bits in a
+ * 32-bit word.
+ */
+const DEPTH: number = 4;

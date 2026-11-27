@@ -5,21 +5,6 @@ import { HumanFoot } from "../../../posture/internal/HumanFoot";
 import type { IMotionCaptureCase } from "../../internal/IMotionCaptureCase";
 import { FootSlip } from "../FootSlip";
 
-/** The alternatives of `WithinUnit`'s site. */
-type WithinUnit = "mm" | "deg";
-
-/** The record of `IGroundedWorst`'s site. */
-type IGroundedWorst = { value: number; where: string };
-
-/** The record of `IGroundedResult`'s site. */
-type IGroundedResult = { value: number; where: string };
-
-/** The record of `ISlipWorst`'s site. */
-type ISlipWorst = { value: number; where: string };
-
-/** The record of `ISlipResult`'s site. */
-type ISlipResult = { value: number; where: string };
-
 /**
  * The numeric checks the everyday capture cases report beside their sheets,
  * measured on the displayed poses the sheets draw: foot slip and the foot's
@@ -251,6 +236,21 @@ export namespace everydayVerdicts {
     ];
   }
 }
+
+/** The alternatives of `WithinUnit`'s site. */
+type WithinUnit = "mm" | "deg";
+
+/** The record of `IGroundedWorst`'s site. */
+type IGroundedWorst = { value: number; where: string };
+
+/** The record of `IGroundedResult`'s site. */
+type IGroundedResult = { value: number; where: string };
+
+/** The record of `ISlipWorst`'s site. */
+type ISlipWorst = { value: number; where: string };
+
+/** The record of `ISlipResult`'s site. */
+type ISlipResult = { value: number; where: string };
 /** The alternatives of `PlantPart`'s site. */
 type PlantPart = "leftFoot" | "rightFoot";
 

@@ -1,17 +1,5 @@
 import { HumanMinimumJerkSpline } from "./HumanMinimumJerkSpline";
 
-/** The record of `IPrepareHermiteResult2`'s site. */
-type IPrepareHermiteResult2 = {
-  readonly knot: number;
-  readonly coordinates: number[];
-};
-
-/** The record of `IPrepareHermiteResult`'s site. */
-type IPrepareHermiteResult = {
-  readonly knot: number;
-  readonly coordinates: number[];
-};
-
 /**
  * A trajectory's interpolant between its waypoints and subdivision of the
  * intervals whose played geometry fails admission.
@@ -105,6 +93,18 @@ export namespace HumanArmRefine {
     };
   }
 }
+
+/** The record of `IPrepareHermiteResult2`'s site. */
+type IPrepareHermiteResult2 = {
+  readonly knot: number;
+  readonly coordinates: number[];
+};
+
+/** The record of `IPrepareHermiteResult`'s site. */
+type IPrepareHermiteResult = {
+  readonly knot: number;
+  readonly coordinates: number[];
+};
 /** The last knot at or before this second, starting at zero before the span. */
 function knot(times: readonly number[], seconds: number): number {
   let low: number = 0;

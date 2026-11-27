@@ -12,16 +12,6 @@ import type {
 import { AutoMovieMotionHumanPlaced } from "../../compose/internal/AutoMovieMotionHumanPlaced";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/** The record of `IArmsProps`'s site. */
-type IArmsProps = {
-  body: IAutoMovieMotionHumanBody;
-  side: AutoMovieHumanSide;
-  duration: number;
-  rest: (side: AutoMovieHumanSide) => IAutoMovieMotionHumanArmAngles.IAngles;
-  weight: (seconds: number) => number;
-  forward: IAutoMovieVector3;
-};
-
 /**
  * The arms of the cross-body shoulder stretch (`stretch`): the stretched arm
  * crosses the chest until its wrist stands 1.2 shoulder half-widths across the
@@ -123,3 +113,13 @@ export namespace stretchCrossBody {
     ];
   }
 }
+
+/** The record of `IArmsProps`'s site. */
+type IArmsProps = {
+  body: IAutoMovieMotionHumanBody;
+  side: AutoMovieHumanSide;
+  duration: number;
+  rest: (side: AutoMovieHumanSide) => IAutoMovieMotionHumanArmAngles.IAngles;
+  weight: (seconds: number) => number;
+  forward: IAutoMovieVector3;
+};

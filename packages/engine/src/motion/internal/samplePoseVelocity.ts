@@ -180,17 +180,6 @@ export namespace samplePoseVelocity {
   }
 
   /**
-   * Read a current articulation/root's rotation vector from the same inverse
-   * origin.
-   */
-  function spinFrom(
-    rotation: IAutoMovieQuaternion,
-    from: IAutoMovieQuaternion,
-  ): IAutoMovieVector3 {
-    return samplePoseVelocity.rotationVector(Quaternion.multiply(rotation, from));
-  }
-
-  /**
    * The swivel tolerance, degrees, a continued fit is refined to for the
    * `continued` samples of a velocity read at `step` that an inertialization of
    * `duration` decays.
@@ -238,5 +227,16 @@ export namespace samplePoseVelocity {
     const angle: number = 2 * Math.atan2(sine, w);
     const k: number = (sign * angle) / sine;
     return { x: q.x * k, y: q.y * k, z: q.z * k };
+  }
+
+  /**
+   * Read a current articulation/root's rotation vector from the same inverse
+   * origin.
+   */
+  function spinFrom(
+    rotation: IAutoMovieQuaternion,
+    from: IAutoMovieQuaternion,
+  ): IAutoMovieVector3 {
+    return samplePoseVelocity.rotationVector(Quaternion.multiply(rotation, from));
   }
 }

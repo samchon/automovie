@@ -7,12 +7,6 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** The record of `ILayResult`'s site. */
-type ILayResult = { at: IAutoMovieVector3; heading: number };
-
-/** The record of `IAtResult`'s site. */
-type IAtResult = { at: IAutoMovieVector3; heading: number };
-
 /**
  * A path frame laid out on the film clock: where its origin is and which way it
  * faces at any second, read in closed form.
@@ -241,6 +235,12 @@ export namespace HumanFormationPath {
     };
   }
 }
+
+/** The record of `ILayResult`'s site. */
+type ILayResult = { at: IAutoMovieVector3; heading: number };
+
+/** The record of `IAtResult`'s site. */
+type IAtResult = { at: IAutoMovieVector3; heading: number };
 
 /** One straight stretch of a path frame. */
 interface IStretch {

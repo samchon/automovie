@@ -15,12 +15,6 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 
-/** The alternatives of `PlacePosture`'s site. */
-type PlacePosture = "root" | "yaw";
-
-/** The alternatives of `OfResult`'s site. */
-type OfResult = "name" | "subject";
-
 /** The mean of points. */
 const mean = (points: readonly IAutoMovieVector3[]): IAutoMovieVector3 =>
   Vector3.scale(
@@ -302,3 +296,9 @@ export namespace AutoMovieMotionMeeting {
     };
   }
 }
+
+/** The alternatives of `PlacePosture`'s site. */
+type PlacePosture = "root" | "yaw";
+
+/** The alternatives of `OfResult`'s site. */
+type OfResult = "name" | "subject";

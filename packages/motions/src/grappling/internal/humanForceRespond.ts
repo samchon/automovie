@@ -16,9 +16,6 @@ import { HumanForceDrawn } from "./HumanForceDrawn";
 import { HumanForceExchange } from "./HumanForceExchange";
 import { HumanForceThrow } from "./HumanForceThrow";
 
-/** The alternatives of `HumanForceRespondPlantPart`'s site. */
-type HumanForceRespondPlantPart = "leftFoot" | "rightFoot";
-
 /**
  * The response to a pull open at the context's start
  * (`HumanForceResponse.plan`): the pull read from the force input, the base's
@@ -345,3 +342,6 @@ export function humanForceRespond(
     plant,
   });
 }
+
+/** The alternatives of `HumanForceRespondPlantPart`'s site. */
+type HumanForceRespondPlantPart = "leftFoot" | "rightFoot";

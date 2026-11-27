@@ -4,9 +4,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** The record of `INearestBest`'s site. */
-type INearestBest = { name: string; distance: number };
-
 /**
  * When and where a moving weapon first touches a surface of another body.
  *
@@ -123,3 +120,6 @@ export namespace StrikingContact {
     }
   }
 }
+
+/** The record of `INearestBest`'s site. */
+type INearestBest = { name: string; distance: number };

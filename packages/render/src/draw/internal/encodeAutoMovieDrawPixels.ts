@@ -1,10 +1,4 @@
 /**
- * Bytes turned into one string at a time, kept under the argument limit of
- * `String.fromCharCode`.
- */
-const CHUNK: number = 0x8000;
-
-/**
  * Turn the bytes WebGL read from a drawn target into the base64 text a draw
  * page returns: rows flipped to start at the top, and a supersampled target
  * reduced to the picture's size by averaging each `factor` by `factor` block.
@@ -74,3 +68,9 @@ export function encodeAutoMovieDrawPixels(
     text += String.fromCharCode(...out.subarray(offset, offset + CHUNK));
   return btoa(text);
 }
+
+/**
+ * Bytes turned into one string at a time, kept under the argument limit of
+ * `String.fromCharCode`.
+ */
+const CHUNK: number = 0x8000;

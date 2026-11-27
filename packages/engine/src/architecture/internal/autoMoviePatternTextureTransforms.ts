@@ -9,9 +9,6 @@ import type {
 import { positive } from "../../geometry/internal/positive";
 import { Quaternion } from "../../math/Quaternion";
 
-/** Greatest relative skew a UV transform is still counted as free of. */
-const SHEAR_EPSILON: number = 1e-9;
-
 /**
  * Say how each laid piece samples its material, in the UV transform the PBR
  * record already carries.
@@ -112,6 +109,9 @@ export function autoMoviePatternTextureTransforms(
   }
   return { transforms, sheared };
 }
+
+/** Greatest relative skew a UV transform is still counted as free of. */
+const SHEAR_EPSILON: number = 1e-9;
 
 /** A two-component UV quantity: a matrix row or sheet point, in turns. */
 interface IUvRow {

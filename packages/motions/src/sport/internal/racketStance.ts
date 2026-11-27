@@ -14,20 +14,6 @@ import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionCloc
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { racketStanceTransfer } from "./racketStanceTransfer";
 
-/** Absolute action-local endpoints of a phase in seconds. */
-type Window = racketStanceTransfer.Window;
-
-/**
- * The height of each ready or recovery step above its ground baseline as a
- * fraction of stature.
- */
-const CLEARANCE: number = 0.025;
-/** The record of `IRacketStanceResult`'s site. */
-type IRacketStanceResult = {
-  primitives: IAutoMovieMotionHumanPrimitive[];
-  contacts: IAutoMovieMotionHumanContactWindow[];
-};
-
 /**
  * Prepare the support intervals and knee loading for ready and split-step
  * racket phrases.
@@ -213,3 +199,17 @@ export function racketStance(
   }
   return { primitives, contacts };
 }
+
+/** Absolute action-local endpoints of a phase in seconds. */
+type Window = racketStanceTransfer.Window;
+/**
+ * The height of each ready or recovery step above its ground baseline as a
+ * fraction of stature.
+ */
+const CLEARANCE: number = 0.025;
+
+/** The record of `IRacketStanceResult`'s site. */
+type IRacketStanceResult = {
+  primitives: IAutoMovieMotionHumanPrimitive[];
+  contacts: IAutoMovieMotionHumanContactWindow[];
+};

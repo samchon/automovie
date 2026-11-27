@@ -256,50 +256,6 @@ export namespace AutoMovieHumanHeadMassPart {
   }
 
   /**
-   * One actual front point and its analytic planar curvature share the original
-   * section and inverse.
-   */
-  function frontReading(
-    part: IAutoMovieViewPart,
-    y: number,
-    z: number,
-  ): { forward: number; radius: number } {
-    const { section, frame, extents }: ReturnType<typeof sectionAt> = sectionAt(
-      part,
-      y,
-    );
-    const centre: number = frame.origin[0];
-    const side: number = extents[1];
-    const target: number = Math.abs(z - frame.origin[2]);
-    if (target > side)
-      throw new Error(
-        `Head attachment lateral place ${z} is outside its source section at ${y}`,
-      );
-    function lateral(phi: number): number {
-      return AutoMovieViewSection.radius(section, phi)[0] * Math.sin(phi);
-    }
-    let lo: number = 0;
-    let hi: number = Math.PI / 2;
-    for (let k: number = 0; k < 50; k++) {
-      const mid: number = (lo + hi) / 2;
-      if (lateral(mid) < target) lo = mid;
-      else hi = mid;
-    }
-    const phi: number = target === side ? Math.PI / 2 : (lo + hi) / 2;
-    const [r, first, second]: [number, number, number] =
-      AutoMovieViewSection.radius(section, phi);
-    const turn: number = r * r + 2 * first * first - r * second;
-    if (!(turn > 0))
-      throw new Error(
-        `Head attachment has no positive transverse curvature at ${y}/${z}`,
-      );
-    return {
-      forward: centre + r * Math.cos(phi),
-      radius: (r * r + first * first) ** 1.5 / turn,
-    };
-  }
-
-  /**
    * Scalp point on the identical original level section, at a chosen X/Y. A
    * lateral line is the explicit geometric direction used for the ear's p2
    * datum; Cho Figure 1 does not specify a world-space normal formula. This
@@ -344,6 +300,92 @@ export namespace AutoMovieHumanHeadMassPart {
       frame.origin[2] +
         AutoMovieViewSection.radius(section, phi)[0] * Math.sin(phi),
     ];
+  }
+
+  /**
+   * The front-view silhouette L's half width at a height: the parts merged onto
+   * the head mass add to it (the zygoma at the zygion).
+   *
+   * @param plan The landmark skeleton.
+   * @param y Height, mm.
+   * @evidence contracts/common.md#principled-implementation Reads the retained analytic vault/base/jaw width convention for HeadMasses' separate relief transfer.
+   * @evidence contracts/common.md#clear-and-simple-design This template helper is distinct from emitted source constraints and actual native section readers.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is neither an actual mesh width nor proof of a named emitted caliper.
+   * @evidence contracts/common.md#meaningful-documentation Names template ownership and calibration units.
+   * @evidence contracts/performance.md#efficient-algorithms Constant branch and polynomial arithmetic.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work No preparation occurs.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns one scalar with no retained resources.
+   */
+  export function halfWidth(
+    plan: IAutoMovieHumanHeadLayout,
+    y: number,
+  ): number {
+    const base: number = AutoMovieHumanHeadPrior.PRIOR.frame.base;
+    const m: IAutoMovieHumanHeadLandmarks = plan.landmarks;
+    const tragion: number = m.tragion[1];
+    if (y >= tragion)
+      return (plan.breadth / 2) * AutoMovieHumanHeadVault.cranialWidth(plan, y);
+    const t: number = (plan.breadth / 2) * base;
+    const go: number = m.gonion[1];
+    if (y >= go)
+      return (
+        t +
+        (plan.mandibularWidth - t) *
+          AutoMovieHumanHeadMassProfile.smooth(
+            (tragion - y) / Math.max(1, tragion - go),
+          )
+      );
+    return (
+      plan.mandibularWidth +
+      (plan.neck.radius - plan.mandibularWidth) *
+        AutoMovieHumanHeadMassProfile.smooth(
+          (go - y) / Math.max(1, go - plan.y0),
+        )
+    );
+  }
+
+  /**
+   * One actual front point and its analytic planar curvature share the original
+   * section and inverse.
+   */
+  function frontReading(
+    part: IAutoMovieViewPart,
+    y: number,
+    z: number,
+  ): { forward: number; radius: number } {
+    const { section, frame, extents }: ReturnType<typeof sectionAt> = sectionAt(
+      part,
+      y,
+    );
+    const centre: number = frame.origin[0];
+    const side: number = extents[1];
+    const target: number = Math.abs(z - frame.origin[2]);
+    if (target > side)
+      throw new Error(
+        `Head attachment lateral place ${z} is outside its source section at ${y}`,
+      );
+    function lateral(phi: number): number {
+      return AutoMovieViewSection.radius(section, phi)[0] * Math.sin(phi);
+    }
+    let lo: number = 0;
+    let hi: number = Math.PI / 2;
+    for (let k: number = 0; k < 50; k++) {
+      const mid: number = (lo + hi) / 2;
+      if (lateral(mid) < target) lo = mid;
+      else hi = mid;
+    }
+    const phi: number = target === side ? Math.PI / 2 : (lo + hi) / 2;
+    const [r, first, second]: [number, number, number] =
+      AutoMovieViewSection.radius(section, phi);
+    const turn: number = r * r + 2 * first * first - r * second;
+    if (!(turn > 0))
+      throw new Error(
+        `Head attachment has no positive transverse curvature at ${y}/${z}`,
+      );
+    return {
+      forward: centre + r * Math.cos(phi),
+      radius: (r * r + first * first) ** 1.5 / turn,
+    };
   }
 
   /** Prepare the original source section shared by anatomical point readers. */
@@ -414,47 +456,5 @@ export namespace AutoMovieHumanHeadMassPart {
     if (fault !== null)
       throw new Error(`Head attachment section at ${y}: ${fault}`);
     return { section, extents, frame: part.axis.at(y) };
-  }
-
-  /**
-   * The front-view silhouette L's half width at a height: the parts merged onto
-   * the head mass add to it (the zygoma at the zygion).
-   *
-   * @param plan The landmark skeleton.
-   * @param y Height, mm.
-   * @evidence contracts/common.md#principled-implementation Reads the retained analytic vault/base/jaw width convention for HeadMasses' separate relief transfer.
-   * @evidence contracts/common.md#clear-and-simple-design This template helper is distinct from emitted source constraints and actual native section readers.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is neither an actual mesh width nor proof of a named emitted caliper.
-   * @evidence contracts/common.md#meaningful-documentation Names template ownership and calibration units.
-   * @evidence contracts/performance.md#efficient-algorithms Constant branch and polynomial arithmetic.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work No preparation occurs.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns one scalar with no retained resources.
-   */
-  export function halfWidth(
-    plan: IAutoMovieHumanHeadLayout,
-    y: number,
-  ): number {
-    const base: number = AutoMovieHumanHeadPrior.PRIOR.frame.base;
-    const m: IAutoMovieHumanHeadLandmarks = plan.landmarks;
-    const tragion: number = m.tragion[1];
-    if (y >= tragion)
-      return (plan.breadth / 2) * AutoMovieHumanHeadVault.cranialWidth(plan, y);
-    const t: number = (plan.breadth / 2) * base;
-    const go: number = m.gonion[1];
-    if (y >= go)
-      return (
-        t +
-        (plan.mandibularWidth - t) *
-          AutoMovieHumanHeadMassProfile.smooth(
-            (tragion - y) / Math.max(1, tragion - go),
-          )
-      );
-    return (
-      plan.mandibularWidth +
-      (plan.neck.radius - plan.mandibularWidth) *
-        AutoMovieHumanHeadMassProfile.smooth(
-          (go - y) / Math.max(1, go - plan.y0),
-        )
-    );
   }
 }

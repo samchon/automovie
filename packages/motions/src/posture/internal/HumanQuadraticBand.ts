@@ -5,56 +5,6 @@ import { HumanQuadraticRow } from "./HumanQuadraticRow";
 import { HumanQuadraticSubstitute } from "./HumanQuadraticSubstitute";
 import { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace";
 
-/** The record of `IPolishResult`'s site. */
-type IPolishResult = {
-  x: Float64Array;
-  z: Float64Array;
-  y: Float64Array;
-  products: Pick<Work.IWork, PolishProductsResult>;
-};
-
-/** The alternatives of `PolishProductsResult`'s site. */
-type PolishProductsResult = "rows" | "transpose";
-
-/** The alternatives of `ResidualsKnown`'s site. */
-type ResidualsKnown = "rows" | "transpose";
-
-/** The record of `IScaledTranspose`'s site. */
-type IScaledTranspose = {
-  /** N+1 column offsets into the parallel source row and entry buffers. */
-  start: Int32Array;
-
-  /**
-   * Original row index of each contribution, in original order within its
-   * column.
-   */
-  rows: Int32Array;
-
-  /** Original CSR entry position supplying the current scaled coefficient. */
-  entries: Int32Array;
-};
-
-/** The record of `IScaledFactorOrder`'s site. */
-type IScaledFactorOrder = {
-  /**
-   * Prefix positions of each row's factor-only order; ordered rows own
-   * empty spans.
-   */
-  start: Int32Array;
-
-  /** Original CSR entry positions sorted by column then original position. */
-  entries: Int32Array;
-};
-
-/** The record of `IScaledPPattern`'s site. */
-type IScaledPPattern = {
-  /** Exact numeric prefix positions of n curvature rows, with a final end. */
-  start: Float64Array;
-
-  /** Increasing relative column offsets within each original curvature row. */
-  offsets: Float64Array;
-};
-
 /**
  * The linear algebra of `HumanQuadraticProgram`'s OSQP solve on a banded
  * problem: the banded reduced KKT system and its Cholesky factor, the unscaled
@@ -386,3 +336,53 @@ export namespace HumanQuadraticBand {
     return HumanQuadraticPolish(s, z, y, delta, refine, work);
   }
 }
+
+/** The record of `IPolishResult`'s site. */
+type IPolishResult = {
+  x: Float64Array;
+  z: Float64Array;
+  y: Float64Array;
+  products: Pick<Work.IWork, PolishProductsResult>;
+};
+
+/** The alternatives of `PolishProductsResult`'s site. */
+type PolishProductsResult = "rows" | "transpose";
+
+/** The alternatives of `ResidualsKnown`'s site. */
+type ResidualsKnown = "rows" | "transpose";
+
+/** The record of `IScaledTranspose`'s site. */
+type IScaledTranspose = {
+  /** N+1 column offsets into the parallel source row and entry buffers. */
+  start: Int32Array;
+
+  /**
+   * Original row index of each contribution, in original order within its
+   * column.
+   */
+  rows: Int32Array;
+
+  /** Original CSR entry position supplying the current scaled coefficient. */
+  entries: Int32Array;
+};
+
+/** The record of `IScaledFactorOrder`'s site. */
+type IScaledFactorOrder = {
+  /**
+   * Prefix positions of each row's factor-only order; ordered rows own
+   * empty spans.
+   */
+  start: Int32Array;
+
+  /** Original CSR entry positions sorted by column then original position. */
+  entries: Int32Array;
+};
+
+/** The record of `IScaledPPattern`'s site. */
+type IScaledPPattern = {
+  /** Exact numeric prefix positions of n curvature rows, with a final end. */
+  start: Float64Array;
+
+  /** Increasing relative column offsets within each original curvature row. */
+  offsets: Float64Array;
+};

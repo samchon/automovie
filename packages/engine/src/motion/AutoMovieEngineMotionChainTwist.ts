@@ -21,6 +21,79 @@ import { resolveChainEffectorBaseRotation } from "./internal/resolveChainEffecto
 import { resolvePreparedChainFrames } from "./internal/resolvePreparedChainFrames";
 import { AutoMovieEngineMotionDistalTwist } from "./AutoMovieEngineMotionDistalTwist";
 
+/** A distal pose and its selected solve's completed effector projection. */
+export namespace AutoMovieEngineMotionChainTwist {
+  /**
+   * Give a distally twisting mid bone its bounded twist share before orienting
+   * the effector. The existing solveDistalTwist candidate law starts from the
+   * current articulation, clamps the mid joint and ranks the effector rotation
+   * its shared projector will actually show. It is not a global solve over both
+   * joints. Bones without distal twist return unchanged. A fit continued from a
+   * seed (`near`) that carries a twist continues it (`solveDistalTwist`'s
+   * `reference`), so the twist keeps its basin from frame to frame.
+   *
+   * The fixed effector frame includes intermediate rests and articulations.
+   * Twisting leaves the effector point unchanged when the lower-to-effector
+   * offset is parallel to the lower twist axis, as on the canonical limb rig; an
+   * arbitrary offset does not satisfy that point-preservation premise.
+   *
+   * @param props The fit request.
+   * @param axes Merged actual clinical axes.
+   * @param pose The fitted pose.
+   * @param rotation Requested model-frame effector rotation.
+   * @param prepared Matching preparation with unchanged root, non-chain pose and
+   *   clinical mappings.
+   * @param rig Optional lazy rig of the same unchanged source workspace, sharing
+   *   basis, clamps, projector and prepared fixed inverse without sharing target
+   *   results.
+   * @returns The pose with the mid bone's twist set within the actual rig's
+   *   limits.
+   */
+  export function split(
+    props: IAutoMovieFitChainToTargetProps,
+    axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
+    pose: IAutoMoviePose,
+    rotation: IAutoMovieQuaternion,
+    prepared?: IAutoMoviePreparedChainPlant,
+    rig?: prepareChainFit.IRig,
+  ): IAutoMoviePose {
+    return splitPose(props, axes, pose, rotation, prepared, rig, false).pose;
+  }
+
+  /** The ordinary split result plus one optional completed same-solve reading. */
+  export interface IResult {
+    /** The actual pose, with the ordinary entry's identity/array ownership. */
+    pose: IAutoMoviePose;
+
+    /** Present for a distal solve; non-distal inputs have no completed query. */
+    projection: AutoMovieEngineMotionDistalTwist.IProjection | undefined;
+  }
+
+  /**
+   * Run the original split and retain its winning effector projection for
+   * immediate orientation under the same unchanged rig/frame/rotation inputs.
+   * The consumer must recompute its actual local demand and compare all four
+   * components exactly; a mismatch runs the ordinary final projection.
+   *
+   * Pose-only and paired entries share all FK, current lower/held reads,
+   * candidates, ROM clamps and ties. Only the selected query's completed
+   * effector joint/raw quaternion/local target survive beside the pose. This
+   * constant reading can omit one final projector query after the exact match;
+   * no speedup is measured. The immediate consumer releases it and no target
+   * history, solver workspace, handles or tasks survive.
+   */
+  export function withProjection(
+    props: IAutoMovieFitChainToTargetProps,
+    axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
+    pose: IAutoMoviePose,
+    rotation: IAutoMovieQuaternion,
+    prepared?: IAutoMoviePreparedChainPlant,
+    rig?: prepareChainFit.IRig,
+  ): IResult {
+    return splitPose(props, axes, pose, rotation, prepared, rig, true);
+  }
+}
+
 /** Same distal law for pose-only callers and the immediate orientation consumer. */
 function splitPose(
   props: IAutoMovieFitChainToTargetProps,
@@ -160,77 +233,4 @@ function splitPose(
     },
     projection: solution?.projection,
   };
-}
-
-/** A distal pose and its selected solve's completed effector projection. */
-export namespace AutoMovieEngineMotionChainTwist {
-  /**
-   * Give a distally twisting mid bone its bounded twist share before orienting
-   * the effector. The existing solveDistalTwist candidate law starts from the
-   * current articulation, clamps the mid joint and ranks the effector rotation
-   * its shared projector will actually show. It is not a global solve over both
-   * joints. Bones without distal twist return unchanged. A fit continued from a
-   * seed (`near`) that carries a twist continues it (`solveDistalTwist`'s
-   * `reference`), so the twist keeps its basin from frame to frame.
-   *
-   * The fixed effector frame includes intermediate rests and articulations.
-   * Twisting leaves the effector point unchanged when the lower-to-effector
-   * offset is parallel to the lower twist axis, as on the canonical limb rig; an
-   * arbitrary offset does not satisfy that point-preservation premise.
-   *
-   * @param props The fit request.
-   * @param axes Merged actual clinical axes.
-   * @param pose The fitted pose.
-   * @param rotation Requested model-frame effector rotation.
-   * @param prepared Matching preparation with unchanged root, non-chain pose and
-   *   clinical mappings.
-   * @param rig Optional lazy rig of the same unchanged source workspace, sharing
-   *   basis, clamps, projector and prepared fixed inverse without sharing target
-   *   results.
-   * @returns The pose with the mid bone's twist set within the actual rig's
-   *   limits.
-   */
-  export function split(
-    props: IAutoMovieFitChainToTargetProps,
-    axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
-    pose: IAutoMoviePose,
-    rotation: IAutoMovieQuaternion,
-    prepared?: IAutoMoviePreparedChainPlant,
-    rig?: prepareChainFit.IRig,
-  ): IAutoMoviePose {
-    return splitPose(props, axes, pose, rotation, prepared, rig, false).pose;
-  }
-
-  /** The ordinary split result plus one optional completed same-solve reading. */
-  export interface IResult {
-    /** The actual pose, with the ordinary entry's identity/array ownership. */
-    pose: IAutoMoviePose;
-
-    /** Present for a distal solve; non-distal inputs have no completed query. */
-    projection: AutoMovieEngineMotionDistalTwist.IProjection | undefined;
-  }
-
-  /**
-   * Run the original split and retain its winning effector projection for
-   * immediate orientation under the same unchanged rig/frame/rotation inputs.
-   * The consumer must recompute its actual local demand and compare all four
-   * components exactly; a mismatch runs the ordinary final projection.
-   *
-   * Pose-only and paired entries share all FK, current lower/held reads,
-   * candidates, ROM clamps and ties. Only the selected query's completed
-   * effector joint/raw quaternion/local target survive beside the pose. This
-   * constant reading can omit one final projector query after the exact match;
-   * no speedup is measured. The immediate consumer releases it and no target
-   * history, solver workspace, handles or tasks survive.
-   */
-  export function withProjection(
-    props: IAutoMovieFitChainToTargetProps,
-    axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
-    pose: IAutoMoviePose,
-    rotation: IAutoMovieQuaternion,
-    prepared?: IAutoMoviePreparedChainPlant,
-    rig?: prepareChainFit.IRig,
-  ): IResult {
-    return splitPose(props, axes, pose, rotation, prepared, rig, true);
-  }
 }

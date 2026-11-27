@@ -18,158 +18,6 @@ import type { AutoMovieEnginePhysicalBalanceTypes } from "./AutoMovieEnginePhysi
 import type { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "./AutoMovieEnginePhysicalPlanarPolygon";
 
 
-function compute(input: {
-  state: Readonly<AutoMovieEnginePhysicalIcpController.IState>;
-  support: readonly Polygon.IPoint[];
-  desired: Polygon.IPoint;
-  desiredVelocity: Polygon.IPoint;
-  capture: Polygon.IPoint;
-  center: Polygon.IPoint;
-  omega: number;
-  dt: number;
-  parameters?: Partial<AutoMovieEnginePhysicalIcpController.IParameters>;
-}): AutoMovieEnginePhysicalIcpController.IResult {
-  const p: AutoMovieEnginePhysicalIcpController.IParameters = {
-    ...AutoMovieEnginePhysicalIcpController.ZULU,
-    ...input.parameters,
-  };
-  const velocity: Polygon.IPoint = input.desiredVelocity;
-
-  // The centre of mass's velocity omega (xi - c) (l.302;
-  // CapturePointTools l.378-383).
-  const comVelocity: Polygon.IPoint = {
-    x: (input.capture.x - input.center.x) * input.omega,
-    y: (input.capture.y - input.center.y) * input.omega,
-  };
-
-  // The perfect pivot x_ICP - x_ICP' / omega0 and centre of pressure with no
-  // planned centre of pressure and a zero offset (l.304-308).
-  const perfectCop: Polygon.IPoint = {
-    x: velocity.x * (-1 / input.omega) + input.desired.x,
-    y: velocity.y * (-1 / input.omega) + input.desired.y,
-  };
-
-  // The dead-banded error (l.315-317, l.339-351).
-  const raw: Polygon.IPoint = {
-    x: input.capture.x - input.desired.x,
-    y: input.capture.y - input.desired.y,
-  };
-  const magnitude: number = Math.hypot(raw.x, raw.y);
-  const error: Polygon.IPoint =
-    magnitude <= p.deadband
-      ? { x: 0, y: 0 }
-      : {
-          x: raw.x * ((magnitude - p.deadband) / magnitude),
-          y: raw.y * ((magnitude - p.deadband) / magnitude),
-        };
-
-  // Gains, weights and the motion-frame transform (l.319, l.361-366,
-  // l.506-519); the unconstrained feedback K e (l.436-445).
-  const gains: AutoMovieEnginePhysicalBalanceTypes.IIcpControllerQpMatrix = fromMotion(
-    velocity,
-    p.kpParallel + 1.0,
-    p.kpOrthogonal + 1.0,
-  );
-  const weight: AutoMovieEnginePhysicalBalanceTypes.IIcpControllerQpMatrix = fromMotion(
-    velocity,
-    p.forwardWeight,
-    p.lateralWeight,
-  );
-  const scale: number = p.scaleWeightWithGain
-    ? 1.0 /
-      (stationary(velocity)
-        ? Math.sqrt(2.0 * (p.kpOrthogonal + 1.0) * (p.kpOrthogonal + 1.0))
-        : Math.hypot(p.kpParallel + 1.0, p.kpOrthogonal + 1.0))
-    : 1.0;
-  const feedback: Polygon.IPoint = {
-    x: gains[0][0] * error.x + gains[0][1] * error.y,
-    y: gains[1][0] * error.x + gains[1][1] * error.y,
-  };
-
-  // The feedback limits unless just initialized or failing (l.385-408).
-  const limited: boolean =
-    !input.state.ignoreRateLimit && input.state.failures < 5;
-  const solution: AutoMovieEnginePhysicalBalanceTypes.IIcpControllerQpSolution | null = Qp({
-    error,
-    feedForwardCop: perfectCop,
-    gains,
-    copWeight: [
-      [weight[0][0] * scale, weight[0][1] * scale],
-      [weight[1][0] * scale, weight[1][1] * scale],
-    ],
-    cmpWeight: p.cmpWeight,
-    dynamicsWeight: p.dynamicsWeight,
-    direction: feedback,
-    directionWeight: p.directionWeight,
-    rateWeight: p.rateWeight / (input.dt * input.dt),
-    copCmpRateWeight: p.copCmpRateWeight / (input.dt * input.dt),
-    previous: { cop: input.state.copDelta, cmp: input.state.cmpDelta },
-    support: input.support,
-    safeDistance: p.safeCopDistance,
-    maximum: limited
-      ? {
-          transform: toMotion(velocity),
-          x: stationary(velocity)
-            ? p.maxFeedbackOrthogonal
-            : p.maxFeedbackParallel,
-          y: p.maxFeedbackOrthogonal,
-        }
-      : { transform: IDENTITY, x: Infinity, y: Infinity },
-    rate: { limit: limited ? p.maxFeedbackRate : Infinity, dt: input.dt },
-  });
-
-  // The new solution only when solved (l.418-434, l.447-460), and the
-  // integrator after the solve.
-  const copDelta: Polygon.IPoint = solution
-    ? solution.cop
-    : { ...input.state.copDelta };
-  const cmpDelta: Polygon.IPoint = solution
-    ? solution.cmp
-    : { ...input.state.cmpDelta };
-  const integrator: Integrator.IState = Integrator.advance({
-    state: input.state.integrator,
-    desiredVelocity: velocity,
-    velocity: comVelocity,
-    error,
-    dt: input.dt,
-    gains: {
-      smart: p.smartIntegrator,
-      ki: p.ki,
-      threshold: p.stuckThreshold,
-      leak: p.integralLeak,
-      maximum: p.maxIntegral,
-    },
-  });
-
-  // The outputs with zero alphas (l.490-504).
-  const cop: Polygon.IPoint = {
-    x: perfectCop.x + copDelta.x,
-    y: perfectCop.y + copDelta.y,
-  };
-  // The caller's guard (LinearMomentumRateControlModule l.569-598): a
-  // pendulum at rest, omega zero, has no perfect pivot, `-1 / omega` being
-  // unbounded, so the pivot is the capture point itself.
-  const cmp: Polygon.IPoint =
-    input.omega === 0
-      ? { ...input.capture }
-      : {
-          x: cop.x + cmpDelta.x + integrator.integral.x,
-          y: cop.y + cmpDelta.y + integrator.integral.y,
-        };
-  return {
-    state: {
-      copDelta,
-      cmpDelta,
-      integrator,
-      ignoreRateLimit: false,
-      failures: solution ? input.state.failures : input.state.failures + 1,
-    },
-    cop,
-    cmp,
-    converged: solution !== null,
-  };
-}
-
 /** The controller's state, parameters and result.
  * @see https://github.com/ihmcrobotics/ihmc-open-robotics-software/blob/4d2cfccb1e2307d7c98455d4bb942ca8742839c2/ihmc-common-walking-control-modules/src/main/java/us/ihmc/commonWalkingControlModules/capturePoint/controller/ICPController.java
  */
@@ -391,6 +239,158 @@ export namespace AutoMovieEnginePhysicalIcpController {
       failures: state.failures,
     };
   }
+}
+
+function compute(input: {
+  state: Readonly<AutoMovieEnginePhysicalIcpController.IState>;
+  support: readonly Polygon.IPoint[];
+  desired: Polygon.IPoint;
+  desiredVelocity: Polygon.IPoint;
+  capture: Polygon.IPoint;
+  center: Polygon.IPoint;
+  omega: number;
+  dt: number;
+  parameters?: Partial<AutoMovieEnginePhysicalIcpController.IParameters>;
+}): AutoMovieEnginePhysicalIcpController.IResult {
+  const p: AutoMovieEnginePhysicalIcpController.IParameters = {
+    ...AutoMovieEnginePhysicalIcpController.ZULU,
+    ...input.parameters,
+  };
+  const velocity: Polygon.IPoint = input.desiredVelocity;
+
+  // The centre of mass's velocity omega (xi - c) (l.302;
+  // CapturePointTools l.378-383).
+  const comVelocity: Polygon.IPoint = {
+    x: (input.capture.x - input.center.x) * input.omega,
+    y: (input.capture.y - input.center.y) * input.omega,
+  };
+
+  // The perfect pivot x_ICP - x_ICP' / omega0 and centre of pressure with no
+  // planned centre of pressure and a zero offset (l.304-308).
+  const perfectCop: Polygon.IPoint = {
+    x: velocity.x * (-1 / input.omega) + input.desired.x,
+    y: velocity.y * (-1 / input.omega) + input.desired.y,
+  };
+
+  // The dead-banded error (l.315-317, l.339-351).
+  const raw: Polygon.IPoint = {
+    x: input.capture.x - input.desired.x,
+    y: input.capture.y - input.desired.y,
+  };
+  const magnitude: number = Math.hypot(raw.x, raw.y);
+  const error: Polygon.IPoint =
+    magnitude <= p.deadband
+      ? { x: 0, y: 0 }
+      : {
+          x: raw.x * ((magnitude - p.deadband) / magnitude),
+          y: raw.y * ((magnitude - p.deadband) / magnitude),
+        };
+
+  // Gains, weights and the motion-frame transform (l.319, l.361-366,
+  // l.506-519); the unconstrained feedback K e (l.436-445).
+  const gains: AutoMovieEnginePhysicalBalanceTypes.IIcpControllerQpMatrix = fromMotion(
+    velocity,
+    p.kpParallel + 1.0,
+    p.kpOrthogonal + 1.0,
+  );
+  const weight: AutoMovieEnginePhysicalBalanceTypes.IIcpControllerQpMatrix = fromMotion(
+    velocity,
+    p.forwardWeight,
+    p.lateralWeight,
+  );
+  const scale: number = p.scaleWeightWithGain
+    ? 1.0 /
+      (stationary(velocity)
+        ? Math.sqrt(2.0 * (p.kpOrthogonal + 1.0) * (p.kpOrthogonal + 1.0))
+        : Math.hypot(p.kpParallel + 1.0, p.kpOrthogonal + 1.0))
+    : 1.0;
+  const feedback: Polygon.IPoint = {
+    x: gains[0][0] * error.x + gains[0][1] * error.y,
+    y: gains[1][0] * error.x + gains[1][1] * error.y,
+  };
+
+  // The feedback limits unless just initialized or failing (l.385-408).
+  const limited: boolean =
+    !input.state.ignoreRateLimit && input.state.failures < 5;
+  const solution: AutoMovieEnginePhysicalBalanceTypes.IIcpControllerQpSolution | null = Qp({
+    error,
+    feedForwardCop: perfectCop,
+    gains,
+    copWeight: [
+      [weight[0][0] * scale, weight[0][1] * scale],
+      [weight[1][0] * scale, weight[1][1] * scale],
+    ],
+    cmpWeight: p.cmpWeight,
+    dynamicsWeight: p.dynamicsWeight,
+    direction: feedback,
+    directionWeight: p.directionWeight,
+    rateWeight: p.rateWeight / (input.dt * input.dt),
+    copCmpRateWeight: p.copCmpRateWeight / (input.dt * input.dt),
+    previous: { cop: input.state.copDelta, cmp: input.state.cmpDelta },
+    support: input.support,
+    safeDistance: p.safeCopDistance,
+    maximum: limited
+      ? {
+          transform: toMotion(velocity),
+          x: stationary(velocity)
+            ? p.maxFeedbackOrthogonal
+            : p.maxFeedbackParallel,
+          y: p.maxFeedbackOrthogonal,
+        }
+      : { transform: IDENTITY, x: Infinity, y: Infinity },
+    rate: { limit: limited ? p.maxFeedbackRate : Infinity, dt: input.dt },
+  });
+
+  // The new solution only when solved (l.418-434, l.447-460), and the
+  // integrator after the solve.
+  const copDelta: Polygon.IPoint = solution
+    ? solution.cop
+    : { ...input.state.copDelta };
+  const cmpDelta: Polygon.IPoint = solution
+    ? solution.cmp
+    : { ...input.state.cmpDelta };
+  const integrator: Integrator.IState = Integrator.advance({
+    state: input.state.integrator,
+    desiredVelocity: velocity,
+    velocity: comVelocity,
+    error,
+    dt: input.dt,
+    gains: {
+      smart: p.smartIntegrator,
+      ki: p.ki,
+      threshold: p.stuckThreshold,
+      leak: p.integralLeak,
+      maximum: p.maxIntegral,
+    },
+  });
+
+  // The outputs with zero alphas (l.490-504).
+  const cop: Polygon.IPoint = {
+    x: perfectCop.x + copDelta.x,
+    y: perfectCop.y + copDelta.y,
+  };
+  // The caller's guard (LinearMomentumRateControlModule l.569-598): a
+  // pendulum at rest, omega zero, has no perfect pivot, `-1 / omega` being
+  // unbounded, so the pivot is the capture point itself.
+  const cmp: Polygon.IPoint =
+    input.omega === 0
+      ? { ...input.capture }
+      : {
+          x: cop.x + cmpDelta.x + integrator.integral.x,
+          y: cop.y + cmpDelta.y + integrator.integral.y,
+        };
+  return {
+    state: {
+      copDelta,
+      cmpDelta,
+      integrator,
+      ignoreRateLimit: false,
+      failures: solution ? input.state.failures : input.state.failures + 1,
+    },
+    cop,
+    cmp,
+    converged: solution !== null,
+  };
 }
 
 /** The 2 x 2 identity. */

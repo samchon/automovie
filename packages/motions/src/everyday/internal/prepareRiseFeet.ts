@@ -7,33 +7,6 @@ import type {
 
 import { stand } from "../../actions/internal/stand";
 
-/** The alternatives of `PrepareRiseFeetLimb`'s site. */
-type PrepareRiseFeetLimb = "leftLeg" | "rightLeg";
-
-/** The record of `IFootAtResult`'s site. */
-type IFootAtResult = { ankle: IAutoMovieVector3; planted: boolean };
-
-/** The record of `IPrepareRiseFeetProps`'s site. */
-type IPrepareRiseFeetProps = {
-  /** The entry's ankle points, world metres. */
-  feet: Record<AutoMovieHumanSide, IAutoMovieVector3>;
-
-  /** The ankles drawn beneath the pelvis, world metres. */
-  drawn: Record<AutoMovieHumanSide, IAutoMovieVector3>;
-
-  /** Liftoff/touchdown seconds of each moving foot; absent feet stay planted. */
-  swings: Partial<Record<AutoMovieHumanSide, readonly [number, number]>>;
-
-  /** Positive seconds of each swing. */
-  draw: number;
-
-  /** The sine clearance's height, metres. */
-  lift: number;
-
-  /** Fixed-yaw standing geometry with current-root knee goals. */
-  legged: ReturnType<typeof stand.prepareLegs>;
-};
-
 /**
  * Prepare the two feet drawn beneath a seated body before rising. Each foot has
  * its original fixed swing interval, minimum-jerk travel and sine clearance;
@@ -90,3 +63,30 @@ export function prepareRiseFeet(
     return legs;
   };
 }
+
+/** The alternatives of `PrepareRiseFeetLimb`'s site. */
+type PrepareRiseFeetLimb = "leftLeg" | "rightLeg";
+
+/** The record of `IFootAtResult`'s site. */
+type IFootAtResult = { ankle: IAutoMovieVector3; planted: boolean };
+
+/** The record of `IPrepareRiseFeetProps`'s site. */
+type IPrepareRiseFeetProps = {
+  /** The entry's ankle points, world metres. */
+  feet: Record<AutoMovieHumanSide, IAutoMovieVector3>;
+
+  /** The ankles drawn beneath the pelvis, world metres. */
+  drawn: Record<AutoMovieHumanSide, IAutoMovieVector3>;
+
+  /** Liftoff/touchdown seconds of each moving foot; absent feet stay planted. */
+  swings: Partial<Record<AutoMovieHumanSide, readonly [number, number]>>;
+
+  /** Positive seconds of each swing. */
+  draw: number;
+
+  /** The sine clearance's height, metres. */
+  lift: number;
+
+  /** Fixed-yaw standing geometry with current-root knee goals. */
+  legged: ReturnType<typeof stand.prepareLegs>;
+};

@@ -8,12 +8,6 @@ import {
 } from "../core/index";
 import { AutoMovieArchetypeJumpRope } from "./AutoMovieArchetypeJumpRope";
 
-/**
- * The recorded length and diameter in metres and the provisional mass in
- * kilograms.
- */
-type Dimension = "handleLength" | "gripDiameter" | "mass";
-
 /** Constructs the jump rope handle archetype from its recipe. */
 export namespace AutoMovieArchetypeJumpRopeHandle {
 /**
@@ -86,3 +80,9 @@ export function create(
   return builder.build(mass);
 }
 }
+
+/**
+ * The recorded length and diameter in metres and the provisional mass in
+ * kilograms.
+ */
+type Dimension = "handleLength" | "gripDiameter" | "mass";

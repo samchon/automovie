@@ -15,24 +15,6 @@ import type {
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 
-/** The alternatives of `PlaceLimb`'s site. */
-type PlaceLimb = "leftLeg" | "rightLeg";
-
-/** The alternatives of `PreparePlacementPosture`'s site. */
-type PreparePlacementPosture = "root" | "yaw";
-
-/** The alternatives of `PreparePlacementPostureResult`'s site. */
-type PreparePlacementPostureResult = "root" | "yaw";
-
-/** The alternatives of `PrepareGoalPosture`'s site. */
-type PrepareGoalPosture = "root" | "yaw";
-
-/** The alternatives of `PrepareGoalPostureResult`'s site. */
-type PrepareGoalPostureResult = "root" | "yaw";
-
-/** The alternatives of `GoalPosture`'s site. */
-type GoalPosture = "root" | "yaw";
-
 /**
  * Leg primitives: a foot kept on the floor, and a foot lifted and set down
  * somewhere else.
@@ -294,6 +276,24 @@ export namespace AutoMovieMotionHumanLeg {
     return { ...primitive, reads: ["root", `${side}Leg`] };
   }
 }
+
+/** The alternatives of `PlaceLimb`'s site. */
+type PlaceLimb = "leftLeg" | "rightLeg";
+
+/** The alternatives of `PreparePlacementPosture`'s site. */
+type PreparePlacementPosture = "root" | "yaw";
+
+/** The alternatives of `PreparePlacementPostureResult`'s site. */
+type PreparePlacementPostureResult = "root" | "yaw";
+
+/** The alternatives of `PrepareGoalPosture`'s site. */
+type PrepareGoalPosture = "root" | "yaw";
+
+/** The alternatives of `PrepareGoalPostureResult`'s site. */
+type PrepareGoalPostureResult = "root" | "yaw";
+
+/** The alternatives of `GoalPosture`'s site. */
+type GoalPosture = "root" | "yaw";
 
 /** The original ankle interpolation and parabolic lift, with unchanged grouping. */
 function swingAnkle(

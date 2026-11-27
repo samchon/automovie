@@ -163,21 +163,6 @@ export namespace AutoMovieHumanArmConstruction {
     };
   }
 
-  /** One side's chains, poles and bone landmarks. */
-  interface ILimb {
-    /** The arm's, palm's and digits' chains. */
-    chains: IAutoMovieLoftChain[];
-
-    /** The digits' poles. */
-    poles: IAutoMovieHumanSurfacePole[];
-
-    /** The digits' nail plates. */
-    nails: IAutoMovieHumanNailWindow[];
-
-    /** The bone landmarks. */
-    bones: IAutoMovieHumanArmConstruction.IBones;
-  }
-
   /**
    * One side: the law and the hand in the left frame, and from them the
    * chains in their bone frames, the poles and the landmarks, reflected for the
@@ -365,5 +350,20 @@ export namespace AutoMovieHumanArmConstruction {
     if (bone === undefined)
       throw new Error(`The skeleton lacks the ${side} elbow`);
     return sided(bone.position, sign);
+  }
+
+  /** One side's chains, poles and bone landmarks. */
+  interface ILimb {
+    /** The arm's, palm's and digits' chains. */
+    chains: IAutoMovieLoftChain[];
+
+    /** The digits' poles. */
+    poles: IAutoMovieHumanSurfacePole[];
+
+    /** The digits' nail plates. */
+    nails: IAutoMovieHumanNailWindow[];
+
+    /** The bone landmarks. */
+    bones: IAutoMovieHumanArmConstruction.IBones;
   }
 }

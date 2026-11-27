@@ -18,12 +18,6 @@ import { formatLightPointer } from "../../resolve/internal/formatLightPointer";
 import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
 import { placeTransformedPoint } from "./placeTransformedPoint";
 
-/** Model-local forward axis of an emitter's contact frame. */
-const EMITTER_FORWARD: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/** The spotlight model projects along its local negative Z. */
-const SPOT_FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
-
 /**
  * Bake the position, aim and optional switching of a practical light from a
  * prop's existing motion. Darius Khondji describes using the actors'
@@ -160,6 +154,12 @@ export function compilePracticalLightMotion(
   }
   return { id, name: null, duration, loop: false, tracks };
 }
+
+/** Model-local forward axis of an emitter's contact frame. */
+const EMITTER_FORWARD: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/** The spotlight model projects along its local negative Z. */
+const SPOT_FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
 
 /** Overlay the canonical started object channels independently on staged TRS. */
 function practicalPropWorld(

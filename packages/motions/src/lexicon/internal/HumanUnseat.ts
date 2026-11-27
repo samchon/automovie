@@ -64,18 +64,6 @@ export const HumanUnseat: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanUn
     plan: planHumanUnseat,
   };
 
-/** The law's context. */
-type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanUnseat>;
-
-/** A fall's push away from the saddle. */
-interface IPush {
-  /** Its direction in the carrier's frame, `+X` toward the falling side. */
-  direction: IAutoMovieVector3;
-
-  /** Its speed, metres per second. */
-  speed: number;
-}
-
 /**
  * Admit the fall, find the release, solve the flight or the drag once, then
  * sample.
@@ -444,6 +432,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     ) => (args[0] < leave ? goals.posture(...args) : coursed.posture(...args)),
   };
 }
+
 /** A contact window over shares of the act, on the carrier or the ground. */
 function window(
   part: string,
@@ -465,4 +454,15 @@ function window(
 /** The other side. */
 function other(side: AutoMovieHumanSide): AutoMovieHumanSide {
   return side === "left" ? "right" : "left";
+}
+/** The law's context. */
+type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanUnseat>;
+
+/** A fall's push away from the saddle. */
+interface IPush {
+  /** Its direction in the carrier's frame, `+X` toward the falling side. */
+  direction: IAutoMovieVector3;
+
+  /** Its speed, metres per second. */
+  speed: number;
 }

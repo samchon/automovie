@@ -12,77 +12,6 @@ import type { physicalBalanceStance } from "./physicalBalanceStance";
 import { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "../AutoMovieEnginePhysicalPlanarPolygon";
 import { AutoMovieEnginePhysicalSupportSpanContacts as Contacts } from "../AutoMovieEnginePhysicalSupportSpanContacts";
 
-function physicalBalancePlanImplementation(input: {
-  state: Readonly<IAutoMoviePhysicalRecoveryState>;
-  sense: physicalBalancePlan.ISense;
-  stance: Pick<physicalBalanceStance.IStance, "planted" | "plane" | "tilt">;
-  trace?: IAutoMoviePhysicalBalanceTrace[];
-}): physicalBalancePlan.IResult {
-  const { sense, stance } = input;
-  const state: IAutoMoviePhysicalRecoveryState = { ...input.state };
-  const omega: number = (state.omega ??= physicalBalancePlan.omega(
-    sense,
-    state,
-  ));
-  state.desired = physicalAuthoredCapture(sense, state, omega);
-  const capture: IAutoMovieVector3 = {
-    x: sense.center.x + sense.velocity.x / omega,
-    y: stance.plane,
-    z: sense.center.z + sense.velocity.z / omega,
-  };
-  const hull: Polygon.IPoint[] = Contacts.hull(
-    stance.planted.map(
-      (patch: IAutoMoviePhysicalSupportPatch): Contacts.IContact => ({
-        bone: patch.bone,
-        points: patch.points.map((p: IAutoMovieVector3) => ({
-          x: p.x,
-          z: p.z,
-        })),
-      }),
-    ),
-  );
-  const point: Polygon.IPoint = Polygon.local(Contacts.WORLD, capture);
-  const outside: number =
-    hull.length === 0
-      ? Infinity
-      : Math.max(0, Polygon.signedDistance(hull, point));
-  // Back over its planted support, the body has recovered: the supported
-  // state clears the outside clock and a failed landing, as the push
-  // recovery's double-support update does when the capture point is inside
-  // (`AutoMovieEnginePhysicalPushRecovery.doubleSupport` l.137-183).
-  if (hull.length > 0 && outside === 0) {
-    delete state.outsideSince;
-    delete state.failedLanding;
-  }
-  state.last = state.failedLanding ? "unrecoverable" : "supported";
-  const assessment: IAutoMoviePhysicalBalance.IResult = {
-    state: state.last,
-    capturePoint: capture,
-    polygon: hull.map((p: Polygon.IPoint): IAutoMovieVector3 => {
-      const at: { x: number; z: number } = Polygon.world(Contacts.WORLD, p);
-      return { x: at.x, y: stance.plane, z: at.z };
-    }),
-    outside,
-  };
-  input.trace?.push({
-    kind: "assess",
-    seconds: sense.seconds,
-    capture: { x: capture.x, z: capture.z },
-    spin: { x: 0, z: 0 },
-    outside,
-    past: false,
-    state: state.last,
-    ...(state.outsideSince !== undefined ? { since: state.outsideSince } : {}),
-    tipping: false,
-    tilt: stance.tilt,
-  });
-  return {
-    state,
-    goals: Object.create(null) as Record<string, IAutoMovieVector3>,
-    assessment,
-  };
-}
-
 /** The plan phase's result and pendulum rate. */
 export namespace physicalBalancePlan {
   /**
@@ -155,4 +84,75 @@ export namespace physicalBalancePlan {
         ),
     );
   }
+}
+
+function physicalBalancePlanImplementation(input: {
+  state: Readonly<IAutoMoviePhysicalRecoveryState>;
+  sense: physicalBalancePlan.ISense;
+  stance: Pick<physicalBalanceStance.IStance, "planted" | "plane" | "tilt">;
+  trace?: IAutoMoviePhysicalBalanceTrace[];
+}): physicalBalancePlan.IResult {
+  const { sense, stance } = input;
+  const state: IAutoMoviePhysicalRecoveryState = { ...input.state };
+  const omega: number = (state.omega ??= physicalBalancePlan.omega(
+    sense,
+    state,
+  ));
+  state.desired = physicalAuthoredCapture(sense, state, omega);
+  const capture: IAutoMovieVector3 = {
+    x: sense.center.x + sense.velocity.x / omega,
+    y: stance.plane,
+    z: sense.center.z + sense.velocity.z / omega,
+  };
+  const hull: Polygon.IPoint[] = Contacts.hull(
+    stance.planted.map(
+      (patch: IAutoMoviePhysicalSupportPatch): Contacts.IContact => ({
+        bone: patch.bone,
+        points: patch.points.map((p: IAutoMovieVector3) => ({
+          x: p.x,
+          z: p.z,
+        })),
+      }),
+    ),
+  );
+  const point: Polygon.IPoint = Polygon.local(Contacts.WORLD, capture);
+  const outside: number =
+    hull.length === 0
+      ? Infinity
+      : Math.max(0, Polygon.signedDistance(hull, point));
+  // Back over its planted support, the body has recovered: the supported
+  // state clears the outside clock and a failed landing, as the push
+  // recovery's double-support update does when the capture point is inside
+  // (`AutoMovieEnginePhysicalPushRecovery.doubleSupport` l.137-183).
+  if (hull.length > 0 && outside === 0) {
+    delete state.outsideSince;
+    delete state.failedLanding;
+  }
+  state.last = state.failedLanding ? "unrecoverable" : "supported";
+  const assessment: IAutoMoviePhysicalBalance.IResult = {
+    state: state.last,
+    capturePoint: capture,
+    polygon: hull.map((p: Polygon.IPoint): IAutoMovieVector3 => {
+      const at: { x: number; z: number } = Polygon.world(Contacts.WORLD, p);
+      return { x: at.x, y: stance.plane, z: at.z };
+    }),
+    outside,
+  };
+  input.trace?.push({
+    kind: "assess",
+    seconds: sense.seconds,
+    capture: { x: capture.x, z: capture.z },
+    spin: { x: 0, z: 0 },
+    outside,
+    past: false,
+    state: state.last,
+    ...(state.outsideSince !== undefined ? { since: state.outsideSince } : {}),
+    tipping: false,
+    tilt: stance.tilt,
+  });
+  return {
+    state,
+    goals: Object.create(null) as Record<string, IAutoMovieVector3>,
+    assessment,
+  };
 }

@@ -13,58 +13,6 @@ import type {
 
 import { readHumanBone } from "../../body/internal/readHumanBone";
 
-/** The existing body records needed to choose a joint's blend. */
-type IBlendBody = Pick<IAutoMovieMotionHumanBody, "bones" | "skeleton">;
-
-/** One bone's admitted conversion basis, clinical chart and optional range. */
-interface IFrame {
-  /** The normalized basis the conversions read. */
-  readonly basis: IAutoMovieJointAxes;
-
-  /** The clinical rest mapping used in both directions. */
-  readonly rest: IAutoMovieRestFrame | undefined;
-
-  /** The preferred chart's domain for rotation readback. */
-  readonly domain: IAutoMovieJointRotationDomain;
-
-  /** The prepared swing-twist range when both a range and raw axes exist. */
-  readonly range: IRange | undefined;
-}
-
-/** The constraint and chart a bounded rotation blend uses together. */
-interface IRange {
-  /** The resolved range constraint. */
-  readonly constraint: IAutoMovieJointConstraint;
-
-  /** Its geometric swing region. */
-  readonly joint: swingTwistRange.IPrepared;
-}
-
-/** Static metadata for one joint selected by the caller. */
-interface IPreparedJoint {
-  /** Its first-match constraint, or null when no constraint applies. */
-  readonly constraint: IAutoMovieJointConstraint | null;
-
-  /** Its admitted rotation frame or original admission failure. */
-  readonly frame: (() => IFrame) | undefined;
-}
-
-/** The two metadata phases: constraint lookup precedes any ball-joint axes work. */
-interface ILookup {
-  /** First-match override/default resolution, without reading clinical axes. */
-  constraint(
-    body: IBlendBody,
-    bone: AutoMovieHumanoidBone,
-  ): IAutoMovieJointConstraint | null;
-
-  /** Canonical frame metadata, requested only after the hinge branch. */
-  frame(
-    body: IBlendBody,
-    bone: AutoMovieHumanoidBone,
-    constraint: IAutoMovieJointConstraint | null,
-  ): IFrame;
-}
-
 /**
  * Stateless standalone dispatch preserves targeted lookup without a per-call
  * full index.
@@ -445,4 +393,56 @@ function readRotation(
     rig.domain,
   );
   return [read.flexion, read.abduction, read.twist];
+}
+
+/** The existing body records needed to choose a joint's blend. */
+type IBlendBody = Pick<IAutoMovieMotionHumanBody, "bones" | "skeleton">;
+
+/** One bone's admitted conversion basis, clinical chart and optional range. */
+interface IFrame {
+  /** The normalized basis the conversions read. */
+  readonly basis: IAutoMovieJointAxes;
+
+  /** The clinical rest mapping used in both directions. */
+  readonly rest: IAutoMovieRestFrame | undefined;
+
+  /** The preferred chart's domain for rotation readback. */
+  readonly domain: IAutoMovieJointRotationDomain;
+
+  /** The prepared swing-twist range when both a range and raw axes exist. */
+  readonly range: IRange | undefined;
+}
+
+/** The constraint and chart a bounded rotation blend uses together. */
+interface IRange {
+  /** The resolved range constraint. */
+  readonly constraint: IAutoMovieJointConstraint;
+
+  /** Its geometric swing region. */
+  readonly joint: swingTwistRange.IPrepared;
+}
+
+/** Static metadata for one joint selected by the caller. */
+interface IPreparedJoint {
+  /** Its first-match constraint, or null when no constraint applies. */
+  readonly constraint: IAutoMovieJointConstraint | null;
+
+  /** Its admitted rotation frame or original admission failure. */
+  readonly frame: (() => IFrame) | undefined;
+}
+
+/** The two metadata phases: constraint lookup precedes any ball-joint axes work. */
+interface ILookup {
+  /** First-match override/default resolution, without reading clinical axes. */
+  constraint(
+    body: IBlendBody,
+    bone: AutoMovieHumanoidBone,
+  ): IAutoMovieJointConstraint | null;
+
+  /** Canonical frame metadata, requested only after the hinge branch. */
+  frame(
+    body: IBlendBody,
+    bone: AutoMovieHumanoidBone,
+    constraint: IAutoMovieJointConstraint | null,
+  ): IFrame;
 }

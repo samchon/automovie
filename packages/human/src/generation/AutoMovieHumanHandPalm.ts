@@ -98,62 +98,6 @@ export namespace AutoMovieHumanHandPalm {
     };
   }
 
-  /** The recorded chart after converting its handedness to capture world. */
-  function physicalPlane(
-    row: IAutoMovieHumanHandPalm.IFixedSection,
-  ): IPhysicalPlane {
-    const S: typeof AutoMovieHumanArmCurveSpec = AutoMovieHumanArmCurveSpec;
-    const u: AutoMovieVector3Tuple = world(row.u);
-    const v: AutoMovieVector3Tuple = scaled(world(row.v), -1);
-    return { origin: world(row.originMm), u, v, normal: S.cross(v, u) };
-  }
-
-  /** Signed orientation of a closed ring as seen from its section normal. */
-  function orientation(
-    ring: readonly AutoMovieVector3Tuple[],
-    plane: IPhysicalPlane,
-  ): number {
-    const S: typeof AutoMovieHumanArmCurveSpec = AutoMovieHumanArmCurveSpec;
-    return ring.reduce(
-      (sum: number, p: AutoMovieVector3Tuple, i: number): number =>
-        sum +
-        S.dot(
-          S.cross(
-            difference(p, plane.origin),
-            difference(ring[(i + 1) % ring.length]!, plane.origin),
-          ),
-          plane.normal,
-        ),
-      0,
-    );
-  }
-
-  /** A polygonal edge represented by exact linear cubic spans. */
-  function linearRing(
-    name: string,
-    points: readonly AutoMovieVector3Tuple[],
-  ): IAutoMovieCubicBezierCurve64 {
-    const spans: AutoMovieCubicBezierControls3[] = points.map(
-      (a: AutoMovieVector3Tuple, i: number): AutoMovieCubicBezierControls3 => {
-        const b: AutoMovieVector3Tuple = points[(i + 1) % points.length]!;
-        const d: AutoMovieVector3Tuple = difference(b, a);
-        return [a, added(a, scaled(d, 1 / 3)), added(a, scaled(d, 2 / 3)), b];
-      },
-    );
-    return {
-      type: "cubicBezier",
-      name,
-      closed: true,
-      unit: "mm",
-      phaseUnit: "mm",
-      phaseIntervals: points.map(
-        (a: AutoMovieVector3Tuple, i: number): number =>
-          Math.hypot(...difference(a, points[(i + 1) % points.length]!)),
-      ),
-      spans,
-    };
-  }
-
   /**
    * Read each exact observed plane in the contour loft's common numerical
    * chart.
@@ -417,6 +361,128 @@ export namespace AutoMovieHumanHandPalm {
     return { base, boundary };
   }
 
+  /** The palm's chain, its sections square to the hand's axis. */
+  export function palmOf(
+    hand: IAutoMovieHumanHandForm,
+    map: IAutoMovieHumanHandPalm.PalmOfMap,
+    side: "left" | "right",
+    sign: 1 | -1,
+  ): IAutoMovieLoftChain {
+    const prior: IAutoMovieHumanArmPrior.IHandPrior =
+      AutoMovieHumanArmPrior.PRIOR.hand;
+    const along: AutoMovieVector3Tuple = [...prior.along];
+    const normal: AutoMovieVector3Tuple = scale(along, -1);
+
+    // Each section carries the palm's reliefs in the form's axes before the
+    // hand's map; the palm starts at its most proximal section.
+    const start: number = Math.min(
+      ...hand.palmRings.map(
+        (ring: readonly AutoMovieVector3Tuple[]): number => ring[0]![0],
+      ),
+    );
+    const samples: IAutoMovieHumanLimbFrame.ISample[] = hand.palmRings.map(
+      (
+        ring: readonly AutoMovieVector3Tuple[],
+      ): IAutoMovieHumanLimbFrame.ISample => {
+        const points: AutoMovieVector3Tuple[] = AutoMovieHumanPalmRelief.ring(
+          hand.digits,
+          ring,
+          start,
+        ).map((q: AutoMovieVector3Tuple): AutoMovieVector3Tuple => map(q));
+        const c: AutoMovieVector3Tuple = [
+          mean(points, 0),
+          mean(points, 1),
+          mean(points, 2),
+        ];
+        const frame: IAutoMovieLoftSectionFrame = AutoMovieHumanLimbFrame.frame(
+          c,
+          normal,
+          [...prior.through],
+        );
+        return {
+          station: -dot(c, along),
+          frame: sidedFrame(frame, sign),
+          ring: reflect(points, sign),
+        };
+      },
+    );
+    const first: number = samples[0]!.station;
+    return {
+      name: `hand.${side}.1`,
+      basis: "spline",
+      order: prior.palmSection.order,
+      samples: prior.palmSection.samples,
+      rule: "arclength",
+      layers: AutoMovieHumanLimbFrame.layers(
+        samples.map(
+          (
+            s: IAutoMovieHumanLimbFrame.ISample,
+          ): IAutoMovieHumanLimbFrame.ISample => ({
+            ...s,
+            station: s.station - first,
+          }),
+        ),
+        prior.palmSection.order,
+      ),
+    };
+  }
+
+  /** The recorded chart after converting its handedness to capture world. */
+  function physicalPlane(
+    row: IAutoMovieHumanHandPalm.IFixedSection,
+  ): IPhysicalPlane {
+    const S: typeof AutoMovieHumanArmCurveSpec = AutoMovieHumanArmCurveSpec;
+    const u: AutoMovieVector3Tuple = world(row.u);
+    const v: AutoMovieVector3Tuple = scaled(world(row.v), -1);
+    return { origin: world(row.originMm), u, v, normal: S.cross(v, u) };
+  }
+
+  /** Signed orientation of a closed ring as seen from its section normal. */
+  function orientation(
+    ring: readonly AutoMovieVector3Tuple[],
+    plane: IPhysicalPlane,
+  ): number {
+    const S: typeof AutoMovieHumanArmCurveSpec = AutoMovieHumanArmCurveSpec;
+    return ring.reduce(
+      (sum: number, p: AutoMovieVector3Tuple, i: number): number =>
+        sum +
+        S.dot(
+          S.cross(
+            difference(p, plane.origin),
+            difference(ring[(i + 1) % ring.length]!, plane.origin),
+          ),
+          plane.normal,
+        ),
+      0,
+    );
+  }
+
+  /** A polygonal edge represented by exact linear cubic spans. */
+  function linearRing(
+    name: string,
+    points: readonly AutoMovieVector3Tuple[],
+  ): IAutoMovieCubicBezierCurve64 {
+    const spans: AutoMovieCubicBezierControls3[] = points.map(
+      (a: AutoMovieVector3Tuple, i: number): AutoMovieCubicBezierControls3 => {
+        const b: AutoMovieVector3Tuple = points[(i + 1) % points.length]!;
+        const d: AutoMovieVector3Tuple = difference(b, a);
+        return [a, added(a, scaled(d, 1 / 3)), added(a, scaled(d, 2 / 3)), b];
+      },
+    );
+    return {
+      type: "cubicBezier",
+      name,
+      closed: true,
+      unit: "mm",
+      phaseUnit: "mm",
+      phaseIntervals: points.map(
+        (a: AutoMovieVector3Tuple, i: number): number =>
+          Math.hypot(...difference(a, points[(i + 1) % points.length]!)),
+      ),
+      spans,
+    };
+  }
+
   /**
    * Convert native reference axes to capture-world axes by reflecting Z at the
    * same scale.
@@ -591,72 +657,6 @@ export namespace AutoMovieHumanHandPalm {
       for (let i: number = 0; i < tiles.length; i += 3)
         [tiles[i + 1], tiles[i + 2]] = [tiles[i + 2]!, tiles[i + 1]!];
     return [...indices.slice(0, begin), ...tiles, ...indices.slice(end)];
-  }
-
-  /** The palm's chain, its sections square to the hand's axis. */
-  export function palmOf(
-    hand: IAutoMovieHumanHandForm,
-    map: IAutoMovieHumanHandPalm.PalmOfMap,
-    side: "left" | "right",
-    sign: 1 | -1,
-  ): IAutoMovieLoftChain {
-    const prior: IAutoMovieHumanArmPrior.IHandPrior =
-      AutoMovieHumanArmPrior.PRIOR.hand;
-    const along: AutoMovieVector3Tuple = [...prior.along];
-    const normal: AutoMovieVector3Tuple = scale(along, -1);
-
-    // Each section carries the palm's reliefs in the form's axes before the
-    // hand's map; the palm starts at its most proximal section.
-    const start: number = Math.min(
-      ...hand.palmRings.map(
-        (ring: readonly AutoMovieVector3Tuple[]): number => ring[0]![0],
-      ),
-    );
-    const samples: IAutoMovieHumanLimbFrame.ISample[] = hand.palmRings.map(
-      (
-        ring: readonly AutoMovieVector3Tuple[],
-      ): IAutoMovieHumanLimbFrame.ISample => {
-        const points: AutoMovieVector3Tuple[] = AutoMovieHumanPalmRelief.ring(
-          hand.digits,
-          ring,
-          start,
-        ).map((q: AutoMovieVector3Tuple): AutoMovieVector3Tuple => map(q));
-        const c: AutoMovieVector3Tuple = [
-          mean(points, 0),
-          mean(points, 1),
-          mean(points, 2),
-        ];
-        const frame: IAutoMovieLoftSectionFrame = AutoMovieHumanLimbFrame.frame(
-          c,
-          normal,
-          [...prior.through],
-        );
-        return {
-          station: -dot(c, along),
-          frame: sidedFrame(frame, sign),
-          ring: reflect(points, sign),
-        };
-      },
-    );
-    const first: number = samples[0]!.station;
-    return {
-      name: `hand.${side}.1`,
-      basis: "spline",
-      order: prior.palmSection.order,
-      samples: prior.palmSection.samples,
-      rule: "arclength",
-      layers: AutoMovieHumanLimbFrame.layers(
-        samples.map(
-          (
-            s: IAutoMovieHumanLimbFrame.ISample,
-          ): IAutoMovieHumanLimbFrame.ISample => ({
-            ...s,
-            station: s.station - first,
-          }),
-        ),
-        prior.palmSection.order,
-      ),
-    };
   }
 
   /** One physical reference plane in capture-world millimetres. */

@@ -17,20 +17,6 @@ import { HumanArmTrajectorySweepBound } from "./HumanArmTrajectorySweepBound";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanAuditModel } from "./HumanAuditModel";
 
-/** The record of `IOfMoved`'s site. */
-type IOfMoved = {
-  point: IAutoMovieVector3;
-  turn: IAutoMovieQuaternion;
-};
-
-/** An obstructed tip sweep whose native hand parts still need certification. */
-interface ITipStep {
-  /** The original axis-sphere reading, kept if any real part is unproved. */
-  sweep: HumanArmTrajectorySweep.ISwept;
-  /** The hand parts not yet certified, absent after the first failed proof. */
-  remaining: number | undefined;
-}
-
 /**
  * An arm's sweeps over one interval between read waypoints: every axis sphere
  * against every shape whose bounding sphere lies within the pairs' reach of the
@@ -581,4 +567,18 @@ function certifiesTip(
     link.offset,
     floor,
   );
+}
+
+/** The record of `IOfMoved`'s site. */
+type IOfMoved = {
+  point: IAutoMovieVector3;
+  turn: IAutoMovieQuaternion;
+};
+
+/** An obstructed tip sweep whose native hand parts still need certification. */
+interface ITipStep {
+  /** The original axis-sphere reading, kept if any real part is unproved. */
+  sweep: HumanArmTrajectorySweep.ISwept;
+  /** The hand parts not yet certified, absent after the first failed proof. */
+  remaining: number | undefined;
 }

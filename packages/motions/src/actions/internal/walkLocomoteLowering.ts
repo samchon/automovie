@@ -17,18 +17,6 @@ import type { walkLocomoteSwings } from "./walkLocomoteSwings";
 import { walkReach } from "./walkReach";
 import { walkReachGround } from "./walkReachGround";
 
-/** The two scheduled feet at an action second. */
-type Feet = Record<
-  AutoMovieHumanSide,
-  IAutoMovieMotionHumanWalkFoot.IScheduled
->;
-
-/** The pelvis's three joint angles at an action second, degrees. */
-type Hips = readonly [number, number, number];
-
-/** A posture read's optional FK source. */
-type Resolution = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
-
 /**
  * A stepping gait's root lowering solved in preparation: the lowering that asks
  * for itself (`walkReachGround`) is the one quantity a read would search for,
@@ -208,3 +196,15 @@ export namespace walkLocomoteLowering {
     );
   }
 }
+
+/** The two scheduled feet at an action second. */
+type Feet = Record<
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanWalkFoot.IScheduled
+>;
+
+/** The pelvis's three joint angles at an action second, degrees. */
+type Hips = readonly [number, number, number];
+
+/** A posture read's optional FK source. */
+type Resolution = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];

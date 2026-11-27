@@ -1,12 +1,3 @@
-/** An exact finite binary64 value as a signed integer times 2^exponent. */
-interface IDyadic {
-  /** Signed significand, including zero. */
-  integer: bigint;
-
-  /** Binary exponent; subnormal significands use -1074. */
-  exponent: number;
-}
-
 /**
  * Create a call-local exact binary64 reader shared by fracture and mass
  * arithmetic. A finite value's normal significand includes the hidden 2^52 bit;
@@ -44,4 +35,13 @@ export function ArchetypeBinary64(
       exponent: exponent === 0 ? -1074 : exponent - 1075,
     };
   };
+}
+
+/** An exact finite binary64 value as a signed integer times 2^exponent. */
+interface IDyadic {
+  /** Signed significand, including zero. */
+  integer: bigint;
+
+  /** Binary exponent; subnormal significands use -1074. */
+  exponent: number;
 }

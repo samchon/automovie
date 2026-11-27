@@ -15,19 +15,6 @@ import type {
 import { AutoMovieArchetypeFrame } from "../../../core/AutoMovieArchetypeFrame";
 import { createTrackedRails } from "../createTrackedRails";
 
-/** Lateral and forward axes of the authored threshold. */
-const LOCAL_X: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-const LOCAL_Z: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
-
-/**
- * Match the engine's unit-rotation admission scale when checking boarding
- * frames.
- */
-const LEVEL_TOLERANCE: number = 1e-6;
-
-/** Usable waiting width beside the car, in metres. */
-const PLATFORM_WIDTH: number = 1.5;
-
 /**
  * Place a course, its moving car and its usable waiting platforms as one
  * module.
@@ -244,6 +231,19 @@ export function createTrackedRide(
     };
   };
 }
+/** Lateral and forward axes of the authored threshold. */
+const LOCAL_X: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
+
+const LOCAL_Z: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
+
+/**
+ * Match the engine's unit-rotation admission scale when checking boarding
+ * frames.
+ */
+const LEVEL_TOLERANCE: number = 1e-6;
+
+/** Usable waiting width beside the car, in metres. */
+const PLATFORM_WIDTH: number = 1.5;
 
 /**
  * The endpoint of a closed course owns the same platform and anchor as its

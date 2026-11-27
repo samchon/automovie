@@ -16,12 +16,6 @@ import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanArmPlayed } from "./AutoMovieMotionHumanArmPlayed";
 
-/** The alternatives of `ContinuedLimb`'s site. */
-type ContinuedLimb = "leftArm" | "rightArm";
-
-/** The alternatives of `ContinuedFitLimb`'s site. */
-type ContinuedFitLimb = "leftArm" | "rightArm";
-
 /**
  * A law's arm goals fitted along the action's course, each instant's fit
  * continuing the swivel and the branch the course chose before it.
@@ -242,3 +236,9 @@ export namespace AutoMovieMotionHumanArmChain {
     near: IAutoMovieMotionHumanResolveHumanPosture.INear;
   }
 }
+
+/** The alternatives of `ContinuedLimb`'s site. */
+type ContinuedLimb = "leftArm" | "rightArm";
+
+/** The alternatives of `ContinuedFitLimb`'s site. */
+type ContinuedFitLimb = "leftArm" | "rightArm";

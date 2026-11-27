@@ -12,64 +12,6 @@ import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 import type { preparePoseResolutionChanges } from "./preparePoseResolutionChanges";
 
-/**
- * One query's scalar composer of a convention
- * (`jointToQuaternionOnBasis.prepareScalarQueries`).
- */
-type IComposer = ReturnType<
-  ReturnType<typeof jointToQuaternionOnBasis.prepareScalarQueries>
->;
-
-/** The most recent successful conversion of one authored bone name. */
-interface IReading {
-  /** Static convention selected from the actual immutable rig. */
-  convention: preparePoseJointResolution.IConvention;
-
-  /** Rooted index, absent for stray or unreachable authored names. */
-  index: number | undefined;
-
-  /** Actual last admitted clinical coordinates, in degrees or null rest. */
-  flexion: number | null;
-  abduction: number | null;
-  twist: number | null;
-
-  /**
-   * The record those coordinates were admitted from, a value from then on;
-   * absent for staged scalars.
-   */
-  record: IAutoMovieJointPose | undefined;
-
-  /** The last successful conversion's quaternion components. */
-  x: number;
-  y: number;
-  z: number;
-  w: number;
-
-  /** The reading's own scalar composer. */
-  compose: IComposer;
-
-  /** Latest scan that actually authored this name. */
-  epoch: number;
-
-  /**
-   * The successful conversion before the last one, with its exact clinical
-   * coordinates. One operation reads a pose and its mirror image, or a pose and
-   * the same pose with one limb fitted, in turn, and a single row would convert
-   * every joint again at each turn; absent until a second distinct tuple is
-   * admitted.
-   */
-  before?: {
-    flexion: number | null;
-    abduction: number | null;
-    twist: number | null;
-    record: IAutoMovieJointPose | undefined;
-    x: number;
-    y: number;
-    z: number;
-    w: number;
-  };
-}
-
 /** Null clinical rest genuinely resolves to this exact positive-zero rig angle. */
 const REST_ANGLE: readonly [number] = [0];
 
@@ -82,14 +24,6 @@ const REST_ANGLES: jointToQuaternionOnBasis.IFixedAngles = {
   abduction: REST_ANGLE,
   twist: REST_ANGLE,
 };
-
-/** The composer's four components, written by `store` and read at once. */
-interface ISink {
-  x: number;
-  y: number;
-  z: number;
-  w: number;
-}
 
 /** Write a composed quaternion's components into the sink. */
 function store(x: number, y: number, z: number, w: number, sink: ISink): void {
@@ -583,4 +517,70 @@ function boneOf(joint: IAutoMovieJointPose): AutoMovieHumanoidBone {
 /** A staged entry already owns its actual name; no new property read is needed. */
 function stagedBone(bone: AutoMovieHumanoidBone): AutoMovieHumanoidBone {
   return bone;
+}
+
+/**
+ * One query's scalar composer of a convention
+ * (`jointToQuaternionOnBasis.prepareScalarQueries`).
+ */
+type IComposer = ReturnType<
+  ReturnType<typeof jointToQuaternionOnBasis.prepareScalarQueries>
+>;
+
+/** The most recent successful conversion of one authored bone name. */
+interface IReading {
+  /** Static convention selected from the actual immutable rig. */
+  convention: preparePoseJointResolution.IConvention;
+
+  /** Rooted index, absent for stray or unreachable authored names. */
+  index: number | undefined;
+
+  /** Actual last admitted clinical coordinates, in degrees or null rest. */
+  flexion: number | null;
+  abduction: number | null;
+  twist: number | null;
+
+  /**
+   * The record those coordinates were admitted from, a value from then on;
+   * absent for staged scalars.
+   */
+  record: IAutoMovieJointPose | undefined;
+
+  /** The last successful conversion's quaternion components. */
+  x: number;
+  y: number;
+  z: number;
+  w: number;
+
+  /** The reading's own scalar composer. */
+  compose: IComposer;
+
+  /** Latest scan that actually authored this name. */
+  epoch: number;
+
+  /**
+   * The successful conversion before the last one, with its exact clinical
+   * coordinates. One operation reads a pose and its mirror image, or a pose and
+   * the same pose with one limb fitted, in turn, and a single row would convert
+   * every joint again at each turn; absent until a second distinct tuple is
+   * admitted.
+   */
+  before?: {
+    flexion: number | null;
+    abduction: number | null;
+    twist: number | null;
+    record: IAutoMovieJointPose | undefined;
+    x: number;
+    y: number;
+    z: number;
+    w: number;
+  };
+}
+
+/** The composer's four components, written by `store` and read at once. */
+interface ISink {
+  x: number;
+  y: number;
+  z: number;
+  w: number;
 }

@@ -9,19 +9,6 @@ import { AutoMovieEngineCurveBicubicAtlasEmit64 } from "../../AutoMovieEngineCur
 import { AutoMovieBicubicAtlasPlan64 } from "./AutoMovieBicubicAtlasPlan64";
 import { AutoMovieBicubicAtlasRegistry64 } from "./AutoMovieBicubicAtlasRegistry64";
 
-const SIDES: readonly (readonly number[])[] = [
-  [0, 1, 2, 3],
-  [3, 7, 11, 15],
-  [12, 13, 14, 15],
-  [0, 4, 8, 12],
-];
-const CORNERS: readonly (readonly [number, number, number])[] = [
-  [0, 0, 0],
-  [3, 1, 0],
-  [15, 1, 1],
-  [12, 0, 1],
-];
-
 /**
  * Tessellate complete bicubic patches with explicit shared control identities.
  * Sixteen controls are row-major: v rows, u columns, all in millimetres.
@@ -130,3 +117,16 @@ export function* tessellateAutoMovieBicubicAtlas64(
       : {}),
   };
 }
+const SIDES: readonly (readonly number[])[] = [
+  [0, 1, 2, 3],
+  [3, 7, 11, 15],
+  [12, 13, 14, 15],
+  [0, 4, 8, 12],
+];
+
+const CORNERS: readonly (readonly [number, number, number])[] = [
+  [0, 0, 0],
+  [3, 1, 0],
+  [15, 1, 1],
+  [12, 0, 1],
+];

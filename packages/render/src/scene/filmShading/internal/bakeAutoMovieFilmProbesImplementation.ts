@@ -10,22 +10,6 @@ import * as THREE from "three";
 
 import type { IAutoMovieFilmIndirectRenderer } from "../../IAutoMovieFilmIndirectRenderer.js";
 
-/** Texels along each side of a probe's cube face. */
-const FACE: number = 32;
-
-/**
- * The six cube faces: view direction and up, a right-handed set covering every
- * direction once.
- */
-const FACES: readonly IFace[] = [
-  { forward: [1, 0, 0], up: [0, 1, 0] },
-  { forward: [-1, 0, 0], up: [0, 1, 0] },
-  { forward: [0, 1, 0], up: [0, 0, -1] },
-  { forward: [0, -1, 0], up: [0, 0, 1] },
-  { forward: [0, 0, 1], up: [0, 1, 0] },
-  { forward: [0, 0, -1], up: [0, 1, 0] },
-];
-
 /**
  * Bake a film's irradiance probes: for each grid point of `probes`, draw the
  * static `layer` into six 32-texel cube faces and project them with
@@ -212,6 +196,22 @@ export function bakeAutoMovieFilmProbesImplementation(props: {
     probes: probesBaked,
   };
 }
+
+/** Texels along each side of a probe's cube face. */
+const FACE: number = 32;
+
+/**
+ * The six cube faces: view direction and up, a right-handed set covering every
+ * direction once.
+ */
+const FACES: readonly IFace[] = [
+  { forward: [1, 0, 0], up: [0, 1, 0] },
+  { forward: [-1, 0, 0], up: [0, 1, 0] },
+  { forward: [0, 1, 0], up: [0, 0, -1] },
+  { forward: [0, -1, 0], up: [0, 0, 1] },
+  { forward: [0, 0, 1], up: [0, 1, 0] },
+  { forward: [0, 0, -1], up: [0, 1, 0] },
+];
 
 /** One cube face's view direction and up direction. */
 interface IFace {

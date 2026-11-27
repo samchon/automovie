@@ -116,36 +116,6 @@ export namespace ReactionFeet {
   }
 
   /**
-   * What a held foot's heel rise reads from the entry: its ball on the floor,
-   * world metres, and its leg's full length, metres.
-   */
-  interface IRaise {
-    /** The ball's contact point, world metres. */
-    ball: IAutoMovieVector3;
-    /** The thigh's and the shank's length together, metres. */
-    length: number;
-  }
-
-  /**
-   * A planted foot's placement under a heel rise and its toes' flexion,
-   * degrees.
-   */
-  interface IHeeled {
-    /** The ankle, world metres. */
-    ankle: IAutoMovieVector3;
-    /** The foot's world rotation. */
-    rotation: IAutoMovieQuaternion;
-    /** The toes' flexion from the foot, degrees, positive lifting them. */
-    toes: number;
-  }
-
-  /** Both heels' placements and toe bends at an authored posture. */
-  type FeetRaised = Readonly<Record<AutoMovieHumanSide, IHeeled>>;
-
-  /** A direct read of both heel placements from the authored hip positions. */
-  type HeelReader = (posture: IAutoMovieMotionHumanPosture) => FeetRaised;
-
-  /**
    * A plan whose feet stay planted until a second: its posture with both legs'
    * goals at the entry feet; after it, over `FADE`, each goal travels to where
    * the plan's own legs put the foot, so the legs return to the fall's shape
@@ -336,4 +306,34 @@ export namespace ReactionFeet {
       }),
     );
   }
+
+  /**
+   * What a held foot's heel rise reads from the entry: its ball on the floor,
+   * world metres, and its leg's full length, metres.
+   */
+  interface IRaise {
+    /** The ball's contact point, world metres. */
+    ball: IAutoMovieVector3;
+    /** The thigh's and the shank's length together, metres. */
+    length: number;
+  }
+
+  /**
+   * A planted foot's placement under a heel rise and its toes' flexion,
+   * degrees.
+   */
+  interface IHeeled {
+    /** The ankle, world metres. */
+    ankle: IAutoMovieVector3;
+    /** The foot's world rotation. */
+    rotation: IAutoMovieQuaternion;
+    /** The toes' flexion from the foot, degrees, positive lifting them. */
+    toes: number;
+  }
+
+  /** Both heels' placements and toe bends at an authored posture. */
+  type FeetRaised = Readonly<Record<AutoMovieHumanSide, IHeeled>>;
+
+  /** A direct read of both heel placements from the authored hip positions. */
+  type HeelReader = (posture: IAutoMovieMotionHumanPosture) => FeetRaised;
 }

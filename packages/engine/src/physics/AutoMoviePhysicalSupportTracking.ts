@@ -15,23 +15,6 @@ import { AutoMovieEnginePhysics } from "./AutoMovieEnginePhysics";
 import { physicalShapeBoundsImplementation as Bounds } from "./internal/physicalShapeBoundsImplementation";
 import { physicalSupportPoint } from "./internal/physicalSupportPoint";
 
-/** A support limb of a body's support-tracking pattern. */
-type ILimb = NonNullable<
-  IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]
->["pattern"]["limbs"][number];
-
-/**
- * The lowest point of a patch's goal geometry and how deep its material may
- * compress.
- */
-interface ILowest {
-  /** World height of the lowest convex point, metres. */
-  height: number;
-
-  /** The material's maximum compression, metres; zero for a rigid one. */
-  compression: number;
-}
-
 /**
  * The input {@link AutoMoviePhysicalSupportTracking.track} reads for one body and one substep.
  * Each optional member widens the default: without a recovery bone every limb
@@ -258,4 +241,21 @@ export namespace AutoMoviePhysicalSupportTracking {
     /** Admitted contact tolerance, metres. */
     tolerance: number;
   }
+}
+
+/** A support limb of a body's support-tracking pattern. */
+type ILimb = NonNullable<
+  IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]
+>["pattern"]["limbs"][number];
+
+/**
+ * The lowest point of a patch's goal geometry and how deep its material may
+ * compress.
+ */
+interface ILowest {
+  /** World height of the lowest convex point, metres. */
+  height: number;
+
+  /** The material's maximum compression, metres; zero for a rigid one. */
+  compression: number;
 }

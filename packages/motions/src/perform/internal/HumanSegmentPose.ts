@@ -31,9 +31,6 @@ import { observableHumanSegment } from "./observableHumanSegment";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { readHumanSegmentLeaf } from "./readHumanSegmentLeaf";
 
-/** The alternatives of `ContinuedSide`'s site. */
-type ContinuedSide = "before" | "after";
-
 /**
  * One action's displayed pose at a film second, whether or not it is the active
  * one: its posture, entering offset, range-of-motion clamps and final planted
@@ -508,3 +505,6 @@ export namespace HumanSegmentPose {
     ).pose;
   }
 }
+
+/** The alternatives of `ContinuedSide`'s site. */
+type ContinuedSide = "before" | "after";

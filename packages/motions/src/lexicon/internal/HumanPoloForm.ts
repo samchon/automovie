@@ -1,14 +1,5 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/** The alternatives of `PHASESEntryItem`'s site. */
-type PHASESEntryItem = "lean" | "takeAway" | "down" | "follow" | "settle";
-
-/** The alternatives of `AXESEntryItem`'s site. */
-type AXESEntryItem = "up" | "ahead";
-
-/** The alternatives of `DEVIATIONEntryItem`'s site. */
-type DEVIATIONEntryItem = "radial" | "ulnar";
-
 /**
  * The polo stroke's form: its phases, its key angles and the measures that
  * bound them.
@@ -84,3 +75,12 @@ export namespace HumanPoloForm {
   /** How far the trunk pitches forward over the swing, degrees (provisional). */
   export const PITCH: number = 20;
 }
+
+/** The alternatives of `PHASESEntryItem`'s site. */
+type PHASESEntryItem = "lean" | "takeAway" | "down" | "follow" | "settle";
+
+/** The alternatives of `AXESEntryItem`'s site. */
+type AXESEntryItem = "up" | "ahead";
+
+/** The alternatives of `DEVIATIONEntryItem`'s site. */
+type DEVIATIONEntryItem = "radial" | "ulnar";

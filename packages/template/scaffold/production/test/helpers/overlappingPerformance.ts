@@ -12,6 +12,45 @@ import {
 } from "@automovie/motions";
 
 /**
+ * A performance of two average men who stand for one second on one floor point,
+ * so their bodies occupy the same space and the verdict report holds one
+ * partner finding.
+ *
+ * @param subjects The two performers' subjects.
+ * @returns The performance.
+ * @evidence contracts/development/common.md#meaningful-documentation States what the performance holds and the one violation it plants.
+ * @evidence contracts/development/implementation.md#principled-implementation Prepares one canonical body from the parameters and stands two performers on the origin. The body is a prepared Human body, not a stand-in, and the two performers differ only in subject.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Prepare the body, place two performers, compose two stands. One body preparation and one composition, both closed form. Both performers share the one prepared body. Holds only the returned performance.
+ */
+export function overlappingPerformance(
+  subjects: readonly [string, string],
+): IAutoMovieMotionHumanPerformance {
+  const prepared: IAutoMovieHumanCanonicalBody.IBody =
+    AutoMovieHumanCanonicalBody.prepare(PARAMETERS, {
+      mass: 78.365,
+      id: "man",
+    });
+  const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
+    prepared.skeleton,
+    prepared.profile,
+  );
+  const [a, b]: readonly [string, string] = subjects;
+  return new HumanPerformance({
+    seed: "overlap",
+    performers: [a, b].map((subject: string) => ({
+      subject,
+      body,
+      at: { x: 0, y: 0, z: 0 },
+      yaw: 0,
+      proficiency: { level: "trained" as const },
+    })),
+    composition: HumanChain.subject(a)
+      .stand({ hold: 1 })
+      .with(HumanChain.subject(b).stand({ hold: 1 })).node,
+  });
+}
+
+/**
  * An average adult man's Human parameters, millimetres and degrees as the Human
  * package reads them.
  */
@@ -158,42 +197,3 @@ const PARAMETERS: IAutoMovieHumanParameters = {
     },
   },
 } as IAutoMovieHumanParameters;
-
-/**
- * A performance of two average men who stand for one second on one floor point,
- * so their bodies occupy the same space and the verdict report holds one
- * partner finding.
- *
- * @param subjects The two performers' subjects.
- * @returns The performance.
- * @evidence contracts/development/common.md#meaningful-documentation States what the performance holds and the one violation it plants.
- * @evidence contracts/development/implementation.md#principled-implementation Prepares one canonical body from the parameters and stands two performers on the origin. The body is a prepared Human body, not a stand-in, and the two performers differ only in subject.
- * @evidence contracts/development/implementation.md#efficient-algorithms Prepare the body, place two performers, compose two stands. One body preparation and one composition, both closed form. Both performers share the one prepared body. Holds only the returned performance.
- */
-export function overlappingPerformance(
-  subjects: readonly [string, string],
-): IAutoMovieMotionHumanPerformance {
-  const prepared: IAutoMovieHumanCanonicalBody.IBody =
-    AutoMovieHumanCanonicalBody.prepare(PARAMETERS, {
-      mass: 78.365,
-      id: "man",
-    });
-  const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
-    prepared.skeleton,
-    prepared.profile,
-  );
-  const [a, b]: readonly [string, string] = subjects;
-  return new HumanPerformance({
-    seed: "overlap",
-    performers: [a, b].map((subject: string) => ({
-      subject,
-      body,
-      at: { x: 0, y: 0, z: 0 },
-      yaw: 0,
-      proficiency: { level: "trained" as const },
-    })),
-    composition: HumanChain.subject(a)
-      .stand({ hold: 1 })
-      .with(HumanChain.subject(b).stand({ hold: 1 })).node,
-  });
-}

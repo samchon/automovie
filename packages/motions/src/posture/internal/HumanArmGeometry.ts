@@ -26,18 +26,6 @@ import type { HumanArmGeometryTypes as T } from "./HumanArmGeometryTypes";
 import { placeHumanArmGeometry } from "./placeHumanArmGeometry";
 import { resolveHumanArmChain } from "./resolveHumanArmChain";
 
-/** The record of `IArmRead`'s site. */
-type IArmRead = { flexion: number; abduction: number; twist: number };
-
-/** The record of `IEncodePlace`'s site. */
-type IEncodePlace = { x: number; y: number; twist: number };
-
-/** The alternatives of `PrepareHasKey2`'s site. */
-type PrepareHasKey2 = "flexion" | "abduction" | "twist";
-
-/** The alternatives of `PrepareHasKey`'s site. */
-type PrepareHasKey = "flexion" | "abduction" | "twist";
-
 /**
  * An arm's joint-space coordinates and what they place: the shoulder's
  * swing-twist chart (`swingTwistRange.chart`, continuous and one to one over
@@ -357,6 +345,18 @@ export namespace HumanArmGeometry {
     return placeHumanArmGeometry(setup, at, chain(setup, at, c), surface);
   }
 }
+
+/** The record of `IArmRead`'s site. */
+type IArmRead = { flexion: number; abduction: number; twist: number };
+
+/** The record of `IEncodePlace`'s site. */
+type IEncodePlace = { x: number; y: number; twist: number };
+
+/** The alternatives of `PrepareHasKey2`'s site. */
+type PrepareHasKey2 = "flexion" | "abduction" | "twist";
+
+/** The alternatives of `PrepareHasKey`'s site. */
+type PrepareHasKey = "flexion" | "abduction" | "twist";
 
 /** A bone of the body's skeleton. */
 function find(

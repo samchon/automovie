@@ -5,42 +5,6 @@ import { restoreAutoMovieRenderModeState } from "../../internal/restoreAutoMovie
 import { countAutoMovieCameraOcclusionPixels } from "./countAutoMovieCameraOcclusionPixels.js";
 import type { measureAutoMovieCameraOcclusionPixels } from "./measureAutoMovieCameraOcclusionPixels.js";
 
-/** The admitted scene, its drawables and the subject's raster region. */
-interface IProps {
-  /** Native Draw renderer, with the default framebuffer selected. */
-  renderer: THREE.WebGLRenderer;
-
-  /** Original scene before inspection. */
-  scene: THREE.Scene;
-
-  /** Original delivery camera with the delivery aspect and crop realized. */
-  camera: THREE.PerspectiveCamera;
-
-  /** Delivered raster width in native samples. */
-  sampleWidth: number;
-
-  /** Delivered raster height in native samples. */
-  sampleHeight: number;
-
-  /** Native sample rectangle the subject can reach. */
-  region: renderAutoMovieCameraOcclusionMasks.IRegion;
-
-  /** Native Draw samples along a side of each delivered pixel. */
-  factor: 1 | 2;
-
-  /** Depth bits of the delivered canvas, which the scratch target must match. */
-  depthBits: number;
-
-  /** Every admitted drawable of the delivery scene. */
-  drawables: readonly renderAutoMovieCameraOcclusionMasks.IDrawable[];
-
-  /**
-   * One isolated pass, or a second composite pass when a blocker may cover the
-   * subject.
-   */
-  passes: 1 | 2;
-}
-
 /**
  * Paint the admitted binary variant of the scene in a depth-matched scratch
  * framebuffer the size of the subject's region, viewed through the full
@@ -233,4 +197,40 @@ export namespace renderAutoMovieCameraOcclusionMasks {
     /** Projected interval of the enclosing world box. */
     range: IRange;
   }
+}
+
+/** The admitted scene, its drawables and the subject's raster region. */
+interface IProps {
+  /** Native Draw renderer, with the default framebuffer selected. */
+  renderer: THREE.WebGLRenderer;
+
+  /** Original scene before inspection. */
+  scene: THREE.Scene;
+
+  /** Original delivery camera with the delivery aspect and crop realized. */
+  camera: THREE.PerspectiveCamera;
+
+  /** Delivered raster width in native samples. */
+  sampleWidth: number;
+
+  /** Delivered raster height in native samples. */
+  sampleHeight: number;
+
+  /** Native sample rectangle the subject can reach. */
+  region: renderAutoMovieCameraOcclusionMasks.IRegion;
+
+  /** Native Draw samples along a side of each delivered pixel. */
+  factor: 1 | 2;
+
+  /** Depth bits of the delivered canvas, which the scratch target must match. */
+  depthBits: number;
+
+  /** Every admitted drawable of the delivery scene. */
+  drawables: readonly renderAutoMovieCameraOcclusionMasks.IDrawable[];
+
+  /**
+   * One isolated pass, or a second composite pass when a blocker may cover the
+   * subject.
+   */
+  passes: 1 | 2;
 }

@@ -8,9 +8,6 @@ import type {
 import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
 import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
 
-/** A retained original closed end, with legacy absence still permitted. */
-type Pole = NonNullable<IAutoMovieLoftChain["pole"]>;
-
 /** Explicit ownership of original cap intervals beyond principal positive rows. */
 export namespace AutoMovieLoftCapSource {
   /** Retain original cap ownership after all principal-row preparation. */
@@ -81,6 +78,9 @@ export namespace AutoMovieLoftCapSource {
     return null;
   }
 }
+
+/** A retained original closed end, with legacy absence still permitted. */
+type Pole = NonNullable<IAutoMovieLoftChain["pole"]>;
 
 /**
  * Exact numeric compatibility/frame/lift binding; source callbacks are

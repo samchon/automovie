@@ -11,21 +11,6 @@ import type {
 
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 
-/** The alternatives of `PrepareOut`'s site. */
-type PrepareOut = "leftLeg" | "rightLeg";
-
-/** The alternatives of `PrepareResult2`'s site. */
-type PrepareResult2 = "leftLeg" | "rightLeg";
-
-/** The alternatives of `PrepareResult`'s site. */
-type PrepareResult = "leftLeg" | "rightLeg";
-
-/** The alternatives of `ReadOut`'s site. */
-type ReadOut = "leftLeg" | "rightLeg";
-
-/** The alternatives of `ReadResult`'s site. */
-type ReadResult = "leftLeg" | "rightLeg";
-
 /** Authored stance leg goals and fixed-foot preparation, without a pose solve. */
 export namespace StrikingLegGoals {
   /** The original fresh goals, borrowing each supplied ankle and rotation. */
@@ -89,25 +74,6 @@ export namespace StrikingLegGoals {
   }
 
   /**
-   * A private fixed-foot geometric snapshot; never a fitted pose or query
-   * result.
-   */
-  interface ISeed {
-    /** Which original output goal this describes. */
-    side: AutoMovieHumanSide;
-    /** Fixed world ankle, metres. */
-    point: IAutoMovieVector3;
-    /** Fixed world foot rotation. */
-    rotation: IAutoMovieQuaternion;
-    /** Original fixed world knee hint, metres. */
-    bend: IAutoMovieVector3;
-    /** Original forefoot support selection. */
-    planted: boolean;
-    /** Original MTP offset, only for a planted foot. */
-    contact: IAutoMovieVector3 | undefined;
-  }
-
-  /**
    * A striking leg's knee hint: a shank above the ankle and half a shank ahead
    * along the foot's toes.
    *
@@ -159,4 +125,38 @@ export namespace StrikingLegGoals {
       ...(planted ? { planted: true, contact } : {}),
     };
   }
+
+  /**
+   * A private fixed-foot geometric snapshot; never a fitted pose or query
+   * result.
+   */
+  interface ISeed {
+    /** Which original output goal this describes. */
+    side: AutoMovieHumanSide;
+    /** Fixed world ankle, metres. */
+    point: IAutoMovieVector3;
+    /** Fixed world foot rotation. */
+    rotation: IAutoMovieQuaternion;
+    /** Original fixed world knee hint, metres. */
+    bend: IAutoMovieVector3;
+    /** Original forefoot support selection. */
+    planted: boolean;
+    /** Original MTP offset, only for a planted foot. */
+    contact: IAutoMovieVector3 | undefined;
+  }
 }
+
+/** The alternatives of `PrepareOut`'s site. */
+type PrepareOut = "leftLeg" | "rightLeg";
+
+/** The alternatives of `PrepareResult2`'s site. */
+type PrepareResult2 = "leftLeg" | "rightLeg";
+
+/** The alternatives of `PrepareResult`'s site. */
+type PrepareResult = "leftLeg" | "rightLeg";
+
+/** The alternatives of `ReadOut`'s site. */
+type ReadOut = "leftLeg" | "rightLeg";
+
+/** The alternatives of `ReadResult`'s site. */
+type ReadResult = "leftLeg" | "rightLeg";

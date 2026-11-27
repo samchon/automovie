@@ -23,30 +23,6 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanPropOutcome } from "./HumanPropOutcome";
 
-/** The alternatives of `DemandKind`'s site. */
-type DemandKind = "regions" | "contact";
-
-/** The alternatives of `SourcesEntryItem`'s site. */
-type SourcesEntryItem = "regions" | "contact";
-
-/** The alternatives of `ReadingKind`'s site. */
-type ReadingKind = "regions" | "contact";
-
-/** The alternatives of `EntryItemEntry`'s site. */
-type EntryItemEntry = "regions" | "contact";
-
-/** The alternatives of `ReadBonesKind`'s site. */
-type ReadBonesKind = "regions" | "contact";
-
-/** The record of `IPersonResult`'s site. */
-type IPersonResult = {
-  distance: number;
-  bone: AutoMovieHumanoidBone;
-  point: IAutoMovieVector3;
-  normal: IAutoMovieVector3;
-  region?: AutoMovieHumanoidRegion;
-};
-
 /**
  * The hit record of a performance: every contact that strikes a person or a
  * thing, as the one shared record (`IAutoMovieInteractionEvent`) a reaction, a
@@ -445,3 +421,27 @@ export namespace HumanPerformanceHits {
     IAutoMovieHumanoidSurfaces.IFrame,
   ])[];
 }
+
+/** The alternatives of `DemandKind`'s site. */
+type DemandKind = "regions" | "contact";
+
+/** The alternatives of `SourcesEntryItem`'s site. */
+type SourcesEntryItem = "regions" | "contact";
+
+/** The alternatives of `ReadingKind`'s site. */
+type ReadingKind = "regions" | "contact";
+
+/** The alternatives of `EntryItemEntry`'s site. */
+type EntryItemEntry = "regions" | "contact";
+
+/** The alternatives of `ReadBonesKind`'s site. */
+type ReadBonesKind = "regions" | "contact";
+
+/** The record of `IPersonResult`'s site. */
+type IPersonResult = {
+  distance: number;
+  bone: AutoMovieHumanoidBone;
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+  region?: AutoMovieHumanoidRegion;
+};

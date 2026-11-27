@@ -18,9 +18,6 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatPose } from "./HumanUnseatPose";
 
-/** The law's context. */
-type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClasp>;
-
 /** Seconds a hand takes to reach its hold (provisional). */
 const REACH: number = 0.3;
 
@@ -177,3 +174,6 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     ? lay(goals)
     : HumanMountedFrame.coursed(goals, carrier, context.start, lay);
 }
+
+/** The law's context. */
+type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClasp>;

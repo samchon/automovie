@@ -165,14 +165,6 @@ function columnDot(
   );
 }
 
-/** Three lazy successful affine readings, independent of every quaternion/chart. */
-type IClinicalReaders = Readonly<
-  Record<
-    keyof IAutoMovieResolvedJointAngles,
-    ReturnType<typeof AutoMovieEngineClinicalAngle.prepareToClinicalAngle>
-  >
->;
-
 /**
  * All actual quaternion admission, extraction, clinical lift and chart
  * selection.
@@ -442,15 +434,6 @@ function lift(
   return selected;
 }
 
-/** A basis's handedness and the twist axis an extraction reads against. */
-interface IHandedness {
-  /** +1 when flexion × abduction = +twist, else -1. */
-  handed: 1 | -1;
-
-  /** The twist axis times the handedness. */
-  twistAxis: IAutoMovieVector3;
-}
-
 /**
  * A basis's handedness and signed twist axis, one cross product and one dot
  * product read directly from the basis.
@@ -480,3 +463,20 @@ const boxOf: (
   constraint.swingTwist === undefined || constraint.swingTwist === null
     ? constraint
     : { ...constraint, swingTwist: null };
+
+/** Three lazy successful affine readings, independent of every quaternion/chart. */
+type IClinicalReaders = Readonly<
+  Record<
+    keyof IAutoMovieResolvedJointAngles,
+    ReturnType<typeof AutoMovieEngineClinicalAngle.prepareToClinicalAngle>
+  >
+>;
+
+/** A basis's handedness and the twist axis an extraction reads against. */
+interface IHandedness {
+  /** +1 when flexion × abduction = +twist, else -1. */
+  handed: 1 | -1;
+
+  /** The twist axis times the handedness. */
+  twistAxis: IAutoMovieVector3;
+}

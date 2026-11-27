@@ -9,9 +9,6 @@ import type {
 import { AutoMovieConicArcField } from "./AutoMovieConicArcField";
 import { AutoMovieConicHermiteField } from "./AutoMovieConicHermiteField";
 
-/** Full source Hessian [value,s,p,ss,sp,pp]; p is not the polar clock. */
-type Source = IAutoMovieConicFieldJet.IJet;
-
 /** Internal validation and fixed-clock reading of the existing section data. */
 export namespace AutoMovieViewSectionReading {
   /**
@@ -121,6 +118,9 @@ export namespace AutoMovieViewSectionReading {
     return reading.kind === "failure" ? reading : lift(reading);
   }
 }
+
+/** Full source Hessian [value,s,p,ss,sp,pp]; p is not the polar clock. */
+type Source = IAutoMovieConicFieldJet.IJet;
 
 /** Convert the original numerical premise into its named failure record. */
 function failure(detail: string): IAutoMovieConicArcField.IFailure {

@@ -150,80 +150,6 @@ export namespace HumanCarriedCouplingPose {
       placedPosture(coupling, bearers, keyed, keyTurn, grips);
   }
 
-  function placedPosture(
-    coupling: IAutoMovieMotionCoupling,
-    bearers: Bearers,
-    keyed: IAutoMovieMotionHumanPosture,
-    keyTurn: IAutoMovieQuaternion,
-    grips: readonly ICling[],
-  ): IAutoMovieMotionHumanPosture {
-    const of = (
-      role: string,
-    ): IAutoMovieMotionHumanCarriedCouplingPose.IBearer => {
-      const found:
-        | IAutoMovieMotionHumanCarriedCouplingPose.IBearer
-        | undefined = bearers[role];
-      if (found === undefined)
-        throw new HumanRefusal({
-          kind: "participant",
-          axis: "partner",
-          value: role,
-          reason: `the carry's ${role} is not given`,
-          fix: "name every bearer of the carry",
-        });
-      return found;
-    };
-    const anchored: IAutoMovieResolvedBone | undefined = of(
-      coupling.bearer,
-    ).bones.get(coupling.anchor);
-    if (anchored === undefined)
-      throw new HumanRefusal({
-        kind: "participant",
-        axis: "partner",
-        value: coupling.anchor,
-        reason: `the bearer's rig has no ${coupling.anchor} to carry the borne body by`,
-        fix: "carry on a body of the canonical humanoid rig",
-      });
-
-    // The borne root frame: the anchor's displayed frame composed with the
-    // key frame.
-    const root: IAutoMovieVector3 = Vector3.add(
-      anchored.worldPosition,
-      Quaternion.rotateVector(anchored.worldRotation, coupling.key.position),
-    );
-    const turn: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(anchored.worldRotation, keyTurn),
-    );
-    const placed: IAutoMovieMotionHumanPosture = {
-      ...keyed,
-      root,
-      joints: { ...keyed.joints },
-    };
-    const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
-    if (grips.length !== 0) {
-      const back: IAutoMovieQuaternion = Quaternion.inverse(turn);
-      for (const { contact, side, palm } of grips) {
-        const bearer: IAutoMovieMotionHumanCarriedCouplingPose.IBearer = of(
-          contact.on.role,
-        );
-        const surface: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
-          bearer.body.surfaces.regions[contact.on.region];
-        const bone: IAutoMovieResolvedBone = bearer.bones.get(surface.bone)!;
-        const at: IAutoMovieMotionHumanCarriedCouplingPose.IHold =
-          AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePointNormal(surface, bone);
-        const goal: IAutoMovieHumanLimbGoal = palm(placed, {
-          point: Vector3.add(
-            root,
-            Quaternion.rotateVector(back, Vector3.subtract(at.point, root)),
-          ),
-          normal: Quaternion.rotateVector(back, at.normal),
-        });
-        limbs[`${side}Arm`] = goal;
-      }
-    }
-    return { ...placed, limbs, rotation: { about: root, turn } };
-  }
-
   /**
    * Where each hand of a bearer holds, in that bearer's anchor frame: the borne
    * region it holds on the coupling's key pose, left then right; null for a
@@ -342,6 +268,80 @@ export namespace HumanCarriedCouplingPose {
         fix: "carry on a body of the canonical humanoid rig",
       });
     return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(frame, bone);
+  }
+
+  function placedPosture(
+    coupling: IAutoMovieMotionCoupling,
+    bearers: Bearers,
+    keyed: IAutoMovieMotionHumanPosture,
+    keyTurn: IAutoMovieQuaternion,
+    grips: readonly ICling[],
+  ): IAutoMovieMotionHumanPosture {
+    const of = (
+      role: string,
+    ): IAutoMovieMotionHumanCarriedCouplingPose.IBearer => {
+      const found:
+        | IAutoMovieMotionHumanCarriedCouplingPose.IBearer
+        | undefined = bearers[role];
+      if (found === undefined)
+        throw new HumanRefusal({
+          kind: "participant",
+          axis: "partner",
+          value: role,
+          reason: `the carry's ${role} is not given`,
+          fix: "name every bearer of the carry",
+        });
+      return found;
+    };
+    const anchored: IAutoMovieResolvedBone | undefined = of(
+      coupling.bearer,
+    ).bones.get(coupling.anchor);
+    if (anchored === undefined)
+      throw new HumanRefusal({
+        kind: "participant",
+        axis: "partner",
+        value: coupling.anchor,
+        reason: `the bearer's rig has no ${coupling.anchor} to carry the borne body by`,
+        fix: "carry on a body of the canonical humanoid rig",
+      });
+
+    // The borne root frame: the anchor's displayed frame composed with the
+    // key frame.
+    const root: IAutoMovieVector3 = Vector3.add(
+      anchored.worldPosition,
+      Quaternion.rotateVector(anchored.worldRotation, coupling.key.position),
+    );
+    const turn: IAutoMovieQuaternion = Quaternion.normalize(
+      Quaternion.multiply(anchored.worldRotation, keyTurn),
+    );
+    const placed: IAutoMovieMotionHumanPosture = {
+      ...keyed,
+      root,
+      joints: { ...keyed.joints },
+    };
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
+    if (grips.length !== 0) {
+      const back: IAutoMovieQuaternion = Quaternion.inverse(turn);
+      for (const { contact, side, palm } of grips) {
+        const bearer: IAutoMovieMotionHumanCarriedCouplingPose.IBearer = of(
+          contact.on.role,
+        );
+        const surface: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
+          bearer.body.surfaces.regions[contact.on.region];
+        const bone: IAutoMovieResolvedBone = bearer.bones.get(surface.bone)!;
+        const at: IAutoMovieMotionHumanCarriedCouplingPose.IHold =
+          AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePointNormal(surface, bone);
+        const goal: IAutoMovieHumanLimbGoal = palm(placed, {
+          point: Vector3.add(
+            root,
+            Quaternion.rotateVector(back, Vector3.subtract(at.point, root)),
+          ),
+          normal: Quaternion.rotateVector(back, at.normal),
+        });
+        limbs[`${side}Arm`] = goal;
+      }
+    }
+    return { ...placed, limbs, rotation: { about: root, turn } };
   }
 }
 

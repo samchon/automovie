@@ -16,7 +16,41 @@ const FIG: string =
 
 /** Constructs the parallel bars archetype from its recipe. */
 export namespace AutoMovieArchetypeParallelBars {
-/**
+/** The kinds of bars. */
+  export type Kind = "dipStation" | "parallelBars";
+
+  /**
+   * The affordance ids:
+   *
+   * - `barLeft`: the bar on `+X`, its middle on its axis, `+Y` up.
+   * - `barRight`: the bar on `-X`.
+   */
+  export type Affordance = "barLeft" | "barRight";
+
+  /**
+   * The free dimensions, metres unless stated:
+   *
+   * - `height`: the bars' axes above the floor.
+   * - `length`: each bar's.
+   * - `spacing`: between the two bars' axes.
+   * - `diameter`: a bar's thickness.
+   * - `mass`: kilograms.
+   */
+  export type Dimension = "height" | "length" | "spacing" | "diameter" | "mass";
+
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Which bars. */
+    kind: Kind;
+
+    /** The model's id, unique in a scene; `parallelBars` when absent. */
+    id?: string;
+  }
+
+  /**
  * Two level bars side by side to bear on with the hands: gymnastics' parallel
  * bars or a gym's dip station.
  *
@@ -99,9 +133,6 @@ export function create(
   return builder.build(d.mass!);
 }
 
-  /** The kinds of bars. */
-  export type Kind = "dipStation" | "parallelBars";
-
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["dipStation", "parallelBars"];
 
@@ -114,25 +145,6 @@ export function create(
    */
   export const SET: number = 0.65;
 
-  /**
-   * The affordance ids:
-   *
-   * - `barLeft`: the bar on `+X`, its middle on its axis, `+Y` up.
-   * - `barRight`: the bar on `-X`.
-   */
-  export type Affordance = "barLeft" | "barRight";
-
-  /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `height`: the bars' axes above the floor.
-   * - `length`: each bar's.
-   * - `spacing`: between the two bars' axes.
-   * - `diameter`: a bar's thickness.
-   * - `mass`: kilograms.
-   */
-  export type Dimension = "height" | "length" | "spacing" | "diameter" | "mass";
-
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
@@ -143,18 +155,6 @@ export function create(
     diameter: "m",
     mass: "kg",
   };
-
-  /**
-   * The parameters: the kind, and any free dimension fixed to a value inside
-   * its band.
-   */
-  export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which bars. */
-    kind: Kind;
-
-    /** The model's id, unique in a scene; `parallelBars` when absent. */
-    id?: string;
-  }
 
   /**
    * A rail's thickness: the norm's oval rail is about 4 cm wide and 5 cm high,

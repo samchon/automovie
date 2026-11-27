@@ -24,24 +24,6 @@ import { buildingWalls } from "./buildingWalls";
 import { emitBuildingRoom } from "./emitBuildingRoom";
 import { emitBuildingStair } from "./emitBuildingStair";
 
-/** Root element and root space share this identity in their independent tables. */
-const ROOT: string = "structure";
-
-/** Optional scene records assembled from the checked source geometry. */
-interface IAssembly {
-  /** One building graph and its visible model inventory. */
-  environment: IAutoMovieBuiltEnvironment;
-
-  /** Module-local names of world-space attachment frames. */
-  anchors: Record<string, IAutoMovieTransform>;
-
-  /** Live leaf placements, whose model and node identities agree. */
-  props: IAutoMoviePropSpec[];
-
-  /** Scene-node rotation clips for the leaf's authored motion. */
-  clips: IAutoMovieClip[];
-}
-
 /**
  * Lower an admitted upright building plan to normal stage, runtime and anchor
  * records.
@@ -133,6 +115,24 @@ export function assembleBuilding(
     ...(assembly.props.length === 0 ? {} : { props: assembly.props }),
     ...(assembly.clips.length === 0 ? {} : { objectMotions: assembly.clips }),
   };
+}
+
+/** Root element and root space share this identity in their independent tables. */
+const ROOT: string = "structure";
+
+/** Optional scene records assembled from the checked source geometry. */
+interface IAssembly {
+  /** One building graph and its visible model inventory. */
+  environment: IAutoMovieBuiltEnvironment;
+
+  /** Module-local names of world-space attachment frames. */
+  anchors: Record<string, IAutoMovieTransform>;
+
+  /** Live leaf placements, whose model and node identities agree. */
+  props: IAutoMoviePropSpec[];
+
+  /** Scene-node rotation clips for the leaf's authored motion. */
+  clips: IAutoMovieClip[];
 }
 
 /**

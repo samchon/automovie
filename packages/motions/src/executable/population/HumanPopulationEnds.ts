@@ -2,9 +2,6 @@ import { HumanPopulationAnchors } from "./HumanPopulationAnchors";
 import { HumanPopulationConditional } from "./HumanPopulationConditional";
 import { HumanPopulationSurvey } from "./HumanPopulationSurvey";
 
-type Sex = HumanPopulationSurvey.Sex;
-type Variable = HumanPopulationSurvey.Variable;
-
 /**
  * The population ends and the measures they take: drivers held at their 1st or
  * 99th percentile, every other measure conditioned on them and held inside its
@@ -250,3 +247,6 @@ export namespace HumanPopulationEnds {
     );
   }
 }
+type Sex = HumanPopulationSurvey.Sex;
+
+type Variable = HumanPopulationSurvey.Variable;

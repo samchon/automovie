@@ -21,12 +21,6 @@ import { HumanObjectCord } from "./HumanObjectCord";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
-/** The record of `IHumanPerformanceSoftBoundaryAnchorsItem`'s site. */
-type IHumanPerformanceSoftBoundaryAnchorsItem = {
-  particle: number;
-  position: IAutoMovieVector3;
-};
-
 /**
  * One step's boundary of a soft prop in a performance: every moving anchor's
  * world point (an `actor-bone` binding on its person's displayed bone, a `node`
@@ -278,12 +272,6 @@ export namespace HumanPerformanceSoftBoundary {
       Quaternion.rotateVector(hand.worldRotation, socket.point),
     );
   }
-  /** The record of `IHumanPerformanceSoftBoundarySeedResult`'s site. */
-  type IHumanPerformanceSoftBoundarySeedResult = {
-    seed: IAutoMovieSoftBodyDomain;
-    spans?: readonly IAutoMovieMotionHumanObject.ISpanEnds[];
-  };
-
   /**
    * Seed the actual first placement and reuse model-span samples across grip
    * replays.
@@ -329,6 +317,35 @@ export namespace HumanPerformanceSoftBoundary {
       spans.push(placedSpan(state, domain, span, step * dt));
     return { seed, spans };
   }
+
+  /** The node name prefix of an anchor a grip makes. */
+  export const GRIP: string = "grip:";
+
+  /**
+   * Step 0's positions: the rest with the first boundary's anchors applied, as
+   * the engine starts.
+   */
+  export const rest: (
+    domain: IAutoMovieSoftBodyDomain,
+    first: IAutoMovieSoftBodyBoundarySample,
+  ) => number[] = (
+    domain: IAutoMovieSoftBodyDomain,
+    first: IAutoMovieSoftBodyBoundarySample,
+  ): number[] => {
+    const out: number[] = AutoMovieEngineSoftBody.softBodyRestConfiguration(domain);
+    for (const a of first.anchors) {
+      out[a.particle * 3] = a.position.x;
+      out[a.particle * 3 + 1] = a.position.y;
+      out[a.particle * 3 + 2] = a.position.z;
+    }
+    return out;
+  };
+
+  /** The record of `IHumanPerformanceSoftBoundarySeedResult`'s site. */
+  type IHumanPerformanceSoftBoundarySeedResult = {
+    seed: IAutoMovieSoftBodyDomain;
+    spans?: readonly IAutoMovieMotionHumanObject.ISpanEnds[];
+  };
 
   /**
    * The owner's span ends in world metres, from one prop frame and at most one
@@ -378,29 +395,6 @@ export namespace HumanPerformanceSoftBoundary {
       );
     return { from: place(frame, from.offset), to: place(frame, to.offset) };
   }
-
-  /** The node name prefix of an anchor a grip makes. */
-  export const GRIP: string = "grip:";
-
-  /**
-   * Step 0's positions: the rest with the first boundary's anchors applied, as
-   * the engine starts.
-   */
-  export const rest: (
-    domain: IAutoMovieSoftBodyDomain,
-    first: IAutoMovieSoftBodyBoundarySample,
-  ) => number[] = (
-    domain: IAutoMovieSoftBodyDomain,
-    first: IAutoMovieSoftBodyBoundarySample,
-  ): number[] => {
-    const out: number[] = AutoMovieEngineSoftBody.softBodyRestConfiguration(domain);
-    for (const a of first.anchors) {
-      out[a.particle * 3] = a.position.x;
-      out[a.particle * 3 + 1] = a.position.y;
-      out[a.particle * 3 + 2] = a.position.z;
-    }
-    return out;
-  };
 }
 
 /** Express a rigid prop's local anchor offset in world metres. */
@@ -413,3 +407,9 @@ function place(
     Quaternion.rotateVector(frame.rotation, offset),
   );
 }
+
+/** The record of `IHumanPerformanceSoftBoundaryAnchorsItem`'s site. */
+type IHumanPerformanceSoftBoundaryAnchorsItem = {
+  particle: number;
+  position: IAutoMovieVector3;
+};

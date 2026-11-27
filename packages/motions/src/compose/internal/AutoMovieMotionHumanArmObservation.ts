@@ -26,19 +26,6 @@ import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmBase } from "./AutoMovieMotionHumanArmBase";
 import { AutoMovieMotionHumanTiming } from "./AutoMovieMotionHumanTiming";
 
-/** The alternatives of `Sited`'s site. */
-type Sited = "side" | "skinDistance" | "disc";
-
-/** The record of `IMovedResult`'s site. */
-type IMovedResult = {
-  error: IAutoMovieVector3;
-  contact: IAutoMovieVector3;
-  base: HumanArmTrajectory.IProblem["bases"][number];
-};
-
-/** The alternatives of `ReachingGoalLimb`'s site. */
-type ReachingGoalLimb = "leftArm" | "rightArm";
-
 /**
  * Physical observations used by arm planning and target feedback: travel
  * duration, perceived goals and rigid contact sites on the actual body.
@@ -373,6 +360,19 @@ export namespace AutoMovieMotionHumanArmObservation {
     };
   }
 }
+
+/** The alternatives of `Sited`'s site. */
+type Sited = "side" | "skinDistance" | "disc";
+
+/** The record of `IMovedResult`'s site. */
+type IMovedResult = {
+  error: IAutoMovieVector3;
+  contact: IAutoMovieVector3;
+  base: HumanArmTrajectory.IProblem["bases"][number];
+};
+
+/** The alternatives of `ReachingGoalLimb`'s site. */
+type ReachingGoalLimb = "leftArm" | "rightArm";
 
 /**
  * The chords an arc of the blend is measured on: a probe at most `R` from the

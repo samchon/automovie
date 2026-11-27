@@ -70,11 +70,6 @@ export const bowViolin: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBowV
   plan: planStroke,
 };
 
-/** The record of `IBowViolin`'s site. */
-type IBowViolin = {
-  name: "bowViolin";
-};
-
 /**
  * Place the bow from its held frame, then pose its hand on the four stroke
  * phases.
@@ -307,3 +302,8 @@ function planStroke(
     },
   });
 }
+
+/** The record of `IBowViolin`'s site. */
+type IBowViolin = {
+  name: "bowViolin";
+};

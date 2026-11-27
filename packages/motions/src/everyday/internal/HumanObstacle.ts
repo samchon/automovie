@@ -10,9 +10,6 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** The alternatives of `OfContext`'s site. */
-type OfContext = "prop" | "start";
-
 /**
  * The obstacle a prop is, at a second.
  *
@@ -117,3 +114,6 @@ export namespace HumanObstacle {
     depth: number;
   }
 }
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "prop" | "start";

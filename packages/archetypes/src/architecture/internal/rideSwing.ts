@@ -11,12 +11,6 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeSwing } from "../AutoMovieArchetypeSwing";
 
-/** A unit scale: the rides move rigid frames. */
-const ONE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
-
-/** The pivot axis: the swing turns about the beam, `+X`. */
-const AXIS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-
 /**
  * A pumped playground swing on the ride's clock: the hanging seat model
  * (`createSwing.seat`) turns about the beam's pivot axis by the swing angle,
@@ -105,3 +99,9 @@ export function rideSwing(
       }),
   };
 }
+
+/** A unit scale: the rides move rigid frames. */
+const ONE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
+
+/** The pivot axis: the swing turns about the beam, `+X`. */
+const AXIS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };

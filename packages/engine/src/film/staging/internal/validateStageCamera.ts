@@ -9,9 +9,6 @@ import { describeInvalidValue } from "../../../validation/internal/describeInval
 import { validateCameraClearanceEnvelope } from "./validateCameraClearanceEnvelope";
 import { validateCameraDepthPrecision } from "./validateCameraDepthPrecision";
 
-/** A camera and its target closer than this, in metres, have no look axis. */
-const LOOK_DISTANCE_EPSILON: number = 1e-9;
-
 /**
  * Validate one staged camera's lens, depth range, depth precision, aim and
  * clearance envelope, and return the look direction composition aims it along.
@@ -95,3 +92,6 @@ export function validateStageCamera(
     validateCameraClearanceEnvelope(camera.clearance, `${path}.clearance`, out);
   return direction;
 }
+
+/** A camera and its target closer than this, in metres, have no look axis. */
+const LOOK_DISTANCE_EPSILON: number = 1e-9;

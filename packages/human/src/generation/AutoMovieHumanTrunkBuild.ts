@@ -277,24 +277,6 @@ export namespace AutoMovieHumanTrunkBuild {
     return out(base.view, folds);
   }
 
-  /** A built mass. */
-  interface IMass {
-    /** Which pair it belongs to. */
-    kind: "breast" | "gluteal";
-
-    /** Its law, this side's. */
-    law: IAutoMovieHumanTrunkBuild.IMassLaw;
-
-    /** Identical original view part, used by source tape cuts. */
-    source: IAutoMovieViewPart;
-
-    /** Its view node. */
-    view: IAutoMovieConstructionView;
-
-    /** The fold's width cap, mm. */
-    cap: number;
-  }
-
   /**
    * Both sides of every mass on a base.
    *
@@ -460,5 +442,23 @@ export namespace AutoMovieHumanTrunkBuild {
       return [p[0], p[1], -p[2]];
     }
     return { ...law, target: flip(law.target), up: flip(law.up) };
+  }
+
+  /** A built mass. */
+  interface IMass {
+    /** Which pair it belongs to. */
+    kind: "breast" | "gluteal";
+
+    /** Its law, this side's. */
+    law: IAutoMovieHumanTrunkBuild.IMassLaw;
+
+    /** Identical original view part, used by source tape cuts. */
+    source: IAutoMovieViewPart;
+
+    /** Its view node. */
+    view: IAutoMovieConstructionView;
+
+    /** The fold's width cap, mm. */
+    cap: number;
   }
 }

@@ -7,18 +7,6 @@ import type {
 
 import { Quaternion } from "../../math/Quaternion";
 
-/** The available cardinal coordinates in quaternion-vector order. */
-const AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
-
-/**
- * Enclose signed sector tests made from rounded endpoint and direction
- * components.
- */
-const SECTOR_ROUNDOFF: number = 32 * Number.EPSILON;
-
-/** Enclose evaluated dot ceilings and the displayed cardinal factor composition. */
-const DOT_ROUNDOFF: number = 128 * Number.EPSILON;
-
 /**
  * Prepare a squared chord lower bound on the local wrist rotation error for
  * exactly cardinal crossed flexion and abduction axes with zero rig twist. The
@@ -83,6 +71,18 @@ export function prepareCardinalWristChord(
     return 2 * Math.max(0, 1 - Math.min(dotA, dotF) - DOT_ROUNDOFF);
   };
 }
+
+/** The available cardinal coordinates in quaternion-vector order. */
+const AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
+
+/**
+ * Enclose signed sector tests made from rounded endpoint and direction
+ * components.
+ */
+const SECTOR_ROUNDOFF: number = 32 * Number.EPSILON;
+
+/** Enclose evaluated dot ceilings and the displayed cardinal factor composition. */
+const DOT_ROUNDOFF: number = 128 * Number.EPSILON;
 
 /** Read the coordinate of an actual signed cardinal vector, or decline. */
 function cardinal(axis: IAutoMovieVector3): number {

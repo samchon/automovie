@@ -1,15 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/** The alternatives of `BowViolinString`'s site. */
-type BowViolinString = "string1" | "string4";
-
-/**
- * Provisional tilt of the hair toward the outside edge, radians: it clears the
- * other strings of the simplified coplanar instrument.
- */
-const TILT: number = Math.PI / 15;
-
 /**
  * The bow hair's direction on an outer violin string: perpendicular to the
  * string across the instrument, the straight-stroke condition (Schoonderwaldt
@@ -34,3 +25,12 @@ export function bowViolinHairAxis(
     Vector3.scale(outward, Math.sin(TILT) * (string === "string1" ? 1 : -1)),
   );
 }
+
+/** The alternatives of `BowViolinString`'s site. */
+type BowViolinString = "string1" | "string4";
+
+/**
+ * Provisional tilt of the hair toward the outside edge, radians: it clears the
+ * other strings of the simplified coplanar instrument.
+ */
+const TILT: number = Math.PI / 15;

@@ -18,12 +18,6 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/** A grip held in the hips' frame. */
-interface ILocal {
-  /** The grip's point in the frame. */
-  point: IAutoMovieVector3;
-}
-
 /** A grip's point in the hips' start frame. */
 function local(
   read: IAutoMovieMotionHumanPropReader,
@@ -135,4 +129,10 @@ export namespace lineWalkPole {
       frame: IAutoMovieMotionHumanFrame,
     ): IAutoMovieMotionHumanPosture["limbs"];
   }
+}
+
+/** A grip held in the hips' frame. */
+interface ILocal {
+  /** The grip's point in the frame. */
+  point: IAutoMovieVector3;
 }

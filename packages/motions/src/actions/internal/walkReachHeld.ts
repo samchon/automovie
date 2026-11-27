@@ -8,15 +8,6 @@ import type {
 
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 
-/** The record of `ITiltResult`'s site. */
-type ITiltResult = {
-  rotation: IAutoMovieQuaternion;
-  hips: Record<AutoMovieHumanSide, IAutoMovieVector3>;
-};
-
-/** The record of `ITiltTrunk`'s site. */
-type ITiltTrunk = { pitch: number; roll: number };
-
 /**
  * The pelvis tilted with the trunk about the hips, the tilt a walk's ground
  * solve settles its lowering on (`walkReach.ground`'s `tilt`).
@@ -69,3 +60,12 @@ export namespace walkReachHeld {
     return { rotation, hips: { left: at("left"), right: at("right") } };
   }
 }
+
+/** The record of `ITiltResult`'s site. */
+type ITiltResult = {
+  rotation: IAutoMovieQuaternion;
+  hips: Record<AutoMovieHumanSide, IAutoMovieVector3>;
+};
+
+/** The record of `ITiltTrunk`'s site. */
+type ITiltTrunk = { pitch: number; roll: number };

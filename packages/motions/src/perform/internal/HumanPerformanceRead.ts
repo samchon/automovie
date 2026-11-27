@@ -25,29 +25,6 @@ import { placeDemandedHumanPerformer } from "./placeDemandedHumanPerformer";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { readPlacedHumanPosture } from "./readPlacedHumanPosture";
 
-/** The reader of a refusal's axis, read only when the read is refused. */
-type AvailableAxis = () => string;
-
-/** The reader of a refusal's axis, read only when the read is refused. */
-type WhenAxis = () => string;
-
-/** The reader of a refusal's axis, read only when the read is refused. */
-type RootAxis = () => string;
-
-/** The record of `IPropOwn`'s site. */
-type IPropOwn = {
-  subject: string;
-  bones: (
-    requested?: ReadonlySet<AutoMovieHumanoidBone>,
-  ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-};
-
-/** The reader of a refusal's axis, read only when the read is refused. */
-type BonesAxis = () => string;
-
-/** The reader of a refusal's axis, read only when the read is refused. */
-type PostureAxis = () => string;
-
 /**
  * What a performance is read by: a person's pose, posture and bones, a prop's
  * frame and the hands that hold it, the placed actions, a person's root on the
@@ -343,6 +320,46 @@ export namespace HumanPerformanceRead {
     return available(self, subject, seconds, axis, met).seconds;
   }
 
+  /** A person by subject, or a refusal listing the available performers. */
+  export function person(
+    self: IAutoMovieMotionHumanPerformanceState,
+    subject: string,
+  ): IAutoMovieMotionHumanSegment.IPerson {
+    const person: IAutoMovieMotionHumanSegment.IPerson | undefined =
+      self.people.get(subject);
+    if (person === undefined)
+      throw HumanPerformanceRead.missing("performer", subject, [
+        ...self.people.keys(),
+      ]);
+    return person;
+  }
+
+  /**
+   * Locate an intent by performer, action and next occurrence of its id
+   * (`HumanPerformanceReadWhere`).
+   */
+  export const where: typeof HumanPerformanceReadWhere =
+    HumanPerformanceReadWhere;
+
+  /**
+   * The missing-performer or missing-prop refusal with alternatives
+   * (`HumanPerformanceReadMissing`).
+   */
+  export const missing: typeof HumanPerformanceReadMissing =
+    HumanPerformanceReadMissing;
+
+  /** Read the same raw root for projectile broad-phase rejection. */
+  export function projectileRoot(
+    self: IAutoMovieMotionHumanPerformanceState,
+    subject: string,
+    seconds: number,
+  ): IAutoMovieMotionHumanPosture["root"] {
+    return readPlacedHumanPosture(
+      HumanPerformanceRead.person(self, subject),
+      seconds,
+    ).root;
+  }
+
   /**
    * Apply the original unresolved-future refusal without evaluating a raw
    * posture.
@@ -424,46 +441,6 @@ export namespace HumanPerformanceRead {
      */
     seconds: number;
   }
-
-  /** A person by subject, or a refusal listing the available performers. */
-  export function person(
-    self: IAutoMovieMotionHumanPerformanceState,
-    subject: string,
-  ): IAutoMovieMotionHumanSegment.IPerson {
-    const person: IAutoMovieMotionHumanSegment.IPerson | undefined =
-      self.people.get(subject);
-    if (person === undefined)
-      throw HumanPerformanceRead.missing("performer", subject, [
-        ...self.people.keys(),
-      ]);
-    return person;
-  }
-
-  /**
-   * Locate an intent by performer, action and next occurrence of its id
-   * (`HumanPerformanceReadWhere`).
-   */
-  export const where: typeof HumanPerformanceReadWhere =
-    HumanPerformanceReadWhere;
-
-  /**
-   * The missing-performer or missing-prop refusal with alternatives
-   * (`HumanPerformanceReadMissing`).
-   */
-  export const missing: typeof HumanPerformanceReadMissing =
-    HumanPerformanceReadMissing;
-
-  /** Read the same raw root for projectile broad-phase rejection. */
-  export function projectileRoot(
-    self: IAutoMovieMotionHumanPerformanceState,
-    subject: string,
-    seconds: number,
-  ): IAutoMovieMotionHumanPosture["root"] {
-    return readPlacedHumanPosture(
-      HumanPerformanceRead.person(self, subject),
-      seconds,
-    ).root;
-  }
   /**
    * Fresh demanded bones of an already resolved person's displayed pose
    * (`HumanSegmentShown.bones`); never stores a bone map.
@@ -480,3 +457,26 @@ export namespace HumanPerformanceRead {
     return HumanSegmentShown.bones(person, seconds, requested, prepared, bound);
   }
 }
+
+/** The reader of a refusal's axis, read only when the read is refused. */
+type AvailableAxis = () => string;
+
+/** The reader of a refusal's axis, read only when the read is refused. */
+type WhenAxis = () => string;
+
+/** The reader of a refusal's axis, read only when the read is refused. */
+type RootAxis = () => string;
+
+/** The record of `IPropOwn`'s site. */
+type IPropOwn = {
+  subject: string;
+  bones: (
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
+  ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+};
+
+/** The reader of a refusal's axis, read only when the read is refused. */
+type BonesAxis = () => string;
+
+/** The reader of a refusal's axis, read only when the read is refused. */
+type PostureAxis = () => string;

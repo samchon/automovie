@@ -8,23 +8,8 @@ import {
 } from "../../core";
 import { AutoMovieArchetypeTray } from "../AutoMovieArchetypeTray";
 
-/** The model-space construction for the selected contact IDs. */
-type Builder<Id extends AutoMovieArchetypeTray.Affordance> = AutoMovieArchetypeBuilder<
-  Id,
-  AutoMovieArchetypeTray.Dimension
->;
-
 /** Model-space points and dimensions use metres. */
 const v: typeof Vector3.create = Vector3.create;
-
-/** What {@link draw} prepares for its caller. */
-interface IDrawResult<Id extends AutoMovieArchetypeTray.Affordance> {
-  /** The prepared `builder` this call returns. */
-  builder: Builder<Id | "inside">;
-
-  /** The prepared `d` this call returns. */
-  d: Record<AutoMovieArchetypeTray.Dimension, number>;
-}
 
 /** Resolve a recorded carrier and build its common floor and walls. */
 function draw<Id extends AutoMovieArchetypeTray.Affordance>(
@@ -208,4 +193,19 @@ export namespace TrayConstruction {
     });
     return builder.build(d.mass);
   }
+}
+
+/** The model-space construction for the selected contact IDs. */
+type Builder<Id extends AutoMovieArchetypeTray.Affordance> = AutoMovieArchetypeBuilder<
+  Id,
+  AutoMovieArchetypeTray.Dimension
+>;
+
+/** What {@link draw} prepares for its caller. */
+interface IDrawResult<Id extends AutoMovieArchetypeTray.Affordance> {
+  /** The prepared `builder` this call returns. */
+  builder: Builder<Id | "inside">;
+
+  /** The prepared `d` this call returns. */
+  d: Record<AutoMovieArchetypeTray.Dimension, number>;
 }

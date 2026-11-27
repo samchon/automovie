@@ -9,9 +9,6 @@ import type {
 
 import type { prepareTerrainGrades } from "./prepareTerrainGrades";
 
-/** A named path with world-metre waypoints and applicable grade limits. */
-type IPath = ReturnType<typeof prepareTerrainGrades>["paths"][number];
-
 /**
  * Check a named route against the accepted support surface.
  *
@@ -72,6 +69,9 @@ export function admitTerrainRoute(
     }
   }
 }
+
+/** A named path with world-metre waypoints and applicable grade limits. */
+type IPath = ReturnType<typeof prepareTerrainGrades>["paths"][number];
 
 /** A butt-ended strip can meet a rim at a door or parcel boundary. */
 function stripFits(

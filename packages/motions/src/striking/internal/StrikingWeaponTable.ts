@@ -3,12 +3,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** The record of `IRead2`'s site. */
-type IRead2 = {
-  ends: readonly IAutoMovieVector3[];
-  seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"];
-};
-
 /**
  * A striking limb's free course read on the contact scan's own knots: the
  * capsule ends at `from + k * STEP`, each knot fitted as the figure is fitted
@@ -79,3 +73,9 @@ export namespace StrikingWeaponTable {
     };
   }
 }
+
+/** The record of `IRead2`'s site. */
+type IRead2 = {
+  ends: readonly IAutoMovieVector3[];
+  seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"];
+};

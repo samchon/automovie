@@ -32,13 +32,6 @@ import { readAutoMovieDrawResult } from "./readAutoMovieDrawResult.js";
 import { selectAutoMovieDrawSubject } from "./selectAutoMovieDrawSubject.js";
 
 /**
- * Side of the block the beauty pass is drawn at and averaged down from, so its
- * edges are antialiased by area: two, the supersampling the motion harness drew
- * its stills at.
- */
-const SUPERSAMPLE = 2 as const;
-
-/**
  * Install the draw-only function on a page: read the props the host injected,
  * and answer `describe` and `draw` for the subject they name, drawing offscreen
  * with no interface.
@@ -192,6 +185,13 @@ export function installAutoMovieDraw<Props = unknown>(
     { once: true },
   );
 }
+
+/**
+ * Side of the block the beauty pass is drawn at and averaged down from, so its
+ * edges are antialiased by area: two, the supersampling the motion harness drew
+ * its stills at.
+ */
+const SUPERSAMPLE = 2 as const;
 
 /** The created subject and the page's renderer. */
 interface ILoaded {

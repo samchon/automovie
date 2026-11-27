@@ -16,9 +16,6 @@ import type { punchLaunch } from "./punchLaunch";
 import { punchReach } from "./punchReach";
 import { punchSurface } from "./punchSurface";
 
-/** The alternatives of `EntryItemEntry`'s site. */
-type EntryItemEntry = "lead" | "rear";
-
 /**
  * A punch at its contact: the line to the target, the trunk's turn, the fist's
  * rotation, the tracked aim, the step-in and the arm's solution.
@@ -442,3 +439,6 @@ export namespace punchContact {
     };
   }
 }
+
+/** The alternatives of `EntryItemEntry`'s site. */
+type EntryItemEntry = "lead" | "rear";

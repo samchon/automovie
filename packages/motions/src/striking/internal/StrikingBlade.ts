@@ -32,24 +32,6 @@ import { StrikingBladeOnPath } from "./StrikingBladeOnPath";
 import { StrikingHeld } from "./StrikingHeld";
 import { StrikingSupport } from "./StrikingSupport";
 
-/** The alternatives of `TurnedAddBone`'s site. */
-type TurnedAddBone = "chest" | "spine";
-
-/** The alternatives of `ShoulderContext`'s site. */
-type ShoulderContext = "body" | "entry";
-
-/**
- * The holding arm's anchor at a stroke's decisive pose: the arm's solution
- * there, and its elbow's hint carried on the chest from the shoulder.
- */
-interface IBladeAnchor {
-  /** The arm's solution at the decisive pose. */
-  reference: IAutoMovieHumanLimbReference;
-
-  /** The elbow's hint from the shoulder in the chest's frame, metres. */
-  hint: IAutoMovieVector3;
-}
-
 /**
  * The stroke of a held tool, shared by every blade and firearm action: the tool
  * is taken from where the hand holds it to a ready pose, carried along a path
@@ -469,4 +451,22 @@ export namespace StrikingBlade {
   ): IAutoMovieMotionHumanActionPlan {
     return StrikingBladeCoursed(plan, context, stroke, travel);
   }
+}
+
+/** The alternatives of `TurnedAddBone`'s site. */
+type TurnedAddBone = "chest" | "spine";
+
+/** The alternatives of `ShoulderContext`'s site. */
+type ShoulderContext = "body" | "entry";
+
+/**
+ * The holding arm's anchor at a stroke's decisive pose: the arm's solution
+ * there, and its elbow's hint carried on the chest from the shoulder.
+ */
+interface IBladeAnchor {
+  /** The arm's solution at the decisive pose. */
+  reference: IAutoMovieHumanLimbReference;
+
+  /** The elbow's hint from the shoulder in the chest's frame, metres. */
+  hint: IAutoMovieVector3;
 }

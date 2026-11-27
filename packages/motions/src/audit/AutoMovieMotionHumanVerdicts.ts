@@ -28,9 +28,6 @@ import type { HumanVerdictsInput } from "./HumanVerdictsInput";
 import { HumanVerdictsSpan } from "./internal/HumanVerdictsSpan";
 import { solvedHumanAuditSpans } from "./internal/solvedHumanAuditSpans";
 
-/** The alternatives of `OfPlaceResult`'s site. */
-type OfPlaceResult = "act" | "instance";
-
 /**
  * The verdict report of a performance: every physical bound that holds for any
  * human motion whatever it means to do, read on the film a composition gives,
@@ -369,6 +366,9 @@ export namespace AutoMovieMotionHumanVerdicts {
       .join("; ");
   }
 }
+
+/** The alternatives of `OfPlaceResult`'s site. */
+type OfPlaceResult = "act" | "instance";
 
 /** Whether any action of a chain is one the floor does not carry. */
 const isAirborne = (spans: readonly AutoMovieMotionHumanVerdicts.ISegment[]): boolean =>

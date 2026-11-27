@@ -18,9 +18,6 @@ import { AutoMovieSolidMeshLoop } from "../../AutoMovieSolidMeshLoop";
 import { AutoMovieSolidVector } from "../../AutoMovieSolidVector";
 import { domainAutoMovieSolidMesh } from "./domainAutoMovieSolidMesh";
 
-/** Existing vector lengths and analytic chart-cross arithmetic. */
-const { cross, norm, sub }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
-
 /**
  * Prepare a trimmed face's sampling grid without changing any mesh buffer.
  *
@@ -485,6 +482,9 @@ export function gridAutoMovieSolidMesh(
     local,
   };
 }
+
+/** Existing vector lengths and analytic chart-cross arithmetic. */
+const { cross, norm, sub }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
 
 /**
  * Share of the first-corner split's bend below which a full cell takes its

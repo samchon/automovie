@@ -13,24 +13,6 @@ import { staggerPendulumEntry } from "./staggerPendulumEntry";
 import type { staggerRecover } from "./staggerRecover";
 import { staggerTransfer } from "./staggerTransfer";
 
-/** The record of `IFootprintResult`'s site. */
-type IFootprintResult = {
-  placement: IAutoMovieMotionHumanFoot.IPlacement;
-  relative: IAutoMovieVector3[];
-};
-
-/** The alternatives of `OfEntryItem`'s site. */
-type OfEntryItem = "forward" | "side" | "backward";
-
-/** The record of `IFootprintsEntryItem`'s site. */
-type IFootprintsEntryItem = {
-  placement: IAutoMovieMotionHumanFoot.IPlacement;
-  relative: IAutoMovieVector3[];
-};
-
-/** The alternatives of `StaggerPendulumBendEntry`'s site. */
-type StaggerPendulumBendEntry = "pitch" | "roll";
-
 /**
  * A pushed body's centre of mass over the floor as Hof's inverted pendulum
  * (Hof, Gazendam and Sinke 2005; Hof 2008), with the feet and the steps that
@@ -454,3 +436,21 @@ export class StaggerPendulum {
    */
   private static readonly PASSES: number = 64;
 }
+
+/** The record of `IFootprintResult`'s site. */
+type IFootprintResult = {
+  placement: IAutoMovieMotionHumanFoot.IPlacement;
+  relative: IAutoMovieVector3[];
+};
+
+/** The alternatives of `OfEntryItem`'s site. */
+type OfEntryItem = "forward" | "side" | "backward";
+
+/** The record of `IFootprintsEntryItem`'s site. */
+type IFootprintsEntryItem = {
+  placement: IAutoMovieMotionHumanFoot.IPlacement;
+  relative: IAutoMovieVector3[];
+};
+
+/** The alternatives of `StaggerPendulumBendEntry`'s site. */
+type StaggerPendulumBendEntry = "pitch" | "roll";

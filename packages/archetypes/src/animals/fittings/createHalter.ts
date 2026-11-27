@@ -10,24 +10,6 @@ import {
 } from "../../core/index";
 
 /**
- * A halter strap's width and thickness, metres: authored, the halter listings
- * read give strap lengths only.
- */
-const STRAP: Readonly<{ width: number; thickness: number }> = {
-  width: 0.025,
-  thickness: 0.006,
-};
-
-/**
- * The noseband's place along the head from the poll, a fraction of the head's
- * length: authored.
- */
-const NOSEBAND: number = 0.7;
-
-/** A halter's mass, kilograms: authored, no listing read gives it. */
-const MASS: number = 0.4;
-
-/**
  * A halter fitted to one equid's head: a crown loop behind the poll, a noseband
  * loop round the nose and a cheek strap down each side between them.
  *
@@ -111,3 +93,21 @@ export function createHalter(
   });
   return builder.build(MASS);
 }
+
+/**
+ * A halter strap's width and thickness, metres: authored, the halter listings
+ * read give strap lengths only.
+ */
+const STRAP: Readonly<{ width: number; thickness: number }> = {
+  width: 0.025,
+  thickness: 0.006,
+};
+
+/**
+ * The noseband's place along the head from the poll, a fraction of the head's
+ * length: authored.
+ */
+const NOSEBAND: number = 0.7;
+
+/** A halter's mass, kilograms: authored, no listing read gives it. */
+const MASS: number = 0.4;

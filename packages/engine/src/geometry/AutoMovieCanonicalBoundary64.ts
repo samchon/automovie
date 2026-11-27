@@ -12,13 +12,6 @@ import type {
  */
 export namespace AutoMovieCanonicalBoundary64 {
   /**
-   * An integer times a power of two, normalized to an odd numerator or zero.
-   * This private pair represents binary64 inputs and their affine products
-   * exactly for addition, canonical keys and rational inversion.
-   */
-  type Dyadic = { n: bigint; e: number };
-
-  /**
    * Evaluate (1-t)start+t end exactly for finite normalized binary64 inputs.
    * The key is `d:<odd hexadecimal numerator>p<binary exponent>`; zero is
    * d:0p0. The numeric view is rounded once to nearest, ties to even. Endpoints
@@ -275,6 +268,13 @@ export namespace AutoMovieCanonicalBoundary64 {
     }
     return { atoms, diagnostics };
   }
+
+  /**
+   * An integer times a power of two, normalized to an odd numerator or zero.
+   * This private pair represents binary64 inputs and their affine products
+   * exactly for addition, canonical keys and rational inversion.
+   */
+  type Dyadic = { n: bigint; e: number };
 
   /**
    * Admit exactly the finite normalized scalar domain with constant scalar

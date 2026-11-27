@@ -12,17 +12,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { HumanClaspClearance } from "./HumanClaspClearance";
 
-/** The record of `IHumanClaspCandidateFramesResult`'s site. */
-type IHumanClaspCandidateFramesResult = {
-  /**
-   * Indices into `reaches` admitted by reach and by the lowest attained
-   * upper-arm band.
-   */
-  indices: number[];
-  /** Lower arm, hand and digit frames of each admitted fit, world metres. */
-  bones: Map<number, Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>>;
-};
-
 /**
  * The clasp candidates an arm may take, and the displayed frames their
  * clearance test reads: of the fits that reach the clasp within `reached`,
@@ -100,3 +89,14 @@ export function HumanClaspCandidateFrames(
     ),
   };
 }
+
+/** The record of `IHumanClaspCandidateFramesResult`'s site. */
+type IHumanClaspCandidateFramesResult = {
+  /**
+   * Indices into `reaches` admitted by reach and by the lowest attained
+   * upper-arm band.
+   */
+  indices: number[];
+  /** Lower arm, hand and digit frames of each admitted fit, world metres. */
+  bones: Map<number, Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>>;
+};

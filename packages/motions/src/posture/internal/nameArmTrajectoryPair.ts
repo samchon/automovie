@@ -3,9 +3,6 @@ import type { IAutoMovieMotionHumanArmGeometry } from "@automovie/interface";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
-/** The digits' part of a bone name. */
-const DIGIT: RegExp = /(Thumb|Index|Middle|Ring|Little)/;
-
 /**
  * A probe and the shape it enters, named for a refusal: the arm segment the
  * probe rides (a digit's own bone for a probe on a digit) with the bone of a
@@ -63,3 +60,6 @@ export function nameArmTrajectoryPair(
     bone === undefined || bone === segment ? "" : ` (on ${bone})`;
   return `the ${segment}'s probe ${probe}${on} inside ${target === undefined ? `shape ${shape}` : `the obstacle ${target.bone} (shape ${shape}, collider part ${target.part})`}`;
 }
+
+/** The digits' part of a bone name. */
+const DIGIT: RegExp = /(Thumb|Index|Middle|Ring|Little)/;

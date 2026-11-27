@@ -5,24 +5,6 @@ import { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPrepar
 import { HumanQuadraticSolve } from "./HumanQuadraticSolve";
 import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace";
 
-/** The alternatives of `OfRow`'s site. */
-type OfRow = "l" | "u" | "weight" | "key";
-
-/** The alternatives of `OfNext`'s site. */
-type OfNext = "l" | "u" | "weight" | "key";
-
-/** The alternatives of `OfBoundsItem`'s site. */
-type OfBoundsItem = "l" | "u" | "weight" | "key";
-
-/** The alternatives of `OfRowsResult`'s site. */
-type OfRowsResult = "l" | "u" | "weight" | "key";
-
-/** The alternatives of `OfRowsItem`'s site. */
-type OfRowsItem = "l" | "u" | "weight" | "key";
-
-/** The alternatives of `SolveBoundsItem`'s site. */
-type SolveBoundsItem = "l" | "u" | "weight" | "key";
-
 /**
  * Admit and snapshot a fixed convexification without retaining its source.
  * Numeric preparation already owns scaled P/q/A copies.
@@ -159,3 +141,21 @@ export namespace HumanQuadraticModel {
     ): IAutoMovieMotionHumanQuadraticProgram.IState;
   }
 }
+
+/** The alternatives of `OfRow`'s site. */
+type OfRow = "l" | "u" | "weight" | "key";
+
+/** The alternatives of `OfNext`'s site. */
+type OfNext = "l" | "u" | "weight" | "key";
+
+/** The alternatives of `OfBoundsItem`'s site. */
+type OfBoundsItem = "l" | "u" | "weight" | "key";
+
+/** The alternatives of `OfRowsResult`'s site. */
+type OfRowsResult = "l" | "u" | "weight" | "key";
+
+/** The alternatives of `OfRowsItem`'s site. */
+type OfRowsItem = "l" | "u" | "weight" | "key";
+
+/** The alternatives of `SolveBoundsItem`'s site. */
+type SolveBoundsItem = "l" | "u" | "weight" | "key";

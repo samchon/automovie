@@ -52,10 +52,6 @@ export const guitarNote: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGui
     plan,
   };
 
-/** A staged guitar note's inputs and entry state. */
-type Context =
-  IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGuitarNote>;
-
 /**
  * Resolve the staged instrument and plan the synchronized contact paths.
  *
@@ -301,3 +297,7 @@ function reject(
 function ease(seconds: number, from: number, to: number): number {
   return AutoMovieMotionInterval.progress(from, to, seconds);
 }
+
+/** A staged guitar note's inputs and entry state. */
+type Context =
+  IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGuitarNote>;

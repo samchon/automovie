@@ -13,25 +13,6 @@ import { readAutoMovieCollisionMotion } from "./readAutoMovieCollisionMotion.js"
 import { resolveAutoMovieCollisionHit } from "./resolveAutoMovieCollisionHit.js";
 import type { AutoMovieRenderInspection } from "../../AutoMovieRenderInspection.js";
 
-type ILayer = AutoMovieRenderInspection.IPlacedSceneCollisionMotionLayer;
-type ILimits = AutoMovieRenderInspection.IPlacedSceneCollisionMotionLimits;
-type IProps = AutoMovieRenderInspection.IPlacedSceneCollisionMotionProps;
-
-/** One placed instant: the collected parts and their memoized solids per layer. */
-interface IInstant {
-  readonly layers: ReadonlyMap<string, ILayerState>;
-}
-
-/** One layer at one placed instant. */
-interface ILayerState {
-  readonly layer: ILayer;
-  readonly collected: AutoMovieRenderInspectionGeometry.IResult;
-  readonly parts: ReadonlyMap<string, Collision.IPart>;
-  readonly motion: ReadonlyMap<string, readAutoMovieCollisionMotion.IPose>;
-  readonly solidOf: findAutoMovieCollisionWitness.IProps["solidOf"];
-  readonly geometry: Pick<Geometry.IQueries, "contact">;
-}
-
 /**
  * Check the motion between the preceding output instant and the placed one for
  * crossings that neither placed frame shows, by bounded subdivision.
@@ -173,6 +154,25 @@ export function observeAutoMovieCollisionMotionImplementation(
         props.spent[kind] = limit - left;
     }
   return { findings, coverage };
+}
+type ILayer = AutoMovieRenderInspection.IPlacedSceneCollisionMotionLayer;
+type ILimits = AutoMovieRenderInspection.IPlacedSceneCollisionMotionLimits;
+
+type IProps = AutoMovieRenderInspection.IPlacedSceneCollisionMotionProps;
+
+/** One placed instant: the collected parts and their memoized solids per layer. */
+interface IInstant {
+  readonly layers: ReadonlyMap<string, ILayerState>;
+}
+
+/** One layer at one placed instant. */
+interface ILayerState {
+  readonly layer: ILayer;
+  readonly collected: AutoMovieRenderInspectionGeometry.IResult;
+  readonly parts: ReadonlyMap<string, Collision.IPart>;
+  readonly motion: ReadonlyMap<string, readAutoMovieCollisionMotion.IPose>;
+  readonly solidOf: findAutoMovieCollisionWitness.IProps["solidOf"];
+  readonly geometry: Pick<Geometry.IQueries, "contact">;
 }
 
 /** Every kind of work an observation may spend. */

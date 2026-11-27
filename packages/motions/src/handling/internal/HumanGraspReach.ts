@@ -12,9 +12,6 @@ import { stand } from "../../actions/internal/stand";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import type { HumanGrasp } from "./HumanGrasp";
 
-/** The alternatives of `StandingBonesEntry`'s site. */
-type StandingBonesEntry = "worldPosition" | "worldRotation";
-
 /**
  * Where another person's arm is predicted from and how a grip turns about its
  * handle: the standing posture a person settles into, and a target turned about
@@ -86,3 +83,6 @@ export namespace HumanGraspReach {
     };
   }
 }
+
+/** The alternatives of `StandingBonesEntry`'s site. */
+type StandingBonesEntry = "worldPosition" | "worldRotation";

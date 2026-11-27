@@ -5,18 +5,6 @@ import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { StrikingLimb } from "./StrikingLimb";
 import { StrikingVerdictsGap } from "./StrikingVerdictsGap";
 
-/** The record of `IPenetrationDeepest`'s site. */
-type IPenetrationDeepest = { at: number };
-
-/** The record of `IContactClosest`'s site. */
-type IContactClosest = { at: number };
-
-/** The alternatives of `ContactDeclared`'s site. */
-type ContactDeclared = "feint" | "miss" | "graze" | undefined;
-
-/** The record of `IStrikeOther`'s site. */
-type IStrikeOther = { id: string; body: IAutoMovieMotionHumanBody };
-
 /**
  * Every verdict of one strike.
  *
@@ -474,3 +462,15 @@ export namespace StrikingVerdicts {
     };
   }
 }
+
+/** The record of `IPenetrationDeepest`'s site. */
+type IPenetrationDeepest = { at: number };
+
+/** The record of `IContactClosest`'s site. */
+type IContactClosest = { at: number };
+
+/** The alternatives of `ContactDeclared`'s site. */
+type ContactDeclared = "feint" | "miss" | "graze" | undefined;
+
+/** The record of `IStrikeOther`'s site. */
+type IStrikeOther = { id: string; body: IAutoMovieMotionHumanBody };

@@ -25,129 +25,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 
-type Points = Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>;
-type Joints = IAutoMovieMotionHumanPosture["joints"];
-type Pair = readonly [number, number];
-type Angles = readonly [number, number, number];
-const RAD: number = Math.PI / 180;
-const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-
-/** A single bearing station and the scapular assistance needed at each instant. */
-interface IWorking {
-  shift: IAutoMovieVector3;
-  joints(degrees: number, share: number, wrists: Points): Joints;
-}
-type OptionalWorking = IWorking | undefined;
-type OptionalClavicle = IClavicle | undefined;
-type OptionalBone = IAutoMovieBone | undefined;
-type OptionalFrame = IAutoMovieAxisFrame | undefined;
-type OptionalRange = IAutoMovieAngleRange | null;
-type OptionalConstraint = IAutoMovieJointConstraint | undefined;
-type OptionalAxes = IAutoMovieJointAxes | undefined;
-interface IClavicle {
-  side: AutoMovieHumanSide;
-  bone: AutoMovieHumanoidBone;
-  placed: IAutoMovieResolvedBone;
-  tip: IAutoMovieVector3;
-  length: number;
-  arm: number;
-  sign: number;
-  flex: Pair;
-  abduct: Pair;
-  flexFrame: OptionalFrame;
-  abductFrame: OptionalFrame;
-  entry: Angles;
-}
-interface ITarget {
-  arm: IClavicle;
-  parent: IAutoMovieVector3;
-  rotation: IAutoMovieQuaternion;
-  target: IAutoMovieVector3;
-  local: IAutoMovieVector3;
-  best: Pair;
-}
-function range(axis: OptionalRange, frame: OptionalFrame): Pair {
-  const a: number = (AutoMovieEngineKinematics.toRigAngle(axis?.min ?? 0, frame) ?? 0) * RAD,
-    b: number = (AutoMovieEngineKinematics.toRigAngle(axis?.max ?? 0, frame) ?? 0) * RAD;
-  return [Math.min(a, b), Math.max(a, b)];
-}
-/** Maximum of a_cos(t)+b_sin(t) on one clinical interval. */
-function maximum(a: number, b: number, limits: Pair): number {
-  const [lo, hi]: Pair = limits;
-  const phase: number = Math.atan2(b, a);
-  if (phase >= lo && phase <= hi) return phase;
-  return a * Math.cos(lo) + b * Math.sin(lo) >=
-    a * Math.cos(hi) + b * Math.sin(hi)
-    ? lo
-    : hi;
-}
-function tip(arm: IClavicle, f: number, a: number): IAutoMovieVector3 {
-  const x: number = arm.tip.x * Math.cos(f) + arm.tip.z * Math.sin(f);
-  return {
-    x: x * Math.cos(a),
-    y: x * Math.sin(a),
-    z: arm.tip.z * Math.cos(f) - arm.tip.x * Math.sin(f),
-  };
-}
-function clavicle(
-  body: IAutoMovieMotionHumanBody,
-  side: AutoMovieHumanSide,
-  bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  entry: Joints,
-): OptionalClavicle {
-  const name: AutoMovieHumanoidBone = `${side}Shoulder`;
-  const bone: OptionalBone = body.bones.get(name),
-    upper: OptionalBone = body.bones.get(`${side}UpperArm`),
-    elbow: OptionalBone = body.bones.get(`${side}LowerArm`),
-    hand: OptionalBone = body.bones.get(`${side}Hand`);
-  const placed: IAutoMovieResolvedBone | undefined = bones.get(name);
-  const limit: OptionalConstraint =
-    bone?.constraint ?? DEFAULT_HUMANOID_ROM[name];
-  const axes: OptionalAxes = body.poseResolution.jointAxes[name];
-  if (
-    !bone ||
-    !placed ||
-    !limit ||
-    !axes ||
-    upper?.parent !== name ||
-    elbow?.parent !== upper.bone ||
-    hand?.parent !== elbow.bone ||
-    limit.twist !== null ||
-    limit.swingTwist !== undefined ||
-    (limit.swingDeg !== undefined && limit.swingDeg !== null) ||
-    axes.flexion.y !== 1 ||
-    axes.abduction.z !== 1 ||
-    upper.rest.translation.y !== 0
-  )
-    return undefined;
-  const v: IAutoMovieVector3 = upper.rest.translation,
-    flexFrame: OptionalFrame = HUMANOID_REST_FRAME[name]?.flexion,
-    abductFrame: OptionalFrame = HUMANOID_REST_FRAME[name]?.abduction;
-  const flex: Pair = range(limit.flexion, flexFrame),
-    far: number = Math.max(Math.abs(flex[0]), Math.abs(flex[1]));
-  // A fixed sign of the flexed lateral component separates elevation from protraction.
-  if (
-    far >= Math.PI / 2 ||
-    Math.abs(v.x) * Math.cos(far) <= Math.abs(v.z) * Math.sin(far)
-  )
-    return undefined;
-  return {
-    side,
-    bone: name,
-    placed,
-    tip: v,
-    length: Vector3.length(v),
-    arm:
-      Vector3.length(elbow.rest.translation) +
-      Vector3.length(hand.rest.translation),
-    sign: Math.sign(v.x),
-    flex,
-    abduct: range(limit.abduction, abductFrame),
-    flexFrame,
-    abductFrame,
-    entry: entry[name] ?? [0, 0, 0],
-  };
-}
 /**
  * Choose a common bearing station from both wrist spheres on the actual seat,
  * then assist a wrist only when its unassisted shoulder cannot reach.
@@ -315,5 +192,128 @@ export function fixedSeatGripPosture(
       }
       return joints;
     },
+  };
+}
+type Points = Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>;
+type Joints = IAutoMovieMotionHumanPosture["joints"];
+type Pair = readonly [number, number];
+type Angles = readonly [number, number, number];
+const RAD: number = Math.PI / 180;
+
+const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
+/** A single bearing station and the scapular assistance needed at each instant. */
+interface IWorking {
+  shift: IAutoMovieVector3;
+  joints(degrees: number, share: number, wrists: Points): Joints;
+}
+type OptionalWorking = IWorking | undefined;
+type OptionalClavicle = IClavicle | undefined;
+type OptionalBone = IAutoMovieBone | undefined;
+type OptionalFrame = IAutoMovieAxisFrame | undefined;
+type OptionalRange = IAutoMovieAngleRange | null;
+type OptionalConstraint = IAutoMovieJointConstraint | undefined;
+type OptionalAxes = IAutoMovieJointAxes | undefined;
+interface IClavicle {
+  side: AutoMovieHumanSide;
+  bone: AutoMovieHumanoidBone;
+  placed: IAutoMovieResolvedBone;
+  tip: IAutoMovieVector3;
+  length: number;
+  arm: number;
+  sign: number;
+  flex: Pair;
+  abduct: Pair;
+  flexFrame: OptionalFrame;
+  abductFrame: OptionalFrame;
+  entry: Angles;
+}
+interface ITarget {
+  arm: IClavicle;
+  parent: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+  target: IAutoMovieVector3;
+  local: IAutoMovieVector3;
+  best: Pair;
+}
+function range(axis: OptionalRange, frame: OptionalFrame): Pair {
+  const a: number = (AutoMovieEngineKinematics.toRigAngle(axis?.min ?? 0, frame) ?? 0) * RAD,
+    b: number = (AutoMovieEngineKinematics.toRigAngle(axis?.max ?? 0, frame) ?? 0) * RAD;
+  return [Math.min(a, b), Math.max(a, b)];
+}
+/** Maximum of a_cos(t)+b_sin(t) on one clinical interval. */
+function maximum(a: number, b: number, limits: Pair): number {
+  const [lo, hi]: Pair = limits;
+  const phase: number = Math.atan2(b, a);
+  if (phase >= lo && phase <= hi) return phase;
+  return a * Math.cos(lo) + b * Math.sin(lo) >=
+    a * Math.cos(hi) + b * Math.sin(hi)
+    ? lo
+    : hi;
+}
+function tip(arm: IClavicle, f: number, a: number): IAutoMovieVector3 {
+  const x: number = arm.tip.x * Math.cos(f) + arm.tip.z * Math.sin(f);
+  return {
+    x: x * Math.cos(a),
+    y: x * Math.sin(a),
+    z: arm.tip.z * Math.cos(f) - arm.tip.x * Math.sin(f),
+  };
+}
+function clavicle(
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+  bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  entry: Joints,
+): OptionalClavicle {
+  const name: AutoMovieHumanoidBone = `${side}Shoulder`;
+  const bone: OptionalBone = body.bones.get(name),
+    upper: OptionalBone = body.bones.get(`${side}UpperArm`),
+    elbow: OptionalBone = body.bones.get(`${side}LowerArm`),
+    hand: OptionalBone = body.bones.get(`${side}Hand`);
+  const placed: IAutoMovieResolvedBone | undefined = bones.get(name);
+  const limit: OptionalConstraint =
+    bone?.constraint ?? DEFAULT_HUMANOID_ROM[name];
+  const axes: OptionalAxes = body.poseResolution.jointAxes[name];
+  if (
+    !bone ||
+    !placed ||
+    !limit ||
+    !axes ||
+    upper?.parent !== name ||
+    elbow?.parent !== upper.bone ||
+    hand?.parent !== elbow.bone ||
+    limit.twist !== null ||
+    limit.swingTwist !== undefined ||
+    (limit.swingDeg !== undefined && limit.swingDeg !== null) ||
+    axes.flexion.y !== 1 ||
+    axes.abduction.z !== 1 ||
+    upper.rest.translation.y !== 0
+  )
+    return undefined;
+  const v: IAutoMovieVector3 = upper.rest.translation,
+    flexFrame: OptionalFrame = HUMANOID_REST_FRAME[name]?.flexion,
+    abductFrame: OptionalFrame = HUMANOID_REST_FRAME[name]?.abduction;
+  const flex: Pair = range(limit.flexion, flexFrame),
+    far: number = Math.max(Math.abs(flex[0]), Math.abs(flex[1]));
+  // A fixed sign of the flexed lateral component separates elevation from protraction.
+  if (
+    far >= Math.PI / 2 ||
+    Math.abs(v.x) * Math.cos(far) <= Math.abs(v.z) * Math.sin(far)
+  )
+    return undefined;
+  return {
+    side,
+    bone: name,
+    placed,
+    tip: v,
+    length: Vector3.length(v),
+    arm:
+      Vector3.length(elbow.rest.translation) +
+      Vector3.length(hand.rest.translation),
+    sign: Math.sign(v.x),
+    flex,
+    abduct: range(limit.abduction, abductFrame),
+    flexFrame,
+    abductFrame,
+    entry: entry[name] ?? [0, 0, 0],
   };
 }

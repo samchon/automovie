@@ -3,12 +3,6 @@ import {
   IAutoMovieMaterial,
 } from "@automovie/interface";
 
-/** A material slot's texture binding as declared: absent as null or undefined. */
-type DeclaredBinding = AutoMovieTextureBinding | null | undefined;
-
-/** One material overlay, whose colour and normal maps are bound after the slots. */
-type Overlay = NonNullable<IAutoMovieMaterial["overlays"]>[number];
-
 /**
  * Every texture binding one material declares, in slot order, then the
  * thickness and anisotropy maps, then each overlay's colour and normal map,
@@ -35,6 +29,12 @@ export const materialTextureBindings: (
       ],
     ),
   ].flatMap(present);
+
+/** A material slot's texture binding as declared: absent as null or undefined. */
+type DeclaredBinding = AutoMovieTextureBinding | null | undefined;
+
+/** One material overlay, whose colour and normal maps are bound after the slots. */
+type Overlay = NonNullable<IAutoMovieMaterial["overlays"]>[number];
 
 /**
  * A declared binding as a list: empty where the slot declares none, so the

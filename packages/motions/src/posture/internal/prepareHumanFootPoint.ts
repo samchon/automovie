@@ -7,9 +7,6 @@ import type {
 
 import { humanFootOffset } from "./humanFootOffset";
 
-/** The alternatives of `PrepareHumanFootPointPoint`'s site. */
-type PrepareHumanFootPointPoint = "heel" | "ball" | "toe" | "sole" | "mtp";
-
 /**
  * Prepare a sole point whose body, socket and toe flexion remain fixed.
  *
@@ -29,6 +26,9 @@ export function prepareHumanFootPoint(
   return (foot: IAutoMovieMotionHumanFoot.IPlacement): IAutoMovieVector3 =>
     pointAt(local, foot);
 }
+
+/** The alternatives of `PrepareHumanFootPointPoint`'s site. */
+type PrepareHumanFootPointPoint = "heel" | "ball" | "toe" | "sole" | "mtp";
 
 /** The common ankle translation and rigid rotation of a prepared local socket. */
 function pointAt(

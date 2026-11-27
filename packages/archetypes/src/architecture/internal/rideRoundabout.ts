@@ -7,15 +7,6 @@ import type {
 import { AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal } from "../../core";
 import type { AutoMovieArchetypeRoundaboutRide } from "../AutoMovieArchetypeRoundaboutRide";
 
-/** A unit scale: the rides move rigid frames. */
-const ONE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
-
-/** The spindle's axis. */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/** The step that reads the driven angle's rate at release, seconds. */
-const RATE: number = 1e-3;
-
 /**
  * A roundabout turned by a pusher on the ride's clock: the disc model
  * (`AutoMovieArchetypeRoundabout.disc`) turns about the spindle by the angle the pusher
@@ -58,3 +49,12 @@ export function rideRoundabout(
       }),
   };
 }
+
+/** A unit scale: the rides move rigid frames. */
+const ONE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
+
+/** The spindle's axis. */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/** The step that reads the driven angle's rate at release, seconds. */
+const RATE: number = 1e-3;

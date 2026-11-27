@@ -16,33 +16,6 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/** The alternatives of `OfPlatesEntry`'s site. */
-type OfPlatesEntry = "front" | "rear";
-
-/** The alternatives of `OfPlateId`'s site. */
-type OfPlateId = "front" | "rear";
-
-/** The alternatives of `OfContext`'s site. */
-type OfContext = "body" | "entry" | "prop" | "start";
-
-/** One plate face in world space. */
-interface IPlate {
-  /**
-   * The middle of the face's lower edge, where the ball of the foot rests with
-   * the toes on the track, world metres.
-   */
-  point: IAutoMovieVector3;
-
-  /** The heading of the face normal's horizontal part, degrees about +Y. */
-  yaw: number;
-
-  /**
-   * The sole's pitch that lays it on the face, degrees, positive toes up: a
-   * face leaning back gives a negative pitch, the heel higher than the toes.
-   */
-  pitch: number;
-}
-
 /**
  * The largest share of a plate normal's forward component allowed across the
  * lane: about 11 degrees of yaw, the lateral play an athlete accepts before the
@@ -231,4 +204,31 @@ export namespace sprintStartBlocks {
       -face,
     );
   }
+}
+
+/** The alternatives of `OfPlatesEntry`'s site. */
+type OfPlatesEntry = "front" | "rear";
+
+/** The alternatives of `OfPlateId`'s site. */
+type OfPlateId = "front" | "rear";
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "entry" | "prop" | "start";
+
+/** One plate face in world space. */
+interface IPlate {
+  /**
+   * The middle of the face's lower edge, where the ball of the foot rests with
+   * the toes on the track, world metres.
+   */
+  point: IAutoMovieVector3;
+
+  /** The heading of the face normal's horizontal part, degrees about +Y. */
+  yaw: number;
+
+  /**
+   * The sole's pitch that lays it on the face, degrees, positive toes up: a
+   * face leaning back gives a negative pitch, the heel higher than the toes.
+   */
+  pitch: number;
 }

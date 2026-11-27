@@ -10,15 +10,6 @@ import {
 import { Vector3 } from "../../math/Vector3";
 import { builtConnectorGeometry } from "./builtConnectorGeometry";
 
-/** Shortest distance, in metres, two consecutive route stations may sit apart. */
-const ROUTE_EPSILON: number = 1e-9;
-
-/** Largest disagreement, in metres, between a stated step run and its route. */
-const STEP_TOLERANCE: number = 1e-3;
-
-/** Largest disagreement, in radians, between a stated slope and its route. */
-const SLOPE_TOLERANCE: number = 1e-6;
-
 /**
  * Validate a connector's stations, section spelling, slope, and steps.
  *
@@ -165,6 +156,15 @@ export function validateBuiltConnectorShape(
       steps.run,
     );
 }
+
+/** Shortest distance, in metres, two consecutive route stations may sit apart. */
+const ROUTE_EPSILON: number = 1e-9;
+
+/** Largest disagreement, in metres, between a stated step run and its route. */
+const STEP_TOLERANCE: number = 1e-3;
+
+/** Largest disagreement, in radians, between a stated slope and its route. */
+const SLOPE_TOLERANCE: number = 1e-6;
 
 /** A varying section: 2+ stations from 0 to 1, increasing, each positive. */
 const validateSections: (

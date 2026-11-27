@@ -9,23 +9,6 @@ import {
 } from "../../core/index";
 
 /**
- * A spent .30-06 Springfield case, the M1903's ammunition: "Case length 2.494
- * in (63.3 mm)", "Base diameter .4708 in (11.96 mm)", "Rim diameter .4740 in
- * (12.04 mm)", "Neck diameter .3404 in (8.65 mm)" (English Wikipedia infobox,
- * unattributed there; the SAAMI drawing is the source to confirm, read
- * 2026-11-21). The neck's length and the empty brass's mass are not read, so
- * they are provisional estimates.
- */
-const CASE: Readonly<AutoMovieArchetypeStageCasing.ICase> = {
-  length: 0.0633,
-  base: 0.01196,
-  rim: 0.01204,
-  neck: 0.00865,
-  neckLength: 0.0095,
-  mass: 0.013,
-};
-
-/**
  * An inert spent rifle casing for the screen.
  *
  * The case stands along `+Y` from its rim at the origin to its open mouth. The
@@ -97,3 +80,20 @@ export function createStageCasing(
   });
   return builder.build(CASE.mass);
 }
+
+/**
+ * A spent .30-06 Springfield case, the M1903's ammunition: "Case length 2.494
+ * in (63.3 mm)", "Base diameter .4708 in (11.96 mm)", "Rim diameter .4740 in
+ * (12.04 mm)", "Neck diameter .3404 in (8.65 mm)" (English Wikipedia infobox,
+ * unattributed there; the SAAMI drawing is the source to confirm, read
+ * 2026-11-21). The neck's length and the empty brass's mass are not read, so
+ * they are provisional estimates.
+ */
+const CASE: Readonly<AutoMovieArchetypeStageCasing.ICase> = {
+  length: 0.0633,
+  base: 0.01196,
+  rim: 0.01204,
+  neck: 0.00865,
+  neckLength: 0.0095,
+  mass: 0.013,
+};

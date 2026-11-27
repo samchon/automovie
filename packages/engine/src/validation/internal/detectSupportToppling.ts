@@ -14,8 +14,6 @@ import { nearestHullEdge } from "../../math/internal/nearestHullEdge";
 import { pointHullDistance } from "../../math/internal/pointHullDistance";
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
 
-const DEFAULT_MARGIN: number = 0.02;
-
 /** Advise a topple when an XZ center lies beyond a support hull and margin. */
 export function detectSupportToppling(
   props: IAutoMovieDetectSupportToppling.IProps,
@@ -101,6 +99,8 @@ export function detectSupportToppling(
     },
   };
 }
+
+const DEFAULT_MARGIN: number = 0.02;
 
 const round: (value: number) => number = (value: number): number =>
   Math.round(value * 1_000) / 1_000;

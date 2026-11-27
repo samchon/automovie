@@ -1,13 +1,5 @@
 import type { IAutoMovieQuaternion } from "@automovie/interface";
 
-/** Quaternion coordinates in the original dot-product summation order. */
-const COMPONENTS: readonly (keyof IAutoMovieQuaternion)[] = [
-  "x",
-  "y",
-  "z",
-  "w",
-];
-
 /**
  * Prepare left-to-right quaternion dots against one unchanged coefficient.
  * Every target must already have finite components; this operation admits no
@@ -50,3 +42,11 @@ export function prepareFiniteQuaternionDot(
     );
   };
 }
+
+/** Quaternion coordinates in the original dot-product summation order. */
+const COMPONENTS: readonly (keyof IAutoMovieQuaternion)[] = [
+  "x",
+  "y",
+  "z",
+  "w",
+];

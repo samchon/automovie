@@ -63,19 +63,6 @@ export namespace AutoMovieHumanHandStar {
     ];
   }
 
-  /** Skin drawn in toward a web through the hand, in a valley that deepens up to it. */
-  function webbed(
-    p: [number, number],
-    a: number,
-    web: IAutoMovieHumanArmPrior.IWeb,
-  ): [number, number] {
-    const g: number =
-      web.depth *
-      Math.exp(-0.5 * ((p[0] - web.b) / web.width) ** 2) *
-      smoother((a - web.a + web.reach) / web.reach);
-    return [p[0], web.c + (p[1] - web.c) * (1 - g)];
-  }
-
   /** Heel skin at a station and angle. */
   export function wholeSkin(
     field: IAutoMovieHumanHandStarField,
@@ -125,5 +112,18 @@ export namespace AutoMovieHumanHandStar {
     for (let i: number = 0; i < 3; i++)
       a = from + u * (knuckle(starPoint(field, a, theta)[0]) - from);
     return palmSkin(field, a, theta);
+  }
+
+  /** Skin drawn in toward a web through the hand, in a valley that deepens up to it. */
+  function webbed(
+    p: [number, number],
+    a: number,
+    web: IAutoMovieHumanArmPrior.IWeb,
+  ): [number, number] {
+    const g: number =
+      web.depth *
+      Math.exp(-0.5 * ((p[0] - web.b) / web.width) ** 2) *
+      smoother((a - web.a + web.reach) / web.reach);
+    return [p[0], web.c + (p[1] - web.c) * (1 - g)];
   }
 }

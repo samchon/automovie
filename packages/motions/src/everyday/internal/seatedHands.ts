@@ -21,9 +21,6 @@ import { writtenHumanSeeds } from "../../posture/internal/writtenHumanSeeds";
 import { seatedFlatHand } from "./seatedFlatHand";
 import { seatedHandsThighs } from "./seatedHandsThighs";
 
-/** Profile-local thigh intersections and hand extents for this seated phase. */
-type PalmRests = seatedHandsThighs.PalmRests;
-
 /**
  * Seated hand placements on the thighs and armrests. A placement invocation
  * owns its resolved bones so its target and hanging origin share one solve.
@@ -143,6 +140,40 @@ export namespace seatedHands {
   }
 
   /**
+   * The bearing wrist that puts the body's flat palm on an armrest, palm down
+   * and fingers along the seat's yaw, in world metres and degrees.
+   */
+  export function armrest(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+    rest: IAutoMovieVector3,
+    yaw: number,
+  ): IAutoMovieHumanLimbGoal {
+    const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {
+      fingers: HumanFrame.point(
+        { origin: { x: 0, y: 0, z: 0 }, yaw },
+        { x: 0, y: 0, z: 1 },
+      ),
+      palm: { x: 0, y: -1, z: 0 },
+    });
+    // The stated rest is beneath the wrist. The palm plane extends from
+    // its centre back under the carpus to the bearing heel of the hand.
+    const palm: IAutoMovieVector3 = Quaternion.rotateVector(
+      rotation,
+      HumanHand.offset(body, side, "palm", "flat").point,
+    );
+    const underside: IAutoMovieVector3 = { x: 0, y: Math.min(0, palm.y), z: 0 };
+    return {
+      point: Vector3.subtract(rest, underside),
+      contact: Quaternion.rotateVector(Quaternion.inverse(rotation), underside),
+      rotation,
+      bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
+      planted: true,
+    };
+  }
+
+  /**
    * Move supplied hands from their directly posed frames onto world-metre
    * armrest points, palms down, fingers along yaw in degrees. Other hand goals
    * remain; a hand bears when share reaches one. The hanging origins are read
@@ -226,40 +257,6 @@ export namespace seatedHands {
       ),
       s,
     );
-  }
-
-  /**
-   * The bearing wrist that puts the body's flat palm on an armrest, palm down
-   * and fingers along the seat's yaw, in world metres and degrees.
-   */
-  export function armrest(
-    body: IAutoMovieMotionHumanBody,
-    posture: IAutoMovieMotionHumanPosture,
-    side: AutoMovieHumanSide,
-    rest: IAutoMovieVector3,
-    yaw: number,
-  ): IAutoMovieHumanLimbGoal {
-    const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {
-      fingers: HumanFrame.point(
-        { origin: { x: 0, y: 0, z: 0 }, yaw },
-        { x: 0, y: 0, z: 1 },
-      ),
-      palm: { x: 0, y: -1, z: 0 },
-    });
-    // The stated rest is beneath the wrist. The palm plane extends from
-    // its centre back under the carpus to the bearing heel of the hand.
-    const palm: IAutoMovieVector3 = Quaternion.rotateVector(
-      rotation,
-      HumanHand.offset(body, side, "palm", "flat").point,
-    );
-    const underside: IAutoMovieVector3 = { x: 0, y: Math.min(0, palm.y), z: 0 };
-    return {
-      point: Vector3.subtract(rest, underside),
-      contact: Quaternion.rotateVector(Quaternion.inverse(rotation), underside),
-      rotation,
-      bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
-      planted: true,
-    };
   }
 
   /** Share the input's resolved wrist frames and thigh surfaces in this call. */
@@ -402,3 +399,6 @@ export namespace seatedHands {
   /** The body's fixed bilateral ordering, shared by every placement. */
   const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 }
+
+/** Profile-local thigh intersections and hand extents for this seated phase. */
+type PalmRests = seatedHandsThighs.PalmRests;

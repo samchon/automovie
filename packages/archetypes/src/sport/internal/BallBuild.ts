@@ -13,6 +13,18 @@ import type { AutoMovieArchetypeBall } from "../AutoMovieArchetypeBall";
 
 /** The ball and puck specifications, draw and local grip and top contacts. */
 export namespace BallBuild {
+  /** The values {@link draw} accepts at this place in its signature. */
+  export type DrawMaterial = "composite" | "rubber";
+
+  /** What {@link draw} prepares for its caller. */
+  export interface IDrawResult<Id extends AutoMovieArchetypeBall.Affordance> {
+    /** The prepared `builder` this call returns. */
+    builder: AutoMovieArchetypeBuilder<Id, AutoMovieArchetypeBall.Dimension>;
+
+    /** The prepared `d` this call returns. */
+    d: Partial<Record<AutoMovieArchetypeBall.Dimension, number>>;
+  }
+
   /** The saved kinds in their original order. */
   export const KINDS: readonly AutoMovieArchetypeBall.Kind[] = [
     "football",
@@ -323,18 +335,6 @@ export namespace BallBuild {
       mass: kg(0.156, 0.17, PUCK),
     },
   };
-
-  /** The values {@link draw} accepts at this place in its signature. */
-  export type DrawMaterial = "composite" | "rubber";
-
-  /** What {@link draw} prepares for its caller. */
-  export interface IDrawResult<Id extends AutoMovieArchetypeBall.Affordance> {
-    /** The prepared `builder` this call returns. */
-    builder: AutoMovieArchetypeBuilder<Id, AutoMovieArchetypeBall.Dimension>;
-
-    /** The prepared `d` this call returns. */
-    d: Partial<Record<AutoMovieArchetypeBall.Dimension, number>>;
-  }
 
   /** Draw the selected shape profile in the original ball seed namespace. */
   export function draw<Id extends AutoMovieArchetypeBall.Affordance>(

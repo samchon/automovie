@@ -7,12 +7,6 @@ import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import { createAutoMovieSurfaceVertexAdapter } from "./createAutoMovieSurfaceVertexAdapter.js";
 import { readAutoMovieBufferAttribute } from "./readAutoMovieBufferAttribute.js";
 
-/** The largest finite binary32 magnitude a GPU vertex attribute can hold. */
-const F32_MAX: number = 3.4028234663852886e38;
-
-/** Whether a binary64 value rounds past the binary32 range of a GPU buffer. */
-const exceedsF32 = (value: number): boolean => Math.abs(value) > F32_MAX;
-
 /**
  * Apply provider-local color and compression to actual vertices, with owned
  * resources.
@@ -218,3 +212,9 @@ export function createAutoMovieSurfaceAppearance(
     dispose,
   };
 }
+
+/** The largest finite binary32 magnitude a GPU vertex attribute can hold. */
+const F32_MAX: number = 3.4028234663852886e38;
+
+/** Whether a binary64 value rounds past the binary32 range of a GPU buffer. */
+const exceedsF32 = (value: number): boolean => Math.abs(value) > F32_MAX;

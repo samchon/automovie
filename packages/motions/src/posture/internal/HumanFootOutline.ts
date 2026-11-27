@@ -1,9 +1,6 @@
 import { AutoMovieEngineKinematics, AutoMovieHumanoidSurfaceRays, Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type { AutoMovieHumanSide, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMoviePhysicalSegment, IAutoMoviePhysicalShape, IAutoMovieQuaternion, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
-/** The alternatives of `OfReadSide`'s site. */
-type OfReadSide = "Left" | "Right";
-
 /**
  * A foot's outline on its sole: the corners of the outline of the foot's
  * colliders, and the toes' when the profile jointed them, seen from below at
@@ -58,6 +55,9 @@ export function HumanFootOutline(
   }
   return out;
 }
+
+/** The alternatives of `OfReadSide`'s site. */
+type OfReadSide = "Left" | "Right";
 
 /**
  * The horizontal directions a round collider's outline is read along, every

@@ -14,12 +14,6 @@ import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotio
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/** The record of `IPlanResult`'s site. */
-type IPlanResult = {
-  primitives: IAutoMovieMotionHumanPrimitive[];
-  contacts: IAutoMovieMotionHumanContactWindow[];
-};
-
 /**
  * The forward lunge of `exercise`: the hips come down until the lead thigh is
  * level over an upright shank and travel forward until the trailing thigh hangs
@@ -183,3 +177,9 @@ export namespace exerciseLunge {
     };
   }
 }
+
+/** The record of `IPlanResult`'s site. */
+type IPlanResult = {
+  primitives: IAutoMovieMotionHumanPrimitive[];
+  contacts: IAutoMovieMotionHumanContactWindow[];
+};

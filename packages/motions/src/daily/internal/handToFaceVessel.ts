@@ -13,9 +13,6 @@ import { AutoMovieMotionHumanTouchDrink } from "../../compose/internal/AutoMovie
 import { AutoMovieMotionHumanTouchStance } from "../../compose/internal/AutoMovieMotionHumanTouchStance";
 import { AutoMovieMotionHumanTouchUpright } from "../../compose/internal/AutoMovieMotionHumanTouchUpright";
 
-/** The alternatives of `OfPlace`'s site. */
-type OfPlace = "point" | "normal";
-
 /**
  * The first side whose drink is admitted.
  *
@@ -114,3 +111,6 @@ export namespace handToFaceVessel {
     drink: IAutoMovieMotionHumanTouchDrink.IDrink;
   }
 }
+
+/** The alternatives of `OfPlace`'s site. */
+type OfPlace = "point" | "normal";

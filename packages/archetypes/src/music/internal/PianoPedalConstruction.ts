@@ -6,28 +6,6 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeInstrument } from "../AutoMovieArchetypeInstrument";
 
-/** The upright piano builder that owns the cabinet and its pedal. */
-type Builder = AutoMovieArchetypeBuilder<
-  AutoMovieArchetypeInstrument.Affordance,
-  AutoMovieArchetypeInstrument.Dimension
->;
-
-/**
- * Upright damper pedal dimensions in metres. The Yamaha U Series gallery and
- * TransAcoustic owner's manual show the right pedal protruding from the lower
- * front of the case. These dimensions approximate that profile and the visible
- * stroke for a coarse animation asset.
- */
-const D = {
-  right: 0.09,
-  restHeight: 0.067,
-  projection: 0.095,
-  width: 0.047,
-  depth: 0.115,
-  thickness: 0.012,
-  drop: 0.012,
-} as const;
-
 /**
  * Fit a moving right-hand damper pedal to the base of the upright case. See
  * https://data.yamaha.com/files/download/other_assets/4/331094/shta_om_en_YG744A0.pdf
@@ -76,3 +54,25 @@ export function PianoPedalConstruction(builder: Builder, front: number): void {
     rides: "damperPedalHinge",
   });
 }
+
+/** The upright piano builder that owns the cabinet and its pedal. */
+type Builder = AutoMovieArchetypeBuilder<
+  AutoMovieArchetypeInstrument.Affordance,
+  AutoMovieArchetypeInstrument.Dimension
+>;
+
+/**
+ * Upright damper pedal dimensions in metres. The Yamaha U Series gallery and
+ * TransAcoustic owner's manual show the right pedal protruding from the lower
+ * front of the case. These dimensions approximate that profile and the visible
+ * stroke for a coarse animation asset.
+ */
+const D = {
+  right: 0.09,
+  restHeight: 0.067,
+  projection: 0.095,
+  width: 0.047,
+  depth: 0.115,
+  thickness: 0.012,
+  drop: 0.012,
+} as const;

@@ -9,12 +9,6 @@ import { framePattern } from "../../framePattern.js";
 import { autoMovieVideoFrameRate } from "./autoMovieVideoFrameRate.js";
 
 /**
- * Most frames one video may hold: a million, eleven hours at 25 fps, which
- * bounds the frame files a render writes before it starts.
- */
-const MAXIMUM_FRAMES: number = 1_000_000;
-
-/**
  * Admit a drawn video's exact clock and raster and plan the one FFmpeg run that
  * encodes its frames, with an optional soundtrack.
  *
@@ -123,3 +117,9 @@ export function planAutoMovieVideoEncoding(
     ],
   };
 }
+
+/**
+ * Most frames one video may hold: a million, eleven hours at 25 fps, which
+ * bounds the frame files a render writes before it starts.
+ */
+const MAXIMUM_FRAMES: number = 1_000_000;

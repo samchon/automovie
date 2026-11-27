@@ -17,12 +17,6 @@ const LEAP: number = 0.35;
 /** The capriole's gathering drop before take-off, metres: authored. */
 const GATHER: number = 0.06;
 
-/** A tucked limb in the air. */
-type Tuck = "fore" | "hind" | "kick";
-
-/** Four joint turns, degrees, shoulder or hip first. */
-type Turns = readonly [number, number, number, number];
-
 /**
  * Folded limbs' joint turns in the air, degrees, shoulder or hip first,
  * positive swinging the distal end back: authored poses.
@@ -286,3 +280,9 @@ export namespace EquineAirs {
     };
   }
 }
+
+/** A tucked limb in the air. */
+type Tuck = "fore" | "hind" | "kick";
+
+/** Four joint turns, degrees, shoulder or hip first. */
+type Turns = readonly [number, number, number, number];

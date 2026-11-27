@@ -42,20 +42,6 @@ import { prepareHumanPerformance } from "./prepareHumanPerformance";
 import { prepareHumanPerformancePlans } from "./prepareHumanPerformancePlans";
 import { validateInitialPropMounts } from "./validateInitialPropMounts";
 
-/** The alternatives of `HumanPerformanceStateLayer2`'s site. */
-type HumanPerformanceStateLayer2 =
-  | IAutoMovieMotionHumanLayer
-  | IAutoMovieMotionHumanLayer.IScheduled;
-
-/** The record of `IHumanPerformanceStateMeetingsEntry`'s site. */
-type IHumanPerformanceStateMeetingsEntry = {
-  subject: string;
-  meeting: IAutoMovieMotionMeeting;
-};
-
-/** The record of `IHumanPerformanceStateAnchorsEntry`'s site. */
-type IHumanPerformanceStateAnchorsEntry = { subject: string };
-
 /**
  * Everything a performance resolves and its readers share: the people with
  * their placed actions, the props, the laws, the cue tracks and the schedule,
@@ -439,3 +425,17 @@ export class HumanPerformanceState {
     prepareHumanPerformance(this);
   }
 }
+
+/** The alternatives of `HumanPerformanceStateLayer2`'s site. */
+type HumanPerformanceStateLayer2 =
+  | IAutoMovieMotionHumanLayer
+  | IAutoMovieMotionHumanLayer.IScheduled;
+
+/** The record of `IHumanPerformanceStateMeetingsEntry`'s site. */
+type IHumanPerformanceStateMeetingsEntry = {
+  subject: string;
+  meeting: IAutoMovieMotionMeeting;
+};
+
+/** The record of `IHumanPerformanceStateAnchorsEntry`'s site. */
+type IHumanPerformanceStateAnchorsEntry = { subject: string };

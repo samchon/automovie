@@ -9,12 +9,6 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanObstacle } from "../../perform/internal/HumanObstacle";
 
-/** The record of `IWalkClearContext`'s site. */
-type IWalkClearContext = {
-  to: IAutoMovieVector3;
-  via?: IAutoMovieVector3[];
-};
-
 /**
  * Refuses a walked way that goes through something solid: a wall with no
  * opening on the way, an opening narrower than the walker's shoulders or one
@@ -129,3 +123,9 @@ export namespace walkClear {
       });
   }
 }
+
+/** The record of `IWalkClearContext`'s site. */
+type IWalkClearContext = {
+  to: IAutoMovieVector3;
+  via?: IAutoMovieVector3[];
+};

@@ -18,9 +18,6 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
  */
 const NEAR: number = 0.01;
 
-/** The neck's two bones a resting head bends over. */
-type NeckBone = "neck" | "head";
-
 /**
  * The neck's lift of a cheek onto a partner's chest, lying with the head on the
  * chest: the neck's side bend and flexion, solved on a coarse grid refined by
@@ -129,3 +126,6 @@ export namespace lieTogetherNeck {
     return best;
   }
 }
+
+/** The neck's two bones a resting head bends over. */
+type NeckBone = "neck" | "head";

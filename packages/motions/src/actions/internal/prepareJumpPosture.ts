@@ -181,9 +181,6 @@ export namespace prepareJumpPosture {
     /** Where the landing's absorption ends, action-local seconds. */
     settled: number;
   }
-  /** The alternatives of `PrepareJumpPostureConstructionDeclared`'s site. */
-  type PrepareJumpPostureConstructionDeclared = "flight" | "airborne";
-
   /** Existing plan members produced by the actual dispatcher constructor. */
   export interface IConstruction {
     /** Actual full-phase posture callback, before error location. */
@@ -231,4 +228,7 @@ export namespace prepareJumpPosture {
       );
     return placed;
   }
+
+  /** The alternatives of `PrepareJumpPostureConstructionDeclared`'s site. */
+  type PrepareJumpPostureConstructionDeclared = "flight" | "airborne";
 }

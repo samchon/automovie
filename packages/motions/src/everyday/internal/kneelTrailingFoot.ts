@@ -11,12 +11,6 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import type { kneelKeys } from "./kneelKeys";
 
 /**
- * Halvings of the heel's rise, from a right angle to below a thousandth of a
- * degree.
- */
-const HALVINGS: number = 17;
-
-/**
  * A planted foot left behind its hip as the other knee comes down ahead of it,
  * as a lunge's trailing foot: kept flat while its ankle stays within its
  * dorsiflexion range, otherwise up on its toes by the least heel rise that
@@ -122,3 +116,9 @@ export function kneelTrailingFoot(
   }
   return raised(hi);
 }
+
+/**
+ * Halvings of the heel's rise, from a right angle to below a thousandth of a
+ * degree.
+ */
+const HALVINGS: number = 17;

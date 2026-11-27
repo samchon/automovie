@@ -7,9 +7,6 @@ import type {
 import { HumanBound } from "../../../law/internal/HumanBound";
 import { HumanRefusal } from "../../../law/HumanRefusal";
 
-/** Both feet checked against each set of ski edges. */
-const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-
 /**
  * Admit an optional ski edge transfer or Nordic stroke before planning the
  * glide. An edge transfer occurs strictly inside the glide, counters by at most
@@ -87,3 +84,6 @@ export function admitSnowGlide(
       });
   }
 }
+
+/** Both feet checked against each set of ski edges. */
+const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];

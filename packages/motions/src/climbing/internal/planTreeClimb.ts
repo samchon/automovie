@@ -16,15 +16,6 @@ import { treeClimbRouteExpand } from "../treeClimb/treeClimbRouteExpand";
 import { treeLimbs } from "../treeClimb/treeLimbs";
 
 /**
- * How far from the bole's face the climber stands on the ground, metres
- * (provisional: a forearm's length).
- */
-const STAND_OFF: number = 0.3;
-
-/** The feet's half spacing on the ground, metres (provisional). */
-const STANCE: number = 0.12;
-
-/**
  * Plan a tree climb, sit or descent on the shared support law over staged
  * points of the tree (`treeClimbRoute`). A climb starts from the feet where
  * they stand; a descent ends standing `STAND_OFF` from the bole, or hangs from
@@ -139,3 +130,12 @@ export function planTreeClimb(
     base: p.kind === "sit" ? { kind: "seated" } : { kind: "standing" },
   };
 }
+
+/**
+ * How far from the bole's face the climber stands on the ground, metres
+ * (provisional: a forearm's length).
+ */
+const STAND_OFF: number = 0.3;
+
+/** The feet's half spacing on the ground, metres (provisional). */
+const STANCE: number = 0.12;

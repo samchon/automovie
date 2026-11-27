@@ -3,20 +3,6 @@ import type {
   IAutoMovieRecoveryFeatureChartCuts,
 } from "@automovie/interface";
 
-type Input = Parameters<IAutoMovieRecoveryFeatureChartCuts.Operation>[0];
-
-type Row = { a: number; b: number; face: number };
-type Topology = {
-  edges: Map<string, Row[]>;
-  vertexEdges: string[][];
-  incident: number[][];
-  components: number[][];
-  faceComponent: Int32Array;
-  cycles: number[][];
-  areas: number[];
-  normals: Readonly<AutoMovieVector3Tuple>[];
-};
-type Feature = Input["featureEdges"][number];
 /** Create stable incident-fan labeling for declared feature edges. */
 export function RecoveryFeatureChartCutsFans(
   faceWords: (
@@ -81,3 +67,17 @@ export function RecoveryFeatureChartCutsFans(
 
   return fanLabels;
 }
+
+type Input = Parameters<IAutoMovieRecoveryFeatureChartCuts.Operation>[0];
+type Row = { a: number; b: number; face: number };
+type Topology = {
+  edges: Map<string, Row[]>;
+  vertexEdges: string[][];
+  incident: number[][];
+  components: number[][];
+  faceComponent: Int32Array;
+  cycles: number[][];
+  areas: number[];
+  normals: Readonly<AutoMovieVector3Tuple>[];
+};
+type Feature = Input["featureEdges"][number];

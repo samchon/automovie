@@ -10,26 +10,6 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core/index";
 
-/** Length, waist and binding spacing of the Burton Custom Camber 154, in metres. */
-const SIZE: Readonly<{ length: number; waist: number; stance: number }> = {
-  length: 1.54,
-  waist: 0.25,
-  stance: 0.53,
-};
-
-/** Provisional edge appearance, section thickness and tip rise, in metres. */
-const FORM: Readonly<{
-  hip: number;
-  tip: number;
-  thickness: number;
-  rise: number;
-}> = {
-  hip: 0.29,
-  tip: 0.17,
-  thickness: 0.012,
-  rise: 0.046,
-};
-
 /**
  * A coarse snowboard with distinct binding sites and visible raised ends. The
  * nose is along -Z. The waist, length and stance width follow Burton's 154 cm
@@ -135,3 +115,23 @@ export function createSnowboard(
     });
   return builder.build(mass);
 }
+
+/** Length, waist and binding spacing of the Burton Custom Camber 154, in metres. */
+const SIZE: Readonly<{ length: number; waist: number; stance: number }> = {
+  length: 1.54,
+  waist: 0.25,
+  stance: 0.53,
+};
+
+/** Provisional edge appearance, section thickness and tip rise, in metres. */
+const FORM: Readonly<{
+  hip: number;
+  tip: number;
+  thickness: number;
+  rise: number;
+}> = {
+  hip: 0.29,
+  tip: 0.17,
+  thickness: 0.012,
+  rise: 0.046,
+};

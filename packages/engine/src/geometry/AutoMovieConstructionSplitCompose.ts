@@ -12,10 +12,7 @@ import { AutoMovieConstructionSkinCut as SkinCut } from "./AutoMovieConstruction
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-/** World point or direction, mm. */
-type Vec3 = AutoMovieVector3Tuple;
 const { add, dot, scale, sub, unit } = AutoMovieSolidVector;
-
 /**
  * What a split derives from its declared planes
  * (`IAutoMovieConstructionSplit.ICut`, `ICompose`): a child's rail as its skin
@@ -50,33 +47,6 @@ export namespace AutoMovieConstructionSplitCompose {
       x,
       y,
       z,
-    };
-  }
-
-  /**
-   * A declared plane in kernel coordinates: metres in its frame to mm, its
-   * normal made unit; null for a zero normal.
-   */
-  function plane(
-    declared: IAutoMovieConstructionSplit.IPlane,
-    frame: IAutoMovieConstructionSplitCompose.IBasis | null,
-  ): IAutoMovieConstructionSkinCut.IPlane | null {
-    const S: number = AutoMovieConstructionViews.SCALE;
-    const carry = (a: readonly number[], length: number): Vec3 =>
-      frame === null
-        ? [a[0]! * length, a[1]! * length, a[2]! * length]
-        : add(
-            add(scale(frame.x, a[0]! * length), scale(frame.y, a[1]! * length)),
-            scale(frame.z, a[2]! * length),
-          );
-    const normal: Vec3 | null = unit(carry(declared.normal, 1));
-    if (normal === null) return null;
-    return {
-      point:
-        frame === null
-          ? carry(declared.point, S)
-          : add(frame.origin, carry(declared.point, S)),
-      normal,
     };
   }
 
@@ -416,4 +386,34 @@ export namespace AutoMovieConstructionSplitCompose {
       composition,
     };
   }
+
+  /**
+   * A declared plane in kernel coordinates: metres in its frame to mm, its
+   * normal made unit; null for a zero normal.
+   */
+  function plane(
+    declared: IAutoMovieConstructionSplit.IPlane,
+    frame: IAutoMovieConstructionSplitCompose.IBasis | null,
+  ): IAutoMovieConstructionSkinCut.IPlane | null {
+    const S: number = AutoMovieConstructionViews.SCALE;
+    const carry = (a: readonly number[], length: number): Vec3 =>
+      frame === null
+        ? [a[0]! * length, a[1]! * length, a[2]! * length]
+        : add(
+            add(scale(frame.x, a[0]! * length), scale(frame.y, a[1]! * length)),
+            scale(frame.z, a[2]! * length),
+          );
+    const normal: Vec3 | null = unit(carry(declared.normal, 1));
+    if (normal === null) return null;
+    return {
+      point:
+        frame === null
+          ? carry(declared.point, S)
+          : add(frame.origin, carry(declared.point, S)),
+      normal,
+    };
+  }
 }
+
+/** World point or direction, mm. */
+type Vec3 = AutoMovieVector3Tuple;

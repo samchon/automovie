@@ -20,31 +20,8 @@ import { prepareJointProjectionClamp } from "./internal/prepareJointProjectionCl
 import { prepareJointProjectionScores } from "./internal/prepareJointProjectionScores";
 import { prepareJointRotationCoefficientDots } from "./internal/prepareJointRotationCoefficientDots";
 
-/** The three named clinical coordinates, all measured in degrees. */
-type ClinicalAxis = "flexion" | "abduction" | "twist";
-
 /** Fixed coordinate order used only for stable reference and tie bookkeeping. */
 const AXES: readonly ClinicalAxis[] = ["flexion", "abduction", "twist"];
-
-/**
- * One of two reusable general-query readings, with a separately owned raw
- * rotation.
- */
-interface IComposed {
-  /** Exact clinical coordinates from this query. */
-  joint: IAutoMovieJointPose;
-
-  /** Original joint composition, with its multiplication order unchanged. */
-  quaternion: IAutoMovieQuaternion;
-
-  /** Existing general-search objective, one minus the absolute dot. */
-  error: number;
-}
-
-/** Direct joint output, or the explicitly requested joint/raw-quaternion pair. */
-type IEvaluation =
-  | IAutoMovieJointPose
-  | AutoMovieEngineMotionJointProjection.IProjection;
 
 /** Exact composition key; null and signed zero remain different coordinates. */
 function sameJoint(a: IAutoMovieJointPose, b: IAutoMovieJointPose): boolean {
@@ -605,3 +582,26 @@ export namespace AutoMovieEngineMotionJointProjection {
     readonly chord?: ReturnType<typeof prepareCardinalWristChord>;
   }
 }
+
+/** The three named clinical coordinates, all measured in degrees. */
+type ClinicalAxis = "flexion" | "abduction" | "twist";
+
+/**
+ * One of two reusable general-query readings, with a separately owned raw
+ * rotation.
+ */
+interface IComposed {
+  /** Exact clinical coordinates from this query. */
+  joint: IAutoMovieJointPose;
+
+  /** Original joint composition, with its multiplication order unchanged. */
+  quaternion: IAutoMovieQuaternion;
+
+  /** Existing general-search objective, one minus the absolute dot. */
+  error: number;
+}
+
+/** Direct joint output, or the explicitly requested joint/raw-quaternion pair. */
+type IEvaluation =
+  | IAutoMovieJointPose
+  | AutoMovieEngineMotionJointProjection.IProjection;

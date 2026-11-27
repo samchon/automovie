@@ -25,33 +25,6 @@ import { ropeLine } from "./ropeLine";
 import { ropeSwingCourse } from "./ropeSwingCourse";
 
 /**
- * How far the landing may lie from the nearest reachable touchdown, metres
- * (provisional: within a step).
- */
-const TOLERANCE: number = 0.3;
-
-/** Seconds to absorb the landing into the stand (provisional). */
-const ABSORB: number = 0.35;
-
-/** Seconds the body takes to swing off the take-off onto the rope (provisional). */
-const STEP_OFF: number = 0.3;
-
-/** Release instants searched over the forward half swing. */
-const SAMPLES: number = 96;
-
-/** Which joints the first displayed hang solves for the rest of the swing. */
-const ARM_BONES: readonly AutoMovieHumanoidBone[] = [
-  "leftShoulder",
-  "leftUpperArm",
-  "leftLowerArm",
-  "leftHand",
-  "rightShoulder",
-  "rightUpperArm",
-  "rightLowerArm",
-  "rightHand",
-];
-
-/**
  * Swing on an upright rope and let go onto a landing. The body hangs from the
  * rope's anchor as a pendulum of radius `R`, the anchor-to-hips length at the
  * take-off: `theta(t) = theta0 cos(omega t)`, `omega = sqrt(g / R)` (the
@@ -312,6 +285,33 @@ export function ropeSwing(
     yields: [],
   };
 }
+
+/**
+ * How far the landing may lie from the nearest reachable touchdown, metres
+ * (provisional: within a step).
+ */
+const TOLERANCE: number = 0.3;
+
+/** Seconds to absorb the landing into the stand (provisional). */
+const ABSORB: number = 0.35;
+
+/** Seconds the body takes to swing off the take-off onto the rope (provisional). */
+const STEP_OFF: number = 0.3;
+
+/** Release instants searched over the forward half swing. */
+const SAMPLES: number = 96;
+
+/** Which joints the first displayed hang solves for the rest of the swing. */
+const ARM_BONES: readonly AutoMovieHumanoidBone[] = [
+  "leftShoulder",
+  "leftUpperArm",
+  "leftLowerArm",
+  "leftHand",
+  "rightShoulder",
+  "rightUpperArm",
+  "rightLowerArm",
+  "rightHand",
+];
 
 /** The chosen release. */
 interface IRelease {

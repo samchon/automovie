@@ -14,9 +14,6 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 
-/** The alternatives of `OfContext`'s site. */
-type OfContext = "body" | "entry";
-
 /**
  * Read the approach an event is entered from.
  *
@@ -173,3 +170,6 @@ export namespace AthleticsRunUp {
       : { ankle: { ...goal.point }, rotation: goal.rotation };
   }
 }
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "entry";

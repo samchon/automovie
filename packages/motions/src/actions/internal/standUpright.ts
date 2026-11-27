@@ -14,9 +14,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { walkRoot } from "./walkRoot";
 
-/** The record of `IBisectClosed`'s site. */
-type IBisectClosed = { low: number; high: number };
-
 /**
  * The alignment of a body, the body's own quiet-stance property
  * (`IAutoMovieMotionHumanBody.upright`), solved once by its record.
@@ -258,3 +255,6 @@ export namespace standUpright {
     return (closed.low + closed.high) / 2;
   }
 }
+
+/** The record of `IBisectClosed`'s site. */
+type IBisectClosed = { low: number; high: number };

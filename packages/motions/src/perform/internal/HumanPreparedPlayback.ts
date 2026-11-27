@@ -8,15 +8,6 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { PreparedHumanIntervals } from "./PreparedHumanIntervals";
 
-/** The plan a playback is bound to. */
-type Plan = IAutoMovieMotionHumanActionPlan;
-
-/** The plan's posture reader. */
-type Reader = Plan["posture"];
-
-/** Where placement put a plan. */
-type Where = IAutoMovieMotionHumanRefusal.IWhere;
-
 /** The prepared interval index belongs to the attached phase records. */
 const PHASE_READERS: WeakMap<
   readonly IAutoMovieMotionHumanPlayback.IPhase[],
@@ -205,3 +196,12 @@ export namespace HumanPreparedPlayback {
       : phase.sample(...args);
   }
 }
+
+/** The plan a playback is bound to. */
+type Plan = IAutoMovieMotionHumanActionPlan;
+
+/** The plan's posture reader. */
+type Reader = Plan["posture"];
+
+/** Where placement put a plan. */
+type Where = IAutoMovieMotionHumanRefusal.IWhere;

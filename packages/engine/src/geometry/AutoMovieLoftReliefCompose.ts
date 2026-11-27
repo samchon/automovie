@@ -7,9 +7,6 @@ import type {
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieLoftRelief } from "./AutoMovieLoftRelief";
 
-/** A fresh mutable world vector, in mm per the named derivative order. */
-type V = AutoMovieVector3Tuple;
-
 /**
  * Shared relief addition for native originals and existing chain consumers.
  * Each operation preserves the original consumer's arithmetic order. Height,
@@ -90,6 +87,9 @@ export namespace AutoMovieLoftReliefCompose {
     }
   }
 }
+
+/** A fresh mutable world vector, in mm per the named derivative order. */
+type V = AutoMovieVector3Tuple;
 
 /**
  * A retained collapsed pole requires every feature's value/first orders to

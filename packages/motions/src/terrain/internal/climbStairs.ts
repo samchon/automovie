@@ -155,9 +155,6 @@ export namespace climbStairs {
   /** The flight a set of parameters describes (`climbStairsFlight.flight`). */
   export const flight: typeof climbStairsFlight.flight =
     climbStairsFlight.flight;
-  /** The record of `IPrintsItemEntry`'s site. */
-  type IPrintsItemEntry = { print: IPrint; step: number };
-
   /**
    * Plan a climb.
    *
@@ -481,6 +478,9 @@ export namespace climbStairs {
       ),
     );
   }
+
+  /** The record of `IPrintsItemEntry`'s site. */
+  type IPrintsItemEntry = { print: IPrint; step: number };
 
   /** A footprint: the foot's placement and the tread it is on, 0 for the floor. */
   type IPrint = climbStairsPrints.IPrint;

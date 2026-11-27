@@ -72,16 +72,10 @@ export const HumanLasso: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLas
     plan: planHumanLasso,
   };
 
-/** The law's context. */
-type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLasso>;
-/** The alternatives of `SWINGEntryItem`'s site. */
-type SWINGEntryItem = "radius" | "throw" | "wrap" | "turn";
-
 /** Admit the throw, lay the swing and the launch, then sample. */
 function planHumanLasso(context: Context): IAutoMovieMotionHumanActionPlan {
   return plan(context);
 }
-
 /** Admit, lay the circle and the launch, and sample. */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const params: IAutoMovieMotionHumanLasso = context.params;
@@ -407,3 +401,9 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       }),
   );
 }
+
+/** The law's context. */
+type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLasso>;
+
+/** The alternatives of `SWINGEntryItem`'s site. */
+type SWINGEntryItem = "radius" | "throw" | "wrap" | "turn";

@@ -15,56 +15,8 @@ import { HumanBodyFitMerit } from "./HumanBodyFitMerit";
 import type { HumanBodyFitRows } from "./HumanBodyFitRows";
 import { HumanJacobian } from "./HumanJacobian";
 
-/** A fixed scene shape and the geometry shared by the fit's trial poses. */
-interface IObstacle {
-  /** Stable ordinal of the shape in the supplied scene. */
-  index: number;
-
-  /** The owning subject in the scene. */
-  subject: string;
-
-  /** The material part of that subject. */
-  part: string;
-
-  /** The world frame and its shape. */
-  pose: IAutoMovieRigidTransform;
-
-  /** The actual physical shape in that frame. */
-  shape: IAutoMoviePhysicalShape;
-
-  /** World axis bounds for conservative influence filtering. */
-  bounds: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds>;
-
-  /** The fixed world core and radius used for GJK. */
-  solid: AutoMovieEnginePhysicsGjkTypes.ISolid;
-}
-
-/** The parts of a fit step that write a row from a measured gap. */
-type ExteriorStep = "motions" | "units" | "index" | "price";
-
 /** The midpoint of the accepted nonpenetrating contact interval, metres. */
 const HELD_GOAL: number = HumanBodyFitMerit.REQUIRED_TOLERANCE / 2;
-
-/** A designated collider and the groups whose minima it can supply. */
-interface IHeldMember {
-  groups: number[];
-  obstacle: IObstacle;
-}
-
-/** One prepared group, irrespective of the order the caller named its bones. */
-type IHeldGroup = Pick<
-  IAutoMovieMotionHumanBodyFitTypes.IExteriorContact,
-  "subject" | "part"
-> & {
-  /** Each of the distinct bones allowed to carry the contact. */
-  bones: ReadonlySet<AutoMovieHumanoidBone>;
-};
-
-/** Contact declarations indexed by the moving bone and material shape. */
-interface IHeld {
-  groups: IHeldGroup[];
-  bones: Map<AutoMovieHumanoidBone, Map<number, IHeldMember>>;
-}
 
 /**
  * Signed separation between actual posed body and fixed exterior colliders.
@@ -352,4 +304,52 @@ function measurePair(
       obstacle.shape,
     ),
   };
+}
+
+/** A fixed scene shape and the geometry shared by the fit's trial poses. */
+interface IObstacle {
+  /** Stable ordinal of the shape in the supplied scene. */
+  index: number;
+
+  /** The owning subject in the scene. */
+  subject: string;
+
+  /** The material part of that subject. */
+  part: string;
+
+  /** The world frame and its shape. */
+  pose: IAutoMovieRigidTransform;
+
+  /** The actual physical shape in that frame. */
+  shape: IAutoMoviePhysicalShape;
+
+  /** World axis bounds for conservative influence filtering. */
+  bounds: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds>;
+
+  /** The fixed world core and radius used for GJK. */
+  solid: AutoMovieEnginePhysicsGjkTypes.ISolid;
+}
+
+/** The parts of a fit step that write a row from a measured gap. */
+type ExteriorStep = "motions" | "units" | "index" | "price";
+
+/** A designated collider and the groups whose minima it can supply. */
+interface IHeldMember {
+  groups: number[];
+  obstacle: IObstacle;
+}
+
+/** One prepared group, irrespective of the order the caller named its bones. */
+type IHeldGroup = Pick<
+  IAutoMovieMotionHumanBodyFitTypes.IExteriorContact,
+  "subject" | "part"
+> & {
+  /** Each of the distinct bones allowed to carry the contact. */
+  bones: ReadonlySet<AutoMovieHumanoidBone>;
+};
+
+/** Contact declarations indexed by the moving bone and material shape. */
+interface IHeld {
+  groups: IHeldGroup[];
+  bones: Map<AutoMovieHumanoidBone, Map<number, IHeldMember>>;
 }

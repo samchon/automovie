@@ -20,9 +20,6 @@ import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { handoverCases } from "./handoverCases";
 import { handshakeCases } from "./handshakeCases";
 
-/** The alternatives of `HandlingCasesFamily`'s site. */
-type HandlingCasesFamily = "handshake" | "grasp" | "handover";
-
 /**
  * Capture cases of the handling laws on the polygon man, for what the numeric
  * tests cannot show: whether a reach reads as reaching for a hand, whether the
@@ -429,3 +426,6 @@ export function handlingCases(
     out.push(...handoverCases());
   return out;
 }
+
+/** The alternatives of `HandlingCasesFamily`'s site. */
+type HandlingCasesFamily = "handshake" | "grasp" | "handover";

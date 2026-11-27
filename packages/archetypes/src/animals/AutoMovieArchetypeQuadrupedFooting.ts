@@ -29,8 +29,6 @@ const SIDES: readonly IAutoMovieQuaternion[] = [
   Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
 ];
 
-type Interval = readonly [number, number];
-
 /** Authored world footing evaluated against emitted rigid parts. */
 export namespace AutoMovieArchetypeQuadrupedFooting {
   /** One bounded world plane, with slopes specified separately along +X and +Z. */
@@ -435,3 +433,5 @@ function lowest(
     cells,
   );
 }
+
+type Interval = readonly [number, number];

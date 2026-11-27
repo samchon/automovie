@@ -9,31 +9,6 @@ import type {
 import { AutoMovieConstructionPortField as Field } from "./AutoMovieConstructionPortField";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-/** World point or derivative, mm. */
-type Vec3 = AutoMovieVector3Tuple;
-
-/** A chart point or chart derivative. */
-type V2 = [number, number];
-
-/**
- * A chart curve's point with its first and second derivatives in the band's
- * clock.
- */
-interface ICurve2 {
-  p: V2;
-  d1: V2;
-  d2: V2;
-}
-
-/** A field's 2-jet in its cross parameter `s` and the band's clock `v`. */
-interface IJet2 {
-  p: Vec3;
-  s: Vec3;
-  v: Vec3;
-  ss: Vec3;
-  sv: Vec3;
-  vv: Vec3;
-}
 const { combine, norm, sub }: typeof AutoMovieSolidVector =
   AutoMovieSolidVector;
 
@@ -562,4 +537,29 @@ export namespace AutoMovieConstructionPortBand {
   function scale(a: Vec3, k: number): Vec3 {
     return [a[0] * k, a[1] * k, a[2] * k];
   }
+}
+
+/** World point or derivative, mm. */
+type Vec3 = AutoMovieVector3Tuple;
+
+/** A chart point or chart derivative. */
+type V2 = [number, number];
+/**
+ * A chart curve's point with its first and second derivatives in the band's
+ * clock.
+ */
+interface ICurve2 {
+  p: V2;
+  d1: V2;
+  d2: V2;
+}
+
+/** A field's 2-jet in its cross parameter `s` and the band's clock `v`. */
+interface IJet2 {
+  p: Vec3;
+  s: Vec3;
+  v: Vec3;
+  ss: Vec3;
+  sv: Vec3;
+  vv: Vec3;
 }

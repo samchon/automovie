@@ -55,18 +55,6 @@ const NOSTRILS: ReadonlySet<string> = new Set<string>([
   "rightNostril",
 ]);
 
-/** The nostril flare's authored shape. */
-interface IFlare {
-  /** Breaths per minute at which a breath flares the nostrils fully. */
-  rate: number;
-
-  /** The widening of a full flare, a fraction of the nostril's radius. */
-  widen: number;
-}
-
-/** A named instant of a ride. */
-type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
-
 /**
  * An equid's breathing, a layer over any of its rides: the barrel's displayed
  * girth swells and shrinks with each breath and the nostrils flare, the rider's
@@ -367,3 +355,15 @@ export namespace AutoMovieArchetypeEquineBreathing {
     return sorted;
   }
 }
+
+/** The nostril flare's authored shape. */
+interface IFlare {
+  /** Breaths per minute at which a breath flares the nostrils fully. */
+  rate: number;
+
+  /** The widening of a full flare, a fraction of the nostril's radius. */
+  widen: number;
+}
+
+/** A named instant of a ride. */
+type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];

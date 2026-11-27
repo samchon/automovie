@@ -19,86 +19,6 @@ import { validatePropAffordanceTarget } from "./validatePropAffordanceTarget";
 import { validatePropPlacementGeometry } from "./validatePropPlacementGeometry";
 import { validatePropSupportCycles } from "./validatePropSupportCycles";
 
-/** A borrowed registry record and its original authored diagnostic position. */
-interface IIndexed<Value> {
-  /** Borrowed record from the registry bucket. */
-  value: Value;
-
-  /** Original declaration position named by duplicate and relation findings. */
-  index: number;
-}
-
-type Environments = ReadonlyMap<
-  string,
-  readonly IIndexed<IAutoMovieBuiltEnvironment>[]
->;
-
-type Props = ReadonlyMap<string, readonly IIndexed<IAutoMoviePropSpec>[]>;
-
-type GeometryEntry = [
-  {
-    /**
-     * Every registry entry in declaration order, with what the registry gate
-     * resolved for it.
-     */
-    entries: readonly {
-      /** The registry's prop. */
-      prop: IAutoMoviePropSpec;
-
-      /** Its index in the registry, for violation paths. */
-      index: number;
-
-      /** The one set piece staging it, or `undefined` when zero or several do. */
-      piece: IAutoMovieStageSetPiece | undefined;
-
-      /** Whether `forgeProp` accepted it. */
-      forged: boolean;
-
-      /** Whether its node is declared once. */
-      unique: boolean;
-
-      /** The uniquely declared environment of its `in-space` target, or `null`. */
-      located: IAutoMovieBuiltEnvironment | null;
-    }[];
-
-    /** Built environments by id, holding only ids declared exactly once. */
-    environments: ReadonlyMap<string, IAutoMovieBuiltEnvironment>;
-
-    /** Collector the violations are appended to. */
-    out: IAutoMovieViolationCollector;
-  },
-][0]["entries"][number];
-
-type BuildingTarget = Exclude<
-  IAutoMoviePropRelationTarget,
-  IAutoMoviePropRelationTarget.IPropAffordance
->;
-
-/** Which target kinds each relation kind accepts. */
-const RELATION_TARGETS: Readonly<
-  Record<
-    IAutoMoviePropRelation["kind"],
-    readonly IAutoMoviePropRelationTarget["kind"][]
-  >
-> = {
-  "in-space": ["space"],
-  "on-support": ["surface", "prop-affordance"],
-  "against-boundary": ["boundary"],
-  "fill-opening": ["opening"],
-  attached: ["element", "prop-affordance"],
-  suspended: ["element", "prop-affordance"],
-};
-
-/** How a building target kind is named in a refusal. */
-const BUILDING_TARGET_LABELS: Readonly<Record<BuildingTarget["kind"], string>> =
-  {
-    space: "logical space",
-    element: "building element",
-    boundary: "boundary",
-    opening: "opening",
-    surface: "support surface",
-  };
-
 /**
  * Validate a source-owned prop registry, its unique staged join, its typed
  * building relations, its support graph, the bearing of every prop on the face
@@ -219,6 +139,86 @@ export function validatePropPlacements(
   validatePropPlacementGeometry({ entries, environments: unique, out });
   return out.toValidation();
 }
+
+/** A borrowed registry record and its original authored diagnostic position. */
+interface IIndexed<Value> {
+  /** Borrowed record from the registry bucket. */
+  value: Value;
+
+  /** Original declaration position named by duplicate and relation findings. */
+  index: number;
+}
+
+type Environments = ReadonlyMap<
+  string,
+  readonly IIndexed<IAutoMovieBuiltEnvironment>[]
+>;
+
+type Props = ReadonlyMap<string, readonly IIndexed<IAutoMoviePropSpec>[]>;
+
+type GeometryEntry = [
+  {
+    /**
+     * Every registry entry in declaration order, with what the registry gate
+     * resolved for it.
+     */
+    entries: readonly {
+      /** The registry's prop. */
+      prop: IAutoMoviePropSpec;
+
+      /** Its index in the registry, for violation paths. */
+      index: number;
+
+      /** The one set piece staging it, or `undefined` when zero or several do. */
+      piece: IAutoMovieStageSetPiece | undefined;
+
+      /** Whether `forgeProp` accepted it. */
+      forged: boolean;
+
+      /** Whether its node is declared once. */
+      unique: boolean;
+
+      /** The uniquely declared environment of its `in-space` target, or `null`. */
+      located: IAutoMovieBuiltEnvironment | null;
+    }[];
+
+    /** Built environments by id, holding only ids declared exactly once. */
+    environments: ReadonlyMap<string, IAutoMovieBuiltEnvironment>;
+
+    /** Collector the violations are appended to. */
+    out: IAutoMovieViolationCollector;
+  },
+][0]["entries"][number];
+
+type BuildingTarget = Exclude<
+  IAutoMoviePropRelationTarget,
+  IAutoMoviePropRelationTarget.IPropAffordance
+>;
+
+/** Which target kinds each relation kind accepts. */
+const RELATION_TARGETS: Readonly<
+  Record<
+    IAutoMoviePropRelation["kind"],
+    readonly IAutoMoviePropRelationTarget["kind"][]
+  >
+> = {
+  "in-space": ["space"],
+  "on-support": ["surface", "prop-affordance"],
+  "against-boundary": ["boundary"],
+  "fill-opening": ["opening"],
+  attached: ["element", "prop-affordance"],
+  suspended: ["element", "prop-affordance"],
+};
+
+/** How a building target kind is named in a refusal. */
+const BUILDING_TARGET_LABELS: Readonly<Record<BuildingTarget["kind"], string>> =
+  {
+    space: "logical space",
+    element: "building element",
+    boundary: "boundary",
+    opening: "opening",
+    surface: "support surface",
+  };
 
 /**
  * The environment a prop's `in-space` relation names, when declared exactly

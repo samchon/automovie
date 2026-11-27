@@ -1,9 +1,6 @@
 import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 import { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace";
 
-/** The alternatives of `HumanQuadraticResidualsKnown`'s site. */
-type HumanQuadraticResidualsKnown = "rows" | "transpose";
-
 /**
  * The original scaled and unscaled OSQP residuals and normalization values.
  *
@@ -84,3 +81,6 @@ export function HumanQuadraticResiduals(
   }
   return out;
 }
+
+/** The alternatives of `HumanQuadraticResidualsKnown`'s site. */
+type HumanQuadraticResidualsKnown = "rows" | "transpose";

@@ -324,28 +324,6 @@ export namespace AutoMovieSolidRailSolve {
     return fail("the Newton iterations ran out", { steps });
   }
 
-  /** Unit-world-speed projection of the original kept-side direction. */
-  function project(
-    j: IAutoMovieSolidSurface.IJet,
-    world: Readonly<AutoMovieVector3Tuple>,
-  ): [number, number] | null {
-    const d: [number, number] | null = AutoMovieSolidVector.solve2(
-      dot(j.u, j.u),
-      dot(j.u, j.v),
-      dot(j.u, j.v),
-      dot(j.v, j.v),
-      [dot(j.u, world), dot(j.v, world)],
-    );
-    if (d === null) return null;
-    const speed: number = norm(
-      combine([
-        [d[0], j.u],
-        [d[1], j.v],
-      ]),
-    );
-    return speed > 0 ? [d[0] / speed, d[1] / speed] : null;
-  }
-
   /** Settle a positive-width normal section from a regional chart guess. */
   export function section(
     surface: IAutoMovieSolidSurface,
@@ -437,5 +415,27 @@ export namespace AutoMovieSolidRailSolve {
       if (converged) return along(l) === null ? null : l;
     }
     return null;
+  }
+
+  /** Unit-world-speed projection of the original kept-side direction. */
+  function project(
+    j: IAutoMovieSolidSurface.IJet,
+    world: Readonly<AutoMovieVector3Tuple>,
+  ): [number, number] | null {
+    const d: [number, number] | null = AutoMovieSolidVector.solve2(
+      dot(j.u, j.u),
+      dot(j.u, j.v),
+      dot(j.u, j.v),
+      dot(j.v, j.v),
+      [dot(j.u, world), dot(j.v, world)],
+    );
+    if (d === null) return null;
+    const speed: number = norm(
+      combine([
+        [d[0], j.u],
+        [d[1], j.v],
+      ]),
+    );
+    return speed > 0 ? [d[0] / speed, d[1] / speed] : null;
   }
 }

@@ -12,33 +12,6 @@ import { HumanLinkCertificate } from "../../posture/internal/HumanLinkCertificat
 import { AutoMovieMotionHumanAuditTangleModel as M } from "./AutoMovieMotionHumanAuditTangleModel";
 import { prepareAutoMovieMotionHumanAuditDepths } from "./prepareAutoMovieMotionHumanAuditDepths";
 
-/** The record of `IAcrossResult`'s site. */
-type IAcrossResult = { depth: number; base: number };
-
-/** The record of `IOwnResult`'s site. */
-type IOwnResult = { excess: number; base: number };
-
-/** The record of `IEnteringReading`'s site. */
-type IEnteringReading = { depth: number; base: number };
-
-/** The record of `IEnteringRead`'s site. */
-type IEnteringRead = {
-  due: (index: number) => boolean;
-  heard: (index: number, base: number, apart: boolean, depth: number) => void;
-};
-
-/** The record of `IWithinBackward`'s site. */
-type IWithinBackward = { excess: number; base: number };
-
-/** The record of `IWithinForward`'s site. */
-type IWithinForward = { excess: number; base: number };
-
-/** The record of `IWithinRead`'s site. */
-type IWithinRead = {
-  due: (index: number) => boolean;
-  heard: (index: number, base: number, apart: boolean, depth: number) => void;
-};
-
 /**
  * What lets the penetration audits (`AutoMovieMotionHumanAuditTangle` of one
  * body, `AutoMovieMotionHumanAuditPartner` of two) leave a pair of segments
@@ -370,3 +343,30 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
     return out;
   }
 }
+
+/** The record of `IAcrossResult`'s site. */
+type IAcrossResult = { depth: number; base: number };
+
+/** The record of `IOwnResult`'s site. */
+type IOwnResult = { excess: number; base: number };
+
+/** The record of `IEnteringReading`'s site. */
+type IEnteringReading = { depth: number; base: number };
+
+/** The record of `IEnteringRead`'s site. */
+type IEnteringRead = {
+  due: (index: number) => boolean;
+  heard: (index: number, base: number, apart: boolean, depth: number) => void;
+};
+
+/** The record of `IWithinBackward`'s site. */
+type IWithinBackward = { excess: number; base: number };
+
+/** The record of `IWithinForward`'s site. */
+type IWithinForward = { excess: number; base: number };
+
+/** The record of `IWithinRead`'s site. */
+type IWithinRead = {
+  due: (index: number) => boolean;
+  heard: (index: number, base: number, apart: boolean, depth: number) => void;
+};

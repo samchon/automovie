@@ -9,21 +9,6 @@ import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
 import { AutoMovieViewSection } from "./AutoMovieViewSection";
 
 /**
- * The cap's actual active domain and small complementary weight survive rounded
- * values.
- */
-interface CapReading {
-  /** Weight value and its actual physical station derivatives. */
-  jet: IAutoMovieViewSectionField.IStationJet;
-
-  /** Independently evaluated one-minus-weight, including beside the pole. */
-  complement: number;
-
-  /** A source-support decision, never inferred from a rounded primal weight. */
-  active: boolean;
-}
-
-/**
  * Original scalar values and qualified physical jets for native view
  * evaluation.
  */
@@ -235,6 +220,21 @@ export namespace AutoMovieLoftViewRead {
       return fault(station, error);
     }
   }
+}
+
+/**
+ * The cap's actual active domain and small complementary weight survive rounded
+ * values.
+ */
+interface CapReading {
+  /** Weight value and its actual physical station derivatives. */
+  jet: IAutoMovieViewSectionField.IStationJet;
+
+  /** Independently evaluated one-minus-weight, including beside the pole. */
+  complement: number;
+
+  /** A source-support decision, never inferred from a rounded primal weight. */
+  active: boolean;
 }
 
 /**

@@ -21,35 +21,6 @@ const SPARS: string = "#989c9e";
 const FLOOR: number = 0.02;
 const MAIN_AREA: number = 5.5;
 
-type Build = AutoMovieArchetypeBuilder<
-  AutoMovieArchetypeDinghy.Affordance,
-  AutoMovieArchetypeDinghy.Dimension
->;
-
-/**
- * One transverse hull section: its station along +Z, half-beam at the rim and
- * keel height, metres.
- */
-interface ISection {
-  /** Station along the hull, metres from midships. */
-  z: number;
-
-  /** Half-beam at the sheer, metres. */
-  half: number;
-
-  /** Keel height relative to the waterline, metres. */
-  keel: number;
-}
-
-/** A section's inner and outer skin outlines, port to starboard. */
-interface IRing {
-  /** Inner skin points. */
-  inner: IAutoMovieVector3[];
-
-  /** Outer skin points. */
-  outer: IAutoMovieVector3[];
-}
-
 /** The canonical producer and authoring contract for a sailing dinghy. */
 export namespace AutoMovieArchetypeDinghy {
   /**
@@ -414,4 +385,33 @@ function helm(builder: Build, length: number): void {
     length: 0.5,
     rides: "extensionLift",
   });
+}
+
+type Build = AutoMovieArchetypeBuilder<
+  AutoMovieArchetypeDinghy.Affordance,
+  AutoMovieArchetypeDinghy.Dimension
+>;
+
+/**
+ * One transverse hull section: its station along +Z, half-beam at the rim and
+ * keel height, metres.
+ */
+interface ISection {
+  /** Station along the hull, metres from midships. */
+  z: number;
+
+  /** Half-beam at the sheer, metres. */
+  half: number;
+
+  /** Keel height relative to the waterline, metres. */
+  keel: number;
+}
+
+/** A section's inner and outer skin outlines, port to starboard. */
+interface IRing {
+  /** Inner skin points. */
+  inner: IAutoMovieVector3[];
+
+  /** Outer skin points. */
+  outer: IAutoMovieVector3[];
 }

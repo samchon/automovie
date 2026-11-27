@@ -131,15 +131,6 @@ export namespace placeOverHeadPath {
     assistUntil?: number;
   }
 
-  /** One key frame and the loop point it pivots on into the next. */
-  interface IKey {
-    /** The loop's world frame. */
-    frame: IAutoMovieRigidTransform;
-
-    /** The loop point, in its own frame, the segment from this key pivots on. */
-    pivot: IAutoMovieVector3;
-  }
-
   /**
    * The terminal angle at or below the material's fall that leaves both hands
    * the audit skin's distance from the partner. Probe upward from the preferred
@@ -217,33 +208,6 @@ export namespace placeOverHeadPath {
       );
     };
     return gap(0) >= minimum && gap(1) >= minimum && check(0, 1);
-  }
-
-  /** Check a translation of the pivot combined with the shortest rotation. */
-  function clear(a: IKey, b: IKey, sweep: ISweep): boolean {
-    const travel: number =
-      Vector3.distance(pivotOf(a.frame, a.pivot), pivotOf(b.frame, a.pivot)) +
-      sweep.radius(a.pivot) *
-        Quaternion.angle(a.frame.rotation, b.frame.rotation);
-    return clearsSweep(
-      (share: number): number => sweep.gap(between(a, b, share)),
-      travel,
-      AutoMovieMotionHumanAuditSkin.BUILT,
-    );
-  }
-
-  /** The carrier slides the released loop forward as its front descends. */
-  function carriedFall(
-    neck: IKey,
-    limit: number,
-    atFall: (degrees: number) => IAutoMovieRigidTransform,
-    carrier: ISweep,
-  ): number | undefined {
-    for (let degrees: number = limit; ; degrees = Math.max(0, degrees - STEP)) {
-      if (clear(neck, { frame: atFall(degrees), pivot: neck.pivot }, carrier))
-        return degrees;
-      if (degrees === 0) return undefined;
-    }
   }
 
   /**
@@ -425,6 +389,42 @@ export namespace placeOverHeadPath {
         return worn;
       },
     };
+  }
+
+  /** One key frame and the loop point it pivots on into the next. */
+  interface IKey {
+    /** The loop's world frame. */
+    frame: IAutoMovieRigidTransform;
+
+    /** The loop point, in its own frame, the segment from this key pivots on. */
+    pivot: IAutoMovieVector3;
+  }
+
+  /** Check a translation of the pivot combined with the shortest rotation. */
+  function clear(a: IKey, b: IKey, sweep: ISweep): boolean {
+    const travel: number =
+      Vector3.distance(pivotOf(a.frame, a.pivot), pivotOf(b.frame, a.pivot)) +
+      sweep.radius(a.pivot) *
+        Quaternion.angle(a.frame.rotation, b.frame.rotation);
+    return clearsSweep(
+      (share: number): number => sweep.gap(between(a, b, share)),
+      travel,
+      AutoMovieMotionHumanAuditSkin.BUILT,
+    );
+  }
+
+  /** The carrier slides the released loop forward as its front descends. */
+  function carriedFall(
+    neck: IKey,
+    limit: number,
+    atFall: (degrees: number) => IAutoMovieRigidTransform,
+    carrier: ISweep,
+  ): number | undefined {
+    for (let degrees: number = limit; ; degrees = Math.max(0, degrees - STEP)) {
+      if (clear(neck, { frame: atFall(degrees), pivot: neck.pivot }, carrier))
+        return degrees;
+      if (degrees === 0) return undefined;
+    }
   }
 
   /** The same uniform motion is used by the certificate and the path. */

@@ -3,15 +3,6 @@ import type { IAutoMovieQuaternion } from "@automovie/interface";
 import { Quaternion } from "../../math/Quaternion";
 import { ROM_TOLERANCE } from "../../rom/ROM_TOLERANCE";
 
-/** Lower bound over a closed swivel interval in degrees. */
-type IntervalBound = (low: number, high: number) => number;
-
-/** The branch's upper orientation at a swivel angle in degrees. */
-type UpperRotation = (swivel: number) => IAutoMovieQuaternion;
-
-/** A missing upper reference gives zero upper reference cost. */
-type Reference = IAutoMovieQuaternion | null;
-
 /**
  * Add the reference pose's geodesic distance bound to an existing hinge branch
  * bound.
@@ -53,3 +44,12 @@ export function hingedReferenceInterval(
     return geometric(low, high) + weight * (minimum + lower);
   };
 }
+
+/** Lower bound over a closed swivel interval in degrees. */
+type IntervalBound = (low: number, high: number) => number;
+
+/** The branch's upper orientation at a swivel angle in degrees. */
+type UpperRotation = (swivel: number) => IAutoMovieQuaternion;
+
+/** A missing upper reference gives zero upper reference cost. */
+type Reference = IAutoMovieQuaternion | null;

@@ -17,18 +17,6 @@ import { AutoMovieMotionHumanBendSide } from "./AutoMovieMotionHumanBendSide";
 import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain";
 import { AutoMovieMotionHumanBendSweep } from "./AutoMovieMotionHumanBendSweep";
 
-/** The alternatives of `PrepareGoal`'s site. */
-type PrepareGoal = "point" | "rotation";
-
-/** The alternatives of `PrepareGoalResult`'s site. */
-type PrepareGoalResult = "point" | "rotation";
-
-/** The alternatives of `PrepareProps`'s site. */
-type PrepareProps = "body" | "posture" | "side";
-
-/** The alternatives of `ContinuedProps`'s site. */
-type ContinuedProps = "body" | "posture" | "side" | "point" | "rotation";
-
 /**
  * The elbow search of `AutoMovieMotionHumanBend`: the swivel sweep of a hand
  * goal's elbow over its circle, each place read for its joints' overshoot, the
@@ -192,21 +180,6 @@ export namespace AutoMovieMotionHumanBendSearch {
         (): IAutoMovieQuaternion => lowerWorld,
       );
   }
-  /** The alternatives of `ContinuedResult2`'s site. */
-  type ContinuedResult2 = IContinuedResult2 | string;
-
-  /** The record of `IContinuedResult2`'s site. */
-  type IContinuedResult2 = {
-    candidate: ICandidate;
-    seed: IAutoMovieSwivelSeed;
-  };
-
-  /** The alternatives of `ContinuedResult`'s site. */
-  type ContinuedResult = IContinuedResult | string;
-
-  /** The record of `IContinuedResult`'s site. */
-  type IContinuedResult = { candidate: ICandidate; seed: IAutoMovieSwivelSeed };
-
   /**
    * `AutoMovieMotionHumanBend.solve`'s search with the seed it was chosen at,
    * on one request's trunk prepared once: cold, or continued from a nearby
@@ -299,8 +272,6 @@ export namespace AutoMovieMotionHumanBendSearch {
       )?.candidate.angles ?? null
     );
   }
-  /** The alternatives of `SearchResult`'s site. */
-  type SearchResult = ICandidate | string;
 
   /**
    * The search `solve` and `strain` share: prepares the chain, refuses a wrist
@@ -320,11 +291,6 @@ export namespace AutoMovieMotionHumanBendSearch {
   ): SearchResult {
     return prepare(props)(props, rank);
   }
-  /** The alternatives of `PrepareResult2`'s site. */
-  type PrepareResult2 = ICandidate | string;
-
-  /** The alternatives of `PrepareResult`'s site. */
-  type PrepareResult = ICandidate | string;
 
   /**
    * Prepare one unchanged body's trunk/side for actual differently ranked
@@ -371,4 +337,38 @@ export namespace AutoMovieMotionHumanBendSearch {
       );
     };
   }
+
+  /** The alternatives of `ContinuedResult2`'s site. */
+  type ContinuedResult2 = IContinuedResult2 | string;
+
+  /** The record of `IContinuedResult2`'s site. */
+  type IContinuedResult2 = {
+    candidate: ICandidate;
+    seed: IAutoMovieSwivelSeed;
+  };
+  /** The alternatives of `ContinuedResult`'s site. */
+  type ContinuedResult = IContinuedResult | string;
+
+  /** The record of `IContinuedResult`'s site. */
+  type IContinuedResult = { candidate: ICandidate; seed: IAutoMovieSwivelSeed };
+  /** The alternatives of `SearchResult`'s site. */
+  type SearchResult = ICandidate | string;
+
+  /** The alternatives of `PrepareResult2`'s site. */
+  type PrepareResult2 = ICandidate | string;
+
+  /** The alternatives of `PrepareResult`'s site. */
+  type PrepareResult = ICandidate | string;
 }
+
+/** The alternatives of `PrepareGoal`'s site. */
+type PrepareGoal = "point" | "rotation";
+
+/** The alternatives of `PrepareGoalResult`'s site. */
+type PrepareGoalResult = "point" | "rotation";
+
+/** The alternatives of `PrepareProps`'s site. */
+type PrepareProps = "body" | "posture" | "side";
+
+/** The alternatives of `ContinuedProps`'s site. */
+type ContinuedProps = "body" | "posture" | "side" | "point" | "rotation";

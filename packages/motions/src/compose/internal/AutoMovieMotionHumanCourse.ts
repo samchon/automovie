@@ -5,12 +5,6 @@ import { HumanBalance } from "../../everyday/internal/HumanBalance";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 
-/** The record of `ISolveResult`'s site. */
-type ISolveResult = { knots: number[]; count: number; dt: number };
-
-/** The record of `ISolve`'s site. */
-type ISolve = { knots: number[]; count: number; dt: number };
-
 /**
  * The course of the hips along a heading that keeps a body's extrapolated
  * centre of mass on a target while its feet move.
@@ -150,3 +144,9 @@ export namespace AutoMovieMotionHumanCourse {
     };
   }
 }
+
+/** The record of `ISolveResult`'s site. */
+type ISolveResult = { knots: number[]; count: number; dt: number };
+
+/** The record of `ISolve`'s site. */
+type ISolve = { knots: number[]; count: number; dt: number };

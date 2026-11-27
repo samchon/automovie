@@ -15,6 +15,53 @@ import { buildTennisRacketHead } from "./internal/buildTennisRacketHead";
 
 /** Canonical producer and authoring contract for Racket. */
 export namespace AutoMovieArchetypeRacket {
+  /** The kinds. */
+  export type Kind =
+    | "tennis"
+    | "badminton"
+    | "squash"
+    | "tableTennis"
+    | "padel";
+  /**
+   * The affordance ids:
+   *
+   * - `grip`: the handle, taken from `-Z`, its length along the racket.
+   * - `face`: the hitting face toward `+Z`, as wide and as long as the head, its
+   *   `+X` across the head.
+   * - `sweetSpot`: the head's centre on the racket's axis, its `+Y` along the
+   *   racket.
+   */
+  export type Affordance = "grip" | "face" | "sweetSpot";
+
+  /**
+   * The free dimensions, metres unless stated:
+   *
+   * - `length`: from the butt to the head's top.
+   * - `headWidth`, `headLength`: the head across and along.
+   * - `handleLength`: the handle from the butt.
+   * - `gripDiameter`: the handle's.
+   * - `mass`: kilograms.
+   */
+  export type Dimension =
+    | "length"
+    | "headWidth"
+    | "headLength"
+    | "handleLength"
+    | "gripDiameter"
+    | "mass";
+
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Which racket. */
+    kind: Kind;
+
+    /** The model's id, unique in a scene; `racket` when absent. */
+    id?: string;
+  }
+
   /**
    * A tennis, badminton, squash or padel racket, or a table tennis bat.
    *
@@ -151,13 +198,6 @@ export namespace AutoMovieArchetypeRacket {
     });
     return builder.build(d.mass);
   }
-  /** The kinds. */
-  export type Kind =
-    | "tennis"
-    | "badminton"
-    | "squash"
-    | "tableTennis"
-    | "padel";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
@@ -201,34 +241,6 @@ export namespace AutoMovieArchetypeRacket {
     padel: "#383f4e",
   };
 
-  /**
-   * The affordance ids:
-   *
-   * - `grip`: the handle, taken from `-Z`, its length along the racket.
-   * - `face`: the hitting face toward `+Z`, as wide and as long as the head, its
-   *   `+X` across the head.
-   * - `sweetSpot`: the head's centre on the racket's axis, its `+Y` along the
-   *   racket.
-   */
-  export type Affordance = "grip" | "face" | "sweetSpot";
-
-  /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `length`: from the butt to the head's top.
-   * - `headWidth`, `headLength`: the head across and along.
-   * - `handleLength`: the handle from the butt.
-   * - `gripDiameter`: the handle's.
-   * - `mass`: kilograms.
-   */
-  export type Dimension =
-    | "length"
-    | "headWidth"
-    | "headLength"
-    | "handleLength"
-    | "gripDiameter"
-    | "mass";
-
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
@@ -240,18 +252,6 @@ export namespace AutoMovieArchetypeRacket {
     gripDiameter: "m",
     mass: "kg",
   };
-
-  /**
-   * The parameters: the kind, and any free dimension fixed to a value inside
-   * its band.
-   */
-  export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which racket. */
-    kind: Kind;
-
-    /** The model's id, unique in a scene; `racket` when absent. */
-    id?: string;
-  }
 
   /** A band in metres. */
   const m = (

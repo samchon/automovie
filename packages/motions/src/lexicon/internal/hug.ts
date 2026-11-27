@@ -3,15 +3,6 @@ import type {
   IAutoMovieMotionHumanTouch,
 } from "@automovie/interface";
 
-/** The alternatives of `CastEntryItem`'s site. */
-type CastEntryItem = "one" | "other";
-
-/** The alternatives of `HugRole`'s site. */
-type HugRole = "one" | "other";
-
-/** The alternatives of `Hug`'s site. */
-type Hug = "one" | "other";
-
 /**
  * A criss-cross hug between closely staged, facing partners with their heads
  * offset. Each right arm reaches around the partner's shoulder to the upper
@@ -51,3 +42,12 @@ export const hug: IAutoMovieMotionHumanMutual<
     };
   },
 };
+
+/** The alternatives of `CastEntryItem`'s site. */
+type CastEntryItem = "one" | "other";
+
+/** The alternatives of `HugRole`'s site. */
+type HugRole = "one" | "other";
+
+/** The alternatives of `Hug`'s site. */
+type Hug = "one" | "other";

@@ -14,89 +14,6 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** The law asks about both actual wrist positions in the seat's entry world. */
-type CurrentSeat = () => IAutoMovieRigidTransform | undefined;
-
-/** Each check can confirm a moving seat in the same reference frame. */
-type Check = (
-  left: IAutoMovieVector3,
-  right: IAutoMovieVector3,
-  placed?: CurrentSeat,
-) => void;
-
-/** A rig or seat without the necessary articulated frame gives no exclusion. */
-type OptionalCheck = Check | undefined;
-
-const X: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-const Z: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
-const RAD: number = Math.PI / 180;
-
-/** Clamp normalized dot products at the endpoints of the inverse cosine. */
-function angle(dot: number): number {
-  return Math.acos(Math.max(-1, Math.min(1, dot)));
-}
-
-/** Greatest excursion of one clinical coordinate in radians. */
-function excursion(range: IAutoMovieAngleRange | null): number {
-  return range === null
-    ? 0
-    : Math.min(
-        Math.PI,
-        RAD * Math.max(Math.abs(range.min), Math.abs(range.max)),
-      );
-}
-
-/** Rotation of the bone's lateral axis due to its fixed bind transform. */
-function restTurn(bone: IAutoMovieBone): number {
-  return angle(Quaternion.rotateVector(bone.rest.rotation, X).x);
-}
-
-/** Maximum deviation of a trunk's lateral axis from its parent's lateral axis. */
-function trunkTurn(
-  body: IAutoMovieMotionHumanBody,
-  bone: IAutoMovieBone,
-): number {
-  const limit: IAutoMovieJointConstraint | undefined =
-    bone.constraint ?? DEFAULT_HUMANOID_ROM[bone.bone];
-  if (limit === undefined || limit.swingTwist !== undefined) return Math.PI;
-  const a: number = excursion(limit.abduction);
-  const t: number = excursion(limit.twist);
-  const axes: IAutoMovieJointAxes | undefined =
-    body.poseResolution.jointAxes[bone.bone];
-  // The proximal twist and abduction turn X about orthogonal axes; sagittal flexion leaves X fixed.
-  const sagittal: boolean =
-    axes === undefined ||
-    (axes.flexion.y === 0 &&
-      axes.flexion.z === 0 &&
-      axes.twistPlacement !== "distal");
-  return (
-    restTurn(bone) +
-    (sagittal && a <= Math.PI / 2 && t <= Math.PI / 2
-      ? angle(Math.cos(a) * Math.cos(t))
-      : Math.min(Math.PI, a + t + excursion(limit.flexion)))
-  );
-}
-
-/** A clavicle's allowed cone about the chest's outward lateral axis. */
-function clavicleCone(
-  bone: IAutoMovieBone,
-  tip: IAutoMovieVector3,
-  side: number,
-): number {
-  const limit: IAutoMovieJointConstraint | undefined =
-    bone.constraint ?? DEFAULT_HUMANOID_ROM[bone.bone];
-  if (limit === undefined || limit.swingTwist !== undefined) return Math.PI;
-  const flex: number = excursion(limit.flexion);
-  const abduct: number = excursion(limit.abduction);
-  return Math.min(
-    Math.PI,
-    restTurn(bone) +
-      angle((side * tip.x) / Vector3.length(tip)) +
-      2 * angle(Math.cos(flex / 2) * Math.cos(abduct / 2)) +
-      excursion(limit.twist),
-  );
-}
-
 /**
  * Exclude two wrist goals only when the same grounded pelvis and thorax cannot
  * reach both.
@@ -292,4 +209,87 @@ export function fixedSeatGripReach(
         fix: "choose grips within the seated body's reach",
       });
   };
+}
+
+/** The law asks about both actual wrist positions in the seat's entry world. */
+type CurrentSeat = () => IAutoMovieRigidTransform | undefined;
+
+/** Each check can confirm a moving seat in the same reference frame. */
+type Check = (
+  left: IAutoMovieVector3,
+  right: IAutoMovieVector3,
+  placed?: CurrentSeat,
+) => void;
+
+/** A rig or seat without the necessary articulated frame gives no exclusion. */
+type OptionalCheck = Check | undefined;
+const X: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
+const Z: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
+
+const RAD: number = Math.PI / 180;
+
+/** Clamp normalized dot products at the endpoints of the inverse cosine. */
+function angle(dot: number): number {
+  return Math.acos(Math.max(-1, Math.min(1, dot)));
+}
+
+/** Greatest excursion of one clinical coordinate in radians. */
+function excursion(range: IAutoMovieAngleRange | null): number {
+  return range === null
+    ? 0
+    : Math.min(
+        Math.PI,
+        RAD * Math.max(Math.abs(range.min), Math.abs(range.max)),
+      );
+}
+
+/** Rotation of the bone's lateral axis due to its fixed bind transform. */
+function restTurn(bone: IAutoMovieBone): number {
+  return angle(Quaternion.rotateVector(bone.rest.rotation, X).x);
+}
+
+/** Maximum deviation of a trunk's lateral axis from its parent's lateral axis. */
+function trunkTurn(
+  body: IAutoMovieMotionHumanBody,
+  bone: IAutoMovieBone,
+): number {
+  const limit: IAutoMovieJointConstraint | undefined =
+    bone.constraint ?? DEFAULT_HUMANOID_ROM[bone.bone];
+  if (limit === undefined || limit.swingTwist !== undefined) return Math.PI;
+  const a: number = excursion(limit.abduction);
+  const t: number = excursion(limit.twist);
+  const axes: IAutoMovieJointAxes | undefined =
+    body.poseResolution.jointAxes[bone.bone];
+  // The proximal twist and abduction turn X about orthogonal axes; sagittal flexion leaves X fixed.
+  const sagittal: boolean =
+    axes === undefined ||
+    (axes.flexion.y === 0 &&
+      axes.flexion.z === 0 &&
+      axes.twistPlacement !== "distal");
+  return (
+    restTurn(bone) +
+    (sagittal && a <= Math.PI / 2 && t <= Math.PI / 2
+      ? angle(Math.cos(a) * Math.cos(t))
+      : Math.min(Math.PI, a + t + excursion(limit.flexion)))
+  );
+}
+
+/** A clavicle's allowed cone about the chest's outward lateral axis. */
+function clavicleCone(
+  bone: IAutoMovieBone,
+  tip: IAutoMovieVector3,
+  side: number,
+): number {
+  const limit: IAutoMovieJointConstraint | undefined =
+    bone.constraint ?? DEFAULT_HUMANOID_ROM[bone.bone];
+  if (limit === undefined || limit.swingTwist !== undefined) return Math.PI;
+  const flex: number = excursion(limit.flexion);
+  const abduct: number = excursion(limit.abduction);
+  return Math.min(
+    Math.PI,
+    restTurn(bone) +
+      angle((side * tip.x) / Vector3.length(tip)) +
+      2 * angle(Math.cos(flex / 2) * Math.cos(abduct / 2)) +
+      excursion(limit.twist),
+  );
 }

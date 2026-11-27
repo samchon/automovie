@@ -5,9 +5,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { StreetFixtureDraw } from "./StreetFixtureDraw";
 
-/** The estimated thickness of the sign blank, metres. */
-const BLANK_THICKNESS: number = 0.003;
-
 /**
  * An upright square post carrying a STOP sign blank above its grip span.
  *
@@ -108,3 +105,6 @@ export function createSignPost(
   });
   return builder.build(d.mass!);
 }
+
+/** The estimated thickness of the sign blank, metres. */
+const BLANK_THICKNESS: number = 0.003;

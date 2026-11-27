@@ -4,6 +4,22 @@ import {
   IAutoMovieActionCall,
 } from "@automovie/interface";
 
+/**
+ * Resolve an action's explicit body region, else its gesture-kind default, verb
+ * default, or fullBody. Head-only and whole-body gesture defaults match the
+ * actual reference gesture channels; explicit overrides remain authoritative.
+ */
+export function actionRegion(
+  action: IAutoMovieActionCall,
+): AutoMovieBodyRegion {
+  return (
+    action.region ??
+    (action.verb === "gesture" ? REGION_BY_GESTURE[action.kind] : undefined) ??
+    REGION_BY_VERB[action.verb] ??
+    "fullBody"
+  );
+}
+
 /** The body region a verb drives by default, when an action sets none. */
 const REGION_BY_VERB: Partial<
   Record<IAutoMovieActionCall["verb"], AutoMovieBodyRegion>
@@ -36,19 +52,3 @@ const REGION_BY_GESTURE: Partial<
   jump: "fullBody",
   draw: "fullBody",
 };
-
-/**
- * Resolve an action's explicit body region, else its gesture-kind default, verb
- * default, or fullBody. Head-only and whole-body gesture defaults match the
- * actual reference gesture channels; explicit overrides remain authoritative.
- */
-export function actionRegion(
-  action: IAutoMovieActionCall,
-): AutoMovieBodyRegion {
-  return (
-    action.region ??
-    (action.verb === "gesture" ? REGION_BY_GESTURE[action.kind] : undefined) ??
-    REGION_BY_VERB[action.verb] ??
-    "fullBody"
-  );
-}

@@ -12,16 +12,6 @@ import type { AutoMovieEngineRenderMeasureTypes } from "../AutoMovieEngineRender
 import { autoMovieSurfaceFeedWidth } from "./autoMovieSurfaceFeedWidth";
 import { measureAutoMovieFilmResponseTargets } from "./measureAutoMovieFilmResponseTargets";
 
-/** Bytes of one RGBA half-float texel, a medium march target's. */
-const HALF: number = 8;
-
-/**
- * Bytes one feed render-target pixel holds: four for its RGBA8 colour texture
- * and four for the 24-bit depth renderbuffer three.js gives a
- * `WebGLRenderTarget` by default, stored in a 32-bit word.
- */
-const FEED_BYTES_PER_PIXEL: number = 8;
-
 /**
  * Measure the render targets and passes a subject's surface-graphic feed layers
  * commit the renderer to, as `prepareAutoMovieSurfaceGraphics` builds them.
@@ -150,3 +140,13 @@ export function measureAutoMovieRenderFeeds(
     ),
   };
 }
+
+/** Bytes of one RGBA half-float texel, a medium march target's. */
+const HALF: number = 8;
+
+/**
+ * Bytes one feed render-target pixel holds: four for its RGBA8 colour texture
+ * and four for the 24-bit depth renderbuffer three.js gives a
+ * `WebGLRenderTarget` by default, stored in a 32-bit word.
+ */
+const FEED_BYTES_PER_PIXEL: number = 8;

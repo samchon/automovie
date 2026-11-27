@@ -10,29 +10,6 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core/index";
 
-/** CCM 2016 men's size 6 chart, in metres. */
-const FIT: Readonly<{ foot: number; blade: number }> = {
-  foot: 0.252,
-  blade: 0.263,
-};
-
-/** Provisional outer dimensions of the shell, holder and runner, in metres. */
-const GEOMETRY: Readonly<{
-  width: number;
-  sole: number;
-  collar: number;
-  holder: number;
-  steel: number;
-  thickness: number;
-}> = {
-  width: 0.1,
-  sole: 0.045,
-  collar: 0.115,
-  holder: 0.029,
-  steel: 0.015,
-  thickness: 0.003,
-};
-
 /**
  * One coarse hockey skate, resting on the runner with the toe toward +Z. Its
  * intended foot length and runner length are from the CCM 2016 size guide. The
@@ -117,3 +94,26 @@ export function createIceSkate(
     });
   return builder.build(mass);
 }
+
+/** CCM 2016 men's size 6 chart, in metres. */
+const FIT: Readonly<{ foot: number; blade: number }> = {
+  foot: 0.252,
+  blade: 0.263,
+};
+
+/** Provisional outer dimensions of the shell, holder and runner, in metres. */
+const GEOMETRY: Readonly<{
+  width: number;
+  sole: number;
+  collar: number;
+  holder: number;
+  steel: number;
+  thickness: number;
+}> = {
+  width: 0.1,
+  sole: 0.045,
+  collar: 0.115,
+  holder: 0.029,
+  steel: 0.015,
+  thickness: 0.003,
+};

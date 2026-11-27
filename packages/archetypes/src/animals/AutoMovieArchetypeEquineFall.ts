@@ -29,9 +29,6 @@ import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
  */
 const FALL_SPEED: number = 7;
 
-/** A named instant of a ride. */
-type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
-
 /**
  * A trained fall from a canter or gallop onto prepared ground: the horse goes
  * down on one side, slides to a stop, lies still and rises.
@@ -287,3 +284,6 @@ export namespace AutoMovieArchetypeEquineFall {
     );
   }
 }
+
+/** A named instant of a ride. */
+type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];

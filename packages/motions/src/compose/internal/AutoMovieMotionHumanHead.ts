@@ -7,12 +7,6 @@ import type {
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanJoints } from "./AutoMovieMotionHumanJoints";
 
-/** The alternatives of `OscillateAxis`'s site. */
-type OscillateAxis = 0 | 1 | 2;
-
-/** The alternatives of `ShareAxis`'s site. */
-type ShareAxis = 0 | 1 | 2;
-
 /**
  * Head phrases: the head moved on the neck by joint angles, with no target to
  * look at (a nod, a shake, a tilt to one side).
@@ -41,30 +35,6 @@ export namespace AutoMovieMotionHumanHead {
     const head: [number, number, number] = [0, 0, 0];
     head[axis] = (1 - NECK) * degrees;
     return { neck, head };
-  }
-
-  /** An oscillation of one head angle over a window. */
-  function oscillate(
-    axis: OscillateAxis,
-    clock: IAutoMovieMotionClock,
-    window: readonly [string, string],
-    cycles: number,
-    degrees: number,
-  ): IAutoMovieMotionHumanPrimitive {
-    const from: number = clock.at(window[0]);
-    const to: number = clock.at(window[1]);
-    const span: readonly [string, string] = [window[0], window[1]];
-
-    const wave: ReturnType<typeof AutoMovieMotionClock.prepareWave> =
-      AutoMovieMotionClock.prepareWave(clock, span, cycles);
-    return AutoMovieMotionHumanJoints.add({
-      channels: ["head"],
-      from,
-      to,
-      delta: (seconds: number): IAutoMovieMotionHumanJoints.Angles => {
-        return share(axis, degrees * wave(seconds));
-      },
-    });
   }
 
   /**
@@ -125,4 +95,34 @@ export namespace AutoMovieMotionHumanHead {
       share(1, degrees),
     );
   }
+
+  /** An oscillation of one head angle over a window. */
+  function oscillate(
+    axis: OscillateAxis,
+    clock: IAutoMovieMotionClock,
+    window: readonly [string, string],
+    cycles: number,
+    degrees: number,
+  ): IAutoMovieMotionHumanPrimitive {
+    const from: number = clock.at(window[0]);
+    const to: number = clock.at(window[1]);
+    const span: readonly [string, string] = [window[0], window[1]];
+
+    const wave: ReturnType<typeof AutoMovieMotionClock.prepareWave> =
+      AutoMovieMotionClock.prepareWave(clock, span, cycles);
+    return AutoMovieMotionHumanJoints.add({
+      channels: ["head"],
+      from,
+      to,
+      delta: (seconds: number): IAutoMovieMotionHumanJoints.Angles => {
+        return share(axis, degrees * wave(seconds));
+      },
+    });
+  }
 }
+
+/** The alternatives of `OscillateAxis`'s site. */
+type OscillateAxis = 0 | 1 | 2;
+
+/** The alternatives of `ShareAxis`'s site. */
+type ShareAxis = 0 | 1 | 2;

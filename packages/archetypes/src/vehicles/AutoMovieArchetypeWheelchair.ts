@@ -179,38 +179,6 @@ export namespace AutoMovieArchetypeWheelchair {
   };
 
   /**
-   * A kind's models from its rows.
-   *
-   * @param kind The kind.
-   * @param wheel The rear wheel's size, inches.
-   * @returns The models by name.
-   */
-  function models(
-    kind: Kind,
-    wheel: number,
-  ): Readonly<Record<Model, Readonly<Partial<Record<Dimension, number>>>>> {
-    const mm: number = AutoMovieArchetypeUnits.MILLIMETRE;
-    const out: Record<Model, Partial<Record<Dimension, number>>> = {};
-    for (const r of WHEELCHAIR_SHEET.ROWS[kind])
-      for (const [seat, width, mass] of r.widths)
-        out[`${r.series}-${seat}-${r.caster}`] = {
-          seatWidth: seat * mm,
-          seatDepth: r.depth * mm,
-          seatHeight: r.edge * mm,
-          backHeight: r.back * mm,
-          backAngle: r.angle,
-          armHeight: r.arm * mm,
-          wheelDiameter: wheel * AutoMovieArchetypeUnits.INCH,
-          casterDiameter: r.caster * AutoMovieArchetypeUnits.INCH,
-          width: width * mm,
-          height: r.height * mm,
-          mass,
-          ...(r.length[0] === r.length[1] ? { length: r.length[0] * mm } : {}),
-        };
-    return out;
-  }
-
-  /**
    * The ranges one model's row states inside it: the footrest's reach, and the
    * overall length where a row gives one.
    *
@@ -313,5 +281,37 @@ export namespace AutoMovieArchetypeWheelchair {
     holds: readonly IHandrimHold[],
   ): (id: AutoMovieArchetypeWheelchair.Affordance, seconds: number) => IAutoMovieTransform {
     return handrimContactsImplementation(ride, holds);
+  }
+
+  /**
+   * A kind's models from its rows.
+   *
+   * @param kind The kind.
+   * @param wheel The rear wheel's size, inches.
+   * @returns The models by name.
+   */
+  function models(
+    kind: Kind,
+    wheel: number,
+  ): Readonly<Record<Model, Readonly<Partial<Record<Dimension, number>>>>> {
+    const mm: number = AutoMovieArchetypeUnits.MILLIMETRE;
+    const out: Record<Model, Partial<Record<Dimension, number>>> = {};
+    for (const r of WHEELCHAIR_SHEET.ROWS[kind])
+      for (const [seat, width, mass] of r.widths)
+        out[`${r.series}-${seat}-${r.caster}`] = {
+          seatWidth: seat * mm,
+          seatDepth: r.depth * mm,
+          seatHeight: r.edge * mm,
+          backHeight: r.back * mm,
+          backAngle: r.angle,
+          armHeight: r.arm * mm,
+          wheelDiameter: wheel * AutoMovieArchetypeUnits.INCH,
+          casterDiameter: r.caster * AutoMovieArchetypeUnits.INCH,
+          width: width * mm,
+          height: r.height * mm,
+          mass,
+          ...(r.length[0] === r.length[1] ? { length: r.length[0] * mm } : {}),
+        };
+    return out;
   }
 }

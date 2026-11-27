@@ -169,6 +169,61 @@ export namespace solveXpbdArticulation {
     return { nodes, loops };
   }
 
+  /** One body of the forest. */
+  export interface INode {
+    /** The world's body. */
+    body: AutoMovieXpbdBody;
+
+    /** The joint to its parent; absent at a root. */
+    edge?: AutoMovieXpbdJoint;
+
+    /** Its parent node; absent at a root. */
+    parent?: INode;
+
+    /** Its child nodes, in joint creation order. */
+    children: INode[];
+  }
+
+  /** The node's root. */
+  export function root(node: INode): INode {
+    let top: INode = node;
+    while (top.parent !== undefined) top = top.parent;
+    return top;
+  }
+
+  /**
+   * A tree's states and edges, depth-first from its root so every edge follows
+   * its parent's.
+   */
+  export function build(
+    top: INode,
+    joints?: AutoMovieXpbdJoint[],
+  ): AutoMovieXpbdArticulation.ITree {
+    const origin: IAutoMovieVector3 = top.body.center;
+    const tree: AutoMovieXpbdArticulation.ITree = {
+      origin,
+      free: top.body.dynamic,
+      states: [state(top.body, origin)],
+      edges: [],
+    };
+    const stack: IVisit[] = [{ node: top, state: 0 }];
+    while (stack.length !== 0) {
+      const visit: IVisit = stack.pop()!;
+      for (const next of visit.node.children) {
+        const child: number = tree.states.length;
+        tree.states.push(state(next.body, origin));
+        tree.edges.push({
+          parent: visit.state,
+          child,
+          axes: axes(next.edge!, origin),
+        });
+        joints?.push(next.edge!);
+        stack.push({ node: next, state: child });
+      }
+    }
+    return tree;
+  }
+
   /** Add a propagation's velocity changes to every dynamic body of its tree. */
   function apply(
     tree: AutoMovieXpbdArticulation.ITree,
@@ -195,21 +250,6 @@ export namespace solveXpbdArticulation {
     );
   }
 
-  /** One body of the forest. */
-  export interface INode {
-    /** The world's body. */
-    body: AutoMovieXpbdBody;
-
-    /** The joint to its parent; absent at a root. */
-    edge?: AutoMovieXpbdJoint;
-
-    /** Its parent node; absent at a root. */
-    parent?: INode;
-
-    /** Its child nodes, in joint creation order. */
-    children: INode[];
-  }
-
   /** A node waiting in the depth-first walk with its state's index. */
   interface IVisit {
     node: INode;
@@ -227,13 +267,6 @@ export namespace solveXpbdArticulation {
       nodes.set(body, found);
     }
     return found;
-  }
-
-  /** The node's root. */
-  export function root(node: INode): INode {
-    let top: INode = node;
-    while (top.parent !== undefined) top = top.parent;
-    return top;
   }
 
   /** Solve one tree's motors, from its root. */
@@ -275,39 +308,6 @@ export namespace solveXpbdArticulation {
     );
     solveXpbdArticulationContacts.commit(held);
     apply(tree, held.response);
-  }
-
-  /**
-   * A tree's states and edges, depth-first from its root so every edge follows
-   * its parent's.
-   */
-  export function build(
-    top: INode,
-    joints?: AutoMovieXpbdJoint[],
-  ): AutoMovieXpbdArticulation.ITree {
-    const origin: IAutoMovieVector3 = top.body.center;
-    const tree: AutoMovieXpbdArticulation.ITree = {
-      origin,
-      free: top.body.dynamic,
-      states: [state(top.body, origin)],
-      edges: [],
-    };
-    const stack: IVisit[] = [{ node: top, state: 0 }];
-    while (stack.length !== 0) {
-      const visit: IVisit = stack.pop()!;
-      for (const next of visit.node.children) {
-        const child: number = tree.states.length;
-        tree.states.push(state(next.body, origin));
-        tree.edges.push({
-          parent: visit.state,
-          child,
-          axes: axes(next.edge!, origin),
-        });
-        joints?.push(next.edge!);
-        stack.push({ node: next, state: child });
-      }
-    }
-    return tree;
   }
 
   /** A body's state with its own spatial inertia about the origin. */

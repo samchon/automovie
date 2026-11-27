@@ -6,15 +6,6 @@ import type {
 
 import { HumanArmSwing } from "../../posture/internal/HumanArmSwing";
 
-/** The record of `IOfBoundsE2`'s site. */
-type IOfBoundsE2 = { seconds: number };
-
-/** The record of `IOfBoundsE`'s site. */
-type IOfBoundsE = { name: string };
-
-/** The record of `IOfEventsItem`'s site. */
-type IOfEventsItem = { name: string; seconds: number };
-
 /**
  * A take's carriage.
  *
@@ -62,3 +53,12 @@ export function walkCarriage(
     projection,
   );
 }
+
+/** The record of `IOfBoundsE2`'s site. */
+type IOfBoundsE2 = { seconds: number };
+
+/** The record of `IOfBoundsE`'s site. */
+type IOfBoundsE = { name: string };
+
+/** The record of `IOfEventsItem`'s site. */
+type IOfEventsItem = { name: string; seconds: number };

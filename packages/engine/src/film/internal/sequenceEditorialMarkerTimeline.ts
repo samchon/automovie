@@ -9,24 +9,6 @@ import type {
 
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 
-/** The authored marker source and the shot clock it belongs to. */
-type EditorialMarkerShot = Pick<
-  IAutoMovieShot,
-  "duration" | "editorialMarkers"
->;
-
-/** Prepared playback facts used to place editorial markers in output time. */
-interface EditorialMarkerLayout {
-  /** The prepared entries in playback order. */
-  timeline: Pick<
-    IAutoMoviePreparePlaybackTimeline.IResult["timeline"],
-    "entries"
-  >;
-
-  /** Read the source shot's clock and markers by its id. */
-  shotById: ReadonlyMap<string, { shot: EditorialMarkerShot }>;
-}
-
 /**
  * Project authored shot markers through each play of an admitted sequence.
  *
@@ -129,4 +111,22 @@ export function sequenceEditorialMarkerTimeline(
       a.entry - b.entry ||
       AutoMovieEngineText.compareCodeUnits(a.id, b.id),
   );
+}
+
+/** The authored marker source and the shot clock it belongs to. */
+type EditorialMarkerShot = Pick<
+  IAutoMovieShot,
+  "duration" | "editorialMarkers"
+>;
+
+/** Prepared playback facts used to place editorial markers in output time. */
+interface EditorialMarkerLayout {
+  /** The prepared entries in playback order. */
+  timeline: Pick<
+    IAutoMoviePreparePlaybackTimeline.IResult["timeline"],
+    "entries"
+  >;
+
+  /** Read the source shot's clock and markers by its id. */
+  shotById: ReadonlyMap<string, { shot: EditorialMarkerShot }>;
 }

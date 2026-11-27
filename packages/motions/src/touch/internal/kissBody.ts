@@ -13,16 +13,6 @@ import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionH
 import { AutoMovieMotionHumanRise } from "../../compose/internal/AutoMovieMotionHumanRise";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 
-/** The alternatives of `KissBodySolved`'s site. */
-type KissBodySolved =
-  | "pitch"
-  | "roll"
-  | "raise"
-  | "sink"
-  | "shift"
-  | "advance"
-  | "bearing";
-
 /**
  * The body of a kiss at a share of its solved angles: risen on the toes by the
  * heel raise, leaned from the hips by the pitch and the roll, and, standing,
@@ -98,3 +88,13 @@ export function kissBody(
   const sink: number = (solved.sink ?? 0) * share;
   return { ...leaned, root: sink === 0 ? root : { ...root, y: root.y - sink } };
 }
+
+/** The alternatives of `KissBodySolved`'s site. */
+type KissBodySolved =
+  | "pitch"
+  | "roll"
+  | "raise"
+  | "sink"
+  | "shift"
+  | "advance"
+  | "bearing";

@@ -18,46 +18,6 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanSegment } from "./HumanSegment";
 import { prepareHumanPerformancePlans } from "./prepareHumanPerformancePlans";
 
-/** The record of `IContactsNearestBest`'s site. */
-type IContactsNearestBest = { subject: string; distance: number };
-
-/** The record of `IContactsInstalled`'s site. */
-type IContactsInstalled = {
-  stops: IAutoMovieResolveContactEvents.IStops;
-  size: number;
-};
-
-/** The record of `IContactsMetEntry`'s site. */
-type IContactsMetEntry = { key: string };
-
-/** The record of `IContactsSiblingsItem`'s site. */
-type IContactsSiblingsItem = {
-  weapon: IAutoMovieMotionWeaponPath;
-  from: number;
-  to: number;
-};
-
-/** The record of `IAxisLiveW2`'s site. */
-type IAxisLiveW2 = {
-  weapon: IAutoMovieMotionWeaponPath;
-  from: number;
-  to: number;
-};
-
-/** The record of `IAxisLiveW`'s site. */
-type IAxisLiveW = {
-  weapon: IAutoMovieMotionWeaponPath;
-  from: number;
-  to: number;
-};
-
-/** The record of `ILimbsItemEntry`'s site. */
-type ILimbsItemEntry = {
-  weapon: IAutoMovieMotionWeaponPath;
-  from: number;
-  to: number;
-};
-
 /**
  * What the placed performance does to itself: the holds a grip starts and an
  * action takes over or ends, and the contacts between people resolved into the
@@ -477,3 +437,43 @@ export namespace HumanPerformanceContacts {
     for (const [segment, own] of plans) segment.plan.stop?.(own);
   }
 }
+
+/** The record of `IContactsNearestBest`'s site. */
+type IContactsNearestBest = { subject: string; distance: number };
+
+/** The record of `IContactsInstalled`'s site. */
+type IContactsInstalled = {
+  stops: IAutoMovieResolveContactEvents.IStops;
+  size: number;
+};
+
+/** The record of `IContactsMetEntry`'s site. */
+type IContactsMetEntry = { key: string };
+
+/** The record of `IContactsSiblingsItem`'s site. */
+type IContactsSiblingsItem = {
+  weapon: IAutoMovieMotionWeaponPath;
+  from: number;
+  to: number;
+};
+
+/** The record of `IAxisLiveW2`'s site. */
+type IAxisLiveW2 = {
+  weapon: IAutoMovieMotionWeaponPath;
+  from: number;
+  to: number;
+};
+
+/** The record of `IAxisLiveW`'s site. */
+type IAxisLiveW = {
+  weapon: IAutoMovieMotionWeaponPath;
+  from: number;
+  to: number;
+};
+
+/** The record of `ILimbsItemEntry`'s site. */
+type ILimbsItemEntry = {
+  weapon: IAutoMovieMotionWeaponPath;
+  from: number;
+  to: number;
+};

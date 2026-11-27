@@ -8,9 +8,6 @@ import type {
 import { overflowsBinary64 } from "../math/internal/overflowsBinary64";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
 
-/** Actual or explicitly generated scalar value/physical-station derivatives. */
-type Scalar = IAutoMovieViewSectionField.IStationJet;
-
 /**
  * A continuation-owned native generating law on one changed station span.
  *
@@ -167,6 +164,9 @@ export namespace AutoMovieLoftSectionBoundary {
     };
   }
 }
+
+/** Actual or explicitly generated scalar value/physical-station derivatives. */
+type Scalar = IAutoMovieViewSectionField.IStationJet;
 
 /** The refusal of a chain source at a boundary. */
 const CHAIN: string =

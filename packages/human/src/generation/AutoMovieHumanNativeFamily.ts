@@ -63,90 +63,6 @@ export namespace AutoMovieHumanNativeFamily {
   }
 
   /**
-   * Encode every affine original point/tangent back into its unchanged native layout. With a centre off the chart origin each point
-   * becomes centre + scale·(point - centre); a section that stands on its median line has no v to move.
-   */
-  function vector(
-    values: readonly number[],
-    layout: IAutoMovieHumanConicSection.ILayout,
-    scale: AutoMovieVector2Tuple,
-    centre: AutoMovieVector2Tuple = [0, 0],
-  ): number[] {
-    if (scale[0] === 1 && scale[1] === 1) return [...values];
-    const moved: boolean = centre[0] !== 0 || centre[1] !== 0;
-    if (!moved && scale[0] === scale[1])
-      return values.map((value: number, field: number): number =>
-        S.units(layout)[field] === "mm" ? value * scale[0] : value,
-      );
-    if (
-      centre[1] !== 0 &&
-      scale[1] !== 1 &&
-      (layout.mirror ||
-        layout.anchors.some((anchor: IAutoMovieHumanConicSection.IAnchor): boolean => anchor.mid === true))
-    )
-      throw new Error(
-        "a section on its median line scales about a centre on that line: the centre's v must be 0",
-      );
-    const chain: IAutoMovieHumanConicSection.IChain = N.section(
-      S.resolve(values, layout),
-      centre,
-      [0, 0],
-      scale,
-    );
-    const result: number[] = [...values];
-    const offsets = S.offsets(layout);
-    const done: (AutoMovieVector2Tuple | null)[] = layout.anchors.map((): null => null);
-    let previous: number = 0;
-    layout.anchors.forEach((anchor: IAutoMovieHumanConicSection.IAnchor, k: number): void => {
-      const f: number = offsets.at[k]!;
-      const p: AutoMovieVector2Tuple = chain.input.points[k]!;
-      const t: AutoMovieVector2Tuple = chain.input.tangents[k]!;
-      if (anchor.kind === "u" || anchor.kind === "v") {
-        result[f] = p[0];
-        if (anchor.mid !== true) result[f + 1] = p[1];
-        done[k] = p;
-      } else if (anchor.kind === "f") {
-        if (k === 0 || layout.anchors[k - 1]!.kind !== "f") previous = 0;
-        const [before, after]: [number, number] = S.frame(k, layout);
-        const read = S.unplace(
-          chain.input.points[before]!,
-          chain.input.points[after]!,
-          p,
-          Math.atan2(t[1], t[0]),
-          previous,
-        );
-        result[f] = read.values[0];
-        result[f + 1] = read.values[1];
-        result[f + 2] =
-          read.values[2] +
-          2 *
-            Math.PI *
-            Math.round((values[f + 2]! - read.values[2]) / (2 * Math.PI));
-        previous = read.t;
-        done[k] = p;
-      }
-    });
-    for (const k of S.dependents(layout)) {
-      const anchor: IAutoMovieHumanConicSection.IAnchor = layout.anchors[k]!;
-      if (anchor.kind === "i") {
-        const [before, after]: [number, number] = S.neighbours(k, done);
-        const a: AutoMovieVector2Tuple = chain.input.points[before]!;
-        const b: AutoMovieVector2Tuple = chain.input.points[after]!;
-        const t: AutoMovieVector2Tuple = chain.input.tangents[k]!;
-        const raw: number =
-          Math.atan2(t[1], t[0]) - Math.atan2(b[1] - a[1], b[0] - a[0]);
-        result[offsets.at[k]! + 1] =
-          raw +
-          2 *
-            Math.PI *
-            Math.round((values[offsets.at[k]! + 1]! - raw) / (2 * Math.PI));
-      }
-      done[k] = chain.input.points[k]!;
-    }
-    return result;
-  }
-
-  /**
    * Generate complete planar controls, independent fixed-direction features and native source functions together.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Affine invariance carries all planar conic controls; unchanged shares/layout retain their role. Actual derived native outlines own the new interpolants, with original protected scalar2 reproduced by shared-jet quintics and native parameter conversion. A jet-carrying station-varying scale is applied to the source function by the product rule (NativeSourceLaw), so a site junction binds a value the source already holds: to the stored original when the request keeps the generated caps, and to the original controls under the requested caps when it changes them (production drops each limb's distal cap). A plain varying scale keeps the knot-sampled controls, and a junction it disagrees with is refused by the control law under the family's and outline's names.
@@ -576,6 +492,90 @@ export namespace AutoMovieHumanNativeFamily {
       },
     };
     return made;
+  }
+
+  /**
+   * Encode every affine original point/tangent back into its unchanged native layout. With a centre off the chart origin each point
+   * becomes centre + scale·(point - centre); a section that stands on its median line has no v to move.
+   */
+  function vector(
+    values: readonly number[],
+    layout: IAutoMovieHumanConicSection.ILayout,
+    scale: AutoMovieVector2Tuple,
+    centre: AutoMovieVector2Tuple = [0, 0],
+  ): number[] {
+    if (scale[0] === 1 && scale[1] === 1) return [...values];
+    const moved: boolean = centre[0] !== 0 || centre[1] !== 0;
+    if (!moved && scale[0] === scale[1])
+      return values.map((value: number, field: number): number =>
+        S.units(layout)[field] === "mm" ? value * scale[0] : value,
+      );
+    if (
+      centre[1] !== 0 &&
+      scale[1] !== 1 &&
+      (layout.mirror ||
+        layout.anchors.some((anchor: IAutoMovieHumanConicSection.IAnchor): boolean => anchor.mid === true))
+    )
+      throw new Error(
+        "a section on its median line scales about a centre on that line: the centre's v must be 0",
+      );
+    const chain: IAutoMovieHumanConicSection.IChain = N.section(
+      S.resolve(values, layout),
+      centre,
+      [0, 0],
+      scale,
+    );
+    const result: number[] = [...values];
+    const offsets = S.offsets(layout);
+    const done: (AutoMovieVector2Tuple | null)[] = layout.anchors.map((): null => null);
+    let previous: number = 0;
+    layout.anchors.forEach((anchor: IAutoMovieHumanConicSection.IAnchor, k: number): void => {
+      const f: number = offsets.at[k]!;
+      const p: AutoMovieVector2Tuple = chain.input.points[k]!;
+      const t: AutoMovieVector2Tuple = chain.input.tangents[k]!;
+      if (anchor.kind === "u" || anchor.kind === "v") {
+        result[f] = p[0];
+        if (anchor.mid !== true) result[f + 1] = p[1];
+        done[k] = p;
+      } else if (anchor.kind === "f") {
+        if (k === 0 || layout.anchors[k - 1]!.kind !== "f") previous = 0;
+        const [before, after]: [number, number] = S.frame(k, layout);
+        const read = S.unplace(
+          chain.input.points[before]!,
+          chain.input.points[after]!,
+          p,
+          Math.atan2(t[1], t[0]),
+          previous,
+        );
+        result[f] = read.values[0];
+        result[f + 1] = read.values[1];
+        result[f + 2] =
+          read.values[2] +
+          2 *
+            Math.PI *
+            Math.round((values[f + 2]! - read.values[2]) / (2 * Math.PI));
+        previous = read.t;
+        done[k] = p;
+      }
+    });
+    for (const k of S.dependents(layout)) {
+      const anchor: IAutoMovieHumanConicSection.IAnchor = layout.anchors[k]!;
+      if (anchor.kind === "i") {
+        const [before, after]: [number, number] = S.neighbours(k, done);
+        const a: AutoMovieVector2Tuple = chain.input.points[before]!;
+        const b: AutoMovieVector2Tuple = chain.input.points[after]!;
+        const t: AutoMovieVector2Tuple = chain.input.tangents[k]!;
+        const raw: number =
+          Math.atan2(t[1], t[0]) - Math.atan2(b[1] - a[1], b[0] - a[0]);
+        result[offsets.at[k]! + 1] =
+          raw +
+          2 *
+            Math.PI *
+            Math.round((values[offsets.at[k]! + 1]! - raw) / (2 * Math.PI));
+      }
+      done[k] = chain.input.points[k]!;
+    }
+    return result;
   }
   /** Invocation-local canonical controls, cap binding and independent density estimate. */
   interface IPreparedSource {

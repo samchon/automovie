@@ -19,9 +19,6 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/** The alternatives of `OfContext`'s site. */
-type OfContext = "body" | "entry";
-
 /**
  * The other arm brought up for a hand to touch a region on it: its forearm held
  * across the front of the waist, the wrist on the body's midline half way from
@@ -140,3 +137,6 @@ export namespace touchPresented {
     bones: ReturnType<typeof poseBones>;
   }
 }
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "entry";

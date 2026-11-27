@@ -16,9 +16,6 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { AutoMovieMotionHumanLean } from "./AutoMovieMotionHumanLean";
 
-/** The alternatives of `LeanLimb`'s site. */
-type LeanLimb = "leftArm" | "rightArm";
-
 /**
  * Whether a limb can put its end on a point, and what happens when it cannot.
  *
@@ -265,6 +262,9 @@ export namespace AutoMovieMotionHumanReach {
     return { posture, point };
   }
 }
+
+/** The alternatives of `LeanLimb`'s site. */
+type LeanLimb = "leftArm" | "rightArm";
 
 /** Actual goal-independent arm roots, with canonical FK owning their ancestry. */
 const SHOULDERS: Readonly<

@@ -8,9 +8,6 @@ import { everydayVerdicts } from "./internal/everydayVerdicts";
 import { toolCaseHeld } from "./internal/toolCaseHeld";
 import { toolCasePot } from "./internal/toolCasePot";
 
-/** The record of `IToolCasesWorst`'s site. */
-type IToolCasesWorst = { value: number; where: string };
-
 /**
  * Capture cases of the cyclic tool-use family, four cycles each with the right
  * hand from quiet standing, the tool first taken up from a bench beside the
@@ -141,3 +138,6 @@ export function toolCases(
   }
   return out;
 }
+
+/** The record of `IToolCasesWorst`'s site. */
+type IToolCasesWorst = { value: number; where: string };

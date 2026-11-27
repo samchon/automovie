@@ -20,9 +20,6 @@ import { mixHumanPosture } from "../../posture/internal/mixHumanPosture";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/** The flight stage and its typed target reader. */
-type TouchContext = "body" | "aim" | "start";
-
 /**
  * A wire flight's touches (`IAutoMovieMotionHumanWireFlight.ITouch`): each hand
  * or foot meets its surface around its share of the flight, coming in and going
@@ -329,3 +326,6 @@ export namespace wireFlightTouches {
     readonly side: AutoMovieHumanSide;
   }
 }
+
+/** The flight stage and its typed target reader. */
+type TouchContext = "body" | "aim" | "start";

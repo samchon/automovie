@@ -11,54 +11,6 @@ import type { prepareChainFit } from "./prepareChainFit";
 import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
 import { resolvePreparedChainLower } from "./resolvePreparedChainLower";
 
-/** Articulations to read under the exact same prepared parent/intermediate pose. */
-interface IProps extends Pick<
-  IAutoMovieSolvePreparedChainPlantProps,
-  "prepared" | "jointAxes" | "restFrames"
-> {
-  /**
-   * Authored order is significant: the last record of each bone wins as in
-   * resolvePose.
-   */
-  joints: readonly IAutoMovieJointPose[];
-
-  /**
-   * Optional lazy basis owner of this same prepared rig; record admission order
-   * is unchanged.
-   */
-  rig?: prepareChainFit.IRig;
-}
-
-/** Mid and effector world frames in the prepared model-metre frame. */
-interface IFrames {
-  /**
-   * Mid frame used to recover its articulation-free parent and orient the
-   * effector.
-   */
-  lower: IAutoMovieChainBone;
-
-  /** Actual effector frame, including its own current articulation. */
-  effector: IAutoMovieChainBone;
-}
-
-/**
- * Completed ordered admission and the shared lower prefix; no effector frame is
- * assembled here.
- */
-interface IReading {
-  /** Fresh lower world frame composed from the admitted last articulations. */
-  lower: IAutoMovieChainBone;
-
-  /** Last upper record, retained only for the full point-reader adapter. */
-  upperJoint: IAutoMovieJointPose | undefined;
-
-  /** Last lower record, retained only for that same adapter. */
-  lowerJoint: IAutoMovieJointPose | undefined;
-
-  /** Last end quaternion, after every end duplicate was admitted in order. */
-  endArticulation: IAutoMovieQuaternion | undefined;
-}
-
 /**
  * Read a fitted chain's mid and effector frames without walking unrelated
  * bones. The root transform, ancestor pose and fixed intermediate joints must
@@ -182,4 +134,52 @@ function read(props: IProps): IReading {
     lowerJoint: lower,
     endArticulation,
   };
+}
+
+/** Articulations to read under the exact same prepared parent/intermediate pose. */
+interface IProps extends Pick<
+  IAutoMovieSolvePreparedChainPlantProps,
+  "prepared" | "jointAxes" | "restFrames"
+> {
+  /**
+   * Authored order is significant: the last record of each bone wins as in
+   * resolvePose.
+   */
+  joints: readonly IAutoMovieJointPose[];
+
+  /**
+   * Optional lazy basis owner of this same prepared rig; record admission order
+   * is unchanged.
+   */
+  rig?: prepareChainFit.IRig;
+}
+
+/** Mid and effector world frames in the prepared model-metre frame. */
+interface IFrames {
+  /**
+   * Mid frame used to recover its articulation-free parent and orient the
+   * effector.
+   */
+  lower: IAutoMovieChainBone;
+
+  /** Actual effector frame, including its own current articulation. */
+  effector: IAutoMovieChainBone;
+}
+
+/**
+ * Completed ordered admission and the shared lower prefix; no effector frame is
+ * assembled here.
+ */
+interface IReading {
+  /** Fresh lower world frame composed from the admitted last articulations. */
+  lower: IAutoMovieChainBone;
+
+  /** Last upper record, retained only for the full point-reader adapter. */
+  upperJoint: IAutoMovieJointPose | undefined;
+
+  /** Last lower record, retained only for that same adapter. */
+  lowerJoint: IAutoMovieJointPose | undefined;
+
+  /** Last end quaternion, after every end duplicate was admitted in order. */
+  endArticulation: IAutoMovieQuaternion | undefined;
 }

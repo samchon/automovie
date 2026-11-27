@@ -11,29 +11,6 @@ import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSa
 import { HumanBalance } from "./HumanBalance";
 import type { prepareSitLowering } from "./prepareSitLowering";
 
-type Event = IAutoMovieMotionHumanActionPlan["events"][number];
-
-/** Descent geometry and the seat approach's offset on the action clock. */
-interface ISeatDescent {
-  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSit.IParams>;
-  start: IAutoMovieVector3;
-  goal: IAutoMovieVector3;
-  yaw0: number;
-  across: number;
-  contact: number;
-  descent: number;
-  duration: number;
-  prefix: number;
-  lowered: ReturnType<typeof prepareSitLowering>;
-}
-
-/** Seat travel evaluated against the original action-local balance window. */
-interface ISeatCourse {
-  clock: IAutoMovieMotionClock;
-  window: HumanPhysics.Window;
-  travel: (seconds: number) => number;
-}
-
 /**
  * Prepare the backward socket travel that precedes seat contact. The absolute
  * event bounds include the preliminary foot placements while the lowering's
@@ -180,4 +157,27 @@ export function prepareSitBalance(props: ISeatDescent): ISeatCourse {
     );
   }
   return { clock, window, travel };
+}
+
+type Event = IAutoMovieMotionHumanActionPlan["events"][number];
+
+/** Descent geometry and the seat approach's offset on the action clock. */
+interface ISeatDescent {
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSit.IParams>;
+  start: IAutoMovieVector3;
+  goal: IAutoMovieVector3;
+  yaw0: number;
+  across: number;
+  contact: number;
+  descent: number;
+  duration: number;
+  prefix: number;
+  lowered: ReturnType<typeof prepareSitLowering>;
+}
+
+/** Seat travel evaluated against the original action-local balance window. */
+interface ISeatCourse {
+  clock: IAutoMovieMotionClock;
+  window: HumanPhysics.Window;
+  travel: (seconds: number) => number;
 }

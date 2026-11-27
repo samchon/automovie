@@ -22,14 +22,12 @@ import type {
  * worker's measurement of the slit's trace decides that seed.
  */
 export namespace AutoMovieHumanF1NativeRootContact {
-  /** A stored contact in kernel mm/radians and its actual face names. */
-  interface IPrior {
-    /** Exact original source name and host chart owner. */
-    host: string;
-    /** Cutter material coordinate, mm/radians. */
-    part: readonly [number, number];
-    /** Host source or mean-chord band chart coordinate, mm/radians. */
-    hostAt: readonly [number, number];
+  /** One emitted seed and detached observations of the input prior's source scope. */
+  export interface IResult {
+    /** Closed existing engine search/point input, with one mm-to-m conversion. */
+    seed: IAutoMovieConstructionSeed;
+    /** Source-addressed observations, not proof that Newton finds a contact. */
+    observation: IAutoMovieHumanF1NativeRoot.ISeedTransport;
   }
 
   /**
@@ -51,14 +49,6 @@ export namespace AutoMovieHumanF1NativeRootContact {
       hostAt: [4.725353630062723, 2.621805885270596],
     },
   };
-
-  /** One emitted seed and detached observations of the input prior's source scope. */
-  export interface IResult {
-    /** Closed existing engine search/point input, with one mm-to-m conversion. */
-    seed: IAutoMovieConstructionSeed;
-    /** Source-addressed observations, not proof that Newton finds a contact. */
-    observation: IAutoMovieHumanF1NativeRoot.ISeedTransport;
-  }
 
   /**
    * The seed of a changed or unchanged dependent cutter. `host`, the host's own source, is present exactly when the host face is a source
@@ -163,5 +153,15 @@ export namespace AutoMovieHumanF1NativeRootContact {
         qualification: "derived radial seed: the cutter's declared seed line (phase, material window shares) entering the host source's star-shaped sections about its straight course; first control residual = part point minus host chart point, second = current minus original cutter point at the same material coordinate; convergence/contact remains independently observed",
       },
     };
+  }
+
+  /** A stored contact in kernel mm/radians and its actual face names. */
+  interface IPrior {
+    /** Exact original source name and host chart owner. */
+    host: string;
+    /** Cutter material coordinate, mm/radians. */
+    part: readonly [number, number];
+    /** Host source or mean-chord band chart coordinate, mm/radians. */
+    hostAt: readonly [number, number];
   }
 }

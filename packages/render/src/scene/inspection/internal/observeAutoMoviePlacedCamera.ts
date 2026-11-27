@@ -11,49 +11,6 @@ import { measureAutoMovieCameraOcclusionPixels } from "./measureAutoMovieCameraO
 import { observeAutoMovieCameraInspection } from "./observeAutoMovieCameraInspection.js";
 
 /**
- * Viewer-only cap, per painted frame and shared by its subjects, on candidate
- * triangles before each subject's at-most-nine-ray occlusion check.
- */
-const PREVIEW_RAY_TRIANGLE_BUDGET: number = 3_000;
-
-/**
- * Viewer-only cap, per painted frame and shared by its subjects, on drawn
- * triangles the near-plane clip and then the frame-edge cut examine. Only
- * meshes whose box reaches in front of the near plane in view pay for the
- * first, and only subjects whose bounds cross a side of the frame for the
- * second.
- */
-const PREVIEW_NEAR_CLIP_TRIANGLE_BUDGET: number = 200_000;
-
-/** Independent diagnostic rows emitted by the placed camera observation. */
-/** A coverage row's identity before its outcome. */
-type IRow = Pick<
-  IAutoMovieInspectionDiagnostics.ICoverage,
-  "check" | "key" | "required"
->;
-
-/** A stable diagnostic text for each confirmed framing exclusion. */
-const FRAMING_FAILURES: Readonly<
-  Record<
-    "outside" | "before-near" | "past-far",
-    { code: string; description: string }
-  >
-> = {
-  outside: {
-    code: "camera-subject-outside-frame",
-    description: "is wholly outside the delivery frame",
-  },
-  "before-near": {
-    code: "camera-subject-before-near",
-    description: "is wholly before the delivery near plane",
-  },
-  "past-far": {
-    code: "camera-subject-past-far",
-    description: "is wholly beyond the delivery far plane",
-  },
-};
-
-/**
  * Observe active, source-owned requirements on the host's original delivery
  * camera.
  *
@@ -318,6 +275,49 @@ export function observeAutoMoviePlacedCamera(
   }
   return { findings, coverage };
 }
+
+/**
+ * Viewer-only cap, per painted frame and shared by its subjects, on candidate
+ * triangles before each subject's at-most-nine-ray occlusion check.
+ */
+const PREVIEW_RAY_TRIANGLE_BUDGET: number = 3_000;
+
+/**
+ * Viewer-only cap, per painted frame and shared by its subjects, on drawn
+ * triangles the near-plane clip and then the frame-edge cut examine. Only
+ * meshes whose box reaches in front of the near plane in view pay for the
+ * first, and only subjects whose bounds cross a side of the frame for the
+ * second.
+ */
+const PREVIEW_NEAR_CLIP_TRIANGLE_BUDGET: number = 200_000;
+
+/** Independent diagnostic rows emitted by the placed camera observation. */
+/** A coverage row's identity before its outcome. */
+type IRow = Pick<
+  IAutoMovieInspectionDiagnostics.ICoverage,
+  "check" | "key" | "required"
+>;
+
+/** A stable diagnostic text for each confirmed framing exclusion. */
+const FRAMING_FAILURES: Readonly<
+  Record<
+    "outside" | "before-near" | "past-far",
+    { code: string; description: string }
+  >
+> = {
+  outside: {
+    code: "camera-subject-outside-frame",
+    description: "is wholly outside the delivery frame",
+  },
+  "before-near": {
+    code: "camera-subject-before-near",
+    description: "is wholly before the delivery near plane",
+  },
+  "past-far": {
+    code: "camera-subject-past-far",
+    description: "is wholly beyond the delivery far plane",
+  },
+};
 
 /**
  * Report an exact pixel count that breaks the authored limit or finds no

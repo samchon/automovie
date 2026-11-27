@@ -62,9 +62,6 @@ export const HumanBoard: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBoa
     plan: planHumanBoard,
   };
 
-/** The law's context. */
-type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBoard>;
-
 /**
  * Admit the boarding, solve the seated key in the seat's frame, then sample.
  *
@@ -396,3 +393,6 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       }),
   );
 }
+
+/** The law's context. */
+type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBoard>;

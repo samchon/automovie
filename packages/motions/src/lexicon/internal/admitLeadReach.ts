@@ -8,29 +8,6 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** The displayed hand fields that place its contact point in world metres. */
-type HandFrame = Pick<
-  IAutoMovieResolvedBone,
-  "worldPosition" | "worldRotation"
->;
-
-/** The lead geometry that locates its skin in world metres. */
-type LeadFrame = Pick<
-  IAutoMovieMotionHumanMountRider.IHoldGrip,
-  "point" | "normal" | "radius"
->;
-
-/** The hand, prop and lead contact named at the failed film second. */
-interface ILeadLocation {
-  side: AutoMovieHumanSide;
-  subject: string;
-  point: string;
-  film: number;
-}
-
-/** The displayed lead grip's permitted miss, metres. */
-const LIMIT: number = 0.01;
-
 /**
  * Admit the distance from the displayed hand contact to the lead's skin.
  *
@@ -75,3 +52,26 @@ export function admitLeadReach(
       fix: "Stage the handler's path within reach of the lead frame.",
     });
 }
+
+/** The displayed hand fields that place its contact point in world metres. */
+type HandFrame = Pick<
+  IAutoMovieResolvedBone,
+  "worldPosition" | "worldRotation"
+>;
+
+/** The lead geometry that locates its skin in world metres. */
+type LeadFrame = Pick<
+  IAutoMovieMotionHumanMountRider.IHoldGrip,
+  "point" | "normal" | "radius"
+>;
+
+/** The hand, prop and lead contact named at the failed film second. */
+interface ILeadLocation {
+  side: AutoMovieHumanSide;
+  subject: string;
+  point: string;
+  film: number;
+}
+
+/** The displayed lead grip's permitted miss, metres. */
+const LIMIT: number = 0.01;

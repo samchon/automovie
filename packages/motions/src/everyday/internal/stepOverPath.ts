@@ -20,18 +20,6 @@ import { stepOver } from "./stepOver";
 import { stepOverLanding } from "./stepOverLanding";
 import { stepOverPathSwing } from "./stepOverPathSwing";
 
-/** The record of `IOfFootAtResult`'s site. */
-type IOfFootAtResult = {
-  placement: IAutoMovieMotionHumanFoot.IPlacement;
-  planted: boolean;
-};
-
-/** The record of `IPlanFootAt`'s site. */
-type IPlanFootAt = {
-  placement: IAutoMovieMotionHumanFoot.IPlacement;
-  planted: boolean;
-};
-
 /**
  * The swings' windows as shares of the action: the lead from 8 % to 42 %, the
  * trail from 50 % to 82 % (provisional, as `stepOver` states).
@@ -436,3 +424,15 @@ export namespace stepOverPath {
     ) => number;
   }
 }
+
+/** The record of `IOfFootAtResult`'s site. */
+type IOfFootAtResult = {
+  placement: IAutoMovieMotionHumanFoot.IPlacement;
+  planted: boolean;
+};
+
+/** The record of `IPlanFootAt`'s site. */
+type IPlanFootAt = {
+  placement: IAutoMovieMotionHumanFoot.IPlacement;
+  planted: boolean;
+};

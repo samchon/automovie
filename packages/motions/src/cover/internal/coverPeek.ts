@@ -17,27 +17,6 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { coverWall } from "./coverWall";
 
 /**
- * How far the head crosses the end's plane by default, metres (provisional: one
- * eye past the corner).
- */
-const EXPOSURE: number = 0.12;
-
-/** Seconds the head holds out by default (provisional). */
-const HOLD: number = 0.8;
-
-/** Seconds to lean out and to lean back (provisional). */
-const LEAN: number = 0.5;
-
-/**
- * The steepest lean of the standing body, degrees (provisional: a lean that
- * keeps the planted feet loaded).
- */
-const MAX_LEAN: number = 20;
-
-/** The head's turn toward the hidden side at full lean, degrees (provisional). */
-const TURN: number = 35;
-
-/**
  * Peek past a wall's end: from the standing entry the whole body leans, its
  * feet planted, until the head crosses the plane through the face's end by the
  * exposure, the head turning to look along the hidden side; it holds and leans
@@ -178,3 +157,24 @@ export function coverPeek(
     yields: [],
   };
 }
+
+/**
+ * How far the head crosses the end's plane by default, metres (provisional: one
+ * eye past the corner).
+ */
+const EXPOSURE: number = 0.12;
+
+/** Seconds the head holds out by default (provisional). */
+const HOLD: number = 0.8;
+
+/** Seconds to lean out and to lean back (provisional). */
+const LEAN: number = 0.5;
+
+/**
+ * The steepest lean of the standing body, degrees (provisional: a lean that
+ * keeps the planted feet loaded).
+ */
+const MAX_LEAN: number = 20;
+
+/** The head's turn toward the hidden side at full lean, degrees (provisional). */
+const TURN: number = 35;

@@ -18,51 +18,6 @@ import { preparePoseReading } from "./preparePoseReading";
 import { preparePoseResolutionChanges } from "./preparePoseResolutionChanges";
 import type { preparePoseTupleScan } from "./preparePoseTupleScan";
 
-/** The immutable rooted node representation owned by this state producer. */
-type INode = preparePoseResolutionState.INode;
-
-/** The static clinical convention shared by this rig's operation states. */
-type IConvention = preparePoseResolutionState.IConvention;
-
-/** The dynamic rows of one live operation reader, never of a pose's identity. */
-interface IState {
-  /** The selection of the last completed admission, as numbers. */
-  changes: preparePoseResolutionChanges.ITracker;
-
-  /** Ordered joint admission and successful current scalar/composition rows. */
-  joints: preparePoseJointResolution.IReader;
-
-  /** The frames composed from the selection and the root. */
-  frames: composePoseFrames.IFrames;
-
-  /** The selection's version the frames were composed at; -1 before any. */
-  composed: number;
-
-  /** The root's revision the frames were composed at. */
-  placed: number;
-
-  /** Rows completed for this selection and root. */
-  rows: Uint8Array;
-
-  /** The last immutable bound demand whose parent-first closure was derived. */
-  planned?: readonly number[];
-
-  /** The rooted indices required by that bound demand. */
-  ancestors?: readonly number[];
-
-  /** The number of completed rows for this selection and root. */
-  completed: number;
-
-  /** Private immutable root quaternion, reused only while actual scalars match. */
-  rootRotation: IAutoMovieQuaternion;
-
-  /** Private immutable root translation, separate from root rotation changes. */
-  rootTranslation: IAutoMovieVector3;
-
-  /** Revision of that exact root tuple. */
-  rootRevision: number;
-}
-
 /** Private identity operands; no returned transform aliases them. */
 const IDENTITY: IAutoMovieQuaternion = Quaternion.identity();
 
@@ -508,6 +463,7 @@ function composeDemand(
     state.completed += missing.length;
   }
 }
+
 /** Append one fresh record to an array result. */
 function appendArray(
   result: IAutoMovieResolvedBone[],
@@ -525,4 +481,48 @@ function appendMap(
   frame: IAutoMovieResolvedBone,
 ): void {
   result.set(frame.bone, frame);
+}
+
+/** The immutable rooted node representation owned by this state producer. */
+type INode = preparePoseResolutionState.INode;
+/** The static clinical convention shared by this rig's operation states. */
+type IConvention = preparePoseResolutionState.IConvention;
+
+/** The dynamic rows of one live operation reader, never of a pose's identity. */
+interface IState {
+  /** The selection of the last completed admission, as numbers. */
+  changes: preparePoseResolutionChanges.ITracker;
+
+  /** Ordered joint admission and successful current scalar/composition rows. */
+  joints: preparePoseJointResolution.IReader;
+
+  /** The frames composed from the selection and the root. */
+  frames: composePoseFrames.IFrames;
+
+  /** The selection's version the frames were composed at; -1 before any. */
+  composed: number;
+
+  /** The root's revision the frames were composed at. */
+  placed: number;
+
+  /** Rows completed for this selection and root. */
+  rows: Uint8Array;
+
+  /** The last immutable bound demand whose parent-first closure was derived. */
+  planned?: readonly number[];
+
+  /** The rooted indices required by that bound demand. */
+  ancestors?: readonly number[];
+
+  /** The number of completed rows for this selection and root. */
+  completed: number;
+
+  /** Private immutable root quaternion, reused only while actual scalars match. */
+  rootRotation: IAutoMovieQuaternion;
+
+  /** Private immutable root translation, separate from root rotation changes. */
+  rootTranslation: IAutoMovieVector3;
+
+  /** Revision of that exact root tuple. */
+  rootRevision: number;
 }

@@ -17,12 +17,6 @@ import { gestureSignal } from "./gestureSignal";
 import { gestureStroke } from "./gestureStroke";
 import { gestureTouch } from "./gestureTouch";
 
-/** A direction in the performer's own frame: out, up and forward. */
-type IPRAYER = { out: number; up: number; forward: number };
-
-/** The named axes of a place's offset. */
-type PutOffsetKey = "lateral" | "height" | "range";
-
 /**
  * A hand's goal for an upright body, in its heading frame
  * (`gestureStroke.hand`): where each gesture's hand surface goes, turned which
@@ -261,6 +255,12 @@ type PutOffsetKey = "lateral" | "height" | "range";
       throw new Error(`The gesture ${kind} moves no hand`);
   }
 }
+
+/** A direction in the performer's own frame: out, up and forward. */
+type IPRAYER = { out: number; up: number; forward: number };
+
+/** The named axes of a place's offset. */
+type PutOffsetKey = "lateral" | "height" | "range";
 
 /**
  * Where the fingers of two palms held together point: up and forward, 30

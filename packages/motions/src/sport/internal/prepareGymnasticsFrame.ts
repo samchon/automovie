@@ -8,23 +8,6 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import type { IPreparedGymnasticsFrame } from "./IPreparedGymnasticsFrame";
 
-/** The time-varying query for this plan's canonical gauge. */
-type Query = [
-  raw: IAutoMovieMotionHumanPosture,
-  centre: IAutoMovieVector3,
-  resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-  projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
-];
-
-/** The demand in world metres and the optional floor geometry it was read on. */
-interface IPlacement {
-  /** The raw articulation translated to the requested COM. */
-  posture: IAutoMovieMotionHumanPosture;
-
-  /** The bones in the reference posture with root `y` at zero. */
-  bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-}
-
 /**
  * Bind one unchanged body's mass/collider demand for changing joint-only flight
  * queries. Each query shares its actual canonical geometry between COM
@@ -142,4 +125,21 @@ function preparePlacement(
       bones,
     };
   };
+}
+
+/** The time-varying query for this plan's canonical gauge. */
+type Query = [
+  raw: IAutoMovieMotionHumanPosture,
+  centre: IAutoMovieVector3,
+  resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
+];
+
+/** The demand in world metres and the optional floor geometry it was read on. */
+interface IPlacement {
+  /** The raw articulation translated to the requested COM. */
+  posture: IAutoMovieMotionHumanPosture;
+
+  /** The bones in the reference posture with root `y` at zero. */
+  bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 }

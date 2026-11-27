@@ -31,11 +31,6 @@ import { HumanSurfaceGlide } from "../../internal/HumanSurfaceGlide";
 import { pivotSurfaceFoot } from "../../internal/pivotSurfaceFoot";
 import { admitSnowGlide } from "./admitSnowGlide";
 
-/** The ski's local forward axis. */
-const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
-/** The axis a handle is wrapped about: its affordance frame's local +X. */
-const HANDLE: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-
 /**
  * Turn on the selected ski edges or use a Nordic pole and opposite ski on the
  * shared glide. Alpine skiing measures a transfer across opposing edges during
@@ -284,6 +279,11 @@ export function planSnowGlide(
   void _arm;
   return { ...kicked, ...written };
 }
+/** The ski's local forward axis. */
+const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
+
+/** The axis a handle is wrapped about: its affordance frame's local +X. */
+const HANDLE: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 
 /** Emit simultaneous support events in chronological order. */
 function byShare(

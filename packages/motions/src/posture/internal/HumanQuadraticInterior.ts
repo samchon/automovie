@@ -6,12 +6,6 @@ import { HumanQuadraticInteriorSession as Session } from "./HumanQuadraticInteri
 import { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPreparation";
 import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace";
 
-/** The record of `IHumanQuadraticInteriorWarmed`'s site. */
-type IHumanQuadraticInteriorWarmed = {
-  state: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
-  converged: boolean;
-};
-
 /**
  * A banded convex quadratic program (`HumanQuadraticProgram.IProblem`) solved
  * by an infeasible-start primal-dual interior-point method with Mehrotra's
@@ -280,4 +274,10 @@ export function HumanQuadraticInterior(
   cold();
   return run().state;
 }
+
+/** The record of `IHumanQuadraticInteriorWarmed`'s site. */
+type IHumanQuadraticInteriorWarmed = {
+  state: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
+  converged: boolean;
+};
 

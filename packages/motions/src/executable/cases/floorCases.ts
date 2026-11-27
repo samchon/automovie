@@ -8,18 +8,6 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 import { floorCaseSpan } from "./internal/floorCaseSpan";
 
-/** The alternatives of `FloorCasesRisesLimb`'s site. */
-type FloorCasesRisesLimb = "leftHand" | "rightHand" | "leftKnee" | "rightKnee";
-
-/** The record of `IFloorCasesKnee`'s site. */
-type IFloorCasesKnee = { low: number; high: number };
-
-/** The record of `IFloorCasesHeight`'s site. */
-type IFloorCasesHeight = { low: number; high: number };
-
-/** The record of `IFloorCasesSlip`'s site. */
-type IFloorCasesSlip = { value: number; where: string };
-
 /**
  * Capture cases of the lying and crawling family, each from quiet standing:
  *
@@ -221,3 +209,15 @@ export function floorCases(
   }
   return out;
 }
+
+/** The alternatives of `FloorCasesRisesLimb`'s site. */
+type FloorCasesRisesLimb = "leftHand" | "rightHand" | "leftKnee" | "rightKnee";
+
+/** The record of `IFloorCasesKnee`'s site. */
+type IFloorCasesKnee = { low: number; high: number };
+
+/** The record of `IFloorCasesHeight`'s site. */
+type IFloorCasesHeight = { low: number; high: number };
+
+/** The record of `IFloorCasesSlip`'s site. */
+type IFloorCasesSlip = { value: number; where: string };

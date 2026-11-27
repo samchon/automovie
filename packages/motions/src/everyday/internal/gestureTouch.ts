@@ -16,15 +16,6 @@ import { HumanTrunk } from "./HumanTrunk";
 import { gestureSignal } from "./gestureSignal";
 import type { gestureStroke } from "./gestureStroke";
 
-/** The alternatives of `TouchKind`'s site. */
-type TouchKind = "touchFace" | "pushGlasses" | "scratchHead";
-
-/** The record of `IPreparedRegion`'s site. */
-type IPreparedRegion = {
-  name: AutoMovieHumanoidRegion;
-  read: ReturnType<typeof HumanTrunk.prepareRegion>;
-};
-
 /**
  * The hand goals of a gesture that need the posed trunk: pointing along the
  * eye's line and touching the body's own face.
@@ -254,6 +245,15 @@ export namespace gestureTouch {
     });
   }
 }
+
+/** The alternatives of `TouchKind`'s site. */
+type TouchKind = "touchFace" | "pushGlasses" | "scratchHead";
+
+/** The record of `IPreparedRegion`'s site. */
+type IPreparedRegion = {
+  name: AutoMovieHumanoidRegion;
+  read: ReturnType<typeof HumanTrunk.prepareRegion>;
+};
 
 /** A pointing hand reads its eye and shoulder, without evaluating other limbs. */
 const POINT_FRAMES: Readonly<

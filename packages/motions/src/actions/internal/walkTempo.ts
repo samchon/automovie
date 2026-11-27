@@ -8,9 +8,6 @@ import type {
 
 import type { walkStation } from "../../gait/internal/walkStation";
 
-/** The record of `IWalkTempoLimp`'s site. */
-type IWalkTempoLimp = { side: AutoMovieHumanSide; share: number };
-
 /**
  * A stepping plan with its steps taken a little unevenly in time, as a person's
  * are: each step, from one heel strike to the next, lasts its planned time
@@ -91,9 +88,6 @@ export namespace walkTempo {
     /** The striking foot. */
     side: AutoMovieHumanSide;
   }
-  /** The alternatives of `WalkTempoStrikesPlan`'s site. */
-  type WalkTempoStrikesPlan = "duration" | "events";
-
   /**
    * The heel strikes a plan names (`leftHeelStrike<n>`, `rightHeelStrike<n>`),
    * in time order.
@@ -169,6 +163,9 @@ export namespace walkTempo {
   ): walkStation.IPlan {
     return retime(plan, clock);
   }
+
+  /** The alternatives of `WalkTempoStrikesPlan`'s site. */
+  type WalkTempoStrikesPlan = "duration" | "events";
 }
 
 /**
@@ -191,31 +188,6 @@ function warped(
   );
   return clock === undefined ? plan : retime(plan, clock);
 }
-/** The alternatives of `MakeClockWithinClock2`'s site. */
-type MakeClockWithinClock2 = "plan" | "film";
-
-/** The alternatives of `MakeClockWithinClock`'s site. */
-type MakeClockWithinClock = "plan" | "film";
-
-/** The record of `IMakeClockGoneStep2`'s site. */
-type IMakeClockGoneStep2 = { amplitude: number; lasts: number };
-
-/** The record of `IMakeClockGoneStep`'s site. */
-type IMakeClockGoneStep = { amplitude: number; lasts: number };
-
-/** The record of `IMakeClockEnd`'s site. */
-type IMakeClockEnd = { plan: number; film: number };
-
-/** The record of `IMakeClockStepsItem`'s site. */
-type IMakeClockStepsItem = {
-  plan: number;
-  film: number;
-  amplitude: number;
-  lasts: number;
-};
-
-/** The record of `IMakeClockStrikesS`'s site. */
-type IMakeClockStrikesS = { seconds: number };
 
 /** Prepare the monotone two-way clock over a sequence of heel strikes. */
 function makeClock(
@@ -291,7 +263,6 @@ function makeClock(
   };
   return { toPlan, toFilm };
 }
-
 /** Send the pose, events and contacts through the same clock. */
 function retime(
   plan: walkStation.IPlan,
@@ -338,3 +309,32 @@ function retime(
       plan.posture(sourceTime(seconds), channels, resolution, projection),
   };
 }
+
+/** The record of `IWalkTempoLimp`'s site. */
+type IWalkTempoLimp = { side: AutoMovieHumanSide; share: number };
+
+/** The alternatives of `MakeClockWithinClock2`'s site. */
+type MakeClockWithinClock2 = "plan" | "film";
+
+/** The alternatives of `MakeClockWithinClock`'s site. */
+type MakeClockWithinClock = "plan" | "film";
+
+/** The record of `IMakeClockGoneStep2`'s site. */
+type IMakeClockGoneStep2 = { amplitude: number; lasts: number };
+
+/** The record of `IMakeClockGoneStep`'s site. */
+type IMakeClockGoneStep = { amplitude: number; lasts: number };
+
+/** The record of `IMakeClockEnd`'s site. */
+type IMakeClockEnd = { plan: number; film: number };
+
+/** The record of `IMakeClockStepsItem`'s site. */
+type IMakeClockStepsItem = {
+  plan: number;
+  film: number;
+  amplitude: number;
+  lasts: number;
+};
+
+/** The record of `IMakeClockStrikesS`'s site. */
+type IMakeClockStrikesS = { seconds: number };

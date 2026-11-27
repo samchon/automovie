@@ -8,9 +8,6 @@ import type {
 
 import { HumanFoot } from "./HumanFoot";
 
-/** The alternatives of `PrepareHumanFootHeightPoint`'s site. */
-type PrepareHumanFootHeightPoint = "heel" | "ball" | "toe" | "sole" | "mtp";
-
 /**
  * Prepare only the world height of one fixed articulated sole socket.
  *
@@ -36,13 +33,6 @@ export function prepareHumanFootHeight(
   return (foot: IAutoMovieMotionHumanFoot.IPlacement): number =>
     height(local, foot);
 }
-/** The alternatives of `PrepareHumanFootHeightArticulatedPoint`'s site. */
-type PrepareHumanFootHeightArticulatedPoint =
-  | "heel"
-  | "ball"
-  | "toe"
-  | "sole"
-  | "mtp";
 
 /** Height readers whose fixed socket has changing toe flexion between reads. */
 export namespace prepareHumanFootHeight {
@@ -69,7 +59,6 @@ export namespace prepareHumanFootHeight {
     };
   }
 }
-
 /** The exact original rigid point height, omitting only unread X/Z outputs. */
 function height(
   local: IAutoMovieVector3,
@@ -77,3 +66,14 @@ function height(
 ): number {
   return foot.ankle.y + Quaternion.rotateVectorY(foot.rotation, local);
 }
+
+/** The alternatives of `PrepareHumanFootHeightPoint`'s site. */
+type PrepareHumanFootHeightPoint = "heel" | "ball" | "toe" | "sole" | "mtp";
+
+/** The alternatives of `PrepareHumanFootHeightArticulatedPoint`'s site. */
+type PrepareHumanFootHeightArticulatedPoint =
+  | "heel"
+  | "ball"
+  | "toe"
+  | "sole"
+  | "mtp";

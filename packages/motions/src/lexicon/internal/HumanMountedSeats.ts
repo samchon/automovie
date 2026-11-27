@@ -20,15 +20,6 @@ import { hipJoints } from "../../posture/internal/hipJoints";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { HumanMount } from "./HumanMount";
 
-/** The alternatives of `BenchAttitude`'s site. */
-type BenchAttitude = "yaw" | "pitch" | "roll";
-
-/** The alternatives of `AsideAttitude`'s site. */
-type AsideAttitude = "yaw" | "pitch" | "roll";
-
-/** The record of `IBENCHItem`'s site. */
-type IBENCHItem = { pitch: number; spine: number };
-
 /**
  * The key postures of the mounted seat kinds
  * (`IAutoMovieMotionHumanMounted.Seat`), each solved in the carrier contact's
@@ -488,3 +479,12 @@ export namespace HumanMountedSeats {
     };
   }
 }
+
+/** The alternatives of `BenchAttitude`'s site. */
+type BenchAttitude = "yaw" | "pitch" | "roll";
+
+/** The alternatives of `AsideAttitude`'s site. */
+type AsideAttitude = "yaw" | "pitch" | "roll";
+
+/** The record of `IBENCHItem`'s site. */
+type IBENCHItem = { pitch: number; spine: number };

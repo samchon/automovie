@@ -16,7 +16,35 @@ const NORMS: string =
 
 /** Constructs the vaulting table archetype from its recipe. */
 export namespace AutoMovieArchetypeVaultingTable {
-/**
+/** The kinds: the men's table and the women's. */
+  export type Kind = "men" | "women";
+
+  /** The affordance ids: `surface`, the top the hands come down on. */
+  export type Affordance = "surface";
+
+  /**
+   * The free dimensions, metres unless stated:
+   *
+   * - `height`: the top above the floor.
+   * - `length`: the top along `Z`, the run's direction.
+   * - `width`: the top along `X`.
+   * - `mass`: kilograms.
+   */
+  export type Dimension = "height" | "length" | "width" | "mass";
+
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Which table. */
+    kind: Kind;
+
+    /** The model's id, unique in a scene; `vaultingTable` when absent. */
+    id?: string;
+  }
+
+  /**
  * A vaulting table: the padded top on a pedestal a gymnast's hands push off in
  * a vault.
  *
@@ -99,24 +127,8 @@ export function create(
   /** The column's diameter, metres. An estimate, not read at a source. */
   export const COLUMN: number = 0.12;
 
-  /** The kinds: the men's table and the women's. */
-  export type Kind = "men" | "women";
-
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["men", "women"];
-
-  /** The affordance ids: `surface`, the top the hands come down on. */
-  export type Affordance = "surface";
-
-  /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `height`: the top above the floor.
-   * - `length`: the top along `Z`, the run's direction.
-   * - `width`: the top along `X`.
-   * - `mass`: kilograms.
-   */
-  export type Dimension = "height" | "length" | "width" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: Readonly<
@@ -127,18 +139,6 @@ export function create(
     width: "m",
     mass: "kg",
   };
-
-  /**
-   * The parameters: the kind, and any free dimension fixed to a value inside
-   * its band.
-   */
-  export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which table. */
-    kind: Kind;
-
-    /** The model's id, unique in a scene; `vaultingTable` when absent. */
-    id?: string;
-  }
 
   /** The bands every table shares. */
   const SHARED: Readonly<

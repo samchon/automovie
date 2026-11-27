@@ -30,31 +30,6 @@ import { CourtStrokeProfiles } from "./CourtStrokeProfiles";
 import { courtRacketWrist } from "./courtRacketWrist";
 import { courtStrokeFeet } from "./courtStrokeFeet";
 
-/** The record of `IContext`'s site. */
-type IContext = {
-  side?: AutoMovieHumanSide;
-  manner?: IAutoMovieMotionManner;
-};
-
-/** Which registered action inputs the court stroke reads. */
-type Context = IAutoMovieMotionHumanActionContext<IContext>;
-
-/** Optional elected working point and held racket for a stroke. */
-interface IOptions {
-  /** Centre of the intended hand contact or racket face, world metres. */
-  readonly contact?: IAutoMovieVector3;
-  /** Subject held in the hitting hand from a previous pickup. */
-  readonly implement?: string;
-}
-
-/** Reference stature for the profile's film-time values, metres. */
-const REFERENCE_STATURE: number = 1.75;
-
-/** Half of the provisional racket contact window, in film seconds. */
-const RACKET_CONTACT_HALF: number = 0.018;
-/** The alternatives of `NominalPosturePhaseAngleAxis`'s site. */
-type NominalPosturePhaseAngleAxis = 0 | 1 | 2;
-
 /**
  * Plan the court athlete from entry stance through support, load, strike and
  * recovery. The planted foot targets stay fixed. A jump carries the feet on a
@@ -464,3 +439,28 @@ export function courtStroke(
         holds: StrikingHeld.holds(context, tool),
       };
 }
+
+/** The record of `IContext`'s site. */
+type IContext = {
+  side?: AutoMovieHumanSide;
+  manner?: IAutoMovieMotionManner;
+};
+
+/** Which registered action inputs the court stroke reads. */
+type Context = IAutoMovieMotionHumanActionContext<IContext>;
+
+/** Optional elected working point and held racket for a stroke. */
+interface IOptions {
+  /** Centre of the intended hand contact or racket face, world metres. */
+  readonly contact?: IAutoMovieVector3;
+  /** Subject held in the hitting hand from a previous pickup. */
+  readonly implement?: string;
+}
+
+/** Reference stature for the profile's film-time values, metres. */
+const REFERENCE_STATURE: number = 1.75;
+/** Half of the provisional racket contact window, in film seconds. */
+const RACKET_CONTACT_HALF: number = 0.018;
+
+/** The alternatives of `NominalPosturePhaseAngleAxis`'s site. */
+type NominalPosturePhaseAngleAxis = 0 | 1 | 2;

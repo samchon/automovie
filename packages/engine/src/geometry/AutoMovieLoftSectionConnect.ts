@@ -14,14 +14,6 @@ import { AutoMovieLoftSectionLegacy } from "./AutoMovieLoftSectionLegacy";
 import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
 
-/** Complete actual basis functions for one regular endpoint. */
-type Basis = Extract<IAutoMovieFamily, { kind: "basis" }>;
-
-/** A kept/transformed layer may retain an explicit endpoint family. */
-type Layer = IAutoMovieLoftChain.ILayer & {
-  sectionSource?: IAutoMovieLoftSectionSource.IEndpoint;
-};
-
 /** Complete generating laws for the one span changed by continuation. */
 export namespace AutoMovieLoftSectionConnect {
   /** Capture the actual complete family at a regular station, oriented once. */
@@ -166,6 +158,14 @@ export namespace AutoMovieLoftSectionConnect {
     throw new Error("The present native span kind is unsupported.");
   }
 }
+
+/** Complete actual basis functions for one regular endpoint. */
+type Basis = Extract<IAutoMovieFamily, { kind: "basis" }>;
+
+/** A kept/transformed layer may retain an explicit endpoint family. */
+type Layer = IAutoMovieLoftChain.ILayer & {
+  sectionSource?: IAutoMovieLoftSectionSource.IEndpoint;
+};
 
 /**
  * Capture a complete actual basis endpoint rather than a finite collection of

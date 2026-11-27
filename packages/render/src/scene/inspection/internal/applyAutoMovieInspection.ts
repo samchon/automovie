@@ -37,15 +37,6 @@ import { mergeAutoMovieInspectionLegends } from "./mergeAutoMovieInspectionLegen
 import { placeAutoMovieInspectionLabels } from "./placeAutoMovieInspectionLabels.js";
 import { resolveAutoMovieInspectionColors } from "./resolveAutoMovieInspectionColors.js";
 
-/** Every mesh defect kind the palette colours, in the palette's order. */
-const DEFECT_KINDS: readonly IAutoMovieMeshDefect.Kind[] = [
-  "open",
-  "non-manifold",
-  "inconsistent",
-  "degenerate",
-  "sliver",
-];
-
 /**
  * Turn a built scene into the picture an inspection request asks for, in place,
  * and return the handle that keeps its shade and marks current and puts the
@@ -459,6 +450,15 @@ export function applyAutoMovieInspection(
     return restoreAutoMovieRenderModeState([...undo].reverse(), { error });
   }
 }
+
+/** Every mesh defect kind the palette colours, in the palette's order. */
+const DEFECT_KINDS: readonly IAutoMovieMeshDefect.Kind[] = [
+  "open",
+  "non-manifold",
+  "inconsistent",
+  "degenerate",
+  "sliver",
+];
 
 /**
  * Supplied marks a picture draws, and the same marks grouped by the object

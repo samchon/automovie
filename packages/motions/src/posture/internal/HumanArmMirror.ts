@@ -9,12 +9,6 @@ import type {
 
 import type { HumanArmGeometry } from "./HumanArmGeometry";
 
-/** The alternatives of `MirroredOthersResult`'s site. */
-type MirroredOthersResult = "others" | "rests";
-
-/** A shape list of a collider segment. */
-type IShapes = IAutoMovieMotionHumanColliders.IFramed["shapes"];
-
 /**
  * The mirror image across the world's x = 0 plane of what an arm is read
  * against, so a left arm is solved as the right arm in the mirror image of its
@@ -302,3 +296,9 @@ export namespace HumanArmMirror {
         : bone;
   }
 }
+
+/** The alternatives of `MirroredOthersResult`'s site. */
+type MirroredOthersResult = "others" | "rests";
+
+/** A shape list of a collider segment. */
+type IShapes = IAutoMovieMotionHumanColliders.IFramed["shapes"];

@@ -17,9 +17,6 @@ import { HumanPerformanceSite } from "./HumanPerformanceSite";
 import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanSegmentShown } from "./HumanSegmentShown";
 
-/** The alternatives of `PlaceDraftedResult`'s site. */
-type PlaceDraftedResult = "prop" | "point";
-
 /**
  * The reader of a prop a placed action's context gives
  * (`IAutoMovieMotionHumanActionContext.prop`): the prop, its displayed frame at
@@ -110,3 +107,6 @@ export function HumanPerformancePlaceProp(
     };
   };
 }
+
+/** The alternatives of `PlaceDraftedResult`'s site. */
+type PlaceDraftedResult = "prop" | "point";

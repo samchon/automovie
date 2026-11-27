@@ -2,9 +2,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { ArchetypeBinary64 } from "./ArchetypeBinary64";
 
-/** One exact signed input or nonnegative square, integer times 2^exponent. */
-type IDyadic = ReturnType<ReturnType<typeof ArchetypeBinary64>>;
-
 /**
  * Admit the energy needed to give departing fragments the supplied momentum.
  * Their common velocity p/M has kinetic energy ||p||²/(2M), the minimum at
@@ -85,3 +82,6 @@ export function ArchetypeFractureEnergy(
   view.setBigUint64(0, low, false);
   return { sufficient: false, minimum: view.getFloat64(0, false) };
 }
+
+/** One exact signed input or nonnegative square, integer times 2^exponent. */
+type IDyadic = ReturnType<ReturnType<typeof ArchetypeBinary64>>;

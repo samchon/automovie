@@ -6,9 +6,6 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** The prop fields that determine whether a tool and its point can move. */
-type Tool = IAutoMovieMotionHumanPropReader["prop"];
-
 /** The relative motion the writing target can support. */
 export namespace writeAdmission {
   /** Admit a carried tool distinct from the stationary writing surface. */
@@ -47,3 +44,6 @@ export namespace writeAdmission {
       });
   }
 }
+
+/** The prop fields that determine whether a tool and its point can move. */
+type Tool = IAutoMovieMotionHumanPropReader["prop"];

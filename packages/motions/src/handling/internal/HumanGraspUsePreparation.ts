@@ -6,9 +6,6 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { HumanGraspUse } from "./HumanGraspUse";
 
-/** The record of `IOfPlaced`'s site. */
-type IOfPlaced = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
-
 /**
  * Read the use's contacts, lines, region and laid hand.
  *
@@ -249,3 +246,6 @@ export namespace HumanGraspUsePreparation {
     roll: ReturnType<typeof Quaternion.prepareAxisAngle>;
   }
 }
+
+/** The record of `IOfPlaced`'s site. */
+type IOfPlaced = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };

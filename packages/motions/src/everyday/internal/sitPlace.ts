@@ -15,17 +15,6 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { seated } from "./seated";
 
-/** The record of `IBACKSEntryItem`'s site. */
-type IBACKSEntryItem = {
-  pitch: number;
-  joints: Partial<
-    Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-  >;
-};
-
-/** The alternatives of `BACKSEntryItem`'s site. */
-type BACKSEntryItem = "upright" | "lean" | "slump";
-
 /**
  * Where and how a sit sits: the backs it settles into, the feet the seated legs
  * reach and the turn the performer stands at from the seat's heading, the last
@@ -140,3 +129,14 @@ export namespace sitPlace {
     return a;
   }
 }
+
+/** The record of `IBACKSEntryItem`'s site. */
+type IBACKSEntryItem = {
+  pitch: number;
+  joints: Partial<
+    Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+  >;
+};
+
+/** The alternatives of `BACKSEntryItem`'s site. */
+type BACKSEntryItem = "upright" | "lean" | "slump";

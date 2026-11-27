@@ -4,9 +4,6 @@ import { AutoMovieArchetypeFrame } from "../../core/index";
 import type { StageTokenConstruction } from "./StageTokenConstruction";
 import { AutoMovieArchetypeProjectile } from "../AutoMovieArchetypeProjectile";
 
-/** The values {@link stageTokenSphere} accepts at this place in its signature. */
-type StageTokenSphereKind = "ball" | "roundShot" | "grenade" | "stone";
-
 /**
  * Record the round screen-prop body.
  *
@@ -58,3 +55,6 @@ export function stageTokenSphere(
     ...AutoMovieArchetypeProjectile.flight(kind, model, r),
   });
 }
+
+/** The values {@link stageTokenSphere} accepts at this place in its signature. */
+type StageTokenSphereKind = "ball" | "roundShot" | "grenade" | "stone";

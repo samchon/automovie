@@ -2,23 +2,6 @@
 import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
 import { Quaternion } from "../../math/Quaternion";
 
-/** Uniform starting grid and the measured endpoint angle bound in radians. */
-interface IGrid {
-  readonly from: number;
-  readonly to: number;
-  readonly intervals: number;
-  readonly turn: number;
-}
-
-/** Parallel owned arrays of increasing seconds and sampled poses. */
-interface IKnots {
-  times: number[];
-  knots: AutoMovieEngineKinematics.IPosedBody[];
-}
-
-/** A posed shape at one representable second. */
-type IKnot = readonly [seconds: number, pose: AutoMovieEngineKinematics.IPosedBody];
-
 /**
  * Sample increasing knot seconds and their posed mass parts over a flight.
  *
@@ -85,6 +68,23 @@ export function tabulateAirborneShapeKnots(
   }
   return { times, knots };
 }
+
+/** Uniform starting grid and the measured endpoint angle bound in radians. */
+interface IGrid {
+  readonly from: number;
+  readonly to: number;
+  readonly intervals: number;
+  readonly turn: number;
+}
+
+/** Parallel owned arrays of increasing seconds and sampled poses. */
+interface IKnots {
+  times: number[];
+  knots: AutoMovieEngineKinematics.IPosedBody[];
+}
+
+/** A posed shape at one representable second. */
+type IKnot = readonly [seconds: number, pose: AutoMovieEngineKinematics.IPosedBody];
 
 /** Greatest shortest-arc angle in radians among matching principal frames. */
 function maximumTurn(

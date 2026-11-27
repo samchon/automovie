@@ -8,9 +8,7 @@ import type {
 import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-type Vec3 = AutoMovieVector3Tuple;
 const { dot, norm, sub } = AutoMovieSolidVector;
-
 /**
  * The trim-loop readings of a face's tessellation (`AutoMovieSolidMesh.face`):
  * which grid vertices a loop keeps with a local metric margin, how
@@ -109,6 +107,107 @@ export namespace AutoMovieSolidMeshLoop {
       }
       return true;
     };
+  }
+
+  /**
+   * The mean chart distance from a cycle's points to a loop, for matching a
+   * drawn-cell cycle to its loop.
+   *
+   * @param loop The loop.
+   * @param points The cycle's chart points.
+   * @param period The face's phase period, or undefined.
+   * @returns The mean distance. Coordinates use their raw chart units, so this
+   *   ranking is not a world-distance or topology certificate. No points gives
+   *   NaN; no loop segments gives infinite distance for each nonempty point
+   *   query.
+   */
+  export function nearest(
+    loop: IAutoMovieSolidMesh.ILoop,
+    points: readonly [number, number][],
+    period: number | undefined,
+  ): number {
+    let sum: number = 0;
+    for (const p of points)
+      sum += AutoMovieSolidCycle.foot(loop, p[0], p[1], period).distance;
+    return sum / points.length;
+  }
+
+  /**
+   * The zipper's parameter of a closed vertex sequence: its cumulative length
+   * between its points from its first, over its whole length, times a turn.
+   * Arclength holds for any simple cycle a clip leaves, where an angle about a
+   * centre turns back on a cycle that is not star-shaped.
+   *
+   * @param mesh The mesh holding the vertices.
+   * @param ids The sequence's vertices.
+   * @returns Each vertex's parameter, radians from 0. The sequence must be
+   *   nonempty with valid mesh indices. This is closed polyline chord length,
+   *   not smooth-surface arclength. A total that does not compare above zero
+   *   takes the all-zero branch; positive infinity still enters normalization
+   *   and is not validated here.
+   */
+  export function arc(
+    mesh: IAutoMovieSolidMesh.IMesh,
+    ids: readonly number[],
+  ): number[] {
+    const p = (v: number): Vec3 => [
+      mesh.positions[3 * v]!,
+      mesh.positions[3 * v + 1]!,
+      mesh.positions[3 * v + 2]!,
+    ];
+    const out: number[] = [0];
+    for (let k: number = 1; k < ids.length; k++)
+      out.push(out[k - 1]! + norm(sub(p(ids[k]!), p(ids[k - 1]!))));
+    const total: number =
+      out[ids.length - 1]! + norm(sub(p(ids[0]!), p(ids[ids.length - 1]!)));
+    return out.map((x: number): number =>
+      total > 0 ? (2 * Math.PI * x) / total : 0,
+    );
+  }
+
+  /**
+   * A drawn-cell cycle turned and started to run with a loop: started at its
+   * vertex nearest the loop's first, and turned the way whose point a quarter
+   * of its length on lies nearer the loop's point a quarter on.
+   *
+   * @param mesh The mesh holding the vertices.
+   * @param loop The loop's vertices.
+   * @param cycle The cycle's vertices.
+   * @returns The cycle, started and turned to run with the loop. Both sequences
+   *   must be nonempty with valid mesh indices. The quarter observation is the
+   *   first existing vertex at or beyond a quarter turn, falling back to the
+   *   first vertex if none reaches it; it is not an interpolated quarter point
+   *   or proof of boundary correspondence.
+   */
+  export function aligned(
+    mesh: IAutoMovieSolidMesh.IMesh,
+    loop: readonly number[],
+    cycle: readonly number[],
+  ): number[] {
+    const p = (v: number): Vec3 => [
+      mesh.positions[3 * v]!,
+      mesh.positions[3 * v + 1]!,
+      mesh.positions[3 * v + 2]!,
+    ];
+    const head: Vec3 = p(loop[0]!);
+    let start: number = 0;
+    cycle.forEach((v: number, k: number): void => {
+      if (norm(sub(p(v), head)) < norm(sub(p(cycle[start]!), head))) start = k;
+    });
+    const forward: number[] = cycle.map(
+      (_: number, k: number): number => cycle[(start + k) % cycle.length]!,
+    );
+    const backward: number[] = [forward[0]!, ...forward.slice(1).reverse()];
+    const quarter = (ids: readonly number[]): Vec3 => {
+      const a: number[] = arc(mesh, ids);
+      const k: number = a.findIndex((x: number): boolean => x >= Math.PI / 2);
+      return p(ids[k < 0 ? 0 : k]!);
+    };
+    const target: Vec3 = quarter(loop);
+    return norm(sub(quarter(forward), target)) <=
+      norm(sub(quarter(backward), target))
+      ? forward
+      : backward;
   }
 
   /** The numerical fields the parity and metric readings consume. */
@@ -251,105 +350,6 @@ export namespace AutoMovieSolidMeshLoop {
     const y: number = py - t * dy;
     return Math.sqrt(Math.max(0, E * x * x + 2 * F * x * y + G * y * y));
   }
-
-  /**
-   * The mean chart distance from a cycle's points to a loop, for matching a
-   * drawn-cell cycle to its loop.
-   *
-   * @param loop The loop.
-   * @param points The cycle's chart points.
-   * @param period The face's phase period, or undefined.
-   * @returns The mean distance. Coordinates use their raw chart units, so this
-   *   ranking is not a world-distance or topology certificate. No points gives
-   *   NaN; no loop segments gives infinite distance for each nonempty point
-   *   query.
-   */
-  export function nearest(
-    loop: IAutoMovieSolidMesh.ILoop,
-    points: readonly [number, number][],
-    period: number | undefined,
-  ): number {
-    let sum: number = 0;
-    for (const p of points)
-      sum += AutoMovieSolidCycle.foot(loop, p[0], p[1], period).distance;
-    return sum / points.length;
-  }
-
-  /**
-   * The zipper's parameter of a closed vertex sequence: its cumulative length
-   * between its points from its first, over its whole length, times a turn.
-   * Arclength holds for any simple cycle a clip leaves, where an angle about a
-   * centre turns back on a cycle that is not star-shaped.
-   *
-   * @param mesh The mesh holding the vertices.
-   * @param ids The sequence's vertices.
-   * @returns Each vertex's parameter, radians from 0. The sequence must be
-   *   nonempty with valid mesh indices. This is closed polyline chord length,
-   *   not smooth-surface arclength. A total that does not compare above zero
-   *   takes the all-zero branch; positive infinity still enters normalization
-   *   and is not validated here.
-   */
-  export function arc(
-    mesh: IAutoMovieSolidMesh.IMesh,
-    ids: readonly number[],
-  ): number[] {
-    const p = (v: number): Vec3 => [
-      mesh.positions[3 * v]!,
-      mesh.positions[3 * v + 1]!,
-      mesh.positions[3 * v + 2]!,
-    ];
-    const out: number[] = [0];
-    for (let k: number = 1; k < ids.length; k++)
-      out.push(out[k - 1]! + norm(sub(p(ids[k]!), p(ids[k - 1]!))));
-    const total: number =
-      out[ids.length - 1]! + norm(sub(p(ids[0]!), p(ids[ids.length - 1]!)));
-    return out.map((x: number): number =>
-      total > 0 ? (2 * Math.PI * x) / total : 0,
-    );
-  }
-
-  /**
-   * A drawn-cell cycle turned and started to run with a loop: started at its
-   * vertex nearest the loop's first, and turned the way whose point a quarter
-   * of its length on lies nearer the loop's point a quarter on.
-   *
-   * @param mesh The mesh holding the vertices.
-   * @param loop The loop's vertices.
-   * @param cycle The cycle's vertices.
-   * @returns The cycle, started and turned to run with the loop. Both sequences
-   *   must be nonempty with valid mesh indices. The quarter observation is the
-   *   first existing vertex at or beyond a quarter turn, falling back to the
-   *   first vertex if none reaches it; it is not an interpolated quarter point
-   *   or proof of boundary correspondence.
-   */
-  export function aligned(
-    mesh: IAutoMovieSolidMesh.IMesh,
-    loop: readonly number[],
-    cycle: readonly number[],
-  ): number[] {
-    const p = (v: number): Vec3 => [
-      mesh.positions[3 * v]!,
-      mesh.positions[3 * v + 1]!,
-      mesh.positions[3 * v + 2]!,
-    ];
-    const head: Vec3 = p(loop[0]!);
-    let start: number = 0;
-    cycle.forEach((v: number, k: number): void => {
-      if (norm(sub(p(v), head)) < norm(sub(p(cycle[start]!), head))) start = k;
-    });
-    const forward: number[] = cycle.map(
-      (_: number, k: number): number => cycle[(start + k) % cycle.length]!,
-    );
-    const backward: number[] = [forward[0]!, ...forward.slice(1).reverse()];
-    const quarter = (ids: readonly number[]): Vec3 => {
-      const a: number[] = arc(mesh, ids);
-      const k: number = a.findIndex((x: number): boolean => x >= Math.PI / 2);
-      return p(ids[k < 0 ? 0 : k]!);
-    };
-    const target: Vec3 = quarter(loop);
-    return norm(sub(quarter(forward), target)) <=
-      norm(sub(quarter(backward), target))
-      ? forward
-      : backward;
-  }
 }
+
+type Vec3 = AutoMovieVector3Tuple;

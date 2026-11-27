@@ -3,43 +3,6 @@ import type { IAutoMoviePhysicalRecoveryState } from "@automovie/interface";
 import { AutoMovieEnginePhysicalStanceBalance } from "./AutoMovieEnginePhysicalStanceBalance";
 
 
-function updateSeat(input: {
-  seat: AutoMovieEnginePhysicalStanceSeat.ISeat;
-  spread: number;
-  load: number;
-  grounded: boolean;
-  touching: boolean;
-  weight: number;
-  seconds: number;
-  dt: number;
-}): boolean {
-  const { seat } = input;
-
-  // The sole's own relief is latched when its stance begins, so a curved
-  // sole is not read as lifted; an edge lifting raises the spread past it.
-  const lift: number = Math.max(0, input.spread - (seat.relief ?? input.spread));
-  const opposite: boolean = seat.seated
-    ? lift > AutoMovieEnginePhysicalStanceBalance.UNSEAT
-    : lift < AutoMovieEnginePhysicalStanceBalance.RESEAT;
-  if (!opposite) seat.since = input.seconds;
-  else if (input.seconds - seat.since >= AutoMovieEnginePhysicalStanceBalance.DWELL) {
-    seat.seated = !seat.seated;
-    seat.since = input.seconds;
-  }
-  seat.load = AutoMovieEnginePhysicalStanceSeat.lowPass(seat.load ?? 0, input.load, input.dt);
-  const step: number = input.dt / AutoMovieEnginePhysicalStanceBalance.FADE;
-  const toward = (share: number, target: number): number =>
-    share + Math.max(-step, Math.min(step, target - share));
-  seat.bearing = input.grounded ? toward(seat.bearing ?? 1, 1) : 0;
-  seat.flat = toward(seat.flat ?? 1, input.grounded && seat.seated ? 1 : 0);
-  const left: boolean =
-    !input.touching &&
-    seat.load < AutoMovieEnginePhysicalStanceBalance.RELEASE * input.weight;
-  const entered: boolean = seat.entry === 0 && !left;
-  seat.entry = left ? 0 : toward(seat.entry ?? 1, 1);
-  return entered;
-}
-
 /** The seat and the load filter of {@link AutoMovieEnginePhysicalStanceSeat}. */
 export namespace AutoMovieEnginePhysicalStanceSeat {
   /**
@@ -102,4 +65,41 @@ export namespace AutoMovieEnginePhysicalStanceSeat {
         Math.min(1, dt / AutoMovieEnginePhysicalStanceBalance.LOAD_SECONDS)
     );
   }
+}
+
+function updateSeat(input: {
+  seat: AutoMovieEnginePhysicalStanceSeat.ISeat;
+  spread: number;
+  load: number;
+  grounded: boolean;
+  touching: boolean;
+  weight: number;
+  seconds: number;
+  dt: number;
+}): boolean {
+  const { seat } = input;
+
+  // The sole's own relief is latched when its stance begins, so a curved
+  // sole is not read as lifted; an edge lifting raises the spread past it.
+  const lift: number = Math.max(0, input.spread - (seat.relief ?? input.spread));
+  const opposite: boolean = seat.seated
+    ? lift > AutoMovieEnginePhysicalStanceBalance.UNSEAT
+    : lift < AutoMovieEnginePhysicalStanceBalance.RESEAT;
+  if (!opposite) seat.since = input.seconds;
+  else if (input.seconds - seat.since >= AutoMovieEnginePhysicalStanceBalance.DWELL) {
+    seat.seated = !seat.seated;
+    seat.since = input.seconds;
+  }
+  seat.load = AutoMovieEnginePhysicalStanceSeat.lowPass(seat.load ?? 0, input.load, input.dt);
+  const step: number = input.dt / AutoMovieEnginePhysicalStanceBalance.FADE;
+  const toward = (share: number, target: number): number =>
+    share + Math.max(-step, Math.min(step, target - share));
+  seat.bearing = input.grounded ? toward(seat.bearing ?? 1, 1) : 0;
+  seat.flat = toward(seat.flat ?? 1, input.grounded && seat.seated ? 1 : 0);
+  const left: boolean =
+    !input.touching &&
+    seat.load < AutoMovieEnginePhysicalStanceBalance.RELEASE * input.weight;
+  const entered: boolean = seat.entry === 0 && !left;
+  seat.entry = left ? 0 : toward(seat.entry ?? 1, 1);
+  return entered;
 }

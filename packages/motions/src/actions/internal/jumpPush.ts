@@ -35,12 +35,6 @@ const PIVOTING: number = 0.01;
  */
 const CARRY: number = 1e-6;
 
-/** The alternatives of `OfAbout`'s site. */
-type OfAbout = "heel" | "mtp";
-
-/** The alternatives of `OfEnd`'s site. */
-type OfEnd = "joints" | "limbs";
-
 /**
  * Build a jump's push-off.
  *
@@ -421,3 +415,9 @@ export namespace jumpPush {
     pelvis: readonly [number, number, number];
   }
 }
+
+/** The alternatives of `OfAbout`'s site. */
+type OfAbout = "heel" | "mtp";
+
+/** The alternatives of `OfEnd`'s site. */
+type OfEnd = "joints" | "limbs";

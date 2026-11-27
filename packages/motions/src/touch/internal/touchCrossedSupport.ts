@@ -23,12 +23,6 @@ import { HumanArmTrajectoryPace } from "../../posture/internal/HumanArmTrajector
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/** The alternatives of `GirdlesAtBone`'s site. */
-type GirdlesAtBone = "leftShoulder" | "rightShoulder";
-
-/** The alternatives of `GirdlesBoundsEnd`'s site. */
-type GirdlesBoundsEnd = "min" | "max";
-
 /**
  * Shoulder assistance and transport timing for hands holding distinct body
  * sites across each other.
@@ -40,31 +34,6 @@ export namespace touchCrossedSupport {
     assist: boolean;
     /** The free transport time of the achieved wrist path, in seconds. */
     reach: number;
-  }
-
-  /** Build and admit a touch on the specified branch. */
-  type Build = (
-    context: Context,
-    attempt?: IAttempt,
-  ) => IAutoMovieMotionHumanActionPlan;
-
-  /** A touch and its initial body and clock. */
-  type Context =
-    IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>;
-
-  /** The two wrist positions in world metres. */
-  type Wrists = readonly [IAutoMovieVector3, IAutoMovieVector3];
-
-  /** Joint angles in the rig's flexion, abduction and twist order, in degrees. */
-  type Angles = readonly [number, number, number];
-
-  /** The branch a crossing reaches on and its plan. */
-  interface IAssisted {
-    /** Whether the primary arm passes below and the second arm above. */
-    assist: boolean;
-
-    /** The plan built on that branch. */
-    plan: IAutoMovieMotionHumanActionPlan;
   }
 
   /**
@@ -200,4 +169,35 @@ export namespace touchCrossedSupport {
       };
     };
   }
+
+  /** Build and admit a touch on the specified branch. */
+  type Build = (
+    context: Context,
+    attempt?: IAttempt,
+  ) => IAutoMovieMotionHumanActionPlan;
+
+  /** A touch and its initial body and clock. */
+  type Context =
+    IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>;
+
+  /** The two wrist positions in world metres. */
+  type Wrists = readonly [IAutoMovieVector3, IAutoMovieVector3];
+
+  /** Joint angles in the rig's flexion, abduction and twist order, in degrees. */
+  type Angles = readonly [number, number, number];
+
+  /** The branch a crossing reaches on and its plan. */
+  interface IAssisted {
+    /** Whether the primary arm passes below and the second arm above. */
+    assist: boolean;
+
+    /** The plan built on that branch. */
+    plan: IAutoMovieMotionHumanActionPlan;
+  }
 }
+
+/** The alternatives of `GirdlesAtBone`'s site. */
+type GirdlesAtBone = "leftShoulder" | "rightShoulder";
+
+/** The alternatives of `GirdlesBoundsEnd`'s site. */
+type GirdlesBoundsEnd = "min" | "max";

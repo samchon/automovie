@@ -12,15 +12,6 @@ import type { HumanBodyFitRows } from "./HumanBodyFitRows";
 import { HumanFitTargetSlopes } from "./HumanFitTargetSlopes";
 import { HumanJacobian } from "./HumanJacobian";
 
-/** The record of `IResidualResult`'s site. */
-type IResidualResult = { point: number; turn: number };
-
-/** The alternatives of `MissesOutAxis`'s site. */
-type MissesOutAxis = "x" | "y" | "z";
-
-/** The alternatives of `RowsAxesItem`'s site. */
-type RowsAxesItem = "x" | "y" | "z";
-
 /** Effector constraints in world axes, a fixed frame or a moving bone frame. */
 export namespace HumanFitTargets {
   /**
@@ -337,6 +328,15 @@ export namespace HumanFitTargets {
     return [u, Vector3.cross(n, u)];
   }
 }
+
+/** The record of `IResidualResult`'s site. */
+type IResidualResult = { point: number; turn: number };
+
+/** The alternatives of `MissesOutAxis`'s site. */
+type MissesOutAxis = "x" | "y" | "z";
+
+/** The alternatives of `RowsAxesItem`'s site. */
+type RowsAxesItem = "x" | "y" | "z";
 /** The record of `IFrameAnchor`'s site. */
 type IFrameAnchor = {
   /** The bone whose velocity carries the frame, when it moves. */

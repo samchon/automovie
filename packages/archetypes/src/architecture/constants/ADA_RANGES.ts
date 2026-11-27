@@ -1,19 +1,4 @@
 /**
- * One height range the 2010 ADA Standards set, metres above the floor, with the
- * clause that sets it.
- */
-interface IRange {
-  /** The least height. */
-  low: number;
-
-  /** The greatest height. */
-  high: number;
-
-  /** The clause, quoted with its address. */
-  source: string;
-}
-
-/**
  * The height ranges of the 2010 ADA Standards that more than one archetype
  * reads, each in the standard's own metric figures:
  *
@@ -39,3 +24,18 @@ export const ADA_RANGES: Readonly<Record<"reach" | "hardware", IRange>> = {
       "2010 ADA Standards 404.2.7, door hardware 34 in (865 mm) minimum and 48 in (1220 mm) maximum above the floor (https://www.access-board.gov/ada/chapter/ch04/)",
   },
 };
+
+/**
+ * One height range the 2010 ADA Standards set, metres above the floor, with the
+ * clause that sets it.
+ */
+interface IRange {
+  /** The least height. */
+  low: number;
+
+  /** The greatest height. */
+  high: number;
+
+  /** The clause, quoted with its address. */
+  source: string;
+}

@@ -2,11 +2,6 @@ import type { IAutoMovieRasterImage } from "@automovie/interface";
 
 import { crcAutoMoviePngChunk } from "./crcAutoMoviePngChunk.js";
 
-/** The eight bytes every PNG file starts with. */
-const SIGNATURE: readonly number[] = [
-  0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
-];
-
 /**
  * Encode a picture, such as a drawn still, a contact sheet or a difference
  * image, as a lossless 8-bit RGB PNG, or with `alpha` as an 8-bit RGBA PNG.
@@ -91,6 +86,11 @@ export async function encodeAutoMovieRasterPng(
   }
   return file;
 }
+
+/** The eight bytes every PNG file starts with. */
+const SIGNATURE: readonly number[] = [
+  0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+];
 
 /** One PNG chunk: length, type, data and CRC-32 of type and data. */
 function chunk(type: string, data: Uint8Array): Uint8Array {

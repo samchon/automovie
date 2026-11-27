@@ -3,18 +3,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** First intrinsic failure in the identity, episode, authority or sample data. */
-type ContactReceiptFault =
-  | "identity"
-  | "episode"
-  | "geometric-impulse"
-  | "geometric-samples"
-  | "solver-impulse"
-  | "sample";
-
-/** Unit-normal tolerance shared by the live solver and archive readers. */
-const NORMAL_TOLERANCE: number = 1e-5;
-
 /**
  * Find the first causal fault in a contact receipt, or return null for admitted
  * data. Times are finite, nonnegative film seconds. Samples must occur within
@@ -78,6 +66,18 @@ export function contactReceiptFault(
   }
   return null;
 }
+
+/** First intrinsic failure in the identity, episode, authority or sample data. */
+type ContactReceiptFault =
+  | "identity"
+  | "episode"
+  | "geometric-impulse"
+  | "geometric-samples"
+  | "solver-impulse"
+  | "sample";
+
+/** Unit-normal tolerance shared by the live solver and archive readers. */
+const NORMAL_TOLERANCE: number = 1e-5;
 
 /** A collider side names its body, segment, shape and material. */
 function contactSideNamed(side: IAutoMovieContactReceipt["a"]): boolean {

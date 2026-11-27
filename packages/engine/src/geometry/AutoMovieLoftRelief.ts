@@ -97,45 +97,6 @@ export namespace AutoMovieLoftRelief {
   }
 
   /**
-   * A tensor-product net over the window with its partials up to second order
-   * in station and phase, `[f, f_s, f_t, f_ss, f_st, f_tt]`, zero outside the
-   * window.
-   */
-  function field(
-    relief: IAutoMovieLoftRelief,
-    net: readonly number[],
-    s: number,
-    t: number,
-  ): number[] {
-    const [s0, s1] = relief.stations;
-    const span: number = width(relief);
-    const offset: number = wrap(t - relief.phases[0]);
-    if (s <= s0 || s >= s1 || offset >= span) return [0, 0, 0, 0, 0, 0];
-    const su: number = (relief.rows - 3) / (s1 - s0);
-    const sv: number = (relief.columns - 3) / span;
-    const [iu, wu, du, eu] = second(
-      ((s - s0) / (s1 - s0)) * (relief.rows - 3),
-      relief.rows,
-    );
-    const [iv, wv, dv, ev] = second(
-      (offset / span) * (relief.columns - 3),
-      relief.columns,
-    );
-    const out: number[] = [0, 0, 0, 0, 0, 0];
-    for (let a: number = 0; a < 4; a++)
-      for (let b: number = 0; b < 4; b++) {
-        const h: number = net[(iu + a) * relief.columns + iv + b]!;
-        out[0]! += wu[a]! * wv[b]! * h;
-        out[1]! += du[a]! * wv[b]! * h * su;
-        out[2]! += wu[a]! * dv[b]! * h * sv;
-        out[3]! += eu[a]! * wv[b]! * h * su * su;
-        out[4]! += du[a]! * dv[b]! * h * su * sv;
-        out[5]! += wu[a]! * ev[b]! * h * sv * sv;
-      }
-    return out;
-  }
-
-  /**
    * The world direction the relief's height moves a base point along at a
    * phase, with its first and second derivatives in phase.
    *
@@ -177,6 +138,45 @@ export namespace AutoMovieLoftRelief {
   export function width(relief: IAutoMovieLoftRelief): number {
     const w: number = wrap(relief.phases[1] - relief.phases[0]);
     return w === 0 ? 2 * Math.PI : w;
+  }
+
+  /**
+   * A tensor-product net over the window with its partials up to second order
+   * in station and phase, `[f, f_s, f_t, f_ss, f_st, f_tt]`, zero outside the
+   * window.
+   */
+  function field(
+    relief: IAutoMovieLoftRelief,
+    net: readonly number[],
+    s: number,
+    t: number,
+  ): number[] {
+    const [s0, s1] = relief.stations;
+    const span: number = width(relief);
+    const offset: number = wrap(t - relief.phases[0]);
+    if (s <= s0 || s >= s1 || offset >= span) return [0, 0, 0, 0, 0, 0];
+    const su: number = (relief.rows - 3) / (s1 - s0);
+    const sv: number = (relief.columns - 3) / span;
+    const [iu, wu, du, eu] = second(
+      ((s - s0) / (s1 - s0)) * (relief.rows - 3),
+      relief.rows,
+    );
+    const [iv, wv, dv, ev] = second(
+      (offset / span) * (relief.columns - 3),
+      relief.columns,
+    );
+    const out: number[] = [0, 0, 0, 0, 0, 0];
+    for (let a: number = 0; a < 4; a++)
+      for (let b: number = 0; b < 4; b++) {
+        const h: number = net[(iu + a) * relief.columns + iv + b]!;
+        out[0]! += wu[a]! * wv[b]! * h;
+        out[1]! += du[a]! * wv[b]! * h * su;
+        out[2]! += wu[a]! * dv[b]! * h * sv;
+        out[3]! += eu[a]! * wv[b]! * h * su * su;
+        out[4]! += du[a]! * dv[b]! * h * su * sv;
+        out[5]! += wu[a]! * ev[b]! * h * sv * sv;
+      }
+    return out;
   }
 }
 

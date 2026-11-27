@@ -4,6 +4,39 @@ import { AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand, AutoMovieA
 
 /** Public operations for Auto Movie Archetype Kerb. */
 export namespace AutoMovieArchetypeKerb {
+  /** The kinds: a road kerb unit and a single free-standing step. */
+  export type Kind = "kerb" | "step";
+
+  /**
+   * The affordance ids:
+   *
+   * - `top`: the top face, facing up.
+   * - `edge`: the top's front edge along `+X`, `+Z` out of the face below.
+   */
+  export type Affordance = "top" | "edge";
+
+  /**
+   * The free dimensions, metres unless stated:
+   *
+   * - `height`: the top above the ground, a kerb's upstand or a step's riser.
+   * - `depth`: the top front to back, a kerb's width or a step's tread.
+   * - `length`: along `X`.
+   * - `mass`: kilograms.
+   */
+  export type Dimension = "height" | "depth" | "length" | "mass";
+
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Which one. */
+    kind: Kind;
+
+    /** The model's id, unique in a scene; `kerb` when absent. */
+    id?: string;
+  }
+
   /**
    * A single raised step a foot goes up or over: a road kerb or a free-standing
    * step.
@@ -25,29 +58,8 @@ export namespace AutoMovieArchetypeKerb {
     return createKerbImplementation(params, seed);
   }
 
-  /** The kinds: a road kerb unit and a single free-standing step. */
-  export type Kind = "kerb" | "step";
-
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["kerb", "step"];
-
-  /**
-   * The affordance ids:
-   *
-   * - `top`: the top face, facing up.
-   * - `edge`: the top's front edge along `+X`, `+Z` out of the face below.
-   */
-  export type Affordance = "top" | "edge";
-
-  /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `height`: the top above the ground, a kerb's upstand or a step's riser.
-   * - `depth`: the top front to back, a kerb's width or a step's tread.
-   * - `length`: along `X`.
-   * - `mass`: kilograms.
-   */
-  export type Dimension = "height" | "depth" | "length" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: Readonly<
@@ -58,18 +70,6 @@ export namespace AutoMovieArchetypeKerb {
     length: "m",
     mass: "kg",
   };
-
-  /**
-   * The parameters: the kind, and any free dimension fixed to a value inside
-   * its band.
-   */
-  export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which one. */
-    kind: Kind;
-
-    /** The model's id, unique in a scene; `kerb` when absent. */
-    id?: string;
-  }
 
   /** A kerb unit, read. */
   const HB2: string =

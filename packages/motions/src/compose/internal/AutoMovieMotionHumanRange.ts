@@ -10,11 +10,6 @@ import type {
 import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
 
-/** The alternatives of `ShareAmount`'s site. */
-type ShareAmount =
-  | IAutoMovieMotionHumanRange.Level
-  | IAutoMovieMotionHumanRange.IScaled;
-
 /**
  * Amounts by level: how far a joint turns as a share of its range of motion,
  * how far the trunk leans as a share of the reach's lean limit, and how far the
@@ -190,6 +185,11 @@ export namespace AutoMovieMotionHumanRange {
     return share * body.measure.stature;
   }
 }
+
+/** The alternatives of `ShareAmount`'s site. */
+type ShareAmount =
+  | IAutoMovieMotionHumanRange.Level
+  | IAutoMovieMotionHumanRange.IScaled;
 
 /** Refuses explicit degrees that are unsourced, negative or past a limit. */
 function checked(

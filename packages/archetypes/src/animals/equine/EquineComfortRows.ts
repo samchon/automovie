@@ -48,30 +48,6 @@ const KINDS: ReadonlySet<string> = new Set<
   AutoMovieArchetypeEquineComfortCue.Row["kind"]
 >(["rest", "paw", "stamp", "cowKick", "shake", "camp"]);
 
-/** The standing rest's authored shape. */
-interface IRestShape {
-  /** Degrees behind vertical the resting hoof's terminal bar points down. */
-  tip: number;
-
-  /** Metres it is set forward. */
-  forward: number;
-
-  /** Degrees the hips tilt to the resting side. */
-  tilt: number;
-
-  /** Metres it is lifted on its way. */
-  arc: number;
-}
-
-/** The trunk shake's authored shape. */
-interface IShakeShape {
-  /** Degrees of roll. */
-  roll: number;
-
-  /** Rolls per second. */
-  hertz: number;
-}
-
 /**
  * The comfort rows of the stance: the standing rest on a tipped hind hoof,
  * pawing, stamping, the cow-kick, the trunk shake and the camped-out stance.
@@ -272,4 +248,28 @@ export namespace EquineComfortRows {
       }),
     };
   }
+}
+
+/** The standing rest's authored shape. */
+interface IRestShape {
+  /** Degrees behind vertical the resting hoof's terminal bar points down. */
+  tip: number;
+
+  /** Metres it is set forward. */
+  forward: number;
+
+  /** Degrees the hips tilt to the resting side. */
+  tilt: number;
+
+  /** Metres it is lifted on its way. */
+  arc: number;
+}
+
+/** The trunk shake's authored shape. */
+interface IShakeShape {
+  /** Degrees of roll. */
+  roll: number;
+
+  /** Rolls per second. */
+  hertz: number;
 }

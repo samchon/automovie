@@ -19,12 +19,6 @@ import { AutoMovieHumanF1NativeSites as Sites } from "./AutoMovieHumanF1NativeSi
 import { AutoMovieHumanF1RootRails } from "./AutoMovieHumanF1RootRails";
 import { AutoMovieHumanF1SegmentLengths as Lengths } from "./AutoMovieHumanF1SegmentLengths";
 
-/** Complete directional calipers in the declared material plane, mm. */
-type ISize = IAutoMovieHumanF1NativeLaw.ISize;
-
-/** Existing qualified native inputs; no alternative geometry state is added. */
-type IFields = IAutoMovieHumanF1NativeLaw.IFields;
-
 /**
  * F1's native calibration: the calipers of her stored families at the
  * measurement sites, one endpoint projection metric and the directional
@@ -341,3 +335,9 @@ export namespace AutoMovieHumanF1NativeCalibration {
     return { fields, projectionOwner };
   }
 }
+
+/** Complete directional calipers in the declared material plane, mm. */
+type ISize = IAutoMovieHumanF1NativeLaw.ISize;
+
+/** Existing qualified native inputs; no alternative geometry state is added. */
+type IFields = IAutoMovieHumanF1NativeLaw.IFields;

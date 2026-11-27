@@ -13,6 +13,62 @@ import { addPositiveModulo } from "../../math/internal/addPositiveModulo";
 import { positiveModulo } from "../../math/internal/positiveModulo";
 import { gaitLimbFlexion } from "./gaitLimbFlexion";
 
+/**
+ * Bake one declarative gait cycle into samples+1 evenly timed clinical poses,
+ * including a closing copy of cycle phase. Optional phase is seconds into the
+ * cycle; gaitCycle records the wrapped seed, and rig-specific ROM validation
+ * remains the consumer's responsibility.
+ */
+export const gaitMotion: (
+  id: string,
+  skeleton: string,
+  gait: IAutoMovieGait,
+  samples: number,
+  phase?: number,
+) => IAutoMovieMotion = (
+  id: string,
+  skeleton: string,
+  gait: IAutoMovieGait,
+  samples: number,
+  phase: number = 0,
+): IAutoMovieMotion => {
+  if (samples < 1) throw new Error("gait samples must be a positive integer");
+  if (!(gait.period > 0))
+    throw new Error("gait period must be finite and positive");
+  assertUniqueGaitAxes(gait.limbs);
+  const phaseAt: number = positiveModulo(phase, gait.period);
+  const keyframes: IAutoMovieKeyframe[] = [];
+  for (let i: number = 0; i <= samples; ++i) {
+    const time: number = (i / samples) * gait.period;
+    const sampleTime: number = addPositiveModulo(phaseAt, time, gait.period);
+    keyframes.push({
+      time,
+      pose: {
+        skeleton,
+        root: gaitRoot(gait, sampleTime),
+        joints: gaitJoints(gait.limbs, sampleTime, gait.period),
+      },
+      expression: null,
+      easing: "linear",
+      bezier: null,
+    });
+  }
+  return {
+    id,
+    skeleton,
+    duration: gait.period,
+    loop: true,
+    keyframes,
+    // The bake IS one cycle; a phase-seeded bake starts mid-stride, so its
+    // local t = 0 sits at `phase` within the cycle: phase(t) = (phase + t) %
+    // period, and the NEXT beat's end-state records the true stride position.
+    gaitCycle: {
+      period: gait.period,
+      phaseAt,
+    },
+  };
+};
+
 /** Wrap a cycle position into `[0, 1)`. */
 function wrap01(x: number): number {
   return positiveModulo(x, 1);
@@ -70,59 +126,3 @@ function assertUniqueGaitAxes(limbs: readonly IAutoMovieGaitLimb[]): void {
     seen.add(key);
   }
 }
-
-/**
- * Bake one declarative gait cycle into samples+1 evenly timed clinical poses,
- * including a closing copy of cycle phase. Optional phase is seconds into the
- * cycle; gaitCycle records the wrapped seed, and rig-specific ROM validation
- * remains the consumer's responsibility.
- */
-export const gaitMotion: (
-  id: string,
-  skeleton: string,
-  gait: IAutoMovieGait,
-  samples: number,
-  phase?: number,
-) => IAutoMovieMotion = (
-  id: string,
-  skeleton: string,
-  gait: IAutoMovieGait,
-  samples: number,
-  phase: number = 0,
-): IAutoMovieMotion => {
-  if (samples < 1) throw new Error("gait samples must be a positive integer");
-  if (!(gait.period > 0))
-    throw new Error("gait period must be finite and positive");
-  assertUniqueGaitAxes(gait.limbs);
-  const phaseAt: number = positiveModulo(phase, gait.period);
-  const keyframes: IAutoMovieKeyframe[] = [];
-  for (let i: number = 0; i <= samples; ++i) {
-    const time: number = (i / samples) * gait.period;
-    const sampleTime: number = addPositiveModulo(phaseAt, time, gait.period);
-    keyframes.push({
-      time,
-      pose: {
-        skeleton,
-        root: gaitRoot(gait, sampleTime),
-        joints: gaitJoints(gait.limbs, sampleTime, gait.period),
-      },
-      expression: null,
-      easing: "linear",
-      bezier: null,
-    });
-  }
-  return {
-    id,
-    skeleton,
-    duration: gait.period,
-    loop: true,
-    keyframes,
-    // The bake IS one cycle; a phase-seeded bake starts mid-stride, so its
-    // local t = 0 sits at `phase` within the cycle: phase(t) = (phase + t) %
-    // period, and the NEXT beat's end-state records the true stride position.
-    gaitCycle: {
-      period: gait.period,
-      phaseAt,
-    },
-  };
-};

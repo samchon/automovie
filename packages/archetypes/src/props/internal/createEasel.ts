@@ -9,18 +9,6 @@ import {
 } from "../../core/index";
 
 /**
- * A studio easel holding a canvas. No source is read: the canvas' size, its
- * centre's height for a standing painter and the mass are provisional
- * construction estimates.
- */
-const SIZE: Readonly<AutoMovieArchetypeEasel.ISize> = {
-  width: 0.5,
-  height: 0.6,
-  centre: 1.35,
-  mass: 6,
-};
-
-/**
  * An easel standing on the floor with a canvas upright on it.
  *
  * The easel stands at the origin, the canvas' painted face toward `-Z`, where
@@ -92,3 +80,15 @@ export function createEasel(
   });
   return builder.build(SIZE.mass);
 }
+
+/**
+ * A studio easel holding a canvas. No source is read: the canvas' size, its
+ * centre's height for a standing painter and the mass are provisional
+ * construction estimates.
+ */
+const SIZE: Readonly<AutoMovieArchetypeEasel.ISize> = {
+  width: 0.5,
+  height: 0.6,
+  centre: 1.35,
+  mass: 6,
+};

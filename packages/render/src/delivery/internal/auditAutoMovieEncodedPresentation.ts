@@ -1,7 +1,5 @@
 import type { IAutoMovieAuditEncodedPresentationExpected, IAutoMovieAuditEncodedPresentationProbe } from "@automovie/interface";
 
-type IProbedStream = IAutoMovieAuditEncodedPresentationProbe["streams"][number];
-
 /**
  * Check an encoded delivery's probe against its commissioned profile: exactly
  * one H.264 video stream of the raster and integer frame rate and one AAC audio
@@ -62,3 +60,5 @@ export function auditAutoMovieEncodedPresentation(
       );
   }
 }
+
+type IProbedStream = IAutoMovieAuditEncodedPresentationProbe["streams"][number];

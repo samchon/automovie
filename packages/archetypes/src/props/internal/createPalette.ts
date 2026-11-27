@@ -10,17 +10,6 @@ import {
 } from "../../core/index";
 
 /**
- * An artist's hand palette, a sheet of cloth and a length of ribbon: flat
- * boards held in one hand, or fixed, while the other works on them. No source
- * is read: every figure is a provisional construction estimate.
- */
-const SIZES: Readonly<Record<AutoMovieArchetypePalette.Kind, AutoMovieArchetypePalette.ISize>> = {
-  palette: { width: 0.4, depth: 0.3, thickness: 0.005, mass: 0.3 },
-  cloth: { width: 0.3, depth: 0.2, thickness: 0.001, mass: 0.02 },
-  ribbon: { width: 0.4, depth: 0.05, thickness: 0.001, mass: 0.01 },
-};
-
-/**
  * A flat board held by one edge: a painter's palette on the thumb, a piece of
  * cloth pinched at its edge while it is sewn, or a ribbon's length stretched
  * for a ceremonial cut.
@@ -95,3 +84,14 @@ export function createPalette(
   });
   return builder.build(size.mass);
 }
+
+/**
+ * An artist's hand palette, a sheet of cloth and a length of ribbon: flat
+ * boards held in one hand, or fixed, while the other works on them. No source
+ * is read: every figure is a provisional construction estimate.
+ */
+const SIZES: Readonly<Record<AutoMovieArchetypePalette.Kind, AutoMovieArchetypePalette.ISize>> = {
+  palette: { width: 0.4, depth: 0.3, thickness: 0.005, mass: 0.3 },
+  cloth: { width: 0.3, depth: 0.2, thickness: 0.001, mass: 0.02 },
+  ribbon: { width: 0.4, depth: 0.05, thickness: 0.001, mass: 0.01 },
+};

@@ -6,12 +6,6 @@ import type {
 import { ArchetypeMassPrimitive } from "./ArchetypeMassPrimitive";
 import type { AutoMovieArchetypeConvexCell } from "../AutoMovieArchetypeConvexCell";
 
-/** A supported local solid, with an optional non-axis-aligned principal frame. */
-type Local = NonNullable<ReturnType<typeof ArchetypeMassPrimitive>> & {
-  /** Principal-to-part unit rotation, absent for the existing axial primitives. */
-  inertiaRotation?: IAutoMovieQuaternion;
-};
-
 /**
  * Read primitive or explicitly declared convex-cell local mass data.
  *
@@ -39,3 +33,9 @@ export function ArchetypeMassLocal(
     ? ArchetypeMassPrimitive(part.geometry.shape)
     : null;
 }
+
+/** A supported local solid, with an optional non-axis-aligned principal frame. */
+type Local = NonNullable<ReturnType<typeof ArchetypeMassPrimitive>> & {
+  /** Principal-to-part unit rotation, absent for the existing axial primitives. */
+  inertiaRotation?: IAutoMovieQuaternion;
+};

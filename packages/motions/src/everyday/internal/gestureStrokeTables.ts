@@ -3,15 +3,6 @@ import type {
   IAutoMovieMotionHumanTiming,
 } from "@automovie/interface";
 
-/** The alternatives of `HANDSEntryItem`'s site. */
-type HANDSEntryItem = "one" | "both" | "none";
-
-/** The record of `IRHYTHMEntryItem`'s site. */
-type IRHYTHMEntryItem = {
-  cycles: number;
-  period: IAutoMovieMotionHumanTiming.Span;
-};
-
 /**
  * The tables every gesture is read from by its kind: its timing and which hands
  * it moves, total records over `gestureStroke.Kind`, split from the stroke so
@@ -92,3 +83,12 @@ export namespace gestureStrokeTables {
     slump: "none",
   };
 }
+
+/** The alternatives of `HANDSEntryItem`'s site. */
+type HANDSEntryItem = "one" | "both" | "none";
+
+/** The record of `IRHYTHMEntryItem`'s site. */
+type IRHYTHMEntryItem = {
+  cycles: number;
+  period: IAutoMovieMotionHumanTiming.Span;
+};

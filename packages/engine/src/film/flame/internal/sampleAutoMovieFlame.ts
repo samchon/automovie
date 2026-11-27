@@ -10,37 +10,6 @@ import { deriveAutoMovieSeed } from "../../../random/internal/deriveAutoMovieSee
 import { heskestadFlameHeight } from "./heskestadFlameHeight";
 import { puffingFrequency } from "./puffingFrequency";
 
-/** Meridian samples from the flame's base to its tip. */
-const MERIDIAN: number = 16;
-
-/** Angular segments of the revolved flame surface. */
-const SEGMENTS: number = 24;
-
-/**
- * Highest rate, cycles per second, at which a small flame's sway and an ember's
- * glow advance their noise: a provisional estimate that keeps them inside the
- * practical light key grid's 7.5 Hz limit.
- */
-const SMALL_RATE: number = 2;
-
-/** Provisional estimate: a small flame's radius varies by up to 8 %. */
-const SMALL_RIPPLE: number = 0.08;
-
-/** Provisional estimate: a small flame's tip sways by up to 10 % of its height. */
-const SMALL_SWAY: number = 0.1;
-
-/** Provisional estimate: an open fire's height swings by 25 % each puff. */
-const PUFF_DEPTH: number = 0.25;
-
-/** Provisional estimate: an open fire's radius varies by up to 15 %. */
-const OPEN_RIPPLE: number = 0.15;
-
-/** Provisional estimate: an ember's glow varies by up to 10 %. */
-const EMBER_GLOW: number = 0.1;
-
-/** Noise lattice cells per flame height, so features are a few per flame. */
-const CELLS_PER_HEIGHT: number = 3;
-
 /**
  * The shape of a flame cue at shot-local `seconds`: its surface mesh in the
  * emitter frame (`+Y` up the flame) and its silhouette area.
@@ -157,3 +126,34 @@ export function sampleAutoMovieFlame(
   }
   return { mesh, area };
 }
+
+/** Meridian samples from the flame's base to its tip. */
+const MERIDIAN: number = 16;
+
+/** Angular segments of the revolved flame surface. */
+const SEGMENTS: number = 24;
+
+/**
+ * Highest rate, cycles per second, at which a small flame's sway and an ember's
+ * glow advance their noise: a provisional estimate that keeps them inside the
+ * practical light key grid's 7.5 Hz limit.
+ */
+const SMALL_RATE: number = 2;
+
+/** Provisional estimate: a small flame's radius varies by up to 8 %. */
+const SMALL_RIPPLE: number = 0.08;
+
+/** Provisional estimate: a small flame's tip sways by up to 10 % of its height. */
+const SMALL_SWAY: number = 0.1;
+
+/** Provisional estimate: an open fire's height swings by 25 % each puff. */
+const PUFF_DEPTH: number = 0.25;
+
+/** Provisional estimate: an open fire's radius varies by up to 15 %. */
+const OPEN_RIPPLE: number = 0.15;
+
+/** Provisional estimate: an ember's glow varies by up to 10 %. */
+const EMBER_GLOW: number = 0.1;
+
+/** Noise lattice cells per flame height, so features are a few per flame. */
+const CELLS_PER_HEIGHT: number = 3;

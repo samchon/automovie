@@ -18,9 +18,6 @@ import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { punchFootwork } from "./punchFootwork";
 
-/** The alternatives of `CloseStrikeLegsLeg`'s site. */
-type CloseStrikeLegsLeg = "leftLeg" | "rightLeg";
-
 /**
  * The lower body of a close strike: the pelvis turned about the vertical and
  * shifted along the line with both feet planted, or, for a spin, the whole
@@ -366,3 +363,6 @@ export namespace CloseStrikeLegs {
     degrees: number;
   }
 }
+
+/** The alternatives of `CloseStrikeLegsLeg`'s site. */
+type CloseStrikeLegsLeg = "leftLeg" | "rightLeg";

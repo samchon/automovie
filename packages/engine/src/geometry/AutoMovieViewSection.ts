@@ -14,15 +14,6 @@ import { AutoMovieViewSectionConic } from "./AutoMovieViewSectionConic";
 import { AutoMovieViewSectionRange } from "./AutoMovieViewSectionRange";
 
 /**
- * Internal measured source; inspection observations are attached only to public
- * results.
- */
-type Measured = Pick<
-  IAutoMovieViewSection.ISection,
-  "box" | "shoulders" | "guides" | "conics" | "girth"
->;
-
-/**
  * One source section from four exact support extents and conic shoulders.
  *
  * Each rational quarter touches its two support lines with zero radial slope.
@@ -83,40 +74,6 @@ export namespace AutoMovieViewSection {
     shoulders: IAutoMovieQuarters<number>,
   ): IAutoMovieViewSection.ISection {
     return observations(AutoMovieViewSectionConic.prepare(box, shoulders));
-  }
-
-  /**
-   * Public records retain every original observation, including failed-source
-   * numbers.
-   */
-  function observations(value: Measured): IAutoMovieViewSection.ISection {
-    return {
-      box: value.box,
-      shoulders: value.shoulders,
-      guides: value.guides,
-      conics: value.conics,
-      knots: AutoMovieViewConic.samples(value.conics),
-      fullness: [0, 0, 0, 0],
-      girth: value.girth,
-      diagonals: [0, 0, 0, 0],
-    };
-  }
-
-  /**
-   * Decorate only a selected public section, retaining its already measured
-   * girth.
-   */
-  function completed(value: Measured): IAutoMovieViewSection.ISection {
-    const section: IAutoMovieViewSection.ISection = observations(value);
-    const e: IAutoMovieQuarters<number> = value.box.extents;
-    section.diagonals = [0, 1, 2, 3].map(
-      (q: number): number =>
-        radius(
-          section,
-          section.guides[q]!.angle + Math.atan2(e[(q + 1) % 4]!, e[q]!),
-        )[0],
-    ) as IAutoMovieQuarters<number>;
-    return section;
   }
 
   /** The original rational conic guide at native parameter t. */
@@ -280,7 +237,50 @@ export namespace AutoMovieViewSection {
       return { section, diagnostics: [] };
     }
   }
+
+  /**
+   * Public records retain every original observation, including failed-source
+   * numbers.
+   */
+  function observations(value: Measured): IAutoMovieViewSection.ISection {
+    return {
+      box: value.box,
+      shoulders: value.shoulders,
+      guides: value.guides,
+      conics: value.conics,
+      knots: AutoMovieViewConic.samples(value.conics),
+      fullness: [0, 0, 0, 0],
+      girth: value.girth,
+      diagonals: [0, 0, 0, 0],
+    };
+  }
+
+  /**
+   * Decorate only a selected public section, retaining its already measured
+   * girth.
+   */
+  function completed(value: Measured): IAutoMovieViewSection.ISection {
+    const section: IAutoMovieViewSection.ISection = observations(value);
+    const e: IAutoMovieQuarters<number> = value.box.extents;
+    section.diagonals = [0, 1, 2, 3].map(
+      (q: number): number =>
+        radius(
+          section,
+          section.guides[q]!.angle + Math.atan2(e[(q + 1) % 4]!, e[q]!),
+        )[0],
+    ) as IAutoMovieQuarters<number>;
+    return section;
+  }
 }
+
+/**
+ * Internal measured source; inspection observations are attached only to public
+ * results.
+ */
+type Measured = Pick<
+  IAutoMovieViewSection.ISection,
+  "box" | "shoulders" | "guides" | "conics" | "girth"
+>;
 
 /**
  * Accepted measured girth residual, in source length units (kernel

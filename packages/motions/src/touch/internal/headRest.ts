@@ -37,12 +37,6 @@ const NEAR: number = 0.01;
  * (provisional: the other half is held by the neck's own muscles).
  */
 const RESTING: number = 0.5;
-/** The alternatives of `PlanAddedBone`'s site. */
-type PlanAddedBone = "neck" | "head";
-
-/** The alternatives of `PlanHeadRestPlanLimb`'s site. */
-type PlanHeadRestPlanLimb = "leftArm" | "rightArm";
-
 /**
  * Rest the head on a partner. The resting head's own region, the temple on the
  * side the partner's region lies unless named, is brought to the partner's
@@ -395,3 +389,9 @@ function side(
     ? "templeLeft"
     : "templeRight";
 }
+
+/** The alternatives of `PlanAddedBone`'s site. */
+type PlanAddedBone = "neck" | "head";
+
+/** The alternatives of `PlanHeadRestPlanLimb`'s site. */
+type PlanHeadRestPlanLimb = "leftArm" | "rightArm";

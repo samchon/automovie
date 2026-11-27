@@ -24,59 +24,6 @@ import { prepareChainFit } from "./prepareChainFit";
 import { resolveBoneMap } from "./resolveBoneMap";
 import { resolvePreparedChainFrames } from "./resolvePreparedChainFrames";
 
-/**
- * Fit a reachable two-bone chain to a model-frame target under the rig's
- * effective ROM, retaining authored non-chain joints. A deterministic finite
- * bend-plane search scores clamped FK and keeps the source bend-stage pose
- * unless its 1e-7-metre residual bucket improves or equal-bucket continuity
- * improves toward an explicit prior pose; it is a bounded search, not a
- * global-optimum guarantee.
- *
- * For a hinged mid joint (an elbow or a knee, whose abduction is immobile) the
- * swivel parameterisation of Tolani, Goswami and Badler (2000) comes first and
- * wins whenever it reaches: the hinge angle follows from the span and the
- * swivel about the root-to-target axis is swept for the least range-of-motion
- * overshoot and then the least continuous cost of effector-rotation error,
- * swing from the hint's side and turn from the `referencePose`
- * (`fitHingedChainCandidate`), because a free-swing candidate turns the hinge
- * about the plane normal and the clamp of its abduction moves the effector.
- * Otherwise, and for other chains, the bend hint's plane and then the 32-plane
- * sweep follow, the first exact one winning. When nothing reaches, the least
- * clamped residual is returned, so an unreachable target leaves the effector on
- * the reachable shell, not a pretended reach.
- *
- * A hinged chain's answer comes with its seed, the branch and swivel its
- * candidate was chosen at and the mid bone's twist it chose, which a fit of a
- * nearby target continues from (`near`, `IAutoMovieSwivelNear`): that fit
- * refines the seed alone instead of sweeping, and keeps the twist's basin
- * (`solveDistalTwist`'s `reference`). The seed is null when another candidate
- * is the answer.
- *
- * With `effectorRotation`, a mid bone that declares a distal twist (a forearm)
- * first takes the twist share of the requested rotation about its own length
- * (swing-twist decomposition), clamped to its range, and the effector the
- * remaining swing, so pronation and supination are the forearm's and the wrist
- * keeps its place.
- *
- * Failed bend preparation or analytic admission keeps the source pose at that
- * stage. A requested rotation still runs the orientation pass and may change
- * the lower twist and effector articulation.
- *
- * The prepared workspace's explicit continued entry serves a deterministic
- * constrained-curve owner. After original source admission it tests the native
- * two-axis orientation roots before the existing near hinge. Actual
- * clamp/FK/ROM/pole/rotation admission precedes return; unsupported or failed
- * roots keep near refinement and its original cold fallback. Its owner must
- * independently validate final orientation, pole side, ROM, contact and branch
- * continuity; a local basin is not the cold global-score certificate.
- */
-function fitSeededChainToTargetOperation(
-  input: IAutoMovieFitChainToTargetProps,
-): IAutoMovieSeededChainFit {
-  const { target, ...source }: IAutoMovieFitChainToTargetProps = input;
-  return fitSeededChainToTarget.prepare(source).fit(target);
-}
-
 /** Scoped preparation for repeated targets of one unchanged source request. */
 export namespace fitSeededChainToTarget {
   /** Fit one target with the source's original search policy. */
@@ -339,6 +286,59 @@ export namespace fitSeededChainToTarget {
       );
     };
   }
+}
+
+/**
+ * Fit a reachable two-bone chain to a model-frame target under the rig's
+ * effective ROM, retaining authored non-chain joints. A deterministic finite
+ * bend-plane search scores clamped FK and keeps the source bend-stage pose
+ * unless its 1e-7-metre residual bucket improves or equal-bucket continuity
+ * improves toward an explicit prior pose; it is a bounded search, not a
+ * global-optimum guarantee.
+ *
+ * For a hinged mid joint (an elbow or a knee, whose abduction is immobile) the
+ * swivel parameterisation of Tolani, Goswami and Badler (2000) comes first and
+ * wins whenever it reaches: the hinge angle follows from the span and the
+ * swivel about the root-to-target axis is swept for the least range-of-motion
+ * overshoot and then the least continuous cost of effector-rotation error,
+ * swing from the hint's side and turn from the `referencePose`
+ * (`fitHingedChainCandidate`), because a free-swing candidate turns the hinge
+ * about the plane normal and the clamp of its abduction moves the effector.
+ * Otherwise, and for other chains, the bend hint's plane and then the 32-plane
+ * sweep follow, the first exact one winning. When nothing reaches, the least
+ * clamped residual is returned, so an unreachable target leaves the effector on
+ * the reachable shell, not a pretended reach.
+ *
+ * A hinged chain's answer comes with its seed, the branch and swivel its
+ * candidate was chosen at and the mid bone's twist it chose, which a fit of a
+ * nearby target continues from (`near`, `IAutoMovieSwivelNear`): that fit
+ * refines the seed alone instead of sweeping, and keeps the twist's basin
+ * (`solveDistalTwist`'s `reference`). The seed is null when another candidate
+ * is the answer.
+ *
+ * With `effectorRotation`, a mid bone that declares a distal twist (a forearm)
+ * first takes the twist share of the requested rotation about its own length
+ * (swing-twist decomposition), clamped to its range, and the effector the
+ * remaining swing, so pronation and supination are the forearm's and the wrist
+ * keeps its place.
+ *
+ * Failed bend preparation or analytic admission keeps the source pose at that
+ * stage. A requested rotation still runs the orientation pass and may change
+ * the lower twist and effector articulation.
+ *
+ * The prepared workspace's explicit continued entry serves a deterministic
+ * constrained-curve owner. After original source admission it tests the native
+ * two-axis orientation roots before the existing near hinge. Actual
+ * clamp/FK/ROM/pole/rotation admission precedes return; unsupported or failed
+ * roots keep near refinement and its original cold fallback. Its owner must
+ * independently validate final orientation, pole side, ROM, contact and branch
+ * continuity; a local basin is not the cold global-score certificate.
+ */
+function fitSeededChainToTargetOperation(
+  input: IAutoMovieFitChainToTargetProps,
+): IAutoMovieSeededChainFit {
+  const { target, ...source }: IAutoMovieFitChainToTargetProps = input;
+  return fitSeededChainToTarget.prepare(source).fit(target);
 }
 
 /**

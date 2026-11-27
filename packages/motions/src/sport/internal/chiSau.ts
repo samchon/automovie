@@ -25,30 +25,6 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { StrikingBody } from "../../striking/internal/StrikingBody";
 
-/** The shared geometry of the two rolling contacts. */
-interface IRoll {
-  /** Each of this performer's sides' contact centre, world metres. */
-  centre: Readonly<Record<AutoMovieHumanSide, IAutoMovieVector3>>;
-
-  /**
-   * The roll's in-line axis, shared by both partners: from the first subject
-   * toward the second.
-   */
-  line: IAutoMovieVector3;
-
-  /** This performer's forward, toward the partner. */
-  forward: IAutoMovieVector3;
-
-  /** This performer's left. */
-  left: IAutoMovieVector3;
-
-  /**
-   * The roll phase offset of each of this performer's sides, radians, shared by
-   * the side's two forearms.
-   */
-  phase: Readonly<Record<AutoMovieHumanSide, number>>;
-}
-
 /** The world's up. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
@@ -333,4 +309,28 @@ export namespace chiSau {
       },
     };
   }
+}
+
+/** The shared geometry of the two rolling contacts. */
+interface IRoll {
+  /** Each of this performer's sides' contact centre, world metres. */
+  centre: Readonly<Record<AutoMovieHumanSide, IAutoMovieVector3>>;
+
+  /**
+   * The roll's in-line axis, shared by both partners: from the first subject
+   * toward the second.
+   */
+  line: IAutoMovieVector3;
+
+  /** This performer's forward, toward the partner. */
+  forward: IAutoMovieVector3;
+
+  /** This performer's left. */
+  left: IAutoMovieVector3;
+
+  /**
+   * The roll phase offset of each of this performer's sides, radians, shared by
+   * the side's two forearms.
+   */
+  phase: Readonly<Record<AutoMovieHumanSide, number>>;
 }

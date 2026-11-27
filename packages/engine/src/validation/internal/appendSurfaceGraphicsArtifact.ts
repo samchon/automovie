@@ -8,9 +8,6 @@ import type {
 
 import { appendSurfaceGraphicArtifact } from "./appendSurfaceGraphicArtifact";
 
-/** Model fields that resolve a placed graphic to a surface. */
-type SurfaceGraphicModel = Pick<IAutoMovieModel, "id" | "affordances">;
-
 /**
  * Check shot-local surface graphic tracks, appending findings under
  * `$input.surfaceGraphics`.
@@ -144,6 +141,9 @@ export function appendSurfaceGraphicsArtifact(
     },
   );
 }
+
+/** Model fields that resolve a placed graphic to a surface. */
+type SurfaceGraphicModel = Pick<IAutoMovieModel, "id" | "affordances">;
 /**
  * Resolve a track's surface on its node's registered model: an unregistered
  * model, an id that is not a `surface` affordance, a surface without positive

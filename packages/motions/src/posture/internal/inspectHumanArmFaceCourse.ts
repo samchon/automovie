@@ -7,23 +7,6 @@ import type { HumanArmTrajectoryKnots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryPairs } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryTerms } from "./HumanArmTrajectoryTerms";
 
-interface IFaceCourse {
-  course: HumanArmTrajectory.IAdmitted;
-  rates: HumanArmTrajectoryKnots.IRates;
-  ready: number;
-  recover: number;
-  contact: IAutoMovieVector3;
-  target(seconds: number): IAutoMovieVector3;
-  targetSpeed: number;
-}
-
-/** An unchanged course is certified when both records are empty. */
-interface IInspection {
-  misses: number[];
-  uncertain?: { time: number; metres?: number };
-  unsupported?: true;
-}
-
 /**
  * Inspect a fixed-parent arm's placed tool face against its active contact.
  * The Bernstein rate bounds of the played quintics bound the face's speed by
@@ -183,6 +166,23 @@ export function inspectHumanArmFaceCourse(props: IFaceCourse): IInspection {
     }
   }
   return { misses, ...(uncertain === undefined ? {} : { uncertain }) };
+}
+
+interface IFaceCourse {
+  course: HumanArmTrajectory.IAdmitted;
+  rates: HumanArmTrajectoryKnots.IRates;
+  ready: number;
+  recover: number;
+  contact: IAutoMovieVector3;
+  target(seconds: number): IAutoMovieVector3;
+  targetSpeed: number;
+}
+
+/** An unchanged course is certified when both records are empty. */
+interface IInspection {
+  misses: number[];
+  uncertain?: { time: number; metres?: number };
+  unsupported?: true;
 }
 
 interface IInterval {

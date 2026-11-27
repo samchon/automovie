@@ -16,20 +16,6 @@ import { kiss } from "./kiss";
 import { kissPose } from "./kissPose";
 
 /**
- * The four angles a resting head is aimed by, in order: forward lean, side
- * lean, neck flexion, side bend.
- */
-type Angles = readonly [number, number, number, number];
-
-/** A three-vector as components, or a row of the 3 by 3 system. */
-type Triple = readonly [number, number, number];
-/** The alternatives of `PosedAddBone2`'s site. */
-type PosedAddBone2 = "neck" | "head";
-
-/** The alternatives of `PosedAddBone`'s site. */
-type PosedAddBone = "neck" | "head";
-
-/**
  * How a resting head is aimed at a point: the kiss's lean from the hips and
  * neck flexion (`kissPose`) with a side bend shared over the neck and the head,
  * scored by the distance of the head's own region to the point. `solve` finds
@@ -319,3 +305,17 @@ export namespace headRestAim {
     };
   }
 }
+
+/**
+ * The four angles a resting head is aimed by, in order: forward lean, side
+ * lean, neck flexion, side bend.
+ */
+type Angles = readonly [number, number, number, number];
+/** A three-vector as components, or a row of the 3 by 3 system. */
+type Triple = readonly [number, number, number];
+
+/** The alternatives of `PosedAddBone2`'s site. */
+type PosedAddBone2 = "neck" | "head";
+
+/** The alternatives of `PosedAddBone`'s site. */
+type PosedAddBone = "neck" | "head";

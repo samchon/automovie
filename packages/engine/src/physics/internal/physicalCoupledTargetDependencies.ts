@@ -5,15 +5,6 @@ import type {
   IAutoMoviePlanPhysicalContactTargets,
 } from "@automovie/interface";
 
-type Member = {
-  readonly body: string;
-  readonly bones: readonly string[];
-  readonly plan: Pick<
-    IAutoMoviePlanPhysicalContactTargets.IInput,
-    "profiles" | "bindings"
-  >;
-};
-
 /**
  * Check that one group forms a reciprocal dependency through receivers that
  * actually have adjustable ancestry.
@@ -65,6 +56,15 @@ export function physicalCoupledTargetDependencies(
     return visited.size === members.length;
   }
 }
+
+type Member = {
+  readonly body: string;
+  readonly bones: readonly string[];
+  readonly plan: Pick<
+    IAutoMoviePlanPhysicalContactTargets.IInput,
+    "profiles" | "bindings"
+  >;
+};
 
 /** Determine whether a probe can change the receiver's displayed placement. */
 function adjustableAncestry(

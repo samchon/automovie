@@ -26,14 +26,6 @@ import { AUTOMOVIE_DRAWING_ROLES } from "../AUTOMOVIE_DRAWING_ROLES";
 import { projectAutoMovieDrawingPoint } from "./projectAutoMovieDrawingPoint";
 import { roundAutoMovieDrawingPoint } from "./roundAutoMovieDrawingPoint";
 
-/** One thing the view draws, reduced to what drafting needs to know about it. */
-interface IDrawable {
-  id: string;
-  kind: string;
-  space: string | null;
-  triangles: IAutoMovieDrawingTriangle[];
-}
-
 /**
  * Draft every line one view draws of one validated design, classified by its
  * relation to the cut plane, deduplicated and in canonical order.
@@ -120,6 +112,14 @@ export const draftAutoMovieDrawingLines = (
     unresolvedModels,
   };
 };
+
+/** One thing the view draws, reduced to what drafting needs to know about it. */
+interface IDrawable {
+  id: string;
+  kind: string;
+  space: string | null;
+  triangles: IAutoMovieDrawingTriangle[];
+}
 
 /** An element placed in the world, carrying its own kind and space. */
 const elementDrawable = (

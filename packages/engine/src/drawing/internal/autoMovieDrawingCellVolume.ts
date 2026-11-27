@@ -13,12 +13,6 @@ const ON_PLANE_TOLERANCE: number = 1e-6;
 /** Determinant below which three plane normals do not meet in one corner. */
 const SINGULAR_DETERMINANT: number = 1e-9;
 
-/** A half-space restated with a unit normal, so its offset is a distance. */
-interface IUnitPlane {
-  normal: IAutoMovieVector3;
-  offset: number;
-}
-
 /**
  * Volume of one bounded convex cell in cubic metres, from its own half-spaces,
  * or `null` when the cell is unbounded or degenerate.
@@ -174,3 +168,9 @@ const intersectPlanes = (
     1 / determinant,
   );
 };
+
+/** A half-space restated with a unit normal, so its offset is a distance. */
+interface IUnitPlane {
+  normal: IAutoMovieVector3;
+  offset: number;
+}

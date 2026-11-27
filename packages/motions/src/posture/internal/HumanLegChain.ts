@@ -18,15 +18,6 @@ import type {
 
 import { prepareHumanLegSeededFit } from "./prepareHumanLegSeededFit";
 
-/** The alternatives of `PlacedChain`'s site. */
-type PlacedChain = "target" | "range";
-
-/** The alternatives of `SourceOfResult`'s site. */
-type SourceOfResult = "target" | "range";
-
-/** The alternatives of `PrepareSource`'s site. */
-type PrepareSource = "target" | "range";
-
 /**
  * A leg posed as the posture's own fit poses it, read through the engine's
  * hinged chain (`hingedArmSwivel`): the knee bends about its hinge alone, and
@@ -321,3 +312,12 @@ export namespace HumanLegChain {
     return constants;
   }
 }
+
+/** The alternatives of `PlacedChain`'s site. */
+type PlacedChain = "target" | "range";
+
+/** The alternatives of `SourceOfResult`'s site. */
+type SourceOfResult = "target" | "range";
+
+/** The alternatives of `PrepareSource`'s site. */
+type PrepareSource = "target" | "range";

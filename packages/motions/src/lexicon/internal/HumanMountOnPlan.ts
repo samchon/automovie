@@ -41,18 +41,6 @@ import { prepareCoupledMount } from "./prepareCoupledMount";
 import { prepareMountMaterialSeat } from "./prepareMountMaterialSeat";
 import { prepareMountTransfer } from "./prepareMountTransfer";
 
-/** Where the pelvis is at an instant of getting on (`HumanMountOnFrame`). */
-type Frame = HumanMountOnFrame.Frame;
-
-/** The alternatives of `PlanLowerLimb`'s site. */
-type PlanLowerLimb = "leftLeg" | "rightLeg";
-
-/** The alternatives of `PlanPart`'s site. */
-type PlanPart = "leftFoot" | "rightFoot";
-
-/** The sit parameters the climb uses. */
-type IPlanContext = Pick<IAutoMovieMotionHumanSit.IParams, "hold" | "manner">;
-
 /**
  * Plan getting onto a seat.
  *
@@ -783,3 +771,15 @@ export function HumanMountOnPlan(
       side === push && keys !== null ? null : swingOf(side),
   });
 }
+
+/** Where the pelvis is at an instant of getting on (`HumanMountOnFrame`). */
+type Frame = HumanMountOnFrame.Frame;
+
+/** The alternatives of `PlanLowerLimb`'s site. */
+type PlanLowerLimb = "leftLeg" | "rightLeg";
+
+/** The alternatives of `PlanPart`'s site. */
+type PlanPart = "leftFoot" | "rightFoot";
+
+/** The sit parameters the climb uses. */
+type IPlanContext = Pick<IAutoMovieMotionHumanSit.IParams, "hold" | "manner">;

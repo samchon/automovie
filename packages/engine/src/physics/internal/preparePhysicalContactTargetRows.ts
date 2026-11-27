@@ -24,26 +24,6 @@ import { physicalContactSupportRows } from "./physicalContactSupportRows";
 import { physicalPointProjection } from "./physicalPointProjection";
 import { preparePhysicalContactBindingRows } from "./preparePhysicalContactBindingRows";
 
-type Input = IAutoMoviePlanPhysicalContactTargets.IInput;
-type Rows = IAutoMovieLinearizePhysicalTargetRows.IRows;
-type PoseRead<Value> = (poses: IAutoMoviePoses) => Value;
-
-type Scope = {
-  key(bone: string): string;
-  local(poses: IAutoMoviePoses): IAutoMoviePoses;
-  resolve: ResolvePhysicalContactPose;
-};
-
-type IPrepared = {
-  initial: Record<string, IAutoMovieRigidTransform>;
-  rows: Rows[];
-  bindings: IAutoMoviePhysicalContactBindingRows.IResult;
-  points: { id: string; rows: Rows }[];
-  iterations: number;
-  tolerance: number;
-  coupledScalarRows: number;
-};
-
 /**
  * Prepare one body's geometry constraints against either its local pose map or
  * a common scene candidate.
@@ -296,3 +276,23 @@ export function preparePhysicalContactTargetRows(
     };
   }
 }
+type Input = IAutoMoviePlanPhysicalContactTargets.IInput;
+type Rows = IAutoMovieLinearizePhysicalTargetRows.IRows;
+
+type PoseRead<Value> = (poses: IAutoMoviePoses) => Value;
+
+type Scope = {
+  key(bone: string): string;
+  local(poses: IAutoMoviePoses): IAutoMoviePoses;
+  resolve: ResolvePhysicalContactPose;
+};
+
+type IPrepared = {
+  initial: Record<string, IAutoMovieRigidTransform>;
+  rows: Rows[];
+  bindings: IAutoMoviePhysicalContactBindingRows.IResult;
+  points: { id: string; rows: Rows }[];
+  iterations: number;
+  tolerance: number;
+  coupledScalarRows: number;
+};

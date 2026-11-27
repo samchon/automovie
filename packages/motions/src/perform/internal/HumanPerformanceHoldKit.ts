@@ -14,9 +14,6 @@ import { HumanPerformanceHold } from "./HumanPerformanceHold";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
-/** The record of `ISocketMount`'s site. */
-type ISocketMount = { prop: string; point: string };
-
 /**
  * The readers one prop read shares: the carrier of a span, the offset it seats
  * the prop at and that offset moved within the hand.
@@ -283,3 +280,6 @@ export namespace HumanPerformanceHoldKit {
     ): IAutoMovieRigidTransform;
   }
 }
+
+/** The record of `ISocketMount`'s site. */
+type ISocketMount = { prop: string; point: string };

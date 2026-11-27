@@ -3,9 +3,6 @@ import { Vector3 } from "@automovie/engine";
 
 import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
-/** The wall of the loop or the sleeve round its opening, metres: an estimate. */
-const WALL: number = 0.008;
-
 /**
  * A carrier worn on the body (`IHumanProp.worn`) for a club: a belt loop a
  * baton hangs through, or a back sleeve a bat stands in.
@@ -101,3 +98,6 @@ export function createWeaponLoop(
   });
   return builder.build(d.mass!);
 }
+
+/** The wall of the loop or the sleeve round its opening, metres: an estimate. */
+const WALL: number = 0.008;

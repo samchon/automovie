@@ -5,12 +5,6 @@ import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js"
 import { AutoMovieRenderInspectionPath } from "../../AutoMovieRenderInspectionPath.js";
 
 /**
- * Distance in metres within which every sample of a trail counts as one place:
- * a micrometre, far below anything a picture shows.
- */
-const STILL: number = 1e-6;
-
-/**
  * Sample where every object a path pattern selects is, at each of a window's
  * seconds, so a still can show the path it travels.
  *
@@ -121,3 +115,9 @@ export async function sampleAutoMovieInspectionTrails(props: {
     },
   );
 }
+
+/**
+ * Distance in metres within which every sample of a trail counts as one place:
+ * a micrometre, far below anything a picture shows.
+ */
+const STILL: number = 1e-6;

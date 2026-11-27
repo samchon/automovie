@@ -13,15 +13,6 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
 
-/** The alternatives of `ClearedProps`'s site. */
-type ClearedProps = "body" | "side" | "stance";
-
-/** The alternatives of `BearingProps`'s site. */
-type BearingProps = "clock" | "side" | "contact";
-
-/** The alternatives of `ExtendedProps`'s site. */
-type ExtendedProps = "contact" | "manner";
-
 /**
  * Leg phrases: one foot leaving and rejoining its stance on one clock, a lift,
  * a tap, a swing and a pivot, each built on the leg's own movement
@@ -390,3 +381,12 @@ export namespace AutoMovieMotionHumanLegPhrase {
     };
   }
 }
+
+/** The alternatives of `ClearedProps`'s site. */
+type ClearedProps = "body" | "side" | "stance";
+
+/** The alternatives of `BearingProps`'s site. */
+type BearingProps = "clock" | "side" | "contact";
+
+/** The alternatives of `ExtendedProps`'s site. */
+type ExtendedProps = "contact" | "manner";

@@ -4,59 +4,6 @@ import { AutoMovieEnginePhysicalIcpController } from "./AutoMovieEnginePhysicalI
 import { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "./AutoMovieEnginePhysicalPlanarPolygon";
 
 
-function computeBipedPressure(input: {
-  state: AutoMovieEnginePhysicalIcpController.IState;
-  outlines: readonly (readonly IAutoMovieVector3[])[];
-  desired?: {
-    position: { x: number; z: number };
-    velocity: { x: number; z: number };
-  };
-  authored: { center: IAutoMovieVector3; velocity: IAutoMovieVector3 };
-  center: IAutoMovieVector3;
-  velocity: IAutoMovieVector3;
-  omega: number;
-  dt: number;
-  floor: number;
-}): AutoMovieEnginePhysicalBipedPressure.IResult {
-  const map = (p: { x: number; z: number }): Polygon.IPoint => ({
-    x: p.x,
-    y: p.z,
-  });
-  const support: Polygon.IPoint[] = Polygon.hull(
-    input.outlines.flatMap(
-      (outline: readonly IAutoMovieVector3[]): Polygon.IPoint[] =>
-        outline.map(map),
-    ),
-  );
-  const result: AutoMovieEnginePhysicalIcpController.IResult =
-    AutoMovieEnginePhysicalIcpController.update({
-    state: input.state,
-    support,
-    desired: input.desired
-      ? map(input.desired.position)
-      : {
-          x: input.authored.center.x + input.authored.velocity.x / input.omega,
-          y: input.authored.center.z + input.authored.velocity.z / input.omega,
-        },
-    desiredVelocity: input.desired
-      ? map(input.desired.velocity)
-      : { x: 0, y: 0 },
-    capture: {
-      x: input.center.x + input.velocity.x / input.omega,
-      y: input.center.z + input.velocity.z / input.omega,
-    },
-    center: map(input.center),
-    omega: input.omega,
-    dt: input.dt,
-  });
-  return {
-    pressure: { x: result.cop.x, y: input.floor, z: result.cop.y },
-    pivot: { x: result.cmp.x, y: input.floor, z: result.cmp.y },
-    converged: result.converged,
-    state: result.state,
-  };
-}
-
 /** What {@link AutoMovieEnginePhysicalBipedPressure} returns. */
 export namespace AutoMovieEnginePhysicalBipedPressure {
   /**
@@ -109,4 +56,57 @@ export namespace AutoMovieEnginePhysicalBipedPressure {
     /** The controller's next state. */
     state: AutoMovieEnginePhysicalIcpController.IState;
   }
+}
+
+function computeBipedPressure(input: {
+  state: AutoMovieEnginePhysicalIcpController.IState;
+  outlines: readonly (readonly IAutoMovieVector3[])[];
+  desired?: {
+    position: { x: number; z: number };
+    velocity: { x: number; z: number };
+  };
+  authored: { center: IAutoMovieVector3; velocity: IAutoMovieVector3 };
+  center: IAutoMovieVector3;
+  velocity: IAutoMovieVector3;
+  omega: number;
+  dt: number;
+  floor: number;
+}): AutoMovieEnginePhysicalBipedPressure.IResult {
+  const map = (p: { x: number; z: number }): Polygon.IPoint => ({
+    x: p.x,
+    y: p.z,
+  });
+  const support: Polygon.IPoint[] = Polygon.hull(
+    input.outlines.flatMap(
+      (outline: readonly IAutoMovieVector3[]): Polygon.IPoint[] =>
+        outline.map(map),
+    ),
+  );
+  const result: AutoMovieEnginePhysicalIcpController.IResult =
+    AutoMovieEnginePhysicalIcpController.update({
+    state: input.state,
+    support,
+    desired: input.desired
+      ? map(input.desired.position)
+      : {
+          x: input.authored.center.x + input.authored.velocity.x / input.omega,
+          y: input.authored.center.z + input.authored.velocity.z / input.omega,
+        },
+    desiredVelocity: input.desired
+      ? map(input.desired.velocity)
+      : { x: 0, y: 0 },
+    capture: {
+      x: input.center.x + input.velocity.x / input.omega,
+      y: input.center.z + input.velocity.z / input.omega,
+    },
+    center: map(input.center),
+    omega: input.omega,
+    dt: input.dt,
+  });
+  return {
+    pressure: { x: result.cop.x, y: input.floor, z: result.cop.y },
+    pivot: { x: result.cmp.x, y: input.floor, z: result.cmp.y },
+    converged: result.converged,
+    state: result.state,
+  };
 }

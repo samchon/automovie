@@ -9,19 +9,6 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** The record of `IPlacedResult`'s site. */
-type IPlacedResult = {
-  point: IAutoMovieVector3;
-  frame: ReturnType<IAutoMovieMotionHumanPropReader["frame"]>;
-  affordance: IAutoMovieAffordance;
-};
-
-/** The alternatives of `PlacedContext`'s site. */
-type PlacedContext = "prop" | "start";
-
-/** The alternatives of `AtContext`'s site. */
-type AtContext = "prop" | "start";
-
 /**
  * The support a prop gives a workout: a bench's top under a body that lies or
  * sits raised, a bar between the hands of a body that hangs, a box's top under
@@ -107,3 +94,16 @@ export namespace WorkoutSupport {
     };
   }
 }
+
+/** The record of `IPlacedResult`'s site. */
+type IPlacedResult = {
+  point: IAutoMovieVector3;
+  frame: ReturnType<IAutoMovieMotionHumanPropReader["frame"]>;
+  affordance: IAutoMovieAffordance;
+};
+
+/** The alternatives of `PlacedContext`'s site. */
+type PlacedContext = "prop" | "start";
+
+/** The alternatives of `AtContext`'s site. */
+type AtContext = "prop" | "start";

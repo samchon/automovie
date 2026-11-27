@@ -137,52 +137,6 @@ export namespace AutoMovieCurveMath64 {
   }
 
   /**
-   * Reuse ordinary endpoint evaluation on an already admitted cubic, then try
-   * endpoint-specific quotient orders only for unresolved components. Inactive
-   * zero-times-overflow terms in the old polynomial formula therefore do not
-   * reject a finite endpoint difference. A remaining nonfinite result or loss
-   * of a nonzero difference to zero refuses conversion. These fixed binary64
-   * orders are not an arbitrary-precision representability decision procedure.
-   * The public conversion comment owns this private helper's Evidence answers.
-   */
-  function endpointDerivative(
-    span: readonly AutoMovieVector3Tuple[],
-    endpoint: 0 | 1,
-    dy: number,
-  ): AutoMovieVector3Tuple {
-    // The ordinary formula differences the controls and weights them by up to
-    // 24 / dy in total; past either bound an inactive term can overflow, so
-    // the endpoint difference is read directly instead.
-    const largest: number = Math.max(
-      ...span.map((control: AutoMovieVector3Tuple): number =>
-        Math.max(...control.map(Math.abs)),
-      ),
-    );
-    const ordinary: AutoMovieVector3Tuple | null =
-      largest < Number.MAX_VALUE / 24 && largest / dy < Number.MAX_VALUE / 24
-        ? derivative(span, endpoint, dy)
-        : null;
-    const a: AutoMovieVector3Tuple = span[endpoint === 0 ? 0 : 2]!,
-      b: AutoMovieVector3Tuple = span[endpoint === 0 ? 1 : 3]!;
-    return [0, 1, 2].map((axis: number): number => {
-      const delta: number = b[axis]! - a[axis]!;
-      // An intermediate difference or quotient can overflow to Infinity, or
-      // a tiny width underflow a nonzero difference to zero; each later form
-      // reorders the same arithmetic to avoid that rounding.
-      const unresolved = (candidate: number): boolean =>
-        Math.abs(candidate) === Infinity ||
-        (candidate === 0 && a[axis] !== b[axis]);
-      let value: number = ordinary === null ? (3 * delta) / dy : ordinary[axis]!;
-      if (unresolved(value)) value = (3 * delta) / dy;
-      if (unresolved(value)) value = 3 * (delta / dy);
-      if (unresolved(value)) value = 3 * (b[axis]! / dy - a[axis]! / dy);
-      if (unresolved(value))
-        throw new Error("Cubic endpoint derivative is unresolved in binary64");
-      return value;
-    }) as AutoMovieVector3Tuple;
-  }
-
-  /**
    * Evaluate the four-coefficient cubic Bernstein formula at dimensionless t;
    * the caller owns range checks and the coefficient units.
    */
@@ -362,5 +316,51 @@ export namespace AutoMovieCurveMath64 {
         ];
       },
     );
+  }
+
+  /**
+   * Reuse ordinary endpoint evaluation on an already admitted cubic, then try
+   * endpoint-specific quotient orders only for unresolved components. Inactive
+   * zero-times-overflow terms in the old polynomial formula therefore do not
+   * reject a finite endpoint difference. A remaining nonfinite result or loss
+   * of a nonzero difference to zero refuses conversion. These fixed binary64
+   * orders are not an arbitrary-precision representability decision procedure.
+   * The public conversion comment owns this private helper's Evidence answers.
+   */
+  function endpointDerivative(
+    span: readonly AutoMovieVector3Tuple[],
+    endpoint: 0 | 1,
+    dy: number,
+  ): AutoMovieVector3Tuple {
+    // The ordinary formula differences the controls and weights them by up to
+    // 24 / dy in total; past either bound an inactive term can overflow, so
+    // the endpoint difference is read directly instead.
+    const largest: number = Math.max(
+      ...span.map((control: AutoMovieVector3Tuple): number =>
+        Math.max(...control.map(Math.abs)),
+      ),
+    );
+    const ordinary: AutoMovieVector3Tuple | null =
+      largest < Number.MAX_VALUE / 24 && largest / dy < Number.MAX_VALUE / 24
+        ? derivative(span, endpoint, dy)
+        : null;
+    const a: AutoMovieVector3Tuple = span[endpoint === 0 ? 0 : 2]!,
+      b: AutoMovieVector3Tuple = span[endpoint === 0 ? 1 : 3]!;
+    return [0, 1, 2].map((axis: number): number => {
+      const delta: number = b[axis]! - a[axis]!;
+      // An intermediate difference or quotient can overflow to Infinity, or
+      // a tiny width underflow a nonzero difference to zero; each later form
+      // reorders the same arithmetic to avoid that rounding.
+      const unresolved = (candidate: number): boolean =>
+        Math.abs(candidate) === Infinity ||
+        (candidate === 0 && a[axis] !== b[axis]);
+      let value: number = ordinary === null ? (3 * delta) / dy : ordinary[axis]!;
+      if (unresolved(value)) value = (3 * delta) / dy;
+      if (unresolved(value)) value = 3 * (delta / dy);
+      if (unresolved(value)) value = 3 * (b[axis]! / dy - a[axis]! / dy);
+      if (unresolved(value))
+        throw new Error("Cubic endpoint derivative is unresolved in binary64");
+      return value;
+    }) as AutoMovieVector3Tuple;
   }
 }

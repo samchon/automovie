@@ -14,71 +14,6 @@ import { prepareFiniteQuaternionDot } from "../../math/internal/prepareFiniteQua
 import { AutoMovieEngineRigAngle } from "../../rom/internal/AutoMovieEngineRigAngle";
 
 /**
- * The inverse owner's three clinical coordinates, with no alternate axis
- * representation.
- */
-type ClinicalAxis = keyof IAutoMovieResolvedJointAngles;
-
-/**
- * The interface contract
- * (`IAutoMoviePrepareJointRotationCoefficientDots.IDot`).
- */
-type IDot = IAutoMoviePrepareJointRotationCoefficientDots.IDot;
-
-/**
- * Actual fixed-rig inputs, already selected by the projector's box eligibility
- * gate.
- */
-interface IProps {
-  /** Original normalized clinical axes. */
-  basis: IAutoMovieJointAxes;
-  /** Original clinical affine frame, unchanged for this operation. */
-  frame: IAutoMovieRestFrame | undefined;
-  /** Null-ROM coordinates collected at the projector's original range-read site. */
-  immobile: readonly ClinicalAxis[];
-  /** Positive-width coordinates in the original F/A/T ordering. */
-  mobile: readonly ClinicalAxis[];
-  /**
-   * Canonical numeric-zero immobile seed, or each numeric fixed range's
-   * minimum.
-   */
-  fixed: IAutoMovieJointPose;
-  /** Original actual quaternion factor order. */
-  order: readonly ClinicalAxis[];
-  /** Caller-owned rig declarations, extended only with fixed null-rest rig zero. */
-  fixedRigAngles: jointToQuaternionOnBasis.IFixedAngles;
-}
-
-/** One source-fixed factor and its optional distinct null-rest factor. */
-interface IFixed {
-  /**
-   * Fixed clinical coordinate whose actual reference representation selects the
-   * factor.
-   */
-  axis: ClinicalAxis;
-  /**
-   * Original numeric-coordinate factor, composed at its original preparation
-   * site.
-   */
-  factor: IAutoMovieQuaternion;
-  /**
-   * Null-mode bit, zero when null has the same exact rig angle or is not
-   * admitted.
-   */
-  bit: number;
-  /** Lazy actual rig-zero factor; never an incoming target or scored result. */
-  rest: IAutoMovieQuaternion;
-}
-
-/** One source-fixed coefficient basis and its structured Gram cross term. */
-interface IVariant {
-  /** Four original coefficient dot readers in mask order. */
-  dots: readonly IDot[];
-  /** C1 dot C2, equal to minus C0 dot C3 for this product family. */
-  cross: number;
-}
-
-/**
  * Prepare the box objective's fixed-rig coefficients for actual fixed outputs.
  * Numeric immobile outputs mean clinical zero, as the ordinary clamp emits; an
  * explicitly null output instead means rig zero, as joint composition reads.
@@ -192,4 +127,69 @@ export namespace prepareJointRotationCoefficientDots {
    * (`IAutoMoviePrepareJointRotationCoefficientDots.IReader`).
    */
   export type IReader = IAutoMoviePrepareJointRotationCoefficientDots.IReader;
+}
+
+/**
+ * The inverse owner's three clinical coordinates, with no alternate axis
+ * representation.
+ */
+type ClinicalAxis = keyof IAutoMovieResolvedJointAngles;
+
+/**
+ * The interface contract
+ * (`IAutoMoviePrepareJointRotationCoefficientDots.IDot`).
+ */
+type IDot = IAutoMoviePrepareJointRotationCoefficientDots.IDot;
+
+/**
+ * Actual fixed-rig inputs, already selected by the projector's box eligibility
+ * gate.
+ */
+interface IProps {
+  /** Original normalized clinical axes. */
+  basis: IAutoMovieJointAxes;
+  /** Original clinical affine frame, unchanged for this operation. */
+  frame: IAutoMovieRestFrame | undefined;
+  /** Null-ROM coordinates collected at the projector's original range-read site. */
+  immobile: readonly ClinicalAxis[];
+  /** Positive-width coordinates in the original F/A/T ordering. */
+  mobile: readonly ClinicalAxis[];
+  /**
+   * Canonical numeric-zero immobile seed, or each numeric fixed range's
+   * minimum.
+   */
+  fixed: IAutoMovieJointPose;
+  /** Original actual quaternion factor order. */
+  order: readonly ClinicalAxis[];
+  /** Caller-owned rig declarations, extended only with fixed null-rest rig zero. */
+  fixedRigAngles: jointToQuaternionOnBasis.IFixedAngles;
+}
+
+/** One source-fixed factor and its optional distinct null-rest factor. */
+interface IFixed {
+  /**
+   * Fixed clinical coordinate whose actual reference representation selects the
+   * factor.
+   */
+  axis: ClinicalAxis;
+  /**
+   * Original numeric-coordinate factor, composed at its original preparation
+   * site.
+   */
+  factor: IAutoMovieQuaternion;
+  /**
+   * Null-mode bit, zero when null has the same exact rig angle or is not
+   * admitted.
+   */
+  bit: number;
+  /** Lazy actual rig-zero factor; never an incoming target or scored result. */
+  rest: IAutoMovieQuaternion;
+}
+
+/** One source-fixed coefficient basis and its structured Gram cross term. */
+interface IVariant {
+  /** Four original coefficient dot readers in mask order. */
+  dots: readonly IDot[];
+  /** C1 dot C2, equal to minus C0 dot C3 for this product family. */
+  cross: number;
 }

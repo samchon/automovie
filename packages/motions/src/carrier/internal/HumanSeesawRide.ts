@@ -21,45 +21,6 @@ import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContac
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-type Params = IAutoMovieMotionHumanPlayground.ISeesawRideParams;
-type Plan = IAutoMovieMotionHumanActionPlan;
-type Posture = IAutoMovieMotionHumanPosture;
-
-/** Feet and toes needed to read the displayed soles. */
-const SOLES: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-  "leftFoot",
-  "leftToes",
-  "rightFoot",
-  "rightToes",
-]);
-
-/** Seconds a foot takes to reach the ground or leave it (provisional staging). */
-const PLACE: number = 0.25;
-
-/**
- * How high a foot arcs over the ground as it is placed or lifted, metres
- * (provisional staging).
- */
-const LIFT: number = 0.05;
-
-/** One foot's planted interval, in ride seconds. */
-interface ILow {
-  /** The free sole first reaches the floor. */
-  from: number;
-
-  /** The free sole leaves the floor. */
-  to: number;
-
-  /** The sole point kept still throughout. */
-  socket: IAutoMovieMotionHumanFoot.ISocket;
-
-  /** The level foot's ankle and heading for that sole point. */
-  planted: IAutoMovieMotionHumanFoot.IPlacement;
-
-  /** The fixed sole offset from the planted ankle, in the foot's frame. */
-  offset: IAutoMovieVector3;
-}
-
 /**
  * Ride a seesaw seat: the seated ride with the hands on the handles
  * (`HumanRide`), and the feet planted on the ground while the seat is so low
@@ -256,4 +217,43 @@ export function HumanSeesawRide(
       return { ...posture, limbs };
     },
   };
+}
+type Params = IAutoMovieMotionHumanPlayground.ISeesawRideParams;
+type Plan = IAutoMovieMotionHumanActionPlan;
+
+type Posture = IAutoMovieMotionHumanPosture;
+
+/** Feet and toes needed to read the displayed soles. */
+const SOLES: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+  "leftFoot",
+  "leftToes",
+  "rightFoot",
+  "rightToes",
+]);
+
+/** Seconds a foot takes to reach the ground or leave it (provisional staging). */
+const PLACE: number = 0.25;
+
+/**
+ * How high a foot arcs over the ground as it is placed or lifted, metres
+ * (provisional staging).
+ */
+const LIFT: number = 0.05;
+
+/** One foot's planted interval, in ride seconds. */
+interface ILow {
+  /** The free sole first reaches the floor. */
+  from: number;
+
+  /** The free sole leaves the floor. */
+  to: number;
+
+  /** The sole point kept still throughout. */
+  socket: IAutoMovieMotionHumanFoot.ISocket;
+
+  /** The level foot's ankle and heading for that sole point. */
+  planted: IAutoMovieMotionHumanFoot.IPlacement;
+
+  /** The fixed sole offset from the planted ankle, in the foot's frame. */
+  offset: IAutoMovieVector3;
 }

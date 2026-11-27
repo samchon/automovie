@@ -9,14 +9,6 @@ import { evaluateSubdivisionLevel } from "./evaluateSubdivisionLevel";
 import { refineSubdivisionLevel } from "./refineSubdivisionLevel";
 
 /**
- * Most refinement steps one call admits. Each level multiplies the quad count
- * by four, so six levels already turn every cage corner into 1,024 quads, more
- * than a render or measurement cage needs, and a larger level only lets one
- * call exhaust memory.
- */
-const MAX_LEVELS: number = 6;
-
-/**
  * Refine a polygon cage into a Catmull-Clark subdivision surface and evaluate
  * its limit positions and normals.
  *
@@ -65,3 +57,11 @@ export function subdivideAutoMovieSurface(
     level = refineSubdivisionLevel(level);
   return evaluateSubdivisionLevel(level);
 }
+
+/**
+ * Most refinement steps one call admits. Each level multiplies the quad count
+ * by four, so six levels already turn every cage corner into 1,024 quads, more
+ * than a render or measurement cage needs, and a larger level only lets one
+ * call exhaust memory.
+ */
+const MAX_LEVELS: number = 6;

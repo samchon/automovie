@@ -18,19 +18,6 @@ import { AutoMovieViewConic } from "./AutoMovieViewConic";
 import { AutoMovieViewSectionField } from "./AutoMovieViewSectionField";
 import { AutoMovieViewSectionReading } from "./AutoMovieViewSectionReading";
 
-/** The same primal point supplies its normalized radial and quarter rotation. */
-interface Direction {
-  p: [number, number];
-  radial: [number, number];
-  turn: [number, number];
-}
-
-/** A scalar `[value, ds, dss]` in physical station mm. */
-type Station = IAutoMovieViewSectionField.IStationJet;
-
-/** A chain's phase reader. */
-type Reader = (phi: number) => IAutoMovieViewChain.IReading | null;
-
 /**
  * Cartesian readings of the original native scalar generating field. Explicit
  * numeric rejection uses the internal admission error; exceptions raised by
@@ -192,6 +179,19 @@ export namespace AutoMovieLoftSectionNative {
     };
   }
 }
+
+/** The same primal point supplies its normalized radial and quarter rotation. */
+interface Direction {
+  p: [number, number];
+  radial: [number, number];
+  turn: [number, number];
+}
+
+/** A scalar `[value, ds, dss]` in physical station mm. */
+type Station = IAutoMovieViewSectionField.IStationJet;
+
+/** A chain's phase reader. */
+type Reader = (phi: number) => IAutoMovieViewChain.IReading | null;
 
 /** A source declaring touch offsets, splits or split lists is read as its chain. */
 function declares(inputs: {

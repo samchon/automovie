@@ -4,13 +4,6 @@ import type {
 } from "@automovie/interface";
 
 /**
- * For quaternion components bounded by one, the first cross terms are at
- * most 4 times the largest vector component. The final sum is bounded by
- * 1 + 4 + 8 times that component. Sixteen is the first power of two above it.
- */
-const RESCALE: number = 16;
-
-/**
  * Read the original quaternion-vector rotation's completed X/Y/Z values. A unit
  * quaternion rotates v in its frame without normalization. When the direct
  * computation overflows, split the vector into an exactly rescalable part and
@@ -43,6 +36,13 @@ export function readRotatedVector<Result, Context>(
   }
   return read(x, y, z, context);
 }
+
+/**
+ * For quaternion components bounded by one, the first cross terms are at
+ * most 4 times the largest vector component. The final sum is bounded by
+ * 1 + 4 + 8 times that component. Sixteen is the first power of two above it.
+ */
+const RESCALE: number = 16;
 
 /**
  * Reapply the homogeneous vector formula with enough range for its maximum

@@ -5,12 +5,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { AutoMovieArchetype, AutoMovieArchetypeBand, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
 /**
- * Turf sectors around the cup; each spans 22.5 degrees, so square corners fall
- * on sector edges.
- */
-const SECTORS: number = 16;
-
-/**
  * A square putting green with its cup at the centre, the putting surface at Y =
  * 0 and the turf below it.
  *
@@ -95,3 +89,9 @@ export function createPuttingGreen(
   // A fixed green uses a nominal assembly mass; it never moves.
   return builder.build(1000);
 }
+
+/**
+ * Turf sectors around the cup; each spans 22.5 degrees, so square corners fall
+ * on sector edges.
+ */
+const SECTORS: number = 16;

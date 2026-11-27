@@ -15,56 +15,6 @@ import { FRAMING_AIM_FRACTION } from "../FRAMING_AIM_FRACTION";
 import { FRAMING_HEIGHT_FRACTION } from "../FRAMING_HEIGHT_FRACTION";
 import { lookRotation } from "./lookRotation";
 
-/** World up: the horizon a camera keeps level. */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/** A whip pan snaps to its new aim in this many seconds. */
-const WHIP_SECONDS: number = 0.2;
-
-/** An orbit sweeps this many degrees about world up over its span. */
-const ORBIT_DEGREES: number = 45;
-
-/** A push-in starts at this multiple of the framed distance. */
-const PUSH_IN_FROM: number = 1.25;
-
-/** A push-in ends at this multiple of the framed distance. */
-const PUSH_IN_TO: number = 0.8;
-
-/** A truck crosses this multiple of the framed distance toward screen-left. */
-const TRUCK_DISTANCE: number = 1;
-
-/**
- * Frame rate the moving paths are keyed at when the caller states no delivery
- * rate: 24 frames per second, the theatrical sound-film rate.
- */
-const FALLBACK_FRAME_RATE: IAutoMovieProductionFrameRate = {
-  numerator: 24,
-  denominator: 1,
-};
-
-/** Seconds within which two key times are the same instant. */
-const SAME_INSTANT: number = 1e-9;
-
-/**
- * Seconds before an entry's start at which a step keeps the reached pose: far
- * above {@link SAME_INSTANT} and far below any delivery frame interval, so the
- * frame before the start still shows the reached pose and the frame at the
- * start shows the new one.
- */
-const STEP_SECONDS: number = 1e-6;
-
-/** One camera key: shot-local seconds, world position and world rotation. */
-interface IKey {
-  /** Shot-local seconds. */
-  t: number;
-
-  /** World position in metres. */
-  pos: IAutoMovieVector3;
-
-  /** World rotation. */
-  rot: IAutoMovieQuaternion;
-}
-
 /**
  * Compile a camera's `frame` entries into one clip of its world translation and
  * rotation, the deterministic shot grammar.
@@ -430,6 +380,56 @@ export function compileCameraMove(
       },
     ],
   };
+}
+
+/** World up: the horizon a camera keeps level. */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/** A whip pan snaps to its new aim in this many seconds. */
+const WHIP_SECONDS: number = 0.2;
+
+/** An orbit sweeps this many degrees about world up over its span. */
+const ORBIT_DEGREES: number = 45;
+
+/** A push-in starts at this multiple of the framed distance. */
+const PUSH_IN_FROM: number = 1.25;
+
+/** A push-in ends at this multiple of the framed distance. */
+const PUSH_IN_TO: number = 0.8;
+
+/** A truck crosses this multiple of the framed distance toward screen-left. */
+const TRUCK_DISTANCE: number = 1;
+
+/**
+ * Frame rate the moving paths are keyed at when the caller states no delivery
+ * rate: 24 frames per second, the theatrical sound-film rate.
+ */
+const FALLBACK_FRAME_RATE: IAutoMovieProductionFrameRate = {
+  numerator: 24,
+  denominator: 1,
+};
+
+/** Seconds within which two key times are the same instant. */
+const SAME_INSTANT: number = 1e-9;
+
+/**
+ * Seconds before an entry's start at which a step keeps the reached pose: far
+ * above {@link SAME_INSTANT} and far below any delivery frame interval, so the
+ * frame before the start still shows the reached pose and the frame at the
+ * start shows the new one.
+ */
+const STEP_SECONDS: number = 1e-6;
+
+/** One camera key: shot-local seconds, world position and world rotation. */
+interface IKey {
+  /** Shot-local seconds. */
+  t: number;
+
+  /** World position in metres. */
+  pos: IAutoMovieVector3;
+
+  /** World rotation. */
+  rot: IAutoMovieQuaternion;
 }
 
 /**

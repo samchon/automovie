@@ -1,84 +1,5 @@
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
-/**
- * Look up clinical horse joint-angle observations for a distal bone.
- *
- * The bone identifies its proximal joint. Right-side lookup returns the same
- * study population, with its measured side retained; it asserts no symmetry.
- * These are included landmark angles, not offsets from the model's rest pose.
- * Means, standard deviations and standing extension are not anatomical bounds.
- * Shoulder, hip and axial observations, and every local rotation limit, remain
- * unknown. Skin-marker rays also differ from the model's coarse bone bars.
- *
- * @param bone The bone whose proximal joint is being inspected.
- * @returns Read-only source observations and explicitly unknown runtime limits.
- */
-function readEquineJointLimits(
-  bone: AutoMovieArchetypeQuadrupedBody.Bone,
-): AutoMovieArchetypeEquineJointLimits.IReference {
-  let joint: AutoMovieArchetypeEquineJointLimits.Joint | null = null;
-  switch (bone) {
-    case "leftForeRadius":
-    case "rightForeRadius":
-      joint = "foreElbow";
-      break;
-    case "leftForeCannon":
-    case "rightForeCannon":
-      joint = "foreCarpus";
-      break;
-    case "leftForePastern":
-    case "rightForePastern":
-      joint = "foreFetlock";
-      break;
-    case "leftHindTibia":
-    case "rightHindTibia":
-      joint = "hindStifle";
-      break;
-    case "leftHindCannon":
-    case "rightHindCannon":
-      joint = "hindTarsus";
-      break;
-    case "leftHindPastern":
-    case "rightHindPastern":
-      joint = "hindFetlock";
-      break;
-    case "head":
-    case "hindquarters":
-    case "leftForeScapula":
-    case "rightForeScapula":
-    case "leftForeHumerus":
-    case "leftHindFemur":
-    case "neck":
-    case "rightForeHumerus":
-    case "rightHindFemur":
-    case "tail":
-    case "trunk":
-      joint = null;
-      break;
-  }
-
-  return joint === null
-    ? { joint: null, observations: null, limits: null }
-    : {
-        joint,
-        observations: OBSERVATIONS[joint].map(
-          (
-            row: AutoMovieArchetypeEquineJointLimits.IObservation,
-          ): AutoMovieArchetypeEquineJointLimits.IObservation => ({
-            ...row,
-            study: { ...row.study },
-            flexion: [row.flexion[0], row.flexion[1]],
-            extension: [row.extension[0], row.extension[1]],
-            reportedRom:
-              row.reportedRom === null
-                ? null
-                : [row.reportedRom[0], row.reportedRom[1]],
-          }),
-        ),
-        limits: null,
-      };
-}
-
 /** Clinical reference types and comparison of measured included angles. */
 export namespace AutoMovieArchetypeEquineJointLimits {
   /**
@@ -253,6 +174,85 @@ export namespace AutoMovieArchetypeEquineJointLimits {
         (includedAngle - observation.extension[0]) / observation.extension[1],
     };
   }
+}
+
+/**
+ * Look up clinical horse joint-angle observations for a distal bone.
+ *
+ * The bone identifies its proximal joint. Right-side lookup returns the same
+ * study population, with its measured side retained; it asserts no symmetry.
+ * These are included landmark angles, not offsets from the model's rest pose.
+ * Means, standard deviations and standing extension are not anatomical bounds.
+ * Shoulder, hip and axial observations, and every local rotation limit, remain
+ * unknown. Skin-marker rays also differ from the model's coarse bone bars.
+ *
+ * @param bone The bone whose proximal joint is being inspected.
+ * @returns Read-only source observations and explicitly unknown runtime limits.
+ */
+function readEquineJointLimits(
+  bone: AutoMovieArchetypeQuadrupedBody.Bone,
+): AutoMovieArchetypeEquineJointLimits.IReference {
+  let joint: AutoMovieArchetypeEquineJointLimits.Joint | null = null;
+  switch (bone) {
+    case "leftForeRadius":
+    case "rightForeRadius":
+      joint = "foreElbow";
+      break;
+    case "leftForeCannon":
+    case "rightForeCannon":
+      joint = "foreCarpus";
+      break;
+    case "leftForePastern":
+    case "rightForePastern":
+      joint = "foreFetlock";
+      break;
+    case "leftHindTibia":
+    case "rightHindTibia":
+      joint = "hindStifle";
+      break;
+    case "leftHindCannon":
+    case "rightHindCannon":
+      joint = "hindTarsus";
+      break;
+    case "leftHindPastern":
+    case "rightHindPastern":
+      joint = "hindFetlock";
+      break;
+    case "head":
+    case "hindquarters":
+    case "leftForeScapula":
+    case "rightForeScapula":
+    case "leftForeHumerus":
+    case "leftHindFemur":
+    case "neck":
+    case "rightForeHumerus":
+    case "rightHindFemur":
+    case "tail":
+    case "trunk":
+      joint = null;
+      break;
+  }
+
+  return joint === null
+    ? { joint: null, observations: null, limits: null }
+    : {
+        joint,
+        observations: OBSERVATIONS[joint].map(
+          (
+            row: AutoMovieArchetypeEquineJointLimits.IObservation,
+          ): AutoMovieArchetypeEquineJointLimits.IObservation => ({
+            ...row,
+            study: { ...row.study },
+            flexion: [row.flexion[0], row.flexion[1]],
+            extension: [row.extension[0], row.extension[1]],
+            reportedRom:
+              row.reportedRom === null
+                ? null
+                : [row.reportedRom[0], row.reportedRom[1]],
+          }),
+        ),
+        limits: null,
+      };
 }
 
 /**

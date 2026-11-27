@@ -16,15 +16,6 @@ import { ExerciseKey } from "../internal/ExerciseKey";
 import { WorkoutFloor } from "./WorkoutFloor";
 import { WorkoutKind } from "./WorkoutKind";
 
-/** The record of `IThrustFrom`'s site. */
-type IThrustFrom = { forth: number; up: number };
-
-/** The record of `IThrustFeet`'s site. */
-type IThrustFeet = { forth: number; up: number };
-
-/** The record of `IThrustHipsResult`'s site. */
-type IThrustHipsResult = { forth: number; up: number };
-
 /**
  * The exercises of the workout law that are done on a box or a bench the author
  * names (`on`): the step-up, the incline push-up (the hands on the bench), the
@@ -447,3 +438,12 @@ export namespace WorkoutEquipment {
     },
   };
 }
+
+/** The record of `IThrustFrom`'s site. */
+type IThrustFrom = { forth: number; up: number };
+
+/** The record of `IThrustFeet`'s site. */
+type IThrustFeet = { forth: number; up: number };
+
+/** The record of `IThrustHipsResult`'s site. */
+type IThrustHipsResult = { forth: number; up: number };

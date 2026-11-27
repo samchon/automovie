@@ -23,21 +23,6 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { poseBones } from "../../posture/internal/poseBones";
 import { GymnasticsFlight } from "../../sport/internal/GymnasticsFlight";
 
-/** Seconds the landing takes to absorb into the stand (provisional). */
-const ABSORB: number = 0.4;
-
-/**
- * How deep the hips dip in the absorb, a share of the hip height (provisional:
- * a soft landing's knee bend).
- */
-const DIP: number = 0.18;
-
-/** Time available for a higher foot to acquire the floor after touchdown. */
-const SECOND_FOOT: number = ABSORB / 2;
-
-/** The two independently observed floor sockets. */
-const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-
 /**
  * Append a hang's release and drop to a plan that ends hanging: the body keeps
  * the hanging shape and falls freely until its lowest toe meets the ground (`t
@@ -260,6 +245,21 @@ export function treeClimbDrop(
   };
   return HumanPreparedPlayback.rebindPosture(result, plan, body);
 }
+
+/** Seconds the landing takes to absorb into the stand (provisional). */
+const ABSORB: number = 0.4;
+
+/**
+ * How deep the hips dip in the absorb, a share of the hip height (provisional:
+ * a soft landing's knee bend).
+ */
+const DIP: number = 0.18;
+
+/** Time available for a higher foot to acquire the floor after touchdown. */
+const SECOND_FOOT: number = ABSORB / 2;
+
+/** The two independently observed floor sockets. */
+const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
 /** The drop's displayed hang, floor landing, and stand. */
 interface IDrop {

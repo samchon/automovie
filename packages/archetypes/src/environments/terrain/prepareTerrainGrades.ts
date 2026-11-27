@@ -8,84 +8,6 @@ import type {
 } from "@automovie/interface";
 
 /**
- * A resolved area with a level apron and a smooth transition to its
- * surroundings.
- */
-interface IPad {
-  /** Scoped diagnostic name. */
-  id: string;
-
-  /** World XZ stored under the shared planar X/Y names. */
-  outline: IAutoMoviePlanarPoint[];
-
-  /** Level world Y and shoulder width in metres. */
-  height: number;
-  shoulder: number;
-  /** A separately built floor owns support inside this plateau. */
-  cut: boolean;
-}
-
-/** Consecutive grade vertices and the length of their usable rise. */
-interface ISegment {
-  /** Endpoints in world metres. */
-  from: IAutoMovieVector3;
-  to: IAutoMovieVector3;
-
-  /** Length and landing lengths in plan metres. */
-  length: number;
-  fromLanding: number;
-  toLanding: number;
-}
-
-/** One resolved grade corridor sharing path coordinates with the runtime route. */
-interface IPath {
-  /** Stable local key and scoped diagnostic identity. */
-  name: string;
-  id: string;
-
-  /** Corridor and shoulder metres. */
-  radius: number;
-  shoulder: number;
-
-  /** Maximum absolute slope, in metres per metre, if constrained. */
-  maxSlope: number | undefined;
-
-  /** Ordered world waypoints and the hard anchors among them. */
-  points: IAutoMovieVector3[];
-  fixed: boolean[];
-
-  /** Graded segments in order. */
-  segments: ISegment[];
-}
-
-/** Prepared scene placement constraints and their base-height reader. */
-interface ITerrainGrades {
-  /** Narrowest apron or path feature whose bake requires more than one cell. */
-  featureSize: number;
-
-  /** Common level of all grade constraints, when every grade is at one height. */
-  commonLevel: number | undefined;
-
-  /** Resolved paths, in authored order. */
-  paths: IPath[];
-
-  /** Grade pads whose structures own support inside their footprint. */
-  cuts: IAutoMovieVector3[][];
-
-  /** One continuous blend away from the declared hard grade regions. */
-  height: (point: { x: number; z: number }) => number;
-
-  /**
-   * Closest paved, raised or deliberately cleared source within a trunk's
-   * protection radius.
-   */
-  protectedArea: (
-    center: IAutoMoviePlanarPoint,
-    radius: number,
-  ) => string | null;
-}
-
-/**
  * Resolve grade authority before sampling any terrain cells.
  *
  * Pads first reserve a level apron over half their declared shoulder. Paths
@@ -230,6 +152,84 @@ export function prepareTerrainGrades(
       return hole === -1 ? null : `${context.id}/holes/${hole}`;
     },
   };
+}
+
+/**
+ * A resolved area with a level apron and a smooth transition to its
+ * surroundings.
+ */
+interface IPad {
+  /** Scoped diagnostic name. */
+  id: string;
+
+  /** World XZ stored under the shared planar X/Y names. */
+  outline: IAutoMoviePlanarPoint[];
+
+  /** Level world Y and shoulder width in metres. */
+  height: number;
+  shoulder: number;
+  /** A separately built floor owns support inside this plateau. */
+  cut: boolean;
+}
+
+/** Consecutive grade vertices and the length of their usable rise. */
+interface ISegment {
+  /** Endpoints in world metres. */
+  from: IAutoMovieVector3;
+  to: IAutoMovieVector3;
+
+  /** Length and landing lengths in plan metres. */
+  length: number;
+  fromLanding: number;
+  toLanding: number;
+}
+
+/** One resolved grade corridor sharing path coordinates with the runtime route. */
+interface IPath {
+  /** Stable local key and scoped diagnostic identity. */
+  name: string;
+  id: string;
+
+  /** Corridor and shoulder metres. */
+  radius: number;
+  shoulder: number;
+
+  /** Maximum absolute slope, in metres per metre, if constrained. */
+  maxSlope: number | undefined;
+
+  /** Ordered world waypoints and the hard anchors among them. */
+  points: IAutoMovieVector3[];
+  fixed: boolean[];
+
+  /** Graded segments in order. */
+  segments: ISegment[];
+}
+
+/** Prepared scene placement constraints and their base-height reader. */
+interface ITerrainGrades {
+  /** Narrowest apron or path feature whose bake requires more than one cell. */
+  featureSize: number;
+
+  /** Common level of all grade constraints, when every grade is at one height. */
+  commonLevel: number | undefined;
+
+  /** Resolved paths, in authored order. */
+  paths: IPath[];
+
+  /** Grade pads whose structures own support inside their footprint. */
+  cuts: IAutoMovieVector3[][];
+
+  /** One continuous blend away from the declared hard grade regions. */
+  height: (point: { x: number; z: number }) => number;
+
+  /**
+   * Closest paved, raised or deliberately cleared source within a trunk's
+   * protection radius.
+   */
+  protectedArea: (
+    center: IAutoMoviePlanarPoint,
+    radius: number,
+  ) => string | null;
 }
 
 /**

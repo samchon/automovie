@@ -8,21 +8,6 @@ import type {
   IAutoMovieMotionHumanQuadraticProgram,
 } from "@automovie/interface";
 
-/** The record of `IWrittenHeading`'s site. */
-type IWrittenHeading = { yaw: number; pitch: number; roll: number };
-
-/** The record of `IWrittenRoot`'s site. */
-type IWrittenRoot = { x: number; y: number; z: number };
-
-/** The alternatives of `BODY2`'s site. */
-type BODY2 = 0 | 1 | 2;
-
-/** The alternatives of `ANGLESItemResult`'s site. */
-type ANGLESItemResult = 0 | 1 | 2;
-
-/** The alternatives of `ANGLESItem`'s site. */
-type ANGLESItem = 0 | 1 | 2;
-
 /**
  * The variables a whole-body fit (`HumanBodyFit`) moves a posture by, as the
  * Jacobian names them (`HumanJacobian.IVariable`): read from a posture and
@@ -324,3 +309,18 @@ export namespace HumanFitVariables {
     max: Infinity,
   };
 }
+
+/** The record of `IWrittenHeading`'s site. */
+type IWrittenHeading = { yaw: number; pitch: number; roll: number };
+
+/** The record of `IWrittenRoot`'s site. */
+type IWrittenRoot = { x: number; y: number; z: number };
+
+/** The alternatives of `BODY2`'s site. */
+type BODY2 = 0 | 1 | 2;
+
+/** The alternatives of `ANGLESItemResult`'s site. */
+type ANGLESItemResult = 0 | 1 | 2;
+
+/** The alternatives of `ANGLESItem`'s site. */
+type ANGLESItem = 0 | 1 | 2;

@@ -13,21 +13,6 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import type { prepareChainFit } from "./prepareChainFit";
 
-/** Two supplied articulations under one unchanged prepared parent frame. */
-interface IProps extends Pick<
-  IAutoMovieSolvePreparedChainPlantProps,
-  "prepared" | "jointAxes" | "restFrames"
-> {
-  /** Root clinical articulation, with null axes at their declared rest. */
-  upper: IAutoMovieJointPose;
-
-  /** Mid clinical articulation in the same axes and rest-frame convention. */
-  lower: IAutoMovieJointPose;
-
-  /** Optional lazy basis owner of this exact unchanged rig and mappings. */
-  rig?: prepareChainFit.IRig;
-}
-
 /**
  * Resolve only a prepared chain's mid frame after its two supplied
  * articulations. Parent and intermediate bones must remain as they were during
@@ -107,4 +92,19 @@ export namespace resolvePreparedChainLower {
     );
     return { worldPosition: lowerPosition, worldRotation: lowerRotation };
   }
+}
+
+/** Two supplied articulations under one unchanged prepared parent frame. */
+interface IProps extends Pick<
+  IAutoMovieSolvePreparedChainPlantProps,
+  "prepared" | "jointAxes" | "restFrames"
+> {
+  /** Root clinical articulation, with null axes at their declared rest. */
+  upper: IAutoMovieJointPose;
+
+  /** Mid clinical articulation in the same axes and rest-frame convention. */
+  lower: IAutoMovieJointPose;
+
+  /** Optional lazy basis owner of this exact unchanged rig and mappings. */
+  rig?: prepareChainFit.IRig;
 }

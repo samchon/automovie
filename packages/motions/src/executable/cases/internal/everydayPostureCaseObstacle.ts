@@ -5,18 +5,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** A box's near side on the floor and its size. */
-interface IObstacleBox {
-  /** The near side's middle on the floor, world metres. */
-  at: IAutoMovieVector3;
-
-  /** Its height, metres. */
-  height: number;
-
-  /** Its depth behind the near side, metres. */
-  depth: number;
-}
-
 /**
  * A box to step over as a prop: a kerb's `edge` along its near top and its
  * `top` face's depth behind it, the contacts `createKerb` declares, turned so
@@ -56,4 +44,16 @@ export function everydayPostureCaseObstacle(
       },
     ],
   };
+}
+
+/** A box's near side on the floor and its size. */
+interface IObstacleBox {
+  /** The near side's middle on the floor, world metres. */
+  at: IAutoMovieVector3;
+
+  /** Its height, metres. */
+  height: number;
+
+  /** Its depth behind the near side, metres. */
+  depth: number;
 }

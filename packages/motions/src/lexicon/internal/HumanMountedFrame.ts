@@ -21,9 +21,6 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { carryHumanPosture } from "../../posture/internal/carryHumanPosture";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 
-/** The alternatives of `MoveAttitude`'s site. */
-type MoveAttitude = "yaw" | "pitch" | "roll";
-
 /** A point given in a frame, in the world. */
 function carryHumanPoint(
   frame: IAutoMovieRigidTransform,
@@ -339,3 +336,6 @@ export namespace HumanMountedFrame {
         );
   }
 }
+
+/** The alternatives of `MoveAttitude`'s site. */
+type MoveAttitude = "yaw" | "pitch" | "roll";

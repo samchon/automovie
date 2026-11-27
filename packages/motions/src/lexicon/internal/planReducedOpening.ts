@@ -33,47 +33,6 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { planProneOpening } from "./planProneOpening";
 
-/** Extra clearance to leave around the forehead and jambs, in metres. */
-const ROOM: number = 0.005;
-
-/** Extra horizontal margin at each jamb, in metres. */
-const JAMB: number = 0.002;
-
-/**
- * The side-on lane's offset toward the actor's back, hip heights (provisional:
- * the flexed knees and toes reach further forward than the back).
- */
-const SIDE_LANE: number = 0.085;
-
-/**
- * The side-on swing's toe lift over a level sill, metres (provisional: no riser
- * to clear).
- */
-const SIDE_LIFT: number = 0.012;
-
-/**
- * The most a side step raises the pelvis out of the forward gait's knee bend,
- * hip heights (provisional).
- */
-const SIDE_RISE: number = 0.06;
-
-/**
- * The share of the leg's length a raised pelvis leaves the stance leg, short of
- * a locked knee (provisional).
- */
-const STRAIGHT: number = 0.997;
-
-/** The deepest duck, as a share of the hip height (provisional: a half squat). */
-const DROP: number = 0.33;
-
-/**
- * Clearance the duck adds under the lintel before the trunk's pitch, metres
- * (provisional).
- */
-const HEAD_ROOM: number = 0.06;
-
-/** The duck's forward trunk pitch at its deepest, degrees (provisional). */
-const PITCH: number = 19;
 /**
  * Stage a lowered, side-on or prone crossing of a fixed opening whose sill is
  * at floor height. A duck walks through with the pelvis lowered and the trunk
@@ -189,6 +148,47 @@ export function planReducedOpening(
 
   return { ...plan, yields: [] };
 }
+
+/** Extra clearance to leave around the forehead and jambs, in metres. */
+const ROOM: number = 0.005;
+
+/** Extra horizontal margin at each jamb, in metres. */
+const JAMB: number = 0.002;
+
+/**
+ * The side-on lane's offset toward the actor's back, hip heights (provisional:
+ * the flexed knees and toes reach further forward than the back).
+ */
+const SIDE_LANE: number = 0.085;
+
+/**
+ * The side-on swing's toe lift over a level sill, metres (provisional: no riser
+ * to clear).
+ */
+const SIDE_LIFT: number = 0.012;
+
+/**
+ * The most a side step raises the pelvis out of the forward gait's knee bend,
+ * hip heights (provisional).
+ */
+const SIDE_RISE: number = 0.06;
+
+/**
+ * The share of the leg's length a raised pelvis leaves the stance leg, short of
+ * a locked knee (provisional).
+ */
+const STRAIGHT: number = 0.997;
+
+/** The deepest duck, as a share of the hip height (provisional: a half squat). */
+const DROP: number = 0.33;
+
+/**
+ * Clearance the duck adds under the lintel before the trunk's pitch, metres
+ * (provisional).
+ */
+const HEAD_ROOM: number = 0.06;
+/** The duck's forward trunk pitch at its deepest, degrees (provisional). */
+const PITCH: number = 19;
 
 /** The extrema of shapes that overlap the depth, in aperture-local metres. */
 interface IOpeningEnvelope {

@@ -5,9 +5,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** The record of `IShareWay`'s site. */
-type IShareWay = { to: IAutoMovieVector3; via?: readonly IAutoMovieVector3[] };
-
 /**
  * How much of its speed and step a walk keeps when the body does not face the
  * way it goes: all of it forward, `BACKWARD` going backward, and going sideways
@@ -71,3 +68,6 @@ export namespace walkFacing {
     );
   }
 }
+
+/** The record of `IShareWay`'s site. */
+type IShareWay = { to: IAutoMovieVector3; via?: readonly IAutoMovieVector3[] };

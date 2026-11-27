@@ -11,9 +11,6 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import type { AthleticsRunUp } from "./AthleticsRunUp";
 
-/** The alternatives of `OfContext`'s site. */
-type OfContext = "prop" | "start";
-
 /**
  * Read the named crossbar's centre, axis and span where the prop stands at the
  * action's start.
@@ -112,3 +109,6 @@ export namespace highJumpBar {
       });
   }
 }
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "prop" | "start";

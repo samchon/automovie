@@ -2,9 +2,6 @@ import type { IAutoMovieFlameCue } from "@automovie/interface";
 
 import { sampleAutoMovieFlame } from "./sampleAutoMovieFlame";
 
-/** Keys per second of a flame-bound light's intensity track. */
-const KEY_RATE: number = 120;
-
 /**
  * The key grid and silhouette areas a flame cue's bound light flickers by.
  *
@@ -55,3 +52,6 @@ export function compileAutoMovieFlameFlicker(
   });
   return { times, areas, inside, mean: sum / keys };
 }
+
+/** Keys per second of a flame-bound light's intensity track. */
+const KEY_RATE: number = 120;

@@ -14,36 +14,6 @@ import { physicalHullFacesSegment } from "./physicalHullFacesSegment";
 import { physicalShapeHull } from "./physicalShapeHull";
 import { readPhysicalHullFacesPoint } from "./readPhysicalHullFacesPoint";
 
-/**
- * A shape-local proximity reading before its point and normal return to world
- * space.
- */
-interface ILocal {
-  /** Signed metres, negative inside the local shape. */
-  distance: number;
-
-  /** Nearest surface point in the composed shape's local frame, metres. */
-  point: IAutoMovieVector3;
-
-  /** Outward unit normal in that same local frame. */
-  normal: IAutoMovieVector3;
-}
-
-/** Completed fixed geometry for one caller-owned synchronous query operation. */
-interface IFrame {
-  /** Actual composed shape origin, world metres. */
-  centre: IAutoMovieVector3;
-
-  /** Actual parent-times-shape world rotation. */
-  rotation: IAutoMovieQuaternion;
-
-  /** Prepared inverse rotation for shape-local queries. */
-  inverse?: IAutoMovieQuaternion;
-
-  /** Prepared bare sphere/capsule axis, in world metres. */
-  round?: readonly [IAutoMovieVector3, IAutoMovieVector3];
-}
-
 /** Compose the world frame from the parent and shape-local transforms. */
 function frameOf(
   pose: IAutoMovieRigidTransform,
@@ -123,7 +93,7 @@ function physicalShapeQueryDirect(
   return query(frameOf(pose, shape), shape, a, b, taper, details);
 }
 
-  /**
+/**
    * Prepare the fixed world origin, rotation, inverse and any bare-round axis
    * before reading signed distances to varying world segments. Queries use the
    * same closest/hull search, taper and tie rules as the direct entry.
@@ -171,7 +141,7 @@ export const physicalShapeQueryImplementation: {
   prepare: physicalShapeQueryPrepare,
 };
 
-/**
+  /**
  * Scalar reads share this one mathematical body with the cold full-contact
  * entry.
  */
@@ -457,3 +427,33 @@ function roundNearest(
  * stopped.
  */
 const ALONG: number = 1e-9;
+
+/**
+ * A shape-local proximity reading before its point and normal return to world
+ * space.
+ */
+interface ILocal {
+  /** Signed metres, negative inside the local shape. */
+  distance: number;
+
+  /** Nearest surface point in the composed shape's local frame, metres. */
+  point: IAutoMovieVector3;
+
+  /** Outward unit normal in that same local frame. */
+  normal: IAutoMovieVector3;
+}
+
+/** Completed fixed geometry for one caller-owned synchronous query operation. */
+interface IFrame {
+  /** Actual composed shape origin, world metres. */
+  centre: IAutoMovieVector3;
+
+  /** Actual parent-times-shape world rotation. */
+  rotation: IAutoMovieQuaternion;
+
+  /** Prepared inverse rotation for shape-local queries. */
+  inverse?: IAutoMovieQuaternion;
+
+  /** Prepared bare sphere/capsule axis, in world metres. */
+  round?: readonly [IAutoMovieVector3, IAutoMovieVector3];
+}

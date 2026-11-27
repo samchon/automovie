@@ -15,15 +15,6 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 import { stairsCaseBoxes } from "./internal/stairsCaseBoxes";
 
-/** The record of `IStairsCasesStance`'s site. */
-type IStairsCasesStance = { value: number; where: string };
-
-/** The record of `IStairsCasesUnder`'s site. */
-type IStairsCasesUnder = { value: number; where: string };
-
-/** The record of `IStairsCasesNosing`'s site. */
-type IStairsCasesNosing = { value: number; where: string };
-
 /**
  * Capture cases of the stairs family: a four-tread flight of 170 mm risers and
  * 280 mm treads (2010 ADA 504.2), climbed up step over step, down step over
@@ -166,3 +157,12 @@ export function stairsCases(
   }
   return out;
 }
+
+/** The record of `IStairsCasesStance`'s site. */
+type IStairsCasesStance = { value: number; where: string };
+
+/** The record of `IStairsCasesUnder`'s site. */
+type IStairsCasesUnder = { value: number; where: string };
+
+/** The record of `IStairsCasesNosing`'s site. */
+type IStairsCasesNosing = { value: number; where: string };

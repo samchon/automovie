@@ -26,12 +26,6 @@ import { buildAutoMovieSurfaceGraphicKey } from "./buildAutoMovieSurfaceGraphicK
 import { createAutoMovieSurfaceGraphicMaterial } from "./createAutoMovieSurfaceGraphicMaterial.js";
 
 /**
- * Lift of every graphic above its surface along the frame's `+Y`, metres: half
- * a millimetre, so the face does not fight the prop's own surface for depth.
- */
-const LIFT: number = 0.0005;
-
-/**
  * Build a shot's surface graphics once, before any frame is drawn, and mount
  * each on its prop.
  *
@@ -323,6 +317,12 @@ export async function prepareAutoMovieSurfaceGraphics(
     },
   };
 }
+
+/**
+ * Lift of every graphic above its surface along the frame's `+Y`, metres: half
+ * a millimetre, so the face does not fight the prop's own surface for depth.
+ */
+const LIFT: number = 0.0005;
 
 /** The decoded-texture key of an image id as a node of `model` resolves it. */
 function imageKey(model: IAutoMovieModel, asset: string): string {

@@ -13,15 +13,6 @@ import type { AutoMovieEngineMotionAirborneRotation } from "../../AutoMovieEngin
 import { AutoMovieEngineMotionSampling } from "../../AutoMovieEngineMotionSampling";
 import { tabulateAirborneShapeKnots } from "../tabulateAirborneShapeKnots";
 
-/** The numeric sufficient statistics a query returns. */
-type IInstant = IAutoMovieIntegrateAirborneRotation.IInstant;
-
-/** The nonuniform first-derivative weights at one knot. */
-type IStencil = readonly (readonly [number, number])[];
-
-/** The public query signature. */
-type IHistory = IAutoMovieIntegrateAirborneRotation.IHistory;
-
 /**
  * Scalars tabulated a knot: six of the symmetric tensor, three of the relative
  * momentum.
@@ -344,30 +335,6 @@ export function AirborneTabulatedShapeHistory(
   });
 }
 
-/**
- * A defect's numeric reading at a second, with the tensor an instant made from
- * it would own.
- */
-interface INumeric extends AirborneTabulatedShapeHistory.IReading {
-  /** The interpolated root-frame tensor rows. */
-  matrix: number[][];
-}
-
-/**
- * A built table: nine scalars and their slopes a knot, the knots' seconds in
- * increasing order.
- */
-interface ITable {
-  /** Six tensor and three momentum scalars a knot, in knot order. */
-  values: Float64Array;
-
-  /** Their slopes per second. */
-  slopes: Float64Array;
-
-  /** Each knot's second, increasing. */
-  times: readonly number[];
-}
-
 /** Reconstruct a symmetric tensor from its packed diagonal and upper triangle. */
 function symmetricTensor(y: (i: number) => number): number[][] {
   const xy: number = y(3);
@@ -563,4 +530,37 @@ export namespace AirborneTabulatedShapeHistory {
   ): ((seconds: number) => IReading | IInstant) | undefined {
     return history.numericReading;
   }
+}
+
+/** The numeric sufficient statistics a query returns. */
+type IInstant = IAutoMovieIntegrateAirborneRotation.IInstant;
+
+/** The nonuniform first-derivative weights at one knot. */
+type IStencil = readonly (readonly [number, number])[];
+
+/** The public query signature. */
+type IHistory = IAutoMovieIntegrateAirborneRotation.IHistory;
+
+/**
+ * A defect's numeric reading at a second, with the tensor an instant made from
+ * it would own.
+ */
+interface INumeric extends AirborneTabulatedShapeHistory.IReading {
+  /** The interpolated root-frame tensor rows. */
+  matrix: number[][];
+}
+
+/**
+ * A built table: nine scalars and their slopes a knot, the knots' seconds in
+ * increasing order.
+ */
+interface ITable {
+  /** Six tensor and three momentum scalars a knot, in knot order. */
+  values: Float64Array;
+
+  /** Their slopes per second. */
+  slopes: Float64Array;
+
+  /** Each knot's second, increasing. */
+  times: readonly number[];
 }

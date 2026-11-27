@@ -17,15 +17,6 @@ import { planAutoMovieVideoSceneCuts } from "./planAutoMovieVideoSceneCuts.js";
 import { readAutoMovieVideoSceneCuts } from "./readAutoMovieVideoSceneCuts.js";
 import { runAutoMovieCapture } from "./runAutoMovieCapture.js";
 
-/** The view name a file's cells are drawn through: the file itself. */
-const FILE_VIEW: string = "file";
-
-/** The report the scene-cut detection writes, deleted once read. */
-const REPORT: string = "scenecut.txt";
-
-/** The renderer a file's still is recorded as coming from: FFmpeg decoded it. */
-const BACKEND: string = "ffmpeg";
-
 /**
  * Capture an encoded or generated video file as stills of its own frames: the
  * frames around every cut the file holds and every event the request names,
@@ -171,3 +162,12 @@ export async function runAutoMovieVideoCapture(
     },
   });
 }
+
+/** The view name a file's cells are drawn through: the file itself. */
+const FILE_VIEW: string = "file";
+
+/** The report the scene-cut detection writes, deleted once read. */
+const REPORT: string = "scenecut.txt";
+
+/** The renderer a file's still is recorded as coming from: FFmpeg decoded it. */
+const BACKEND: string = "ffmpeg";

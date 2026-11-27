@@ -20,12 +20,6 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import type { pickUpPosture } from "./pickUpPosture";
 
-/** The record of `IJudgedContext`'s site. */
-type IJudgedContext = {
-  prop: string;
-  handle: string;
-};
-
 /**
  * The body that carries a pick up's lift, and the judgement of the lift.
  *
@@ -297,3 +291,9 @@ export namespace pickUpLift {
       });
   }
 }
+
+/** The record of `IJudgedContext`'s site. */
+type IJudgedContext = {
+  prop: string;
+  handle: string;
+};

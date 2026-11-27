@@ -19,15 +19,6 @@ import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingWeapon } from "./StrikingWeapon";
 
-/** The alternatives of `FeintContext`'s site. */
-type FeintContext = "body" | "performer";
-
-/** The alternatives of `BehindContext`'s site. */
-type BehindContext = "body" | "obstacles";
-
-/** The alternatives of `AheadContext`'s site. */
-type AheadContext = "body" | "performer";
-
 /**
  * The room a striker has to close on another person: how far its body may
  * travel along a line before its arms, held as they are, meet the other body. A
@@ -73,6 +64,42 @@ export namespace StrikingRoom {
 
     /** The farthest travel asked, metres; positive. */
     limit: number;
+  }
+
+  /** A sampled point of a striking limb and its girth there. */
+  export interface ISample {
+    /** The point, world metres. */
+    point: IAutoMovieVector3;
+
+    /** The limb's radius there, metres. */
+    radius: number;
+  }
+
+  /**
+   * A feint's wrist path toward its target, as the share of the committed
+   * punch's way it may show.
+   */
+  export interface IFeint {
+    /** The share of the way the feint declares, in (0, 1). */
+    declared: number;
+
+    /** The point aimed at, world metres. */
+    aimed: IAutoMovieVector3;
+
+    /** The wrist at the launch, world metres. */
+    origin: IAutoMovieVector3;
+
+    /** The committed punch's wrist at its contact, world metres. */
+    end: IAutoMovieVector3;
+
+    /** The fist's reach past the wrist, metres. */
+    reach: number;
+
+    /** The horizontal unit line toward the target. */
+    line: IAutoMovieVector3;
+
+    /** Film second of the launch. */
+    launch: number;
   }
 
   /**
@@ -123,15 +150,6 @@ export namespace StrikingRoom {
             radius: StrikingWeapon.girth(radii[segment]!, share),
           });
     return room(samples, gap, props.limit);
-  }
-
-  /** A sampled point of a striking limb and its girth there. */
-  export interface ISample {
-    /** The point, world metres. */
-    point: IAutoMovieVector3;
-
-    /** The limb's radius there, metres. */
-    radius: number;
   }
 
   /**
@@ -243,33 +261,6 @@ export namespace StrikingRoom {
   }
 
   /**
-   * A feint's wrist path toward its target, as the share of the committed
-   * punch's way it may show.
-   */
-  export interface IFeint {
-    /** The share of the way the feint declares, in (0, 1). */
-    declared: number;
-
-    /** The point aimed at, world metres. */
-    aimed: IAutoMovieVector3;
-
-    /** The wrist at the launch, world metres. */
-    origin: IAutoMovieVector3;
-
-    /** The committed punch's wrist at its contact, world metres. */
-    end: IAutoMovieVector3;
-
-    /** The fist's reach past the wrist, metres. */
-    reach: number;
-
-    /** The horizontal unit line toward the target. */
-    line: IAutoMovieVector3;
-
-    /** Film second of the launch. */
-    launch: number;
-  }
-
-  /**
    * How deep a feint is shown, as a share of the way from the launch to the
    * committed punch's wrist: the declared share, but never into a person's
    * guard. The guard's depth is the farthest that person's hands and forearms
@@ -337,6 +328,15 @@ export namespace StrikingRoom {
     return Math.min(feint.declared, Math.max(0, clear / whole));
   }
 }
+
+/** The alternatives of `FeintContext`'s site. */
+type FeintContext = "body" | "performer";
+
+/** The alternatives of `BehindContext`'s site. */
+type BehindContext = "body" | "obstacles";
+
+/** The alternatives of `AheadContext`'s site. */
+type AheadContext = "body" | "performer";
 
 /** A feint reads only the four actual guard joints and their required ancestry. */
 const GUARD: ReadonlySet<AutoMovieHumanoidBone> =

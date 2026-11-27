@@ -31,18 +31,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { typeTextPresses } from "./typeTextPresses";
 
-/** The record of `IPlanResult`'s site. */
-type IPlanResult = { name: string; share: number };
-
-/** The record of `IROWSItem`'s site. */
-type IROWSItem = { keys: string; stagger: number };
-
-/** The alternatives of `WPMEntryItem`'s site. */
-type WPMEntryItem = "slowest" | "fastest";
-
-/** The alternatives of `BoardContext`'s site. */
-type BoardContext = "prop" | "start";
-
 /**
  * Typing a text on a keyboard from the posture the performer is in (seated at a
  * desk, or standing at a counter), pressing each key with an index fingertip.
@@ -471,3 +459,15 @@ export namespace typeText {
     };
   }
 }
+
+/** The record of `IPlanResult`'s site. */
+type IPlanResult = { name: string; share: number };
+
+/** The record of `IROWSItem`'s site. */
+type IROWSItem = { keys: string; stagger: number };
+
+/** The alternatives of `WPMEntryItem`'s site. */
+type WPMEntryItem = "slowest" | "fastest";
+
+/** The alternatives of `BoardContext`'s site. */
+type BoardContext = "prop" | "start";

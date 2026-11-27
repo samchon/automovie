@@ -31,33 +31,6 @@ import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShape
 import { carryPlace } from "./carryPlace";
 import { loadedWalkPace } from "./loadedWalkPace";
 
-/** The record of `IPlanClockResult`'s site. */
-type IPlanClockResult = { name: string; seconds: number };
-
-/** The measures a load's lean reads (`carry.tilt`). */
-type TiltMeasure =
-  | "shoulderHalfWidth"
-  | "hipHalfWidth"
-  | "upperArm"
-  | "forearm"
-  | "shoulderHeight"
-  | "hipHeight";
-
-/** The measures a hanging arm reads (`carry.hang`). */
-type HangMeasure =
-  | "hipHalfWidth"
-  | "thighRadius"
-  | "forearmRadius"
-  | "shoulderHalfWidth"
-  | "upperArm"
-  | "forearm";
-
-/** The record of `IHangResult`'s site. */
-type IHangResult = {
-  upper: readonly [number, number, number];
-  lower: readonly [number, number, number];
-};
-
 /**
  * Walking to a floor point while carrying a load or pushing a wheeled one: a
  * bag in one hand, a box in both hands before the body, a child on the hip, or
@@ -469,6 +442,33 @@ export namespace carry {
     };
   }
 }
+
+/** The record of `IPlanClockResult`'s site. */
+type IPlanClockResult = { name: string; seconds: number };
+
+/** The measures a load's lean reads (`carry.tilt`). */
+type TiltMeasure =
+  | "shoulderHalfWidth"
+  | "hipHalfWidth"
+  | "upperArm"
+  | "forearm"
+  | "shoulderHeight"
+  | "hipHeight";
+
+/** The measures a hanging arm reads (`carry.hang`). */
+type HangMeasure =
+  | "hipHalfWidth"
+  | "thighRadius"
+  | "forearmRadius"
+  | "shoulderHalfWidth"
+  | "upperArm"
+  | "forearm";
+
+/** The record of `IHangResult`'s site. */
+type IHangResult = {
+  upper: readonly [number, number, number];
+  lower: readonly [number, number, number];
+};
 /** A same-body FK loan scoped to the current posture evaluation. */
 type FK = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
 

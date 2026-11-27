@@ -8,9 +8,6 @@ import type {
 
 import { Quaternion } from "../../math/Quaternion";
 
-const IDENTITY_ROT: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-const IDENTITY_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
-
 /**
  * Repeat an admitted in-place clip a positive safe-integer number of cycles and
  * add velocity times global seconds to its root. Velocity uses the receiving
@@ -96,3 +93,6 @@ export function travelMotion(
     gaitCycle: base.gaitCycle ?? { period: base.duration, phaseAt: 0 },
   };
 }
+const IDENTITY_ROT: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+
+const IDENTITY_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };

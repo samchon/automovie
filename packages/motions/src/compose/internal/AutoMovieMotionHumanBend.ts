@@ -18,35 +18,6 @@ import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch
 import { AutoMovieMotionHumanBendTurn } from "./AutoMovieMotionHumanBendTurn";
 import { AutoMovieMotionHumanKneeBend } from "./AutoMovieMotionHumanKneeBend";
 
-/** The alternatives of `LevelFound`'s site. */
-type LevelFound = AutoMovieMotionHumanBendSearch.ICandidate | string;
-
-/** The alternatives of `PrepareBothFixed`'s site. */
-type PrepareBothFixed = "body" | "posture";
-
-/** The alternatives of `PrepareFixed`'s site. */
-type PrepareFixed = "body" | "posture" | "side";
-
-/** The alternatives of `KneePosture`'s site. */
-type KneePosture = "root" | "yaw";
-
-/** The alternatives of `HangPostureItem`'s site. */
-type HangPostureItem = "pitch" | "roll";
-
-/** The alternatives of `HangPosture`'s site. */
-type HangPosture = "root" | "yaw";
-
-/** The alternatives of `ArmPreset`'s site. */
-type ArmPreset =
-  | IAutoMovieMotionHumanBend.Arm
-  | IAutoMovieMotionHumanBend.IShares;
-
-/** The alternatives of `ArmPostureItem`'s site. */
-type ArmPostureItem = "pitch" | "roll";
-
-/** The alternatives of `ArmPosture`'s site. */
-type ArmPosture = "root" | "yaw";
-
 /**
  * Bend hints: the world point an elbow or a knee bends toward, from a named
  * preset on a posture.
@@ -388,3 +359,32 @@ export namespace AutoMovieMotionHumanBend {
     );
   }
 }
+
+/** The alternatives of `LevelFound`'s site. */
+type LevelFound = AutoMovieMotionHumanBendSearch.ICandidate | string;
+
+/** The alternatives of `PrepareBothFixed`'s site. */
+type PrepareBothFixed = "body" | "posture";
+
+/** The alternatives of `PrepareFixed`'s site. */
+type PrepareFixed = "body" | "posture" | "side";
+
+/** The alternatives of `KneePosture`'s site. */
+type KneePosture = "root" | "yaw";
+
+/** The alternatives of `HangPostureItem`'s site. */
+type HangPostureItem = "pitch" | "roll";
+
+/** The alternatives of `HangPosture`'s site. */
+type HangPosture = "root" | "yaw";
+
+/** The alternatives of `ArmPreset`'s site. */
+type ArmPreset =
+  | IAutoMovieMotionHumanBend.Arm
+  | IAutoMovieMotionHumanBend.IShares;
+
+/** The alternatives of `ArmPostureItem`'s site. */
+type ArmPostureItem = "pitch" | "roll";
+
+/** The alternatives of `ArmPosture`'s site. */
+type ArmPosture = "root" | "yaw";

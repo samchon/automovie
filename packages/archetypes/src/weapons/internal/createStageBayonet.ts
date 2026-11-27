@@ -12,24 +12,6 @@ import {
 import { AutoMovieArchetypeLongGun } from "../AutoMovieArchetypeLongGun";
 
 /**
- * The bayonet's unread proportions, metres: provisional estimates for a Land
- * Pattern socket bayonet until a measured record is read, such as the
- * Smithsonian's socket-bayonet scabbard (NMAH 1050670), whose page refused
- * automated reading on 2026-11-21, or a Royal Armouries socket bayonet.
- */
-const ESTIMATES: Readonly<AutoMovieArchetypeStageBayonet.IEstimates> = {
-  blade: 0.43,
-  socket: 0.1,
-  crank: 0.02,
-  width: 0.022,
-  wall: 0.0015,
-  gap: 0.0005,
-};
-
-/** Authored mass of the inert stand-in, in kilograms. */
-const MASS: number = 0.12;
-
-/**
  * Fit an inert socket bayonet to a separately generated musket's muzzle.
  *
  * The blade runs along `+Y` from its shoulder at the origin to the `tip`. The
@@ -154,6 +136,24 @@ export function createStageBayonet(
   });
   return builder.build(MASS);
 }
+
+/**
+ * The bayonet's unread proportions, metres: provisional estimates for a Land
+ * Pattern socket bayonet until a measured record is read, such as the
+ * Smithsonian's socket-bayonet scabbard (NMAH 1050670), whose page refused
+ * automated reading on 2026-11-21, or a Royal Armouries socket bayonet.
+ */
+const ESTIMATES: Readonly<AutoMovieArchetypeStageBayonet.IEstimates> = {
+  blade: 0.43,
+  socket: 0.1,
+  crank: 0.02,
+  width: 0.022,
+  wall: 0.0015,
+  gap: 0.0005,
+};
+
+/** Authored mass of the inert stand-in, in kilograms. */
+const MASS: number = 0.12;
 
 
 

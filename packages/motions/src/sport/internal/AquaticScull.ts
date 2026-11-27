@@ -36,8 +36,6 @@ const SIDES = [
 ] as const;
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-type Station = IAutoMovieMotionHumanAquatic.Station;
-
 /**
  * A rower at a named racing-shell station. The rower's cycle drives its actual
  * oar swivels, dips and seat carriage. Crew phase is an authored film offset.
@@ -253,27 +251,6 @@ export namespace AquaticScull {
   }
 }
 
-/** The stroke cycle at one instant. */
-interface IStroke {
-  /** Drive progress: 0 at the catch, 1 at extraction, back to 0 over recovery. */
-  drive: number;
-
-  /** Blade lift out of the water over recovery, in [0, 1]. */
-  lift: number;
-}
-
-/** A foot goal set on a stretcher plate. */
-interface IStretcherGoal {
-  /** World ankle target, metres. */
-  ankle: IAutoMovieVector3;
-
-  /** World foot rotation. */
-  rotation: IAutoMovieQuaternion;
-
-  /** The sole ball offset in the foot frame, metres. */
-  contact: IAutoMovieVector3;
-}
-
 /** One complete periodic drive with lift and an unloaded return. */
 function stroke(total: number): IStroke {
   const at: number = total - Math.floor(total);
@@ -377,4 +354,27 @@ function admitRail(
     );
   }
   return travel;
+}
+
+type Station = IAutoMovieMotionHumanAquatic.Station;
+
+/** The stroke cycle at one instant. */
+interface IStroke {
+  /** Drive progress: 0 at the catch, 1 at extraction, back to 0 over recovery. */
+  drive: number;
+
+  /** Blade lift out of the water over recovery, in [0, 1]. */
+  lift: number;
+}
+
+/** A foot goal set on a stretcher plate. */
+interface IStretcherGoal {
+  /** World ankle target, metres. */
+  ankle: IAutoMovieVector3;
+
+  /** World foot rotation. */
+  rotation: IAutoMovieQuaternion;
+
+  /** The sole ball offset in the foot frame, metres. */
+  contact: IAutoMovieVector3;
 }

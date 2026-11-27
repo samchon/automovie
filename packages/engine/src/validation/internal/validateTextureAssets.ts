@@ -20,21 +20,6 @@ import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCo
 import { AUTO_MOVIE_MAX_TEXTURE_EDGE } from "../AUTO_MOVIE_MAX_TEXTURE_EDGE";
 import { materialTextureSlots } from "./materialTextureSlots";
 
-/** Media types a material's PBR slot may bind. */
-const MATERIAL_MEDIA: ReadonlySet<AutoMovieTextureMediaType> = new Set([
-  "image/png",
-  "image/jpeg",
-  "image/webp",
-]);
-
-/** Media types a scene environment may bind. */
-const ENVIRONMENT_MEDIA: ReadonlySet<AutoMovieTextureMediaType> = new Set([
-  "image/png",
-  "image/jpeg",
-  "image/webp",
-  "image/vnd.radiance",
-]);
-
 /**
  * Cross-check every sampled material, environment and surface-graphic image
  * with manifest registration, production consumer authorization, media/edge
@@ -218,6 +203,21 @@ export function validateTextureAssets(
 
   return out.toValidation();
 }
+
+/** Media types a material's PBR slot may bind. */
+const MATERIAL_MEDIA: ReadonlySet<AutoMovieTextureMediaType> = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+]);
+
+/** Media types a scene environment may bind. */
+const ENVIRONMENT_MEDIA: ReadonlySet<AutoMovieTextureMediaType> = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+  "image/vnd.radiance",
+]);
 
 /**
  * Return the legacy string id or structured binding's asset field.

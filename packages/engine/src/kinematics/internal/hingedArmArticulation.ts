@@ -10,19 +10,6 @@ import { hingedSwivelPole } from "./hingedSwivelPole";
 import { hingedSwivelSwept } from "./hingedSwivelSwept";
 import { refineHingedSwivel } from "./refineHingedSwivel";
 
-/** The sweep's swivel step, degrees (`hingedArmSwivel.STEP`). */
-const SWIVEL_STEP: number = hingedArmSwivel.STEP;
-
-/** Golden-section passes per refinement (`hingedArmSwivel.REFINEMENTS`). */
-const REFINEMENTS: number = hingedArmSwivel.REFINEMENTS;
-
-/**
- * Bisections of a legality edge on a placed pole's walk (`IProps.placed`): a 3
- * degree step halved twenty times, a swivel within three millionths of a degree
- * of the edge.
- */
-const EDGE_BISECTIONS: number = 20;
-
 /**
  * Two-bone arm IK whose mid joint bends only about its own flexion hinge, with
  * the chain root's free swivel spent on the rig's range of motion.
@@ -612,6 +599,19 @@ export function hingedArmArticulation(
   // `chosen` is assigned by here.
   return answer(chosen!);
 }
+
+/** The sweep's swivel step, degrees (`hingedArmSwivel.STEP`). */
+const SWIVEL_STEP: number = hingedArmSwivel.STEP;
+
+/** Golden-section passes per refinement (`hingedArmSwivel.REFINEMENTS`). */
+const REFINEMENTS: number = hingedArmSwivel.REFINEMENTS;
+
+/**
+ * Bisections of a legality edge on a placed pole's walk (`IProps.placed`): a 3
+ * degree step halved twenty times, a swivel within three millionths of a degree
+ * of the edge.
+ */
+const EDGE_BISECTIONS: number = 20;
 
 /**
  * A legal candidate a placed pole's walk reached and its distance from the

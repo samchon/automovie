@@ -28,17 +28,6 @@ import { formationSubjectBox } from "./formationSubjectBox";
 import { nodeSubjectBox } from "./nodeSubjectBox";
 import { nodeSubjectExtent } from "./nodeSubjectExtent";
 
-/** Rotation of a placement whose orientation is never read. */
-const IDENTITY_ROTATION: IAutoMovieTransform["rotation"] = {
-  x: 0,
-  y: 0,
-  z: 0,
-  w: 1,
-};
-
-/** Scale of a placement whose size is never read, and of a pose root. */
-const IDENTITY_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
-
 /**
  * Build the subject reader one {@link realizeShotContract} call grades through.
  *
@@ -278,6 +267,17 @@ export function createShotContractSubjectReader(
     },
   };
 }
+
+/** Rotation of a placement whose orientation is never read. */
+const IDENTITY_ROTATION: IAutoMovieTransform["rotation"] = {
+  x: 0,
+  y: 0,
+  z: 0,
+  w: 1,
+};
+
+/** Scale of a placement whose size is never read, and of a pose root. */
+const IDENTITY_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
 
 /** Index records by key, keeping the first record of a repeated key. */
 function indexFirst<T>(

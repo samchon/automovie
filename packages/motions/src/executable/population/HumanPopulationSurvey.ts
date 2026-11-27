@@ -2,20 +2,6 @@ import type { IAutoMovieHumanBodyAnatomy } from "@automovie/interface";
 
 import { HUMAN_POPULATION_SURVEY } from "./HUMAN_POPULATION_SURVEY";
 
-/** The alternatives of `EntryItemEntry`'s site. */
-type EntryItemEntry =
-  | "faceHeight"
-  | "mandibularWidth"
-  | "minimumFrontalWidth"
-  | "intercanthalWidth"
-  | "fissureLength"
-  | "noseWidth"
-  | "noseHeight"
-  | "noseProtrusion"
-  | "mouthWidth"
-  | "upperVermilion"
-  | "lowerVermilion";
-
 /**
  * The published statistics every test person is built from and checked against:
  * the ANSUR 1988 summary statistics per sex (Gordon et al. 1989;
@@ -240,3 +226,17 @@ export namespace HumanPopulationSurvey {
     handCircumference: [160, 250],
   };
 }
+
+/** The alternatives of `EntryItemEntry`'s site. */
+type EntryItemEntry =
+  | "faceHeight"
+  | "mandibularWidth"
+  | "minimumFrontalWidth"
+  | "intercanthalWidth"
+  | "fissureLength"
+  | "noseWidth"
+  | "noseHeight"
+  | "noseProtrusion"
+  | "mouthWidth"
+  | "upperVermilion"
+  | "lowerVermilion";

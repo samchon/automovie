@@ -15,9 +15,6 @@ import { hipJoints } from "../../posture/internal/hipJoints";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import type { HumanMountedTimeline } from "./HumanMountedTimeline";
 
-/** One instant of a performance cue track. */
-type Cue = ReturnType<IAutoMovieMotionHumanActionContext["cue"]>[number];
-
 /**
  * A mounted performance's whip strokes (`IAutoMovieMotionHumanMounted.IWhip`):
  * the striking hand leaves its rein `REACH` seconds before each cue instant,
@@ -242,3 +239,6 @@ export namespace HumanMountedWhip {
     });
   }
 }
+
+/** One instant of a performance cue track. */
+type Cue = ReturnType<IAutoMovieMotionHumanActionContext["cue"]>[number];

@@ -13,9 +13,6 @@ import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { seated } from "../../everyday/internal/seated";
 import { HumanMount } from "./HumanMount";
 
-/** The alternatives of `Frame2`'s site. */
-type Frame2 = "root" | "yaw" | "pitch" | "roll" | "joints";
-
 /**
  * The course's reader.
  *
@@ -176,3 +173,6 @@ export namespace HumanMountOnFrame {
     return astride ? [0.3 * climb, 0.8 * climb] : [0, 0.7 * climb];
   }
 }
+
+/** The alternatives of `Frame2`'s site. */
+type Frame2 = "root" | "yaw" | "pitch" | "roll" | "joints";

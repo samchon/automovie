@@ -6,15 +6,6 @@ import type {
 
 import { walkReach } from "./walkReach";
 
-/** The alternatives of `OfPushKind2`'s site. */
-type OfPushKind2 = "plant" | "pivot";
-
-/** The alternatives of `OfPushKind`'s site. */
-type OfPushKind = "plant" | "pivot";
-
-/** The alternatives of `OfPart`'s site. */
-type OfPart = "leftFoot" | "rightFoot";
-
 /**
  * The events and contact windows of a gait's footstep plan.
  *
@@ -84,6 +75,15 @@ export namespace walkWindows {
    */
   export const STEP: number = 1 / 120;
 }
+
+/** The alternatives of `OfPushKind2`'s site. */
+type OfPushKind2 = "plant" | "pivot";
+
+/** The alternatives of `OfPushKind`'s site. */
+type OfPushKind = "plant" | "pivot";
+
+/** The alternatives of `OfPart`'s site. */
+type OfPart = "leftFoot" | "rightFoot";
 
 /** The distinct events and contact windows on a gait's clock. */
 interface IWindows {

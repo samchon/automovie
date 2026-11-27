@@ -5,6 +5,39 @@ import { AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand, AutoMovieA
 /** Public operations for Auto Movie Archetype Polo Mallet. */
 export namespace AutoMovieArchetypePoloMallet {
   /**
+   * The affordance ids:
+   *
+   * - `grip`: the grip, taken from `-Z`, its length along the shaft.
+   * - `sling`: the wrist loop at the grip's end.
+   * - `head`: the head's centre, its `+Y` down the shaft's line out of the
+   *   mallet.
+   * - `face`: the head's forehand side toward `+Z`.
+   */
+  export type Affordance = "grip" | "sling" | "head" | "face";
+
+  /**
+   * The free dimensions, metres unless stated:
+   *
+   * - `length`: from the head's underside to the grip's end.
+   * - `headLength`: the head from end to end.
+   * - `headDiameter`: the head across.
+   * - `gripDiameter`: the grip's.
+   * - `mass`: kilograms.
+   */
+  export type Dimension =
+    | "length"
+    | "headLength"
+    | "headDiameter"
+    | "gripDiameter"
+    | "mass";
+
+  /** The parameters: any free dimension fixed to a value inside its band. */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** The model's id, unique in a scene; `poloMallet` when absent. */
+    id?: string;
+  }
+
+  /**
    * A polo mallet: a cane shaft with a rubber-wrapped grip and a wrist sling at
    * its top, and a cigar-shaped head set across its foot, struck with the head's
    * long side.
@@ -36,33 +69,6 @@ export namespace AutoMovieArchetypePoloMallet {
   /** The sling loop's height, metres: an estimate, wide enough for a wrist. */
   export const SLING: number = 0.12;
 
-  /**
-   * The affordance ids:
-   *
-   * - `grip`: the grip, taken from `-Z`, its length along the shaft.
-   * - `sling`: the wrist loop at the grip's end.
-   * - `head`: the head's centre, its `+Y` down the shaft's line out of the
-   *   mallet.
-   * - `face`: the head's forehand side toward `+Z`.
-   */
-  export type Affordance = "grip" | "sling" | "head" | "face";
-
-  /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `length`: from the head's underside to the grip's end.
-   * - `headLength`: the head from end to end.
-   * - `headDiameter`: the head across.
-   * - `gripDiameter`: the grip's.
-   * - `mass`: kilograms.
-   */
-  export type Dimension =
-    | "length"
-    | "headLength"
-    | "headDiameter"
-    | "gripDiameter"
-    | "mass";
-
   /** Each dimension's unit. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
@@ -73,12 +79,6 @@ export namespace AutoMovieArchetypePoloMallet {
     gripDiameter: "m",
     mass: "kg",
   };
-
-  /** The parameters: any free dimension fixed to a value inside its band. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
-    /** The model's id, unique in a scene; `poloMallet` when absent. */
-    id?: string;
-  }
 
   /** What no source read gives. */
   const UNREAD: string = "no source read gives it; provisional";

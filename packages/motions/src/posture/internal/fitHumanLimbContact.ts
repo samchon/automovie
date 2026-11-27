@@ -141,12 +141,6 @@ export function fitHumanLimbContact(
   };
 }
 
-/** A preceding target image and its fixed-point residual for Anderson mixing. */
-interface IReaimIteration {
-  image: IAutoMovieVector3;
-  miss: IAutoMovieVector3;
-}
-
 /**
  * The next target of the re-aim's fixed point `p = g(p)`, `g` the aim a fit at
  * `p` gives, by Anderson acceleration over the iterations kept, most recent
@@ -232,15 +226,6 @@ function mixed(
 }
 
 /**
- * One kept iteration's differences from the current one: of the residuals and
- * of the images.
- */
-interface IReaimDifference {
-  residual: IAutoMovieVector3;
-  image: IAutoMovieVector3;
-}
-
-/**
  * The iterations Anderson mixing keeps: three, the map's dimension, so its kept
  * differences can span the space (provisional).
  */
@@ -264,16 +249,31 @@ const REAIM_TOLERANCE: number = 2e-5;
  */
 const REAIM_PASSES: number = 16;
 
-/** Geometry supplied by the fit that made this candidate. */
-interface IContactPrefix {
-  position: () => IAutoMovieVector3;
-  rotation: IAutoMovieQuaternion;
-}
-
 /** The reading offered by a native ordinary fit during this operation. */
 export namespace fitHumanLimbContact {
   /** The solver may supply the final prefix for the exact requested fit. */
   export type ICapture = NonNullable<
     Parameters<ReturnType<typeof prepareHumanLimbFit>["fit"]>[3]
   >;
+}
+
+/** A preceding target image and its fixed-point residual for Anderson mixing. */
+interface IReaimIteration {
+  image: IAutoMovieVector3;
+  miss: IAutoMovieVector3;
+}
+
+/**
+ * One kept iteration's differences from the current one: of the residuals and
+ * of the images.
+ */
+interface IReaimDifference {
+  residual: IAutoMovieVector3;
+  image: IAutoMovieVector3;
+}
+
+/** Geometry supplied by the fit that made this candidate. */
+interface IContactPrefix {
+  position: () => IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
 }

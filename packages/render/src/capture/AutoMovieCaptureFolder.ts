@@ -15,22 +15,6 @@ const RECORD: string = "record.json";
 /** The folder of kept rounds beneath the root. */
 const ROUNDS: string = "rounds";
 
-/** Data required to hold an already opened capture folder. */
-interface IOpenedFolder {
-  /** Storage already admitted for this capture. */
-  readonly storage: IAutoMovieCaptureStorage;
-  /** Directory where this capture will write. */
-  readonly directory: string;
-  /** Optional path component for the retained round. */
-  readonly round: string | null;
-  /** Name of the comparison round, when requested. */
-  readonly compare: string | null;
-  /** Directory of the comparison round, when requested. */
-  readonly reference: string | null;
-  /** Admitted comparison data, when requested. */
-  readonly earlier: IAutoMovieCaptureRecord.IComparison | null;
-}
-
 /**
  * The folder one capture writes, and the rules of which files it owns and in
  * what order it touches them.
@@ -297,4 +281,20 @@ async function readRecord(
   } catch (error) {
     throw new Error(`${path} is not a capture record`, { cause: error });
   }
+}
+
+/** Data required to hold an already opened capture folder. */
+interface IOpenedFolder {
+  /** Storage already admitted for this capture. */
+  readonly storage: IAutoMovieCaptureStorage;
+  /** Directory where this capture will write. */
+  readonly directory: string;
+  /** Optional path component for the retained round. */
+  readonly round: string | null;
+  /** Name of the comparison round, when requested. */
+  readonly compare: string | null;
+  /** Directory of the comparison round, when requested. */
+  readonly reference: string | null;
+  /** Admitted comparison data, when requested. */
+  readonly earlier: IAutoMovieCaptureRecord.IComparison | null;
 }

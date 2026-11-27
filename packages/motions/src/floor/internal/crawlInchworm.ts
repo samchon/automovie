@@ -26,18 +26,6 @@ import { crawlInchwormPose } from "./crawlInchwormPose";
 import { floorEntry } from "./floorEntry";
 import { getUp } from "./getUp";
 
-/** The record of `IPlanB`'s site. */
-type IPlanB = { share: number };
-
-/** The record of `IPlanA`'s site. */
-type IPlanA = { share: number };
-
-/** The record of `IPlanItemResult`'s site. */
-type IPlanItemResult = {
-  name: string;
-  share: number;
-};
-
 /**
  * The inchworm, the crawl's `inchworm` kind: from standing the body folds until
  * its palms are flat on the floor before its feet, walks the hands out one at a
@@ -102,34 +90,6 @@ export namespace crawlInchworm {
 
   /** A limb that bears in the inchworm. */
   export type Limb = (typeof LIMBS)[number];
-  /** The record of `IPlanS`'s site. */
-  type IPlanS = {
-    limb: Limb;
-    n: number;
-    at: number;
-  };
-
-  /** The record of `IPlanStepsItem2`'s site. */
-  type IPlanStepsItem2 = { limb: Limb; n: number; at: number };
-
-  /** The record of `IPlanResult`'s site. */
-  type IPlanResult = {
-    stances: IAutoMovieMotionHumanSupport.IStance[];
-    steps: IStepsItemResult[];
-  };
-
-  /** The record of `IStepsItemResult`'s site. */
-  type IStepsItemResult = { limb: Limb; n: number; at: number };
-
-  /** The record of `IPlan`'s site. */
-  type IPlan = {
-    stances: IAutoMovieMotionHumanSupport.IStance[];
-    steps: IPlanStepsItem[];
-  };
-
-  /** The record of `IPlanStepsItem`'s site. */
-  type IPlanStepsItem = { limb: Limb; n: number; at: number };
-
   /**
    * Plan an inchworm.
    *
@@ -331,4 +291,44 @@ export namespace crawlInchworm {
       base: { kind: "standing" },
     };
   }
+
+  /** The record of `IPlanS`'s site. */
+  type IPlanS = {
+    limb: Limb;
+    n: number;
+    at: number;
+  };
+
+  /** The record of `IPlanStepsItem2`'s site. */
+  type IPlanStepsItem2 = { limb: Limb; n: number; at: number };
+
+  /** The record of `IPlanResult`'s site. */
+  type IPlanResult = {
+    stances: IAutoMovieMotionHumanSupport.IStance[];
+    steps: IStepsItemResult[];
+  };
+
+  /** The record of `IStepsItemResult`'s site. */
+  type IStepsItemResult = { limb: Limb; n: number; at: number };
+
+  /** The record of `IPlan`'s site. */
+  type IPlan = {
+    stances: IAutoMovieMotionHumanSupport.IStance[];
+    steps: IPlanStepsItem[];
+  };
+
+  /** The record of `IPlanStepsItem`'s site. */
+  type IPlanStepsItem = { limb: Limb; n: number; at: number };
 }
+
+/** The record of `IPlanB`'s site. */
+type IPlanB = { share: number };
+
+/** The record of `IPlanA`'s site. */
+type IPlanA = { share: number };
+
+/** The record of `IPlanItemResult`'s site. */
+type IPlanItemResult = {
+  name: string;
+  share: number;
+};

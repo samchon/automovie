@@ -26,21 +26,6 @@ import { sprintStartSetChain } from "./sprintStartSetChain";
 import { sprintStartSetFit } from "./sprintStartSetFit";
 import { sprintStartSetHands } from "./sprintStartSetHands";
 
-/** The record of `IPosedAtTilt`'s site. */
-type IPosedAtTilt = {
-  pitch: number;
-  joints: IAutoMovieMotionHumanPosture["joints"];
-};
-
-/** The alternatives of `OfSex`'s site. */
-type OfSex = "female" | "male";
-
-/** The alternatives of `OfContext`'s site. */
-type OfContext = "body" | "entry";
-
-/** The alternatives of `CENTREEntryItem`'s site. */
-type CENTREEntryItem = "female" | "male";
-
 /**
  * The set position's hips, pitch and feet for a body in front of a line.
  *
@@ -467,6 +452,21 @@ export namespace sprintStartSet {
    */
   export const REACH: number = 0.98;
 }
+
+/** The record of `IPosedAtTilt`'s site. */
+type IPosedAtTilt = {
+  pitch: number;
+  joints: IAutoMovieMotionHumanPosture["joints"];
+};
+
+/** The alternatives of `OfSex`'s site. */
+type OfSex = "female" | "male";
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "entry";
+
+/** The alternatives of `CENTREEntryItem`'s site. */
+type CENTREEntryItem = "female" | "male";
 
 /**
  * A set stance at one total tilt: pelvis pitch, spine flexion, and hips and

@@ -7,67 +7,6 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 
 
-function computeJointTarget(
-  input: AutoMovieEnginePhysicalStanceJointTarget.IInput,
-): AutoMovieEnginePhysicalStanceJointTarget.IResult {
-  // During the hip strategy the stance hips release the trunk along its axis
-  // (design-4017-edge, E2): the intended attitude keeps the actual one's turn
-  // about that axis, its error's twist about it removed, and the intended
-  // spin the actual one's along it.
-  const intended: { rotation: IAutoMovieQuaternion; spin: IAutoMovieVector3 } | undefined =
-    input.role !== "hip"
-      ? undefined
-      : input.release === undefined
-        ? input.intended
-        : {
-            rotation: Quaternion.multiply(
-              AutoMovieEnginePhysicalStanceJointTarget.swing(
-                Quaternion.multiply(
-                  input.intended.rotation,
-                  Quaternion.inverse(input.actual.parent),
-                ),
-                input.release,
-              ),
-              input.actual.parent,
-            ),
-            spin: Vector3.add(
-              input.intended.spin,
-              Vector3.scale(
-                input.release,
-                Vector3.dot(input.actual.parentSpin, input.release) -
-                  Vector3.dot(input.intended.spin, input.release),
-              ),
-            ),
-          };
-  const parent: IAutoMovieQuaternion =
-    input.role === "planted"
-      ? input.actual.parent
-      : input.role === "hip"
-        ? intended!.rotation
-        : input.goal.parent;
-  const child: IAutoMovieQuaternion =
-    input.role === "planted"
-      ? input.latched
-      : input.role === "hip"
-        ? input.actual.child
-        : input.goal.child;
-  const frame: IAutoMovieQuaternion = Quaternion.multiply(
-    parent,
-    input.parentFrame,
-  );
-  const spin: IAutoMovieVector3 =
-    input.role === "hip"
-      ? Vector3.subtract(input.actual.childSpin, intended!.spin)
-      : Vector3.subtract(input.goal.childSpin, input.goal.parentSpin);
-  return {
-    target: Quaternion.multiply(
-      Quaternion.inverse(frame),
-      Quaternion.multiply(child, input.childFrame),
-    ),
-    velocity: Quaternion.rotateVector(Quaternion.inverse(frame), spin),
-  };
-}
-
 /** The input and result of {@link AutoMovieEnginePhysicalStanceJointTarget}. */
 export namespace AutoMovieEnginePhysicalStanceJointTarget {
   /**
@@ -142,27 +81,6 @@ export namespace AutoMovieEnginePhysicalStanceJointTarget {
     childSpin: IAutoMovieVector3;
   }
 
-  /** What every role reads. */
-  interface IBase {
-    /**
-     * The joint's anchor frame rotation on the parent, in the parent's body
-     * frame.
-     */
-    parentFrame: IAutoMovieQuaternion;
-
-    /**
-     * The joint's anchor frame rotation on the child, in the child's body
-     * frame.
-     */
-    childFrame: IAutoMovieQuaternion;
-
-    /** The bodies as they are. */
-    actual: IPair;
-
-    /** The goal pose's bodies. */
-    goal: IPair;
-  }
-
   /** A planted foot's carrier joint. */
   export interface IPlanted extends IBase {
     /** The role. */
@@ -210,4 +128,86 @@ export namespace AutoMovieEnginePhysicalStanceJointTarget {
      */
     velocity: IAutoMovieVector3;
   }
+
+  /** What every role reads. */
+  interface IBase {
+    /**
+     * The joint's anchor frame rotation on the parent, in the parent's body
+     * frame.
+     */
+    parentFrame: IAutoMovieQuaternion;
+
+    /**
+     * The joint's anchor frame rotation on the child, in the child's body
+     * frame.
+     */
+    childFrame: IAutoMovieQuaternion;
+
+    /** The bodies as they are. */
+    actual: IPair;
+
+    /** The goal pose's bodies. */
+    goal: IPair;
+  }
+}
+
+function computeJointTarget(
+  input: AutoMovieEnginePhysicalStanceJointTarget.IInput,
+): AutoMovieEnginePhysicalStanceJointTarget.IResult {
+  // During the hip strategy the stance hips release the trunk along its axis
+  // (design-4017-edge, E2): the intended attitude keeps the actual one's turn
+  // about that axis, its error's twist about it removed, and the intended
+  // spin the actual one's along it.
+  const intended: { rotation: IAutoMovieQuaternion; spin: IAutoMovieVector3 } | undefined =
+    input.role !== "hip"
+      ? undefined
+      : input.release === undefined
+        ? input.intended
+        : {
+            rotation: Quaternion.multiply(
+              AutoMovieEnginePhysicalStanceJointTarget.swing(
+                Quaternion.multiply(
+                  input.intended.rotation,
+                  Quaternion.inverse(input.actual.parent),
+                ),
+                input.release,
+              ),
+              input.actual.parent,
+            ),
+            spin: Vector3.add(
+              input.intended.spin,
+              Vector3.scale(
+                input.release,
+                Vector3.dot(input.actual.parentSpin, input.release) -
+                  Vector3.dot(input.intended.spin, input.release),
+              ),
+            ),
+          };
+  const parent: IAutoMovieQuaternion =
+    input.role === "planted"
+      ? input.actual.parent
+      : input.role === "hip"
+        ? intended!.rotation
+        : input.goal.parent;
+  const child: IAutoMovieQuaternion =
+    input.role === "planted"
+      ? input.latched
+      : input.role === "hip"
+        ? input.actual.child
+        : input.goal.child;
+  const frame: IAutoMovieQuaternion = Quaternion.multiply(
+    parent,
+    input.parentFrame,
+  );
+  const spin: IAutoMovieVector3 =
+    input.role === "hip"
+      ? Vector3.subtract(input.actual.childSpin, intended!.spin)
+      : Vector3.subtract(input.goal.childSpin, input.goal.parentSpin);
+  return {
+    target: Quaternion.multiply(
+      Quaternion.inverse(frame),
+      Quaternion.multiply(child, input.childFrame),
+    ),
+    velocity: Quaternion.rotateVector(Quaternion.inverse(frame), spin),
+  };
 }

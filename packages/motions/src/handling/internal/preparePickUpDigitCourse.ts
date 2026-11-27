@@ -31,19 +31,10 @@ const PEAK_MIN = 0.6;
 const PEAK_MAX = 0.7;
 const APERTURE_SAMPLES = 480;
 
-type IShape = IAutoMovieMotionHumanPosture["joints"];
-type FingerReader = (share: number) => IShape;
-type Wrist = IAutoMovieMotionHumanHand.IWrist;
-type Capsule = Extract<IAutoMoviePhysicalShape, { kind: "capsule" }>;
-type Curve = (share: number) => number[];
-type Layer = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-type ICapsuleCore = [IAutoMovieVector3, IAutoMovieVector3, number];
-
 function smooth(progress: number): number {
   const u = Math.max(0, Math.min(1, progress));
   return u * u * (3 - 2 * u);
 }
-
 function interpolate(times: readonly number[], samples: readonly number[][]): Curve {
   const slopes = samples.map((values, i) =>
     values.map((_, j) => {
@@ -76,7 +67,6 @@ function interpolate(times: readonly number[], samples: readonly number[][]): Cu
     );
   };
 }
-
 function separation(a: readonly ICapsuleCore[], b: readonly ICapsuleCore[]): number {
   let least = Infinity;
   for (const [p, q, first] of a)
@@ -84,7 +74,6 @@ function separation(a: readonly ICapsuleCore[], b: readonly ICapsuleCore[]): num
       least = Math.min(least, AutoMovieEngineMath.closestPointsBetweenSegments(p, q, x, y).distance - first - second);
   return least;
 }
-
 /** Prepare changes to an embedded stationary power pickup. The arm keeps its admitted course. */
 export function preparePickUpDigitCourse(
   body: IAutoMovieMotionHumanBody,
@@ -300,7 +289,6 @@ export function preparePickUpDigitCourse(
   };
   return { close, course, verifies: (display) => accepted(assess(display)) };
 }
-
 /** Inputs and readers for the prepared digit course and its displayed check. */
 export namespace preparePickUpDigitCourse {
   /** Prepared thumb and index readers for one admitted pickup. */
@@ -320,3 +308,15 @@ export namespace preparePickUpDigitCourse {
     peak: number;
   }
 }
+type IShape = IAutoMovieMotionHumanPosture["joints"];
+type FingerReader = (share: number) => IShape;
+
+type Wrist = IAutoMovieMotionHumanHand.IWrist;
+
+type Capsule = Extract<IAutoMoviePhysicalShape, { kind: "capsule" }>;
+
+type Curve = (share: number) => number[];
+
+type Layer = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+
+type ICapsuleCore = [IAutoMovieVector3, IAutoMovieVector3, number];

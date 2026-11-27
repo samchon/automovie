@@ -42,11 +42,6 @@ const CURL_SET: number = 0.3;
  */
 const CURL_DELIVERY: number = 0.5;
 
-type Skate = IAutoMovieMotionHumanSurface.ISkateParams;
-type Curl = IAutoMovieMotionHumanSurface.ICurlDeliveryParams;
-type Plan = IAutoMovieMotionHumanActionPlan;
-type Posture = IAutoMovieMotionHumanPosture;
-
 /**
  * One ice glide with fitted runner edges, an optional step, or a low curling
  * delivery. The bilateral glide owns path, speed, entry and stopping. Ice
@@ -311,7 +306,6 @@ export namespace HumanIceGlide {
     };
   }
 }
-
 /**
  * A stepping blade within the dorsal range of the weight it bears
  * (`AutoMovieMotionHumanFootRelax`): as it sheds the body before it leaves, its
@@ -340,7 +334,6 @@ function sheds(
     rotation: placed.rotation,
   };
 }
-
 /** Translate both the ankle target and its knee bend hint with a released foot. */
 function shifted(
   goal: IAutoMovieHumanLimbGoal,
@@ -352,3 +345,10 @@ function shifted(
     bend: Vector3.add(goal.bend, by),
   };
 }
+type Skate = IAutoMovieMotionHumanSurface.ISkateParams;
+
+type Curl = IAutoMovieMotionHumanSurface.ICurlDeliveryParams;
+
+type Plan = IAutoMovieMotionHumanActionPlan;
+
+type Posture = IAutoMovieMotionHumanPosture;

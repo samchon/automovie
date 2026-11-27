@@ -38,18 +38,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import type { IArmPhraseArm } from "./IArmPhraseArm";
 import { armPhraseFacing } from "./armPhraseFacing";
 
-/** The record of `IPlanArmsNamed`'s site. */
-type IPlanArmsNamed = {
-  point: IAutoMovieVector3;
-  direction: IAutoMovieVector3;
-};
-
-/** The record of `IPlanArmsAimed`'s site. */
-type IPlanArmsAimed = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
-
-/** The record of `IPlanAimResult`'s site. */
-type IPlanAimResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
-
 /**
  * One arm phrase on a target: the hand visits a place, strokes along a path or
  * oscillates about a pose, on the standard instants of a phrase (Kendon 1980's
@@ -457,6 +445,18 @@ export namespace armPhrase {
     };
   }
 }
+
+/** The record of `IPlanArmsNamed`'s site. */
+type IPlanArmsNamed = {
+  point: IAutoMovieVector3;
+  direction: IAutoMovieVector3;
+};
+
+/** The record of `IPlanArmsAimed`'s site. */
+type IPlanArmsAimed = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
+/** The record of `IPlanAimResult`'s site. */
+type IPlanAimResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
 
 /**
  * An oscillation's swing when none is given, a share of the arm's length to

@@ -15,11 +15,6 @@ const FRAME: string = "#fbf9ef";
 const NET: string = "#d9dde0";
 const v: typeof Vector3.create = Vector3.create;
 
-type Build = AutoMovieArchetypeBuilder<
-  AutoMovieArchetypeWaterPoloGoal.Affordance,
-  AutoMovieArchetypeWaterPoloGoal.Dimension
->;
-
 /** Constructs the water polo goal archetype from its recipe. */
 export namespace AutoMovieArchetypeWaterPoloGoal {
 /**
@@ -204,3 +199,8 @@ function net(
       );
   }
 }
+
+type Build = AutoMovieArchetypeBuilder<
+  AutoMovieArchetypeWaterPoloGoal.Affordance,
+  AutoMovieArchetypeWaterPoloGoal.Dimension
+>;

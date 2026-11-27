@@ -29,71 +29,6 @@ import { ballCourtClock } from "./ballCourtClock";
 import { ballCourtHand } from "./ballCourtHand";
 import { ballCourtSphere } from "./ballCourtSphere";
 
-/** The court phrases handled by this planner. */
-type Kind =
-  | "dribbleRelease"
-  | "chestPass"
-  | "bouncePass"
-  | "setShot"
-  | "handballThrow"
-  | "highHandContest";
-/** The record of `IPHRASESEntryItem`'s site. */
-type IPHRASESEntryItem = {
-  depth: number;
-  lean: number;
-  prepare: number;
-  attack: number;
-  flight: number;
-};
-
-/**
- * Planted motion parameters. Depth scales by stature; lean is forward degrees.
- * Durations are provisional seconds.
- */
-const PHRASES: Readonly<Record<Kind, IPHRASESEntryItem>> = {
-  dribbleRelease: {
-    depth: 0.04,
-    lean: 14,
-    prepare: 0.36,
-    attack: 0.21,
-    flight: 0,
-  },
-  chestPass: {
-    depth: 0.025,
-    lean: 6,
-    prepare: 0.37,
-    attack: 0.24,
-    flight: 0.42,
-  },
-  bouncePass: {
-    depth: 0.04,
-    lean: 11,
-    prepare: 0.39,
-    attack: 0.25,
-    flight: 0.28,
-  },
-  setShot: { depth: 0.06, lean: 6, prepare: 0.45, attack: 0.35, flight: 0.88 },
-  handballThrow: {
-    depth: 0.035,
-    lean: 12,
-    prepare: 0.48,
-    attack: 0.22,
-    flight: 0.33,
-  },
-  highHandContest: {
-    depth: 0.05,
-    lean: 7,
-    prepare: 0.34,
-    attack: 0.55,
-    flight: 0,
-  },
-};
-
-/** Rotate a direction or body-relative offset into the performer's heading. */
-function turn(yaw: number, local: IAutoMovieVector3): IAutoMovieVector3 {
-  return HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw }, local);
-}
-
 /**
  * Plan a planted basketball or handball phrase on the same clock as its
  * release. Basketball's return from the floor and the handball throw keep the
@@ -291,4 +226,69 @@ export function ballCourt(
     contacts: [...plan.contacts, ...grips],
     launches: [...(plan.launches ?? []), launch],
   };
+}
+/** The court phrases handled by this planner. */
+type Kind =
+  | "dribbleRelease"
+  | "chestPass"
+  | "bouncePass"
+  | "setShot"
+  | "handballThrow"
+  | "highHandContest";
+
+/** The record of `IPHRASESEntryItem`'s site. */
+type IPHRASESEntryItem = {
+  depth: number;
+  lean: number;
+  prepare: number;
+  attack: number;
+  flight: number;
+};
+
+/**
+ * Planted motion parameters. Depth scales by stature; lean is forward degrees.
+ * Durations are provisional seconds.
+ */
+const PHRASES: Readonly<Record<Kind, IPHRASESEntryItem>> = {
+  dribbleRelease: {
+    depth: 0.04,
+    lean: 14,
+    prepare: 0.36,
+    attack: 0.21,
+    flight: 0,
+  },
+  chestPass: {
+    depth: 0.025,
+    lean: 6,
+    prepare: 0.37,
+    attack: 0.24,
+    flight: 0.42,
+  },
+  bouncePass: {
+    depth: 0.04,
+    lean: 11,
+    prepare: 0.39,
+    attack: 0.25,
+    flight: 0.28,
+  },
+  setShot: { depth: 0.06, lean: 6, prepare: 0.45, attack: 0.35, flight: 0.88 },
+  handballThrow: {
+    depth: 0.035,
+    lean: 12,
+    prepare: 0.48,
+    attack: 0.22,
+    flight: 0.33,
+  },
+  highHandContest: {
+    depth: 0.05,
+    lean: 7,
+    prepare: 0.34,
+    attack: 0.55,
+    flight: 0,
+  },
+};
+
+/** Rotate a direction or body-relative offset into the performer's heading. */
+function turn(yaw: number, local: IAutoMovieVector3): IAutoMovieVector3 {
+  return HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw }, local);
 }

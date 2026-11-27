@@ -10,18 +10,6 @@ import type { StrikingWeaponRecord } from "./StrikingWeaponRecord";
 import { StrikingWeaponSample } from "./StrikingWeaponSample";
 import { StrikingWeaponTable } from "./StrikingWeaponTable";
 
-/** The alternatives of `AxisChain`'s site. */
-type AxisChain = "ids" | "ends";
-
-/** The alternatives of `RadiusResult`'s site. */
-type RadiusResult = "radius" | "tailRadius";
-
-/** A capsule's radii at its two axis ends, metres. */
-type RadiusRadii = readonly [number, number];
-
-/** A chain capsule's radii at its two axis ends, metres. */
-type ChainRadiiItem = readonly [number, number];
-
 /**
  * A striking limb as the capsule weapons the performance's joint contact
  * resolution sweeps: the limb's joints read from the striking action's own free
@@ -320,18 +308,6 @@ export namespace StrikingWeapon {
     StrikingWeaponGirth.girth;
 
   /**
-   * A capsule's radius members as a weapon carries them: a tail radius only
-   * where the capsule tapers.
-   */
-  function radius(
-    radii: RadiusRadii,
-  ): Pick<IAutoMovieMotionWeaponPath, RadiusResult> {
-    return radii[0] === radii[1]
-      ? { radius: radii[0] }
-      : { radius: radii[0], tailRadius: radii[1] };
-  }
-
-  /**
    * The first of an action's resolved contacts.
    *
    * @param events The action's weapons' contacts.
@@ -365,7 +341,31 @@ export namespace StrikingWeapon {
     const ends: readonly IAutoMovieVector3[] = chain.ends(seconds);
     return [ends[i]!, ends[i + 1]!];
   }
+
+  /**
+   * A capsule's radius members as a weapon carries them: a tail radius only
+   * where the capsule tapers.
+   */
+  function radius(
+    radii: RadiusRadii,
+  ): Pick<IAutoMovieMotionWeaponPath, RadiusResult> {
+    return radii[0] === radii[1]
+      ? { radius: radii[0] }
+      : { radius: radii[0], tailRadius: radii[1] };
+  }
 }
+
+/** The alternatives of `AxisChain`'s site. */
+type AxisChain = "ids" | "ends";
+
+/** The alternatives of `RadiusResult`'s site. */
+type RadiusResult = "radius" | "tailRadius";
+
+/** A capsule's radii at its two axis ends, metres. */
+type RadiusRadii = readonly [number, number];
+
+/** A chain capsule's radii at its two axis ends, metres. */
+type ChainRadiiItem = readonly [number, number];
 
 /**
  * Fixed demanded limb outputs; FK still admits all joints and computes every

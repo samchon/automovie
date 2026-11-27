@@ -6,25 +6,6 @@ import {
 } from "../../core/index";
 import type { AutoMovieArchetypeTransitBus } from "../AutoMovieArchetypeTransitBus";
 
-/** Bus geometry and affordances share the same builder. */
-type BusBuilder = AutoMovieArchetypeBuilder<
-  AutoMovieArchetypeTransitBus.Affordance,
-  AutoMovieArchetypeTransitBus.Dimension
->;
-
-/** Nominal seat width including the gap between pads. */
-const SEAT_WIDTH: number = 0.41;
-/** Seat pad depth measured back from its front edge. */
-const SEAT_DEPTH: number = 0.43;
-/** Surface height of a seat pad above the deck. */
-const SEAT_HEIGHT: number = 0.46;
-/** Passenger backrest height above the pad. */
-const BACK_HEIGHT: number = 0.46;
-/** Upholstery marking the seat contact surfaces. */
-const SEAT: AutoMovieArchetypeBuilder.IOptions = { color: "#306f80" };
-/** Vector constructor for metric bus-local dimensions. */
-const v: typeof Vector3.create = Vector3.create;
-
 /**
  * Adds forward-facing passenger rows and the aisle-side seat contact in
  * bus-local metres.
@@ -80,3 +61,22 @@ export function addTransitBusSeating(
     }
   }
 }
+
+/** Bus geometry and affordances share the same builder. */
+type BusBuilder = AutoMovieArchetypeBuilder<
+  AutoMovieArchetypeTransitBus.Affordance,
+  AutoMovieArchetypeTransitBus.Dimension
+>;
+/** Nominal seat width including the gap between pads. */
+const SEAT_WIDTH: number = 0.41;
+/** Seat pad depth measured back from its front edge. */
+const SEAT_DEPTH: number = 0.43;
+/** Surface height of a seat pad above the deck. */
+const SEAT_HEIGHT: number = 0.46;
+/** Passenger backrest height above the pad. */
+const BACK_HEIGHT: number = 0.46;
+/** Upholstery marking the seat contact surfaces. */
+const SEAT: AutoMovieArchetypeBuilder.IOptions = { color: "#306f80" };
+
+/** Vector constructor for metric bus-local dimensions. */
+const v: typeof Vector3.create = Vector3.create;

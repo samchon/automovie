@@ -5,14 +5,6 @@ import type {
 
 import { AUTO_MOVIE_INSPECTION_KINDS } from "../../AUTO_MOVIE_INSPECTION_KINDS.js";
 
-/** Legend entry of the trail kind. */
-const TRAIL: { readonly label: string; readonly color: number } =
-  AUTO_MOVIE_INSPECTION_KINDS.trail!;
-
-/** Legend entry of the emphasised tick. */
-const NOW: { readonly label: string; readonly color: number } =
-  AUTO_MOVIE_INSPECTION_KINDS["trail/now"]!;
-
 /**
  * Draw sampled trails as marks for one drawn second: each moving object's path
  * as a line through its samples with a tick at every sample, and the sample of
@@ -87,3 +79,11 @@ export function markAutoMovieInspectionTrails(
   }
   return marks;
 }
+
+/** Legend entry of the trail kind. */
+const TRAIL: { readonly label: string; readonly color: number } =
+  AUTO_MOVIE_INSPECTION_KINDS.trail!;
+
+/** Legend entry of the emphasised tick. */
+const NOW: { readonly label: string; readonly color: number } =
+  AUTO_MOVIE_INSPECTION_KINDS["trail/now"]!;

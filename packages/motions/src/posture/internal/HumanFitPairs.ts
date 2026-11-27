@@ -10,9 +10,6 @@ import type {
 import type { HumanBodyFitRows } from "./HumanBodyFitRows";
 import { HumanJacobian } from "./HumanJacobian";
 
-/** The alternatives of `RowStep`'s site. */
-type RowStep = "at" | "motions" | "units" | "index" | "price";
-
 /**
  * The pairs a body's deep fold brings together.
  *
@@ -196,3 +193,6 @@ export namespace HumanFitPairs {
     };
   }
 }
+
+/** The alternatives of `RowStep`'s site. */
+type RowStep = "at" | "motions" | "units" | "index" | "price";

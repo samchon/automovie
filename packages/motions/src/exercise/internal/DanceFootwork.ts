@@ -25,9 +25,6 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { pelvisReachHeight } from "../../posture/internal/pelvisReachHeight";
 
-/** The alternatives of `OverCourse`'s site. */
-type OverCourse = "duration" | "left" | "right" | "yaw";
-
 /**
  * The footwork every keyed dance law shares (tap and ballet, street steps):
  * each foot runs through its keys, dwelling at a key from its arrival to its
@@ -434,3 +431,6 @@ export namespace DanceFootwork {
     return lo;
   }
 }
+
+/** The alternatives of `OverCourse`'s site. */
+type OverCourse = "duration" | "left" | "right" | "yaw";

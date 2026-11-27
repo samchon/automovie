@@ -81,13 +81,6 @@ export const HumanSittingVolley: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
     yields: ["head"],
     plan: planHumanSittingVolley,
   };
-/** The record of `IPlanHumanSittingVolleyMissesItem`'s site. */
-type IPlanHumanSittingVolleyMissesItem = {
-  phase: string;
-  side: AutoMovieHumanSide;
-  gap: number;
-};
-
 /**
  * Shift a court-supported seat by pressing on one stationary palm, then release
  * the palm and bring both forearms to a receive platform. The torso support
@@ -441,3 +434,10 @@ function planHumanSittingVolley(
     posture,
   };
 }
+
+/** The record of `IPlanHumanSittingVolleyMissesItem`'s site. */
+type IPlanHumanSittingVolleyMissesItem = {
+  phase: string;
+  side: AutoMovieHumanSide;
+  gap: number;
+};

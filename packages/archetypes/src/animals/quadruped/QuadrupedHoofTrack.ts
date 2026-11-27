@@ -163,19 +163,6 @@ export namespace QuadrupedHoofTrack {
     };
   }
 
-  /** The authored surface under a point, or none where no plane covers it. */
-  function covered(
-    footing: AutoMovieArchetypeQuadrupedFooting.IPlan,
-    point: IAutoMovieVector3,
-    rotation: IAutoMovieQuaternion,
-  ): AutoMovieArchetypeQuadrupedFooting.ILanding | undefined {
-    try {
-      return footing.landing(point, rotation);
-    } catch (error) {
-      if (error instanceof AutoMovieArchetypeRefusal) return undefined;
-      throw error;
-    }
-  }
   /**
    * The swing height of a landmark gait: the toe raised to its coordinate along
    * the neutral cannon, measured above the neutral hoof endpoint.
@@ -194,7 +181,6 @@ export namespace QuadrupedHoofTrack {
     const share: number = fore ? landmark.fore : landmark.hind;
     return chain[3]!.y + share * (chain[2]!.y - chain[3]!.y) - chain[4]!.y;
   }
-
   /**
    * The world point a stance plants its hoof at.
    *
@@ -451,5 +437,19 @@ export namespace QuadrupedHoofTrack {
             },
           }),
     };
+  }
+
+  /** The authored surface under a point, or none where no plane covers it. */
+  function covered(
+    footing: AutoMovieArchetypeQuadrupedFooting.IPlan,
+    point: IAutoMovieVector3,
+    rotation: IAutoMovieQuaternion,
+  ): AutoMovieArchetypeQuadrupedFooting.ILanding | undefined {
+    try {
+      return footing.landing(point, rotation);
+    } catch (error) {
+      if (error instanceof AutoMovieArchetypeRefusal) return undefined;
+      throw error;
+    }
   }
 }

@@ -1,9 +1,6 @@
 import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
-/** The record of `IFrameGrip`'s site. */
-type IFrameGrip = { side: AutoMovieHumanSide; bone?: AutoMovieHumanoidBone };
-
 /**
  * Where a held prop is: the frame a hand holds it in, and a prop held in both
  * of a performer's hands as one rigid thing between them, each hand's grip
@@ -97,29 +94,6 @@ export namespace HumanPropHold {
   }
 
   /**
-   * The axis a prop whose line points opposite the sockets' turns half a turn
-   * about: across the line, along the prop's up as the hands turn it (its `+Y`,
-   * or its `+X` where the up lies on the line), so the half turn keeps that up
-   * and the roll the two hands share.
-   */
-  function across(
-    blended: IAutoMovieQuaternion,
-    along: IAutoMovieVector3,
-  ): IAutoMovieVector3 {
-    const unit: IAutoMovieVector3 = Vector3.normalize(along);
-    const off: (local: IAutoMovieVector3) => IAutoMovieVector3 = (
-      local: IAutoMovieVector3,
-    ): IAutoMovieVector3 => {
-      const v: IAutoMovieVector3 = Quaternion.rotateVector(blended, local);
-      return Vector3.subtract(v, Vector3.scale(unit, Vector3.dot(v, unit)));
-    };
-    const up: IAutoMovieVector3 = off({ x: 0, y: 1, z: 0 });
-    return Vector3.normalize(
-      Vector3.length(up) < 1e-9 ? off({ x: 1, y: 0, z: 0 }) : up,
-    );
-  }
-
-  /**
    * Where a grip holds a prop on given bones: the hand's grip socket with the
    * hand bone's world rotation, or the bone a worn span rides.
    *
@@ -145,4 +119,30 @@ export namespace HumanPropHold {
       rotation: bone.worldRotation,
     };
   }
+
+  /**
+   * The axis a prop whose line points opposite the sockets' turns half a turn
+   * about: across the line, along the prop's up as the hands turn it (its `+Y`,
+   * or its `+X` where the up lies on the line), so the half turn keeps that up
+   * and the roll the two hands share.
+   */
+  function across(
+    blended: IAutoMovieQuaternion,
+    along: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
+    const unit: IAutoMovieVector3 = Vector3.normalize(along);
+    const off: (local: IAutoMovieVector3) => IAutoMovieVector3 = (
+      local: IAutoMovieVector3,
+    ): IAutoMovieVector3 => {
+      const v: IAutoMovieVector3 = Quaternion.rotateVector(blended, local);
+      return Vector3.subtract(v, Vector3.scale(unit, Vector3.dot(v, unit)));
+    };
+    const up: IAutoMovieVector3 = off({ x: 0, y: 1, z: 0 });
+    return Vector3.normalize(
+      Vector3.length(up) < 1e-9 ? off({ x: 1, y: 0, z: 0 }) : up,
+    );
+  }
 }
+
+/** The record of `IFrameGrip`'s site. */
+type IFrameGrip = { side: AutoMovieHumanSide; bone?: AutoMovieHumanoidBone };

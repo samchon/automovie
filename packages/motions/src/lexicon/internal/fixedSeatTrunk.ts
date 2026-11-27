@@ -20,52 +20,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { fixedSeatHarmonic } from "./fixedSeatHarmonic";
 
-type Joints = IAutoMovieMotionHumanPosture["joints"];
-type Angles = readonly [number, number, number];
-type Pair = readonly [number, number];
-type Points = Readonly<Record<AutoMovieHumanSide, IAutoMovieVector3>>;
-type OptionalRange = IAutoMovieAngleRange | null | undefined;
-type OptionalLimit = IAutoMovieJointConstraint | undefined;
-/**
- * A stationary upper body and the distance used to rank it for actual
- * admission.
- */
-interface ICandidate {
-  joints: Joints;
-  squared: number;
-}
-type Axis = "flexion" | "abduction" | "twist";
-type Trunk = "spine" | "chest" | "leftShoulder" | "rightShoulder";
-
-/** One clinical axis of an ancestor of either requested shoulder. */
-interface IVariable {
-  bone: Trunk;
-  index: number;
-  range: IAutoMovieAngleRange;
-}
-
-const RAD: number = Math.PI / 180;
-const ZERO: Angles = [0, 0, 0];
-const TRUNK: readonly Trunk[] = [
-  "spine",
-  "chest",
-  "leftShoulder",
-  "rightShoulder",
-];
-const AXES: readonly Axis[] = ["flexion", "abduction", "twist"];
-
-/** The greater of the two shoulder-to-site distances squared. */
-function maximum(reading: Pair): number {
-  return Math.max(reading[0], reading[1]);
-}
-
-/** Set one coordinate without changing the caller's joint record or tuple. */
-function turn(joints: Joints, variable: IVariable, degrees: number): void {
-  const row: [number, number, number] = [...(joints[variable.bone] ?? ZERO)];
-  row[variable.index] = degrees;
-  joints[variable.bone] = row;
-}
-
 /**
  * Asymmetric upper-body articulation for two fixed working sites. Both
  * shoulders and the torso move within the rig's independent clinical intervals.
@@ -181,4 +135,50 @@ export function fixedSeatTrunk(
   return candidates
     .sort((a: ICandidate, b: ICandidate): number => a.squared - b.squared)
     .map((candidate: ICandidate): Joints => candidate.joints);
+}
+type Joints = IAutoMovieMotionHumanPosture["joints"];
+type Angles = readonly [number, number, number];
+type Pair = readonly [number, number];
+type Points = Readonly<Record<AutoMovieHumanSide, IAutoMovieVector3>>;
+type OptionalRange = IAutoMovieAngleRange | null | undefined;
+type OptionalLimit = IAutoMovieJointConstraint | undefined;
+/**
+ * A stationary upper body and the distance used to rank it for actual
+ * admission.
+ */
+interface ICandidate {
+  joints: Joints;
+  squared: number;
+}
+type Axis = "flexion" | "abduction" | "twist";
+
+type Trunk = "spine" | "chest" | "leftShoulder" | "rightShoulder";
+
+/** One clinical axis of an ancestor of either requested shoulder. */
+interface IVariable {
+  bone: Trunk;
+  index: number;
+  range: IAutoMovieAngleRange;
+}
+const RAD: number = Math.PI / 180;
+const ZERO: Angles = [0, 0, 0];
+const TRUNK: readonly Trunk[] = [
+  "spine",
+  "chest",
+  "leftShoulder",
+  "rightShoulder",
+];
+
+const AXES: readonly Axis[] = ["flexion", "abduction", "twist"];
+
+/** The greater of the two shoulder-to-site distances squared. */
+function maximum(reading: Pair): number {
+  return Math.max(reading[0], reading[1]);
+}
+
+/** Set one coordinate without changing the caller's joint record or tuple. */
+function turn(joints: Joints, variable: IVariable, degrees: number): void {
+  const row: [number, number, number] = [...(joints[variable.bone] ?? ZERO)];
+  row[variable.index] = degrees;
+  joints[variable.bone] = row;
 }

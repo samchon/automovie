@@ -8,18 +8,6 @@ import type {
 
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/** The alternatives of `ConductFigurePosture`'s site. */
-type ConductFigurePosture = "root" | "yaw";
-
-/** The record of `IConductFigure`'s site. */
-interface IConductFigure {
-  /** Each beat's ictus, world metres, in order. */
-  ictus: IAutoMovieVector3[];
-
-  /** The figure's top, where the preparation starts, world metres. */
-  top: IAutoMovieVector3;
-}
-
 /**
  * A conducting figure laid in the performer's frontal plane: its centre a
  * forearm and six tenths of an upper arm ahead of the body, 0.1 m below the
@@ -107,4 +95,16 @@ export namespace conductFigure {
    * sweep.
    */
   export const HALF: number = 0.18;
+}
+
+/** The alternatives of `ConductFigurePosture`'s site. */
+type ConductFigurePosture = "root" | "yaw";
+
+/** The record of `IConductFigure`'s site. */
+interface IConductFigure {
+  /** Each beat's ictus, world metres, in order. */
+  ictus: IAutoMovieVector3[];
+
+  /** The figure's top, where the preparation starts, world metres. */
+  top: IAutoMovieVector3;
 }

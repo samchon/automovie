@@ -5,16 +5,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-type Offset = (elapsed: number, pose: IAutoMoviePose) => IAutoMoviePose;
-
-interface IWindow {
-  from: number;
-  until: number;
-  contacts: readonly IAutoMovieMotionHumanContactWindow[];
-  sourceRoot: IAutoMovieVector3 | undefined;
-  targetRoot: IAutoMovieVector3 | undefined;
-}
-
 /**
  * Keep the authored root while a seat carries it across the whole blend. Joints
  * still take the ordinary transition offset. A seat staged in world coordinates
@@ -58,4 +48,14 @@ export function carrySeatTransition(
   return carried
     ? (elapsed, pose) => ({ ...decay(elapsed, pose), root: pose.root })
     : decay;
+}
+
+type Offset = (elapsed: number, pose: IAutoMoviePose) => IAutoMoviePose;
+
+interface IWindow {
+  from: number;
+  until: number;
+  contacts: readonly IAutoMovieMotionHumanContactWindow[];
+  sourceRoot: IAutoMovieVector3 | undefined;
+  targetRoot: IAutoMovieVector3 | undefined;
 }

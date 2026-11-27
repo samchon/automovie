@@ -16,24 +16,6 @@ const NAMES: Readonly<Record<AutoMovieArchetypeStorage.Kind, string>> = {
   bookcase: "bookcase",
 };
 
-/** The model-space construction for the selected contact IDs. */
-type Builder<Id extends AutoMovieArchetypeStorage.Affordance> = AutoMovieArchetypeBuilder<
-  Id,
-  AutoMovieArchetypeStorage.Dimension
->;
-
-/** Model dimensions in the legacy family's recorded units. */
-type Dimensions = Partial<Record<AutoMovieArchetypeStorage.Dimension, number>>;
-
-/** A started construction: its builder and its drawn dimensions. */
-interface IDrawn<Id extends AutoMovieArchetypeStorage.Affordance> {
-  /** The model-space builder for the selected contact ids. */
-  builder: Builder<Id>;
-
-  /** The drawn and fixed dimensions in the family's recorded units. */
-  d: Dimensions;
-}
-
 /**
  * Pick the recorded hinge or slide model and use its figures in the saved
  * dimension stream.
@@ -135,4 +117,22 @@ export namespace StorageMechanisms {
     StorageConstruction.bookcase(builder, d);
     return builder.build(d.mass!);
   }
+}
+
+/** The model-space construction for the selected contact IDs. */
+type Builder<Id extends AutoMovieArchetypeStorage.Affordance> = AutoMovieArchetypeBuilder<
+  Id,
+  AutoMovieArchetypeStorage.Dimension
+>;
+
+/** Model dimensions in the legacy family's recorded units. */
+type Dimensions = Partial<Record<AutoMovieArchetypeStorage.Dimension, number>>;
+
+/** A started construction: its builder and its drawn dimensions. */
+interface IDrawn<Id extends AutoMovieArchetypeStorage.Affordance> {
+  /** The model-space builder for the selected contact ids. */
+  builder: Builder<Id>;
+
+  /** The drawn and fixed dimensions in the family's recorded units. */
+  d: Dimensions;
 }

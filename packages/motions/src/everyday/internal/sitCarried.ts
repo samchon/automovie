@@ -16,12 +16,6 @@ import type {
 
 import { carryHumanPosture } from "../../posture/internal/carryHumanPosture";
 
-/** The context of the seat's carrier and film clock. */
-type SitCarriedContext = Pick<
-  IAutoMovieMotionHumanActionContext,
-  "prop" | "start"
->;
-
 /**
  * Carry a low sit in the frame of its moving seat. A high mount has already
  * placed its feet in their material supports before preparing its limb
@@ -66,36 +60,6 @@ export function sitCarried(
     ),
     posture: (seconds, channels, resolution, projection) =>
       carry(plan.posture(seconds, channels, resolution, projection), seconds),
-  };
-}
-
-/** A foot's ground windows and its optional part-relative approach and rest. */
-interface IFootSupport {
-  /** The leg the support holds. */
-  limb: AutoMovieHumanLimb;
-
-  /** Windows in which the leg keeps its original world goal on the floor. */
-  ground: readonly IAutoMovieMotionHumanContactWindow[];
-
-  /** The moving footrest, when the seat names one that supplies a frame. */
-  part?: {
-    /** The prop's affordance id. */
-    id: string;
-
-    /** The foothold where the mount starts, world metres. */
-    position: IAutoMovieVector3;
-
-    /** The inverse rotation of the starting foothold. */
-    inverse: IAutoMovieQuaternion;
-
-    /** Whether the free approach starts in a world floor plant. */
-    fromFloor: boolean;
-
-    /** The second the foot leaves its starting support. */
-    release: number;
-
-    /** The second the foot lands on the foothold. */
-    bearing: number;
   };
 }
 
@@ -280,4 +244,40 @@ export namespace sitCarried {
       };
     };
   }
+}
+
+/** The context of the seat's carrier and film clock. */
+type SitCarriedContext = Pick<
+  IAutoMovieMotionHumanActionContext,
+  "prop" | "start"
+>;
+
+/** A foot's ground windows and its optional part-relative approach and rest. */
+interface IFootSupport {
+  /** The leg the support holds. */
+  limb: AutoMovieHumanLimb;
+
+  /** Windows in which the leg keeps its original world goal on the floor. */
+  ground: readonly IAutoMovieMotionHumanContactWindow[];
+
+  /** The moving footrest, when the seat names one that supplies a frame. */
+  part?: {
+    /** The prop's affordance id. */
+    id: string;
+
+    /** The foothold where the mount starts, world metres. */
+    position: IAutoMovieVector3;
+
+    /** The inverse rotation of the starting foothold. */
+    inverse: IAutoMovieQuaternion;
+
+    /** Whether the free approach starts in a world floor plant. */
+    fromFloor: boolean;
+
+    /** The second the foot leaves its starting support. */
+    release: number;
+
+    /** The second the foot lands on the foothold. */
+    bearing: number;
+  };
 }

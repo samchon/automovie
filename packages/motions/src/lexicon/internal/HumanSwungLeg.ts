@@ -25,9 +25,6 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { writtenHumanSeeds } from "../../posture/internal/writtenHumanSeeds";
 import { HumanMountPush } from "./HumanMountPush";
 
-/** The alternatives of `AtAngleAxis`'s site. */
-type AtAngleAxis = 0 | 1 | 2;
-
 /**
  * A leg swung over a seat in joint space: the leg's fitted joints where it
  * leaves, where it lands and at the swing's middle, and the curve through them,
@@ -432,6 +429,9 @@ export namespace HumanSwungLeg {
     "twist",
   ];
 }
+
+/** The alternatives of `AtAngleAxis`'s site. */
+type AtAngleAxis = 0 | 1 | 2;
 
 /**
  * The fits a swing's frame continues: each limb's seed at the frame fitted

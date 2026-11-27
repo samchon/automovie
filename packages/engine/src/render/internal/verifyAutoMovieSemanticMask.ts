@@ -4,12 +4,6 @@ import { AutoMovieSemanticMaskVerificationError } from "../AutoMovieSemanticMask
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { digestAutoMovieSemanticMask } from "./digestAutoMovieSemanticMask";
 
-/** Current full-payload semantic-mask format. */
-const SEMANTIC_MASK_VERSION: number = 2;
-
-/** Domain separator for the current full-payload semantic-mask format. */
-const SEMANTIC_MASK_PROTOCOL: string = "automovie.semantic-mask.v2";
-
 /**
  * Refuse a historical, foreign, or self-inconsistent semantic mask.
  *
@@ -43,6 +37,12 @@ export function verifyAutoMovieSemanticMask(
       `semantic mask digest mismatch: declared ${mask.digest}, canonical ${expected}`,
     );
 }
+
+/** Current full-payload semantic-mask format. */
+const SEMANTIC_MASK_VERSION: number = 2;
+
+/** Domain separator for the current full-payload semantic-mask format. */
+const SEMANTIC_MASK_PROTOCOL: string = "automovie.semantic-mask.v2";
 
 /** Refuse unknown or missing fields before canonical projection can erase them. */
 const verifySemanticMaskSchema: (mask: IAutoMovieSemanticMask) => void = (

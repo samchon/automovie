@@ -12,9 +12,6 @@ import { AutoMovieMotionHumanTargetGrid } from "../../compose/internal/AutoMovie
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 
-/** The alternatives of `AtPosture`'s site. */
-type AtPosture = "root" | "yaw";
-
 /**
  * Checks that a captured point is at the place a law names.
  *
@@ -79,3 +76,6 @@ export namespace MotionPlaceVerdicts {
     };
   }
 }
+
+/** The alternatives of `AtPosture`'s site. */
+type AtPosture = "root" | "yaw";

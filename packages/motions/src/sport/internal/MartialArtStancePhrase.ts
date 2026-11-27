@@ -33,9 +33,6 @@ import { martialArtGuardSite } from "./martialArtGuardSite";
 import { martialArtStanceClock } from "./martialArtStanceClock";
 import { martialArtStanceTurn } from "./martialArtStanceTurn";
 
-/** One side of the body, as the stance names its lead and rear. */
-type Side = AutoMovieHumanSide;
-
 /**
  * A lead step into two linked planted weight shifts and a return to entry. The
  * karate form links a front and back stance with a chambered fist and a
@@ -336,3 +333,6 @@ export function MartialArtStancePhrase(
     primitives,
   });
 }
+
+/** One side of the body, as the stance names its lead and rear. */
+type Side = AutoMovieHumanSide;

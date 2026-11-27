@@ -23,18 +23,6 @@ import { createShotContractSubjectReader } from "./createShotContractSubjectRead
 import { evaluateShotPredicate } from "./evaluateShotPredicate";
 import { realizeShotCameraOutcome } from "./realizeShotCameraOutcome";
 
-/** One graded camera sample of the realization record. */
-type ICameraOutcome = IAutoMovieCompiledContractRealization["camera"][number];
-
-/** One graded opening or closing state of the realization record. */
-type IStateOutcome = IAutoMovieCompiledContractRealization["opening"][number];
-
-/**
- * Vector-component and absolute quaternion-dot comparison tolerance; the
- * metrics differ.
- */
-const TRANSFORM_TOLERANCE: number = 1e-9;
-
 /**
  * Grade a shot contract against the compiled artifacts that claim to realize
  * it, measuring every outcome from the compiled scene, motions, camera and
@@ -267,6 +255,18 @@ export function realizeShotContract(
     diagnostics,
   };
 }
+
+/** One graded camera sample of the realization record. */
+type ICameraOutcome = IAutoMovieCompiledContractRealization["camera"][number];
+
+/** One graded opening or closing state of the realization record. */
+type IStateOutcome = IAutoMovieCompiledContractRealization["opening"][number];
+
+/**
+ * Vector-component and absolute quaternion-dot comparison tolerance; the
+ * metrics differ.
+ */
+const TRANSFORM_TOLERANCE: number = 1e-9;
 
 /**
  * Whether a compiled formation is the one compact runtime its design asks for:

@@ -382,6 +382,20 @@ export namespace solveXpbdContacts {
     );
   }
   /**
+   * A body-frame offset from the centre as a world arm.
+   *
+   * @param body The body.
+   * @param offset The offset in its frame, metres.
+   * @returns The world arm, metres.
+   */
+  export function arm(
+    body: AutoMovieXpbdBody,
+    offset: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
+    return Quaternion.rotateVector(body.orientation, offset);
+  }
+
+  /**
    * The contact of two colliders, or null when they are apart. Two polytopes
    * (boxes and hulls) are tested by GJK and, when they overlap, measured by EPA
    * (physicalShapePenetration), which is exact for polytopes; a pair with a
@@ -422,20 +436,6 @@ export namespace solveXpbdContacts {
       Quaternion.inverse(body.orientation),
       Vector3.subtract(point, body.center),
     );
-  }
-
-  /**
-   * A body-frame offset from the centre as a world arm.
-   *
-   * @param body The body.
-   * @param offset The offset in its frame, metres.
-   * @returns The world arm, metres.
-   */
-  export function arm(
-    body: AutoMovieXpbdBody,
-    offset: IAutoMovieVector3,
-  ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(body.orientation, offset);
   }
 
   /** Where a body-frame offset was at the start of the step. */

@@ -21,12 +21,6 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { stand } from "./stand";
 
-/** The record of `IStandRelaxedFirst`'s site. */
-type IStandRelaxedFirst = {
-  pose: IAutoMoviePose;
-  still: readonly IAutoMovieMotionHumanColliders.IPlaced[];
-};
-
 /**
  * The relaxed hanging arms of a body, the body's own quiet-stance property
  * (`IAutoMovieMotionHumanBody.relaxed`), solved once by its record.
@@ -268,3 +262,9 @@ function below(
 
 /** A digit's bone. */
 const DIGIT: RegExp = /(Thumb|Index|Middle|Ring|Little)/;
+
+/** The record of `IStandRelaxedFirst`'s site. */
+type IStandRelaxedFirst = {
+  pose: IAutoMoviePose;
+  still: readonly IAutoMovieMotionHumanColliders.IPlaced[];
+};

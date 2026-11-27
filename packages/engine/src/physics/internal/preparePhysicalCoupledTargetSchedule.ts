@@ -11,9 +11,6 @@ import { PHYSICAL_TARGET_LIMITS } from "./PHYSICAL_TARGET_LIMITS";
 import { physicalContactTargetBones } from "./physicalContactTargetBones";
 import { physicalCoupledTargetDependencies } from "./physicalCoupledTargetDependencies";
 
-type Body = IAutoMoviePhysicalSimulationInput.IBody;
-type Target = IAutoMoviePhysicalSimulationInput.ITarget;
-
 /**
  * Admit explicit coupled groups on top of the already admitted individual
  * motion inputs. Returns undefined when no output interval requested a group.
@@ -91,6 +88,9 @@ export function preparePhysicalCoupledTargetSchedule(
       ),
   );
 }
+type Body = IAutoMoviePhysicalSimulationInput.IBody;
+
+type Target = IAutoMoviePhysicalSimulationInput.ITarget;
 
 /** Establish the group's fixed identities and count its movable coordinates. */
 function admitGroup(

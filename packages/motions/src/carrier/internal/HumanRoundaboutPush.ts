@@ -13,19 +13,6 @@ import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanMountRider } from "../../lexicon/internal/HumanMountRider";
 import { readPropGrip } from "./readPropGrip";
 
-type Params = IAutoMovieMotionHumanPlayground.IRoundaboutPushParams;
-type Plan = IAutoMovieMotionHumanActionPlan;
-type Posture = IAutoMovieMotionHumanPosture;
-
-/** An open joint-entry reader of one declared posture record. */
-type JointEntries = Readonly<Record<string, Posture["joints"]["hips"]>>;
-
-/**
- * Seconds over which the hand reaches the bar at the walk's start (provisional
- * staging).
- */
-const REACH: number = 0.4;
-
 /**
  * Run alongside a roundabout pushing one grab bar: the walk on the ground
  * (`walk`) with the named hand closing on the bar as the walk starts and
@@ -100,3 +87,16 @@ export function HumanRoundaboutPush(
     span: { start: 0, ready: reach, relax: path.duration, end: path.duration },
   });
 }
+type Params = IAutoMovieMotionHumanPlayground.IRoundaboutPushParams;
+type Plan = IAutoMovieMotionHumanActionPlan;
+
+type Posture = IAutoMovieMotionHumanPosture;
+
+/** An open joint-entry reader of one declared posture record. */
+type JointEntries = Readonly<Record<string, Posture["joints"]["hips"]>>;
+
+/**
+ * Seconds over which the hand reaches the bar at the walk's start (provisional
+ * staging).
+ */
+const REACH: number = 0.4;

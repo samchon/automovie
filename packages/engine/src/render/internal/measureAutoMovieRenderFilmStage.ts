@@ -9,27 +9,6 @@ import type { AutoMovieEngineRenderMeasureTypes } from "../AutoMovieEngineRender
 
 import { measureAutoMovieFilmResponseTargets } from "./measureAutoMovieFilmResponseTargets";
 
-/** Bytes of one RGBA half-float texel. */
-const HALF: number = 8;
-
-/** Bytes of one RGBA 32-bit float texel. */
-const FLOAT: number = 16;
-
-/**
- * Bytes of one depth texel: three.js's default depth texture and depth
- * renderbuffer hold 24 bits in a 32-bit word.
- */
-const DEPTH: number = 4;
-
-/** Side of one probe cube face in texels, as the probe bake draws it. */
-const PROBE_FACE: number = 32;
-
-/**
- * Scene renders one probe bake makes per probe: six faces of radiance and the
- * same six again with the back-face material.
- */
-const PROBE_RENDERS: number = 12;
-
 /**
  * Measure what a directly rendered film's stage adds to one frame: the GPU
  * targets render's film response, sample sum, indirect and medium stages
@@ -244,3 +223,24 @@ export function measureAutoMovieRenderFilmStage(
       : null,
   };
 }
+
+/** Bytes of one RGBA half-float texel. */
+const HALF: number = 8;
+
+/** Bytes of one RGBA 32-bit float texel. */
+const FLOAT: number = 16;
+
+/**
+ * Bytes of one depth texel: three.js's default depth texture and depth
+ * renderbuffer hold 24 bits in a 32-bit word.
+ */
+const DEPTH: number = 4;
+
+/** Side of one probe cube face in texels, as the probe bake draws it. */
+const PROBE_FACE: number = 32;
+
+/**
+ * Scene renders one probe bake makes per probe: six faces of radiance and the
+ * same six again with the back-face material.
+ */
+const PROBE_RENDERS: number = 12;

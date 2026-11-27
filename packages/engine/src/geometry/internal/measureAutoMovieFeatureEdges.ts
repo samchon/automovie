@@ -7,15 +7,6 @@ import { pointSegmentDistance } from "../../math/internal/pointSegmentDistance";
 import { segmentSegmentDistance } from "../../math/internal/segmentSegmentDistance";
 
 /**
- * Feature edges bend the surface by more than this angle between face normals,
- * 30°.
- */
-const FEATURE_COSINE: number = Math.cos(Math.PI / 6);
-
-/** Most feature edges one triangle keeps. */
-const LIST_LIMIT: number = 16;
-
-/**
  * Find a triangle mesh's convex and concave feature edges and, for each
  * triangle, the ones within reach of it.
  *
@@ -160,6 +151,15 @@ export function measureAutoMovieFeatureEdges(
   );
   return { edges, triangles, reach };
 }
+
+/**
+ * Feature edges bend the surface by more than this angle between face normals,
+ * 30°.
+ */
+const FEATURE_COSINE: number = Math.cos(Math.PI / 6);
+
+/** Most feature edges one triangle keeps. */
+const LIST_LIMIT: number = 16;
 
 /** Exact distance from segment `ab` to a triangle. */
 function segmentTriangleDistance(

@@ -9,9 +9,6 @@ import { StrikingTarget } from "./StrikingTarget";
 import type { defendFootwork } from "./defendFootwork";
 import { defendGoals } from "./defendGoals";
 
-/** The alternatives of `WindowsTiming`'s site. */
-type WindowsTiming = "begin" | "duration";
-
 /**
  * A built defence: what the defender sees at its read second turned into a
  * posture per second.
@@ -441,3 +438,6 @@ export namespace defendGeometry {
     return Vector3.dot(direction, left) > 0 ? -1 : 1;
   }
 }
+
+/** The alternatives of `WindowsTiming`'s site. */
+type WindowsTiming = "begin" | "duration";

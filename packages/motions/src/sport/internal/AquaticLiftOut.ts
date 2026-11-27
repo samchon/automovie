@@ -68,9 +68,6 @@ const HANG: number = 0.3;
 const SQUAT: number = 0.22;
 const BACK: number = 0.06;
 
-/** The victim's hand bone each rescuer hand grips at the wrist. */
-type Wrists = Readonly<Record<AutoMovieHumanSide, AutoMovieHumanoidBone>>;
-
 /**
  * An assisted removal from the water as the American Red Cross Lifeguarding
  * manual describes it: the victim faces the wall with its arms raised, the
@@ -478,3 +475,6 @@ export namespace AquaticLiftOut {
     return degrees - 360 * Math.ceil((degrees - 180) / 360);
   }
 }
+
+/** The victim's hand bone each rescuer hand grips at the wrist. */
+type Wrists = Readonly<Record<AutoMovieHumanSide, AutoMovieHumanoidBone>>;

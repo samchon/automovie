@@ -16,9 +16,6 @@ const PLANT_RESOLUTION: number = 1e-9;
 /** Below this gap between a knee's shank reach and the planted ankle, metres, the leg keeps its thigh. */
 const REACH_ROUNDOFF: number = 1e-9;
 
-/** Segment frames borrowed for one standing transfer. */
-type Poses = Readonly<Record<string, IAutoMovieRigidTransform>>;
-
 /**
  * Planting a standing Human's collider soles at the physics handoff
  * (`AutoMovieHumanPhysicalStandingPose.fit`): the turn that sets a foot's heel and
@@ -138,20 +135,6 @@ export namespace HumanPhysicalSolePlant {
     const discriminant: number =
       offset.y * offset.y - (Vector3.dot(offset, offset) - shank * shank);
     return discriminant < 0 ? Number.NaN : offset.y - Math.sqrt(discriminant);
-  }
-
-  /** A joint's place in the world, read on its child segment. */
-  function anchor(
-    profile: IAutoMovieFitHumanPhysicalStandingPose.IInput["profile"],
-    poses: Poses,
-    child: string,
-  ): IAutoMovieVector3 {
-    return AutoMovieEnginePhysics.physicalSupportPoint(
-      poses[child]!,
-      profile.joints.find(
-        (joint: IAutoMoviePhysicalJoint): boolean => joint.child === child,
-      )!.childFrame.position,
-    );
   }
 
   /**
@@ -296,4 +279,21 @@ export namespace HumanPhysicalSolePlant {
     }
     return result;
   }
+
+  /** A joint's place in the world, read on its child segment. */
+  function anchor(
+    profile: IAutoMovieFitHumanPhysicalStandingPose.IInput["profile"],
+    poses: Poses,
+    child: string,
+  ): IAutoMovieVector3 {
+    return AutoMovieEnginePhysics.physicalSupportPoint(
+      poses[child]!,
+      profile.joints.find(
+        (joint: IAutoMoviePhysicalJoint): boolean => joint.child === child,
+      )!.childFrame.position,
+    );
+  }
 }
+
+/** Segment frames borrowed for one standing transfer. */
+type Poses = Readonly<Record<string, IAutoMovieRigidTransform>>;

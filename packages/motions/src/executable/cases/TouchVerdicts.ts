@@ -6,35 +6,6 @@ import { HumanColliders } from "../../posture/internal/HumanColliders";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import type { humanPolygonMan } from "../internal/humanPolygonMan";
 
-/** The part of a segment its events are read from. */
-interface IEventSegment {
-  /** Its name, for a refusal. */
-  name: IAutoMovieMotionHumanSegment["name"];
-
-  /** Film seconds it starts. */
-  start: IAutoMovieMotionHumanSegment["start"];
-
-  /** Its plan's events and duration. */
-  plan: Pick<IAutoMovieMotionHumanSegment["plan"], "events" | "duration">;
-}
-
-/** A performance's segments, all an event reader reads. */
-interface IEventPerformance {
-  /** A subject's segments in order. */
-  segments(subject: string): readonly IEventSegment[];
-}
-/** The record of `IEntryBest`'s site. */
-type IEntryBest = { gap: number; at: number };
-
-/** The record of `IEntryResult`'s site. */
-type IEntryResult = { gap: number; at: number };
-
-/** The record of `IEntryOther`'s site. */
-type IEntryOther = { subject: string; body: IAutoMovieMotionHumanBody };
-
-/** The record of `IPlaceResult`'s site. */
-type IPlaceResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
-
 /**
  * Measures of a touch on displayed poses, shared by the touch families' capture
  * cases: where an effector is against the region it touches, how far the acting
@@ -371,6 +342,35 @@ export namespace TouchVerdicts {
     return out.sort((a, b) => a.seconds - b.seconds);
   }
 }
+
+/** The part of a segment its events are read from. */
+interface IEventSegment {
+  /** Its name, for a refusal. */
+  name: IAutoMovieMotionHumanSegment["name"];
+
+  /** Film seconds it starts. */
+  start: IAutoMovieMotionHumanSegment["start"];
+
+  /** Its plan's events and duration. */
+  plan: Pick<IAutoMovieMotionHumanSegment["plan"], "events" | "duration">;
+}
+/** A performance's segments, all an event reader reads. */
+interface IEventPerformance {
+  /** A subject's segments in order. */
+  segments(subject: string): readonly IEventSegment[];
+}
+
+/** The record of `IEntryBest`'s site. */
+type IEntryBest = { gap: number; at: number };
+
+/** The record of `IEntryResult`'s site. */
+type IEntryResult = { gap: number; at: number };
+
+/** The record of `IEntryOther`'s site. */
+type IEntryOther = { subject: string; body: IAutoMovieMotionHumanBody };
+
+/** The record of `IPlaceResult`'s site. */
+type IPlaceResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
 
 /**
  * Surface points of a collider shape in its own frame: a hull's vertices, a

@@ -10,21 +10,6 @@ import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
 import type { IBuildPropArticulationProps } from "../IBuildPropArticulationProps.js";
 import { applyTransform } from "./applyTransform.js";
 
-/** One prop joint's rest placement, restored before every frame. */
-interface IJointRest {
-  /** Joint object mutated by playback and restored before the next sample. */
-  object: THREE.Object3D;
-
-  /** Owned clone of the joint's rest-local metre translation. */
-  position: THREE.Vector3;
-
-  /** Owned clone of the rest-local orientation. */
-  quaternion: THREE.Quaternion;
-
-  /** Owned clone of its dimensionless rest-local scale. */
-  scale: THREE.Vector3;
-}
-
 /**
  * Build the moving parts of a shot's props into the scene a host assembled.
  *
@@ -169,3 +154,18 @@ export const buildPropArticulation: (
     },
   };
 };
+
+/** One prop joint's rest placement, restored before every frame. */
+interface IJointRest {
+  /** Joint object mutated by playback and restored before the next sample. */
+  object: THREE.Object3D;
+
+  /** Owned clone of the joint's rest-local metre translation. */
+  position: THREE.Vector3;
+
+  /** Owned clone of the rest-local orientation. */
+  quaternion: THREE.Quaternion;
+
+  /** Owned clone of its dimensionless rest-local scale. */
+  scale: THREE.Vector3;
+}

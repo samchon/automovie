@@ -3,16 +3,6 @@ import type { IAutoMovieMesh } from "@automovie/interface";
 import { TennisMesh } from "./TennisMesh";
 
 /**
- * Representative 45 mm pitch and 3.5 mm twine in metres (Edwards doubles tennis
- * nets).
- */
-const PITCH: number = 0.045;
-const TWINE: number = 0.0035;
-
-/** Visible tape width in metres, inside ITF Rule 1's 50 to 63.5 mm band. */
-const TAPE: number = 0.055;
-
-/**
  * Build a doubles net's open lattice and white binding in its local XY plane.
  * All inputs are metres. `halfSpan` is post-to-centre distance, `centre` and
  * `post` locate the physical cable, and `cordDiameter` and `strapWidth` size
@@ -81,3 +71,13 @@ export function buildTennisNet(
   );
   return { twine: twine.mesh, tape: tape.mesh };
 }
+/**
+ * Representative 45 mm pitch and 3.5 mm twine in metres (Edwards doubles tennis
+ * nets).
+ */
+const PITCH: number = 0.045;
+
+const TWINE: number = 0.0035;
+
+/** Visible tape width in metres, inside ITF Rule 1's 50 to 63.5 mm band. */
+const TAPE: number = 0.055;

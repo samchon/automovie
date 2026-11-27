@@ -5,9 +5,6 @@ import type {
 
 import { conductArc } from "./conductArc";
 
-/** The alternatives of `ConductBeats`'s site. */
-type ConductBeats = "count" | "period" | "at";
-
 /**
  * Prepare the baton tip's path over a conducted phrase: from the figure's top
  * into the first ictus over the lead before the first beat, then from ictus to
@@ -44,3 +41,6 @@ export function conductTip(
     );
   };
 }
+
+/** The alternatives of `ConductBeats`'s site. */
+type ConductBeats = "count" | "period" | "at";

@@ -8,9 +8,6 @@ import type {
 import { Vector3 } from "../../math/Vector3";
 import { autoMovieRayObstructed } from "./autoMovieRayObstructed";
 
-/** Distances this short or shorter put a fitting on the sample point. */
-const EPSILON: number = 1e-12;
-
 /**
  * Sum the point-light illuminance `I * cos / r^2` of every luminaire that faces
  * a workplane point and reaches it without obstruction.
@@ -73,3 +70,6 @@ export function autoMovieArtificialIlluminance(props: {
   }
   return total;
 }
+
+/** Distances this short or shorter put a fitting on the sample point. */
+const EPSILON: number = 1e-12;

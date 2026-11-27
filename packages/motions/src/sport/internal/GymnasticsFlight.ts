@@ -110,26 +110,6 @@ export namespace GymnasticsFlight {
   }
 
   /**
-   * Copy actual canonical clinical values under the original limb-only freeze
-   * policy.
-   */
-  function frozenView(
-    posture: IAutoMovieMotionHumanPosture,
-    pose: IAutoMoviePose,
-  ): IAutoMovieMotionHumanPosture {
-    const joints: IAutoMovieMotionHumanPosture["joints"] = {};
-    for (const joint of pose.joints as readonly IAutoMovieJointPose[])
-      // A joint the pose leaves unset stands at clinical zero, as the
-      // resolver itself reads it.
-      joints[joint.bone] = [
-        joint.flexion ?? 0,
-        joint.abduction ?? 0,
-        joint.twist ?? 0,
-      ];
-    return { ...posture, joints, limbs: {} };
-  }
-
-  /**
    * The centre of mass of a posture.
    *
    * @param body The body.
@@ -413,6 +393,26 @@ export namespace GymnasticsFlight {
       else high = middle;
     }
     return high;
+  }
+
+  /**
+   * Copy actual canonical clinical values under the original limb-only freeze
+   * policy.
+   */
+  function frozenView(
+    posture: IAutoMovieMotionHumanPosture,
+    pose: IAutoMoviePose,
+  ): IAutoMovieMotionHumanPosture {
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {};
+    for (const joint of pose.joints as readonly IAutoMovieJointPose[])
+      // A joint the pose leaves unset stands at clinical zero, as the
+      // resolver itself reads it.
+      joints[joint.bone] = [
+        joint.flexion ?? 0,
+        joint.abduction ?? 0,
+        joint.twist ?? 0,
+      ];
+    return { ...posture, joints, limbs: {} };
   }
 }
 

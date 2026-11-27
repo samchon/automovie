@@ -8,14 +8,6 @@ import type {
   IAutoMovieRecoveryResult,
 } from "@automovie/interface";
 
-/** Scale each coefficient of one four-coefficient span row. */
-function scale4(
-  row: Readonly<[number, number, number, number]>,
-  factor: number,
-): [number, number, number, number] {
-  return [row[0] * factor, row[1] * factor, row[2] * factor, row[3] * factor];
-}
-
 /**
  * Generate an ordinary AutoMovie bicubic model and its actual construction from
  * saved section coefficients alone. Positive axis scales preserve the other two
@@ -185,4 +177,12 @@ export function compileAutoMovieRecoveryImageLoft(
       ],
     };
   }
+}
+
+/** Scale each coefficient of one four-coefficient span row. */
+function scale4(
+  row: Readonly<[number, number, number, number]>,
+  factor: number,
+): [number, number, number, number] {
+  return [row[0] * factor, row[1] * factor, row[2] * factor, row[3] * factor];
 }

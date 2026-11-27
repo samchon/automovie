@@ -65,24 +65,6 @@ export namespace HumanPropFlightFrame {
       : HumanPropFrame.compose(carrier, contact.offset);
   }
 
-  /** Convert a projectile's centre back to the displayed prop origin. */
-  function originFrame(
-    sphere: IAutoMovieMotionPropLaunch["sphere"],
-    position: IAutoMovieVector3,
-    rotation: IAutoMovieQuaternion,
-  ): IAutoMovieRigidTransform {
-    return {
-      position:
-        sphere === undefined
-          ? position
-          : Vector3.subtract(
-              position,
-              Quaternion.rotateVector(rotation, sphere.centre),
-            ),
-      rotation,
-    };
-  }
-
   /**
    * Place the contact on the film clock and express the displayed rest relative
    * to what it struck.
@@ -120,6 +102,24 @@ export namespace HumanPropFlightFrame {
       outcome:
         HumanPropOutcome.decide(prop, meeting.struck, sphere?.radius)?.kind ??
         "stick",
+    };
+  }
+
+  /** Convert a projectile's centre back to the displayed prop origin. */
+  function originFrame(
+    sphere: IAutoMovieMotionPropLaunch["sphere"],
+    position: IAutoMovieVector3,
+    rotation: IAutoMovieQuaternion,
+  ): IAutoMovieRigidTransform {
+    return {
+      position:
+        sphere === undefined
+          ? position
+          : Vector3.subtract(
+              position,
+              Quaternion.rotateVector(rotation, sphere.centre),
+            ),
+      rotation,
     };
   }
 

@@ -4,47 +4,8 @@ import { AutoMovieArchetypeUnits, AutoMovieArchetypeDrawSession, type IAutoMovie
 
 /** Public operations for Auto Movie Archetype Golf Club. */
 export namespace AutoMovieArchetypeGolfClub {
-  /**
-   * A golf club: a driver, an iron or a putter.
-   *
-   * It stands on its head's sole at the origin, the shaft straight up along `+Y`
-   * to the grip's end, the head's toe toward `+X` and its face toward `+Z`.
-   * `grip` is the grip both hands close on; `face` the striking face, its `+Y`
-   * out of it; `head` the head's centre, its `+Y` running out of the club down
-   * the shaft's line: a swing carries `head` through the ball as its working
-   * point (`tip`) with `face` leading as its edge (`edge`).
-   *
-   * @param params The kind and any dimension the author fixes.
-   * @param seed The seed that draws every dimension left free inside its band;
-   *   absent, each takes the middle of its band.
-   * @returns The club.
-   * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
-   */
-  export function create(params: AutoMovieArchetypeGolfClub.IParams, seed?: number): AutoMovieArchetype<AutoMovieArchetypeGolfClub.Affordance, AutoMovieArchetypeGolfClub.Dimension> {
-    return createGolfClubImplementation(params, seed);
-  }
-
   /** The kinds: a driver, a mid iron (a 7-iron) and a putter. */
   export type Kind = "driver" | "iron" | "putter";
-
-  /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["driver", "iron", "putter"];
-
-  /**
-   * The head's height from the sole to the crown, metres, by kind: estimates
-   * under the rules' 2.8 in for a wood.
-   */
-  export const HEAD_HEIGHT: Readonly<Record<Kind, number>> = {
-    driver: 0.06,
-    iron: 0.05,
-    putter: 0.03,
-  };
-
-  /** The shaft's diameter, metres: an estimate. */
-  export const SHAFT: number = 0.013;
-
-  /** The grip's length, metres: a common 10.5 in grip, an estimate. */
-  export const GRIP_LENGTH: number = 10.5 * AutoMovieArchetypeUnits.INCH;
 
   /**
    * The affordance ids:
@@ -71,17 +32,6 @@ export namespace AutoMovieArchetypeGolfClub {
     | "gripDiameter"
     | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<
-    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
-  > = {
-    length: "m",
-    headWidth: "m",
-    headDepth: "m",
-    gripDiameter: "m",
-    mass: "kg",
-  };
-
   /**
    * The parameters: the kind, and any free dimension fixed to a value inside
    * its band.
@@ -93,6 +43,56 @@ export namespace AutoMovieArchetypeGolfClub {
     /** The model's id, unique in a scene; `golfClub` when absent. */
     id?: string;
   }
+
+  /**
+   * A golf club: a driver, an iron or a putter.
+   *
+   * It stands on its head's sole at the origin, the shaft straight up along `+Y`
+   * to the grip's end, the head's toe toward `+X` and its face toward `+Z`.
+   * `grip` is the grip both hands close on; `face` the striking face, its `+Y`
+   * out of it; `head` the head's centre, its `+Y` running out of the club down
+   * the shaft's line: a swing carries `head` through the ball as its working
+   * point (`tip`) with `face` leading as its edge (`edge`).
+   *
+   * @param params The kind and any dimension the author fixes.
+   * @param seed The seed that draws every dimension left free inside its band;
+   *   absent, each takes the middle of its band.
+   * @returns The club.
+   * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+   */
+  export function create(params: AutoMovieArchetypeGolfClub.IParams, seed?: number): AutoMovieArchetype<AutoMovieArchetypeGolfClub.Affordance, AutoMovieArchetypeGolfClub.Dimension> {
+    return createGolfClubImplementation(params, seed);
+  }
+
+  /** Every kind, for a caller that reads one at run time. */
+  export const KINDS: readonly Kind[] = ["driver", "iron", "putter"];
+
+  /**
+   * The head's height from the sole to the crown, metres, by kind: estimates
+   * under the rules' 2.8 in for a wood.
+   */
+  export const HEAD_HEIGHT: Readonly<Record<Kind, number>> = {
+    driver: 0.06,
+    iron: 0.05,
+    putter: 0.03,
+  };
+
+  /** The shaft's diameter, metres: an estimate. */
+  export const SHAFT: number = 0.013;
+
+  /** The grip's length, metres: a common 10.5 in grip, an estimate. */
+  export const GRIP_LENGTH: number = 10.5 * AutoMovieArchetypeUnits.INCH;
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
+    length: "m",
+    headWidth: "m",
+    headDepth: "m",
+    gripDiameter: "m",
+    mass: "kg",
+  };
 
   /** A band in metres. */
   const m = (

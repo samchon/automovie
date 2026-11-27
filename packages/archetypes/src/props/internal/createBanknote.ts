@@ -9,18 +9,6 @@ import {
 import { TabletopStack } from "./TabletopStack";
 
 /**
- * A United States banknote: "6.14 length × 2.61 width × 0.0043 in thickness =
- * 156 × 66.3 × 0.11 mm" and "Approx. 1 g" (English Wikipedia, United States
- * one-dollar bill, read 2026-11-21).
- */
-const NOTE: Readonly<AutoMovieArchetypeBanknote.INote> = {
-  length: 0.156,
-  width: 0.0663,
-  thickness: 0.00011,
-  mass: 0.001,
-};
-
-/**
  * One banknote lying flat.
  *
  * The note lies in the `XZ` plane, its long side along `X`, its origin the
@@ -62,3 +50,15 @@ export function createBanknote(
   TabletopStack.contacts(builder, NOTE.thickness, NOTE.thickness);
   return builder.build(NOTE.mass);
 }
+
+/**
+ * A United States banknote: "6.14 length × 2.61 width × 0.0043 in thickness =
+ * 156 × 66.3 × 0.11 mm" and "Approx. 1 g" (English Wikipedia, United States
+ * one-dollar bill, read 2026-11-21).
+ */
+const NOTE: Readonly<AutoMovieArchetypeBanknote.INote> = {
+  length: 0.156,
+  width: 0.0663,
+  thickness: 0.00011,
+  mass: 0.001,
+};

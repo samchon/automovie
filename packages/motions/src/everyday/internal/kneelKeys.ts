@@ -15,9 +15,6 @@ import { hipJoints } from "../../posture/internal/hipJoints";
 import { kneelPlace } from "./kneelPlace";
 import { kneelTrailingFoot } from "./kneelTrailingFoot";
 
-/** The alternatives of `SolveKind`'s site. */
-type SolveKind = "one" | "both" | "sitBack";
-
 /**
  * The key states of a kneel, solved from the body: standing, the kneeling leg
  * stepped back, on one knee, on both knees and sitting back on the heels.
@@ -38,42 +35,6 @@ type SolveKind = "one" | "both" | "sitBack";
  * J Orthop Res 24:770).
  */
 export namespace kneelKeys {
-  /**
-   * Knee flexion sitting back on the heels, degrees (Acker et al. 2011; inside
-   * the range table's 150).
-   */
-  export const SIT: number = 145;
-
-  /**
-   * How far a toe joint may move between keys and still stand, metres: a
-   * staying foot differs by round-off, a step by centimetres.
-   */
-  const STILL: number = 1e-4;
-
-  /**
-   * Whether a foot keeps its floor point from one key to the next.
-   *
-   * @param from The foot in the first key.
-   * @param to The foot in the second key.
-   * @returns Whether the toe joint stays within `STILL` of its place.
-   */
-  export function still(from: IFoot, to: IFoot): boolean {
-    return Vector3.length(Vector3.subtract(from.at, to.at)) <= STILL;
-  }
-
-  /**
-   * A range-table limit the kneel needs, signed degrees; throws when the table
-   * has none.
-   */
-  function required(
-    bone: Parameters<typeof AutoMovieMotionHumanRange.limit>[0],
-    motion: Parameters<typeof AutoMovieMotionHumanRange.limit>[1],
-  ): number {
-    const end: number | null = AutoMovieMotionHumanRange.limit(bone, motion);
-    if (end === null) throw new Error(`${bone} has no ${motion} limit`);
-    return end;
-  }
-
   /** A foot's place on the floor. */
   export interface IFoot {
     /** The toes' joint, world metres. */
@@ -126,6 +87,42 @@ export namespace kneelKeys {
      * and the shank.
      */
     extension: number;
+  }
+
+  /**
+   * Knee flexion sitting back on the heels, degrees (Acker et al. 2011; inside
+   * the range table's 150).
+   */
+  export const SIT: number = 145;
+
+  /**
+   * How far a toe joint may move between keys and still stand, metres: a
+   * staying foot differs by round-off, a step by centimetres.
+   */
+  const STILL: number = 1e-4;
+
+  /**
+   * Whether a foot keeps its floor point from one key to the next.
+   *
+   * @param from The foot in the first key.
+   * @param to The foot in the second key.
+   * @returns Whether the toe joint stays within `STILL` of its place.
+   */
+  export function still(from: IFoot, to: IFoot): boolean {
+    return Vector3.length(Vector3.subtract(from.at, to.at)) <= STILL;
+  }
+
+  /**
+   * A range-table limit the kneel needs, signed degrees; throws when the table
+   * has none.
+   */
+  function required(
+    bone: Parameters<typeof AutoMovieMotionHumanRange.limit>[0],
+    motion: Parameters<typeof AutoMovieMotionHumanRange.limit>[1],
+  ): number {
+    const end: number | null = AutoMovieMotionHumanRange.limit(bone, motion);
+    if (end === null) throw new Error(`${bone} has no ${motion} limit`);
+    return end;
   }
 
   /**
@@ -484,3 +481,6 @@ export namespace kneelKeys {
     };
   }
 }
+
+/** The alternatives of `SolveKind`'s site. */
+type SolveKind = "one" | "both" | "sitBack";

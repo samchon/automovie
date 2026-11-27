@@ -59,24 +59,6 @@ const UNITS: Readonly<Record<string, string>> = {
   partner: "m",
   timing: "faults",
 };
-/** The alternatives of `Packet2`'s site. */
-type Packet2 = "findings" | "coverage";
-
-/** What a finding of the shared type holds before and after the collapse. */
-type Packet = Pick<IAutoMovieInspectionDiagnostics, Packet2>;
-
-/** The readings of one bound of one performer or pair, collapsed to one. */
-interface IGroup {
-  /** The paths the finding names. */
-  paths: readonly string[];
-
-  /** The worst reading, or the first of the faults' reading for `timing`. */
-  worst: IAutoMovieMotionHumanVerdicts.IFinding;
-
-  /** The faults of a `timing` bound; empty for every other. */
-  faults: string[];
-}
-
 /**
  * Map a verdict report to shared findings and coverage.
  *
@@ -278,3 +260,21 @@ const pathOf = (
     throw new Error(`The film gives no entity path for performer ${subject}.`);
   return path;
 };
+
+/** The alternatives of `Packet2`'s site. */
+type Packet2 = "findings" | "coverage";
+
+/** What a finding of the shared type holds before and after the collapse. */
+type Packet = Pick<IAutoMovieInspectionDiagnostics, Packet2>;
+
+/** The readings of one bound of one performer or pair, collapsed to one. */
+interface IGroup {
+  /** The paths the finding names. */
+  paths: readonly string[];
+
+  /** The worst reading, or the first of the faults' reading for `timing`. */
+  worst: IAutoMovieMotionHumanVerdicts.IFinding;
+
+  /** The faults of a `timing` bound; empty for every other. */
+  faults: string[];
+}

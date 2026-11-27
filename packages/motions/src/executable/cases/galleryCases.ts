@@ -11,15 +11,6 @@ import { MotionBodies } from "../internal/MotionBodies";
 import { galleryCaseFist } from "./internal/galleryCaseFist";
 import { galleryCaseZero } from "./internal/galleryCaseZero";
 
-/** The record of `IGalleryCasesGalleryP`'s site. */
-type IGalleryCasesGalleryP = { label: string };
-
-/** The record of `IGalleryCasesPosesItem`'s site. */
-type IGalleryCasesPosesItem = {
-  label: string;
-  joints: Partial<Record<AutoMovieHumanoidBone, [number, number, number]>>;
-};
-
 /**
  * Inspection cases of the polygon man itself: `gallery` shows one body in
  * single-joint clinical poses (each instant one pose), and `bodies` stands the
@@ -116,6 +107,15 @@ export function galleryCases(): IMotionCaptureCase[] {
   };
   return [gallery, bodies];
 }
+
+/** The record of `IGalleryCasesGalleryP`'s site. */
+type IGalleryCasesGalleryP = { label: string };
+
+/** The record of `IGalleryCasesPosesItem`'s site. */
+type IGalleryCasesPosesItem = {
+  label: string;
+  joints: Partial<Record<AutoMovieHumanoidBone, [number, number, number]>>;
+};
 
 /** The record of `IJointResult`'s site. */
 type IJointResult = { x: number; y: number; z: number };

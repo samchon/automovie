@@ -4,9 +4,6 @@ import { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 import { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPreparation";
 import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace";
 
-/** The record of `IHumanQuadraticSolveResidual`'s site. */
-type IHumanQuadraticSolveResidual = { primal: number; dual: number };
-
 /**
  * Run the existing OSQP iteration on admitted, equilibrated numeric data.
  * Public one-shot solves and fixed-matrix models share this numeric owner.
@@ -301,6 +298,9 @@ export function HumanQuadraticSolve(
   }
   return out;
 }
+
+/** The record of `IHumanQuadraticSolveResidual`'s site. */
+type IHumanQuadraticSolveResidual = { primal: number; dual: number };
 
 /** The step size the solve starts from (OSQP's default). */
 const RHO0: number = 0.1;

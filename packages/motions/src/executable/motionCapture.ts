@@ -19,38 +19,6 @@ import { buildMotionCaptureCases } from "./internal/buildMotionCaptureCases";
 import { MOTION_CAPTURE_CASES } from "./cases/MOTION_CAPTURE_CASES";
 import { planMotionCaptureProps } from "./internal/planMotionCaptureProps";
 
-/** The motions package, whose `media/capture/<case>/` holds each case's capture. */
-const ROOT: string = path.join(__dirname, "..", "..");
-
-/** The subject module the draw page is built from. */
-const MODULE: string = "src/executable/subjects.ts";
-
-/**
- * The harness's default views by its own names, as view texts of the shared
- * grammar: orthographic, fitted to everything a case draws over all its
- * instants, so lengths read true to scale and every cell of a view shares one
- * camera.
- */
-const VIEWS: Readonly<Record<string, string>> = {
-  front: "front@ortho",
-  side: "right@ortho",
-  top: "top@ortho",
-  threeQuarter: "three-quarter@ortho",
-};
-/** The record of `IRASTER`'s site. */
-type IRASTER = { width: number; height: number };
-
-/**
- * Pixels on each side of every still: square, so the four views share one cell
- * shape.
- */
-const RASTER: IRASTER = { width: 720, height: 720 };
-/** The record of `IMotionCaptureRecord`'s site. */
-type IMotionCaptureRecord = { state: "complete" };
-
-/** The record of `IMotionCaptureRequestInstant`'s site. */
-type IMotionCaptureRequestInstant = { seconds: number };
-
 /**
  * Draw motion cases through the shared capture host and report their verdicts.
  *
@@ -221,6 +189,38 @@ export async function motionCapture(): Promise<void> {
   }
   if (failed !== 0) process.exitCode = 1;
 }
+
+/** The motions package, whose `media/capture/<case>/` holds each case's capture. */
+const ROOT: string = path.join(__dirname, "..", "..");
+
+/** The subject module the draw page is built from. */
+const MODULE: string = "src/executable/subjects.ts";
+/**
+ * The harness's default views by its own names, as view texts of the shared
+ * grammar: orthographic, fitted to everything a case draws over all its
+ * instants, so lengths read true to scale and every cell of a view shares one
+ * camera.
+ */
+const VIEWS: Readonly<Record<string, string>> = {
+  front: "front@ortho",
+  side: "right@ortho",
+  top: "top@ortho",
+  threeQuarter: "three-quarter@ortho",
+};
+
+/** The record of `IRASTER`'s site. */
+type IRASTER = { width: number; height: number };
+/**
+ * Pixels on each side of every still: square, so the four views share one cell
+ * shape.
+ */
+const RASTER: IRASTER = { width: 720, height: 720 };
+
+/** The record of `IMotionCaptureRecord`'s site. */
+type IMotionCaptureRecord = { state: "complete" };
+
+/** The record of `IMotionCaptureRequestInstant`'s site. */
+type IMotionCaptureRequestInstant = { seconds: number };
 
 /** Print one case's verdicts; returns the number that failed. */
 function report(capture: IMotionCaptureCase): number {

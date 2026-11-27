@@ -9,9 +9,6 @@ import {
 
 import { createAutoMovieMeshWindingQuery } from "../../geometry/internal/createAutoMovieMeshWindingQuery";
 
-/** Slack, in the plane's own scale, within which a point counts as on it. */
-const CONTAINMENT_EPSILON: number = 1e-9;
-
 /**
  * Does one logical space's own stated volume contain a point?
  *
@@ -48,6 +45,9 @@ export function builtSpaceContainsPoint(
     ),
   );
 }
+
+/** Slack, in the plane's own scale, within which a point counts as on it. */
+const CONTAINMENT_EPSILON: number = 1e-9;
 
 /**
  * Is a point inside or on a closed shell?

@@ -4,26 +4,6 @@ import type { AutoMovieViewerInspector } from "../AutoMovieViewerInspector.js";
 import type { AutoMovieInspectorPlayhead } from "../AutoMovieInspectorPlayhead.js";
 
 /**
- * The elements that take a key themselves: fields, buttons, disclosure
- * summaries, links, editable text and the widgets that answer Space or arrows
- * by their role.
- */
-const INTERACTIVE: string = [
-  "input",
-  "select",
-  "textarea",
-  "button",
-  "summary",
-  "a[href]",
-  '[contenteditable]:not([contenteditable="false"])',
-  "[role=button]",
-  "[role=tab]",
-  "[role=checkbox]",
-  "[role=slider]",
-  "[role=switch]",
-].join(", ");
-
-/**
  * The inspector's playback keys, as a video player's: Space and K play or
  * pause, J and L seek one second back and forward, comma and full stop step one
  * frame back and forward with playback paused, Home and End go to the first and
@@ -109,3 +89,23 @@ export function handleAutoMovieInspectorKey(
     ? { handled: false, seconds: null }
     : { handled: true, seconds: move() };
 }
+
+/**
+ * The elements that take a key themselves: fields, buttons, disclosure
+ * summaries, links, editable text and the widgets that answer Space or arrows
+ * by their role.
+ */
+const INTERACTIVE: string = [
+  "input",
+  "select",
+  "textarea",
+  "button",
+  "summary",
+  "a[href]",
+  '[contenteditable]:not([contenteditable="false"])',
+  "[role=button]",
+  "[role=tab]",
+  "[role=checkbox]",
+  "[role=slider]",
+  "[role=switch]",
+].join(", ");

@@ -13,49 +13,6 @@ import type { IAutoMoviePlacedObligation } from "../IAutoMoviePlacedObligation.j
 import { inspectAutoMovieNativePlacement } from "./inspectAutoMovieNativePlacement.js";
 import { measureAutoMoviePlacedObligation } from "./measureAutoMoviePlacedObligation.js";
 
-type IReport = IObserveAutoMoviePlacedSceneResult;
-type IFinding = IAutoMovieInspectionDiagnostics.IFinding;
-type ICoverage = IAutoMovieInspectionDiagnostics.ICoverage;
-type IWitness = IAutoMovieInspectionDiagnostics.IWitness;
-type IMeasurement = IAutoMovieInspectionDiagnostics.IMeasurement;
-type ITime = IAutoMovieInspectionDiagnostics.ITime;
-type IInput = IObserveAutoMoviePlacedSceneCheck["input"];
-type IIdentity = {
-  readonly check: string;
-  readonly key: string;
-  readonly required: boolean;
-};
-
-/** Check name of the native placement and physical frame findings. */
-const NATIVE_CHECK: string = "placed-transform";
-
-/** Check name of a rule's received contact evidence. */
-const RECEIVED_CHECK: string = "received-contact";
-
-/** Check name of each obligation kind. */
-const CHECK_NAMES: Readonly<Record<IInput["kind"], string>> = {
-  support: "support",
-  "scene-support": "support",
-  grip: "grip",
-  "scene-grip": "grip",
-  step: "transform-continuity",
-  custody: "custody",
-  transform: "authored-transform",
-  track: "authored-track",
-};
-
-/**
- * Source checks reported as optional and unsupported when no rule supplies
- * them.
- */
-const SOURCE_CHECKS: readonly string[] = [
-  "support",
-  "grip",
-  "transform-continuity",
-  "custody",
-  "authored-track",
-];
-
 /**
  * Audit the actual visible native placement and any independent source rules.
  * Default coverage reads active native transforms and the available physical
@@ -153,6 +110,49 @@ export function observeAutoMoviePlacedSceneImplementation(
       });
   return { findings, coverage };
 }
+type IReport = IObserveAutoMoviePlacedSceneResult;
+type IFinding = IAutoMovieInspectionDiagnostics.IFinding;
+type ICoverage = IAutoMovieInspectionDiagnostics.ICoverage;
+type IWitness = IAutoMovieInspectionDiagnostics.IWitness;
+type IMeasurement = IAutoMovieInspectionDiagnostics.IMeasurement;
+type ITime = IAutoMovieInspectionDiagnostics.ITime;
+type IInput = IObserveAutoMoviePlacedSceneCheck["input"];
+
+type IIdentity = {
+  readonly check: string;
+  readonly key: string;
+  readonly required: boolean;
+};
+
+/** Check name of the native placement and physical frame findings. */
+const NATIVE_CHECK: string = "placed-transform";
+
+/** Check name of a rule's received contact evidence. */
+const RECEIVED_CHECK: string = "received-contact";
+
+/** Check name of each obligation kind. */
+const CHECK_NAMES: Readonly<Record<IInput["kind"], string>> = {
+  support: "support",
+  "scene-support": "support",
+  grip: "grip",
+  "scene-grip": "grip",
+  step: "transform-continuity",
+  custody: "custody",
+  transform: "authored-transform",
+  track: "authored-track",
+};
+
+/**
+ * Source checks reported as optional and unsupported when no rule supplies
+ * them.
+ */
+const SOURCE_CHECKS: readonly string[] = [
+  "support",
+  "grip",
+  "transform-continuity",
+  "custody",
+  "authored-track",
+];
 
 /**
  * The optional coverage row of a rule's received contact evidence at this

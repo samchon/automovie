@@ -16,15 +16,6 @@ import type { prepareSkeletonPoseResolution } from "../../kinematics/internal/pr
 import { Quaternion } from "../../math/Quaternion";
 
 /**
- * Source end articulation and clinical mappings corresponding to completed FK
- * frames.
- */
-type IProps = Pick<
-  IAutoMovieFitChainToTargetProps,
-  "skeleton" | "pose" | "chain" | "jointAxes" | "restFrames"
->;
-
-/**
  * Recover the fixed mid-to-effector rotation of a supported descendant chain
  * from two already resolved frames. An unsupported chain keeps the legacy
  * effector-own rest rotation, or identity when its bone is missing. The
@@ -172,3 +163,12 @@ export namespace resolveChainEffectorBaseRotation {
     return false;
   }
 }
+
+/**
+ * Source end articulation and clinical mappings corresponding to completed FK
+ * frames.
+ */
+type IProps = Pick<
+  IAutoMovieFitChainToTargetProps,
+  "skeleton" | "pose" | "chain" | "jointAxes" | "restFrames"
+>;

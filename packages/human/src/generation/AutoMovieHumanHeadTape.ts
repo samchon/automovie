@@ -96,106 +96,6 @@ export namespace AutoMovieHumanHeadTape {
   }
 
   /**
-   * One scalar closure of the family against the public tape.
-   *
-   * The family's course length increases with the cranial power over the
-   * retained 1.6..6 range, so the residual `length - tape` changes sign across
-   * it. Its root is found by the engine's Illinois regula falsi
-   * (`AutoMovieIllinois`; Dowell and Jarratt, BIT 11, 1971), which keeps the
-   * sign bracket like the former safeguarded secant but replaces its forced
-   * bisection on every fourth step by the Illinois halving of a stagnant end,
-   * converging superlinearly at this simple root. Each residual is one member
-   * with its course maximum; members are memoised by power, and the previous
-   * best member's posterior coordinate seeds the next maximum. The final member
-   * is re-maximized by the complete search, and the result is published only
-   * when that certified length meets the unchanged 1e-8 mm allowance; otherwise
-   * null tells the caller to repeat with `complete`.
-   */
-  function solve(
-    plan: IAutoMovieHumanHeadLayout,
-    factory: (power: number) => IAutoMovieHumanHeadTape.Member,
-    attachments: readonly IAutoMovieHumanHeadTape.P2[],
-    allowance: number,
-    mode: IAutoMovieHumanHeadTapeBrow.Mode,
-  ): IAutoMovieHumanHeadTape.IResult | null {
-    const trials: Map<number, Trial> = new Map();
-    let best: Trial | null = null;
-    function trial(power: number): Trial {
-      const previous: Trial | undefined = trials.get(power);
-      if (previous !== undefined) return previous;
-      const member: IAutoMovieHumanHeadTape.Member = factory(power);
-      const reader: IAutoMovieHumanHeadTapeSource.IReader =
-        AutoMovieHumanHeadTapeSource.of(member.part);
-      const current: Trial = {
-        ...member,
-        power,
-        course: AutoMovieHumanHeadTapeBrow.maximum(
-          reader,
-          member.plan.menton,
-          member.plan.landmarks.glabella[1],
-          attachments,
-          best?.course.coordinates,
-          best === null ? "complete" : mode,
-        ),
-      };
-      trials.set(power, current);
-      if (
-        best === null ||
-        Math.abs(current.course.lengthMm - plan.tape) <
-          Math.abs(best.course.lengthMm - plan.tape)
-      )
-        best = current;
-      return current;
-    }
-    const low: Trial = trial(1.6);
-    const high: Trial = trial(6);
-    if (
-      !(
-        (low.course.lengthMm - plan.tape) *
-          (high.course.lengthMm - plan.tape) <=
-        0
-      )
-    )
-      throw new Error(
-        `Public head tape has no retained-family bracket: target=${plan.tape}, source lengths=${low.course.lengthMm},${high.course.lengthMm}`,
-      );
-    AutoMovieIllinois.root(
-      (power: number): number => trial(power).course.lengthMm - plan.tape,
-      1.6,
-      6,
-      allowance,
-      40,
-    );
-    const selected: Trial = (best as Trial | null) ?? low;
-    if (Math.abs(selected.course.lengthMm - plan.tape) > allowance)
-      throw new Error(
-        `Actual head tape scalar solve is unresolved: ${selected.course.lengthMm} versus ${plan.tape}`,
-      );
-
-    // The published course is the complete search's maximum on the selected
-    // member, whatever search tracked it during the closure.
-    const certified: IAutoMovieHumanHeadTape.ICourse =
-      mode === "complete"
-        ? selected.course
-        : AutoMovieHumanHeadTapeBrow.maximum(
-            AutoMovieHumanHeadTapeSource.of(selected.part),
-            selected.plan.menton,
-            selected.plan.landmarks.glabella[1],
-            attachments,
-            selected.course.coordinates,
-            "complete",
-          );
-    if (Math.abs(certified.lengthMm - plan.tape) > allowance) return null;
-    return {
-      plan: selected.plan,
-      part: selected.part,
-      power: selected.power,
-      course: certified,
-      targetMm: plan.tape,
-    };
-  }
-
-  /**
    * Numerically maximize regular front-higher/no-side-tilt cranial courses.
    *
    * @evidence contracts/common.md#principled-implementation Actual plane anchors range above glabella and within the retained cranial region; both ear attachment inequalities are checked in world sagittal coordinates before original-source integration.
@@ -436,6 +336,106 @@ export namespace AutoMovieHumanHeadTape {
         );
       return { ...selected, resolution: step, evaluations, unavailable };
     }
+  }
+
+  /**
+   * One scalar closure of the family against the public tape.
+   *
+   * The family's course length increases with the cranial power over the
+   * retained 1.6..6 range, so the residual `length - tape` changes sign across
+   * it. Its root is found by the engine's Illinois regula falsi
+   * (`AutoMovieIllinois`; Dowell and Jarratt, BIT 11, 1971), which keeps the
+   * sign bracket like the former safeguarded secant but replaces its forced
+   * bisection on every fourth step by the Illinois halving of a stagnant end,
+   * converging superlinearly at this simple root. Each residual is one member
+   * with its course maximum; members are memoised by power, and the previous
+   * best member's posterior coordinate seeds the next maximum. The final member
+   * is re-maximized by the complete search, and the result is published only
+   * when that certified length meets the unchanged 1e-8 mm allowance; otherwise
+   * null tells the caller to repeat with `complete`.
+   */
+  function solve(
+    plan: IAutoMovieHumanHeadLayout,
+    factory: (power: number) => IAutoMovieHumanHeadTape.Member,
+    attachments: readonly IAutoMovieHumanHeadTape.P2[],
+    allowance: number,
+    mode: IAutoMovieHumanHeadTapeBrow.Mode,
+  ): IAutoMovieHumanHeadTape.IResult | null {
+    const trials: Map<number, Trial> = new Map();
+    let best: Trial | null = null;
+    function trial(power: number): Trial {
+      const previous: Trial | undefined = trials.get(power);
+      if (previous !== undefined) return previous;
+      const member: IAutoMovieHumanHeadTape.Member = factory(power);
+      const reader: IAutoMovieHumanHeadTapeSource.IReader =
+        AutoMovieHumanHeadTapeSource.of(member.part);
+      const current: Trial = {
+        ...member,
+        power,
+        course: AutoMovieHumanHeadTapeBrow.maximum(
+          reader,
+          member.plan.menton,
+          member.plan.landmarks.glabella[1],
+          attachments,
+          best?.course.coordinates,
+          best === null ? "complete" : mode,
+        ),
+      };
+      trials.set(power, current);
+      if (
+        best === null ||
+        Math.abs(current.course.lengthMm - plan.tape) <
+          Math.abs(best.course.lengthMm - plan.tape)
+      )
+        best = current;
+      return current;
+    }
+    const low: Trial = trial(1.6);
+    const high: Trial = trial(6);
+    if (
+      !(
+        (low.course.lengthMm - plan.tape) *
+          (high.course.lengthMm - plan.tape) <=
+        0
+      )
+    )
+      throw new Error(
+        `Public head tape has no retained-family bracket: target=${plan.tape}, source lengths=${low.course.lengthMm},${high.course.lengthMm}`,
+      );
+    AutoMovieIllinois.root(
+      (power: number): number => trial(power).course.lengthMm - plan.tape,
+      1.6,
+      6,
+      allowance,
+      40,
+    );
+    const selected: Trial = (best as Trial | null) ?? low;
+    if (Math.abs(selected.course.lengthMm - plan.tape) > allowance)
+      throw new Error(
+        `Actual head tape scalar solve is unresolved: ${selected.course.lengthMm} versus ${plan.tape}`,
+      );
+
+    // The published course is the complete search's maximum on the selected
+    // member, whatever search tracked it during the closure.
+    const certified: IAutoMovieHumanHeadTape.ICourse =
+      mode === "complete"
+        ? selected.course
+        : AutoMovieHumanHeadTapeBrow.maximum(
+            AutoMovieHumanHeadTapeSource.of(selected.part),
+            selected.plan.menton,
+            selected.plan.landmarks.glabella[1],
+            attachments,
+            selected.course.coordinates,
+            "complete",
+          );
+    if (Math.abs(certified.lengthMm - plan.tape) > allowance) return null;
+    return {
+      plan: selected.plan,
+      part: selected.part,
+      power: selected.power,
+      course: certified,
+      targetMm: plan.tape,
+    };
   }
 }
 

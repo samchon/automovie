@@ -25,62 +25,6 @@ import { AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS } from "../AUTOMOVIE_QUANTITY_MAX_C
 import { AUTOMOVIE_QUANTITY_SUBJECTS } from "../AUTOMOVIE_QUANTITY_SUBJECTS";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 
-/** The unit each subject is measured in; the mapped type covers every subject. */
-const UNITS: { [subject in AutoMovieQuantitySubject]: AutoMovieQuantityUnit } =
-  {
-    "space-floor-area": "m2",
-    "space-volume": "m3",
-    "opening-area": "m2",
-    "connector-length": "m",
-    "element-count": "count",
-    "opening-count": "count",
-    "model-occurrence-count": "count",
-  };
-
-/** Statements every report carries about take-offs it never performs. */
-const FIXED_GAPS: readonly IAutoMovieDrawingGap[] = [
-  {
-    subject: "material-quantity",
-    status: "unsupported",
-    reason:
-      "a material assembly is a separate record from the built environment and this measurement is handed only the environment, so no layer thickness or application area is in reach and no volume or mass of any material can be taken off",
-    remedy:
-      "extend the measurement to accept the work's material assemblies; a surface material alone cannot produce a take-off",
-  },
-  {
-    subject: "pattern-cut-waste",
-    status: "unsupported",
-    reason:
-      "cut waste is a property of a module layout over a bounded area, and a surface pattern is a separate record this measurement is not handed",
-    remedy:
-      "extend the measurement to accept the work's surface patterns, then count the offcuts each bounded area produces",
-  },
-  {
-    subject: "opening-deduction",
-    status: "unsupported",
-    reason:
-      "an opening's own area is measured, but nothing deducts it from the boundary or finish it is cut through, because no boundary or finish area is measured yet",
-    remedy:
-      "measure boundary and finish areas, then subtract the openings each one hosts",
-  },
-  {
-    subject: "developed-surface-area",
-    status: "unsupported",
-    reason:
-      "floor areas are plan footprint areas; the developed area of a sloped, ramped or relief patch is larger and was not computed",
-    remedy:
-      "integrate the surface's own height rule over its footprint once a developed-area measure exists",
-  },
-  {
-    subject: "surface-identity",
-    status: "unsupported",
-    reason:
-      "a support patch is attributed to its logical space, not to itself: the design binds a surface to a space without a work-unique id for the binding, so two patches of one space cannot be told apart in a take-off",
-    remedy:
-      "give the space-to-surface binding its own stable id, then attribute floor area per patch",
-  },
-];
-
 /**
  * Measure everything the design can answer for, and name everything it cannot.
  *
@@ -249,6 +193,62 @@ export function measureAutoMovieQuantities(
     ),
   };
 }
+
+/** The unit each subject is measured in; the mapped type covers every subject. */
+const UNITS: { [subject in AutoMovieQuantitySubject]: AutoMovieQuantityUnit } =
+  {
+    "space-floor-area": "m2",
+    "space-volume": "m3",
+    "opening-area": "m2",
+    "connector-length": "m",
+    "element-count": "count",
+    "opening-count": "count",
+    "model-occurrence-count": "count",
+  };
+
+/** Statements every report carries about take-offs it never performs. */
+const FIXED_GAPS: readonly IAutoMovieDrawingGap[] = [
+  {
+    subject: "material-quantity",
+    status: "unsupported",
+    reason:
+      "a material assembly is a separate record from the built environment and this measurement is handed only the environment, so no layer thickness or application area is in reach and no volume or mass of any material can be taken off",
+    remedy:
+      "extend the measurement to accept the work's material assemblies; a surface material alone cannot produce a take-off",
+  },
+  {
+    subject: "pattern-cut-waste",
+    status: "unsupported",
+    reason:
+      "cut waste is a property of a module layout over a bounded area, and a surface pattern is a separate record this measurement is not handed",
+    remedy:
+      "extend the measurement to accept the work's surface patterns, then count the offcuts each bounded area produces",
+  },
+  {
+    subject: "opening-deduction",
+    status: "unsupported",
+    reason:
+      "an opening's own area is measured, but nothing deducts it from the boundary or finish it is cut through, because no boundary or finish area is measured yet",
+    remedy:
+      "measure boundary and finish areas, then subtract the openings each one hosts",
+  },
+  {
+    subject: "developed-surface-area",
+    status: "unsupported",
+    reason:
+      "floor areas are plan footprint areas; the developed area of a sloped, ramped or relief patch is larger and was not computed",
+    remedy:
+      "integrate the surface's own height rule over its footprint once a developed-area measure exists",
+  },
+  {
+    subject: "surface-identity",
+    status: "unsupported",
+    reason:
+      "a support patch is attributed to its logical space, not to itself: the design binds a surface to a space without a work-unique id for the binding, so two patches of one space cannot be told apart in a take-off",
+    remedy:
+      "give the space-to-surface binding its own stable id, then attribute floor area per patch",
+  },
+];
 
 /**
  * Turn one subject's owner tally into its bounded finding.

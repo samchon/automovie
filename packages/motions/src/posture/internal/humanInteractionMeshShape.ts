@@ -1,11 +1,5 @@
 import type { IAutoMovieMotionHumanInteractionMesh } from "@automovie/interface";
 
-/** A fixed Cartesian edge to a mesh point. */
-interface IOffsetEdge {
-  index: number;
-  by: readonly number[];
-}
-
 /**
  * The mesh's aligned shape (`HumanInteractionMesh.adapt`'s start): contact
  * offsets and target-length bones propagated along their reference directions
@@ -75,6 +69,12 @@ export function humanInteractionMeshShape(
       result[i]! += translate / n;
   }
   return result;
+}
+
+/** A fixed Cartesian edge to a mesh point. */
+interface IOffsetEdge {
+  index: number;
+  by: readonly number[];
 }
 
 /** Cartesian coordinates within each mesh point. */

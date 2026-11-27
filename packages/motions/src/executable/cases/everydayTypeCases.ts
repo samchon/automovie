@@ -17,16 +17,6 @@ import { everydayCaseKit } from "./internal/everydayCaseKit";
 import { everydayTypeCaseBoard } from "./internal/everydayTypeCaseBoard";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/** The record of `IEverydayTypeCasesBoxesItem`'s site. */
-type IEverydayTypeCasesBoxesItem = {
-  centre: IAutoMovieVector3;
-  half: IAutoMovieVector3;
-  color: number;
-};
-
-/** The record of `IEverydayTypeCasesWorst`'s site. */
-type IEverydayTypeCasesWorst = { miss: number; letter: string };
-
 /**
  * The typing cases of `everydayCases` (`everyday-type-seated` and
  * `everyday-type-standing`), with the verdicts `everydayCases` lists.
@@ -163,3 +153,13 @@ export function everydayTypeCases(
   }
   return out;
 }
+
+/** The record of `IEverydayTypeCasesBoxesItem`'s site. */
+type IEverydayTypeCasesBoxesItem = {
+  centre: IAutoMovieVector3;
+  half: IAutoMovieVector3;
+  color: number;
+};
+
+/** The record of `IEverydayTypeCasesWorst`'s site. */
+type IEverydayTypeCasesWorst = { miss: number; letter: string };

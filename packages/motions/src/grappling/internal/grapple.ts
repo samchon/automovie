@@ -61,53 +61,6 @@ export namespace grapple {
     ],
   };
 
-  /** Action shares marking the reach, closed contact and withdrawal. */
-  interface IWindow {
-    /** When the hand begins to travel. */
-    reach: number;
-    /** When the palm first bears on the partner. */
-    take: number;
-    /** When the palm lets go. */
-    release: number;
-    /** When the hand returns to the support pose. */
-    rest: number;
-  }
-
-  /**
-   * Timing of the visible partner contact relative to the shared floor
-   * transfer.
-   */
-  function window(p: IAutoMovieMotionHumanGrapple.IParams): IWindow {
-    if (grappleSumo.is(p.kind)) return grappleSumo.window();
-    // A thigh contact is staged at the lowered entry. The upright approach's grip
-    // window leaves its target below the available shoulder-to-wrist reach.
-    if (p.kind === "singleLeg" || p.kind === "doubleLeg")
-      return { reach: 0.19, take: 0.36, release: 0.4, rest: 0.55 };
-    if (p.outcome === "denied")
-      return { reach: 0.04, take: 0.22, release: 0.3, rest: 0.47 };
-    switch (p.kind) {
-      case "judoHold":
-      case "wrestlingFall":
-      case "guardPass":
-        return { reach: 0.72, take: 0.84, release: 0.9, rest: 0.99 };
-      case "grecoRoman":
-      case "mmaReset":
-        return { reach: 0.03, take: 0.17, release: 0.37, rest: 0.55 };
-      case "seoiNage":
-        return {
-          reach: 0.01,
-          take: 0.155,
-          release: grappleStances.SHOULDER_ENTRY,
-          rest: 0.42,
-        };
-      case "oGoshi":
-      case "oSotoGari":
-      case "deAshiHarai":
-      default:
-        return { reach: 0.02, take: 0.15, release: 0.23, rest: 0.48 };
-    }
-  }
-
   /**
    * The least distance between two partners' marks at which their heads and
    * chests cannot meet when both lean into the scene's entry stance: each
@@ -151,6 +104,7 @@ export namespace grapple {
     };
     return front("initiator", initiator) + front("receiver", receiver);
   }
+
   /**
    * Build the pose plan for one role.
    *
@@ -285,5 +239,51 @@ export namespace grapple {
       contacts,
       contact: clock.at("take"),
     };
+  }
+
+  /** Action shares marking the reach, closed contact and withdrawal. */
+  interface IWindow {
+    /** When the hand begins to travel. */
+    reach: number;
+    /** When the palm first bears on the partner. */
+    take: number;
+    /** When the palm lets go. */
+    release: number;
+    /** When the hand returns to the support pose. */
+    rest: number;
+  }
+  /**
+   * Timing of the visible partner contact relative to the shared floor
+   * transfer.
+   */
+  function window(p: IAutoMovieMotionHumanGrapple.IParams): IWindow {
+    if (grappleSumo.is(p.kind)) return grappleSumo.window();
+    // A thigh contact is staged at the lowered entry. The upright approach's grip
+    // window leaves its target below the available shoulder-to-wrist reach.
+    if (p.kind === "singleLeg" || p.kind === "doubleLeg")
+      return { reach: 0.19, take: 0.36, release: 0.4, rest: 0.55 };
+    if (p.outcome === "denied")
+      return { reach: 0.04, take: 0.22, release: 0.3, rest: 0.47 };
+    switch (p.kind) {
+      case "judoHold":
+      case "wrestlingFall":
+      case "guardPass":
+        return { reach: 0.72, take: 0.84, release: 0.9, rest: 0.99 };
+      case "grecoRoman":
+      case "mmaReset":
+        return { reach: 0.03, take: 0.17, release: 0.37, rest: 0.55 };
+      case "seoiNage":
+        return {
+          reach: 0.01,
+          take: 0.155,
+          release: grappleStances.SHOULDER_ENTRY,
+          rest: 0.42,
+        };
+      case "oGoshi":
+      case "oSotoGari":
+      case "deAshiHarai":
+      default:
+        return { reach: 0.02, take: 0.15, release: 0.23, rest: 0.48 };
+    }
   }
 }

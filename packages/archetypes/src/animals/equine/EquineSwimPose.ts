@@ -11,9 +11,6 @@ import { EquineSwimStroke } from "./EquineSwimStroke";
 import { QuadrupedScapula } from "../quadruped/QuadrupedScapula";
 import type { QuadrupedWorldPose } from "../quadruped/QuadrupedWorldPose";
 
-/** The model's lateral axis, about which every sagittal swim rotation turns. */
-const LATERAL: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-
 /**
  * A floating horse's world pose at one second: the trunk carried level under a
  * placement, the neck raised by an authored angle with the head riding it, and
@@ -134,6 +131,9 @@ export function EquineSwimPose(
     local,
   };
 }
+
+/** The model's lateral axis, about which every sagittal swim rotation turns. */
+const LATERAL: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 
 /**
  * The shared quadruped tree's parent of a bone, as

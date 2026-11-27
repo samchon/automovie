@@ -8,27 +8,6 @@ import type {
 import { kneelKeys } from "./kneelKeys";
 import { prepareKneelFoot } from "./prepareKneelFoot";
 
-/** Fixed key indices for one existing kneeling clock interval. */
-interface IPair {
-  /** The starting key's index. */
-  from: number;
-
-  /** The destination key's index. */
-  to: number;
-}
-
-/** Body-derived geometry prepared for one kneeling interval. */
-interface IPhase {
-  /** Each foot's unchanged pivot/arc owner. */
-  feet: Record<AutoMovieHumanSide, ReturnType<typeof prepareKneelFoot>>;
-
-  /**
-   * The fixed line or seated-back arc, absent while the dynamic balance course
-   * owns the root.
-   */
-  root?: (share: number) => IAutoMovieVector3;
-}
-
 /**
  * Prepare the two foot courses and fixed root line or seated-back arc for each
  * existing kneeling phase. The clock and body solves retain their owners.
@@ -77,4 +56,25 @@ export function prepareKneelPhases(
             : Vector3.prepareLerp(from.root, to.root),
     };
   });
+}
+
+/** Fixed key indices for one existing kneeling clock interval. */
+interface IPair {
+  /** The starting key's index. */
+  from: number;
+
+  /** The destination key's index. */
+  to: number;
+}
+
+/** Body-derived geometry prepared for one kneeling interval. */
+interface IPhase {
+  /** Each foot's unchanged pivot/arc owner. */
+  feet: Record<AutoMovieHumanSide, ReturnType<typeof prepareKneelFoot>>;
+
+  /**
+   * The fixed line or seated-back arc, absent while the dynamic balance course
+   * owns the root.
+   */
+  root?: (share: number) => IAutoMovieVector3;
 }

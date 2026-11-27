@@ -13,6 +13,23 @@ import { physicalSupportPoint } from "./internal/physicalSupportPoint";
 import { samplePhysicalRecoveryGoal } from "./internal/samplePhysicalRecoveryGoal";
 
 
+/** Recovery support-goal operations. */
+export namespace AutoMovieEnginePhysicalRecoverySupportGoals {
+  /**
+   * Recover original declared world endpoints at a single clock. Accepted
+   * recovery offsets translate the declaration; a fitted, unmet output never
+   * becomes a new promise. A lifted swing follows its drive's path when given
+   * (`IAutoMovieAdvancePhysicalBalance.IResult.swing`): the clearance its stance
+   * can carry and its lowest point's hang, so the joints' reference and the drive
+   * share one path; else the policy's clearance.
+   */
+  export function compute(
+    ...args: Parameters<typeof computeRecoverySupportGoals>
+  ): ReturnType<typeof computeRecoverySupportGoals> {
+    return computeRecoverySupportGoals(...args);
+  }
+}
+
 function computeRecoverySupportGoals(
   body: {
     readonly balance?: {
@@ -83,21 +100,4 @@ function computeRecoverySupportGoals(
       },
     ),
   );
-}
-
-/** Recovery support-goal operations. */
-export namespace AutoMovieEnginePhysicalRecoverySupportGoals {
-  /**
-   * Recover original declared world endpoints at a single clock. Accepted
-   * recovery offsets translate the declaration; a fitted, unmet output never
-   * becomes a new promise. A lifted swing follows its drive's path when given
-   * (`IAutoMovieAdvancePhysicalBalance.IResult.swing`): the clearance its stance
-   * can carry and its lowest point's hang, so the joints' reference and the drive
-   * share one path; else the policy's clearance.
-   */
-  export function compute(
-    ...args: Parameters<typeof computeRecoverySupportGoals>
-  ): ReturnType<typeof computeRecoverySupportGoals> {
-    return computeRecoverySupportGoals(...args);
-  }
 }

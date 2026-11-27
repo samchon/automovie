@@ -13,26 +13,6 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanGrasp } from "./HumanGrasp";
 
-/** The provisional maximum supported conveyor speed, in m/s. */
-const maximumSpeed: number = 0.25;
-
-/** The provisional interception horizon bounds the number of frame reads. */
-const maximumTime: number = 2;
-
-/** Frame checks are at most one 120 Hz interval apart. */
-const samplesPerSecond: number = 120;
-/** The record of `IPickUpInterceptResult`'s site. */
-type IPickUpInterceptResult = {
-  /** The grasp, including colliders, at closure. */
-  target: IAutoMovieMotionHumanGrasp.ITarget;
-  /** The prop's displayed world frame at closure. */
-  frame: IAutoMovieRigidTransform;
-  /** Seconds from action time zero to closure. */
-  seconds: number;
-  /** The support's horizontal velocity in world metres per second. */
-  velocity: IAutoMovieVector3;
-};
-
 /**
  * Resolve a mounted prop's closure frame and incoming translation before
  * planning the grasp.
@@ -197,3 +177,23 @@ export function pickUpIntercept(
     velocity: { ...velocity, y: 0 },
   };
 }
+
+/** The provisional maximum supported conveyor speed, in m/s. */
+const maximumSpeed: number = 0.25;
+
+/** The provisional interception horizon bounds the number of frame reads. */
+const maximumTime: number = 2;
+/** Frame checks are at most one 120 Hz interval apart. */
+const samplesPerSecond: number = 120;
+
+/** The record of `IPickUpInterceptResult`'s site. */
+type IPickUpInterceptResult = {
+  /** The grasp, including colliders, at closure. */
+  target: IAutoMovieMotionHumanGrasp.ITarget;
+  /** The prop's displayed world frame at closure. */
+  frame: IAutoMovieRigidTransform;
+  /** Seconds from action time zero to closure. */
+  seconds: number;
+  /** The support's horizontal velocity in world metres per second. */
+  velocity: IAutoMovieVector3;
+};

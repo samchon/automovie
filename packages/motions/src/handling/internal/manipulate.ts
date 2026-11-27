@@ -22,20 +22,6 @@ import { manipulateFacing } from "./manipulateFacing";
 import { manipulateFingering } from "./manipulateFingering";
 import { manipulatePlan } from "./manipulatePlan";
 
-/** The record of `ISequenceGivenPlaced`'s site. */
-type ISequenceGivenPlaced = {
-  point: IAutoMovieVector3;
-  normal: IAutoMovieVector3;
-  travel: number | undefined;
-};
-
-/** The record of `ISequenceSitesEntry`'s site. */
-type ISequenceSitesEntry = {
-  point: IAutoMovieVector3;
-  normal: IAutoMovieVector3;
-  travel: number | undefined;
-};
-
 /**
  * A keyed contact sequence: digits of one hand or both pressing sites of a prop
  * one after another, timed by the caller or by skill. Typing, a piano's keys, a
@@ -239,6 +225,20 @@ export namespace manipulate {
     );
   }
 }
+
+/** The record of `ISequenceGivenPlaced`'s site. */
+type ISequenceGivenPlaced = {
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+  travel: number | undefined;
+};
+
+/** The record of `ISequenceSitesEntry`'s site. */
+type ISequenceSitesEntry = {
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+  travel: number | undefined;
+};
 
 /**
  * The share of a press's interval spent reaching the key, as `typeText` times

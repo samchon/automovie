@@ -21,27 +21,6 @@ import { knockdown } from "../../reaction/internal/knockdown";
 import { GymnasticsFlight } from "../../sport/internal/GymnasticsFlight";
 import { floorArmRoom } from "./floorArmRoom";
 
-/** The alternatives of `HipsPosture`'s site. */
-type HipsPosture = "root" | "yaw" | "pitch" | "roll";
-
-/** The alternatives of `BetweenHeading`'s site. */
-type BetweenHeading = "yaw" | "pitch" | "roll";
-
-/** The alternatives of `DisplayedFrameResult`'s site. */
-type DisplayedFrameResult = "root" | "yaw" | "pitch" | "roll";
-
-/** The alternatives of `ReferenceFromOver`'s site. */
-type ReferenceFromOver = "hips" | "feet";
-
-/** The alternatives of `ReferenceFromContext`'s site. */
-type ReferenceFromContext = "body" | "entry";
-
-/** The alternatives of `StartOver`'s site. */
-type StartOver = "hips" | "feet";
-
-/** The alternatives of `StartContext`'s site. */
-type StartContext = "body" | "entry";
-
 /**
  * How a law that gets the body down onto the floor (a crawl, an inchworm, a lie
  * down) starts from the base it is entered on.
@@ -210,35 +189,6 @@ export namespace floorEntry {
   }
 
   /**
-   * An upright stance at the entry, the reference a floor law measures its
-   * geometry from when the body is not standing: over the floor under the
-   * entry's hips, or under the middle of its ankles, heading the entry's way.
-   * It is only the law's measure and is never shown, since the law blends from
-   * the displayed entry (`stand.posture` at a floor point read off it).
-   */
-  function referenceFrom(
-    context: Pick<IAutoMovieMotionHumanActionContext, ReferenceFromContext>,
-    over: ReferenceFromOver,
-    entered: IAutoMovieMotionHumanPosture,
-  ): IAutoMovieMotionHumanPosture {
-    const at: IAutoMovieVector3 =
-      over === "hips"
-        ? hips(context.body, entered)
-        : Vector3.scale(
-            Vector3.add(
-              context.entry.feet.left.ankle,
-              context.entry.feet.right.ankle,
-            ),
-            0.5,
-          );
-    return stand.posture(
-      context.body,
-      { x: at.x, y: 0, z: at.z },
-      context.entry.posture.yaw,
-    );
-  }
-
-  /**
    * The posture the entry displays, written by its joint angles alone: its
    * root, its heading read off the root's rotation and every joint's clinical
    * angles, so it resolves to the displayed pose itself.
@@ -258,28 +208,6 @@ export namespace floorEntry {
         joint.twist ?? 0,
       ];
     return { ...displayedFrame(context), joints, limbs: {} };
-  }
-
-  /**
-   * Read the original displayed root/heading without copying unrelated joints
-   * for a reference-only observation.
-   */
-  function displayedFrame(
-    context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
-  ): Pick<IAutoMovieMotionHumanPosture, DisplayedFrameResult> {
-    const pose: IAutoMoviePose = context.entry.pose;
-    const posture: IAutoMovieMotionHumanPosture = context.entry.posture;
-    return pose.root === undefined || pose.root === null
-      ? {
-          root: posture.root,
-          yaw: posture.yaw,
-          pitch: posture.pitch,
-          roll: posture.roll,
-        }
-      : {
-          root: pose.root.translation,
-          ...humanPostureHeading.angles(pose.root.rotation),
-        };
   }
 
   /**
@@ -379,6 +307,57 @@ export namespace floorEntry {
   }
 
   /**
+   * An upright stance at the entry, the reference a floor law measures its
+   * geometry from when the body is not standing: over the floor under the
+   * entry's hips, or under the middle of its ankles, heading the entry's way.
+   * It is only the law's measure and is never shown, since the law blends from
+   * the displayed entry (`stand.posture` at a floor point read off it).
+   */
+  function referenceFrom(
+    context: Pick<IAutoMovieMotionHumanActionContext, ReferenceFromContext>,
+    over: ReferenceFromOver,
+    entered: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanPosture {
+    const at: IAutoMovieVector3 =
+      over === "hips"
+        ? hips(context.body, entered)
+        : Vector3.scale(
+            Vector3.add(
+              context.entry.feet.left.ankle,
+              context.entry.feet.right.ankle,
+            ),
+            0.5,
+          );
+    return stand.posture(
+      context.body,
+      { x: at.x, y: 0, z: at.z },
+      context.entry.posture.yaw,
+    );
+  }
+
+  /**
+   * Read the original displayed root/heading without copying unrelated joints
+   * for a reference-only observation.
+   */
+  function displayedFrame(
+    context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
+  ): Pick<IAutoMovieMotionHumanPosture, DisplayedFrameResult> {
+    const pose: IAutoMoviePose = context.entry.pose;
+    const posture: IAutoMovieMotionHumanPosture = context.entry.posture;
+    return pose.root === undefined || pose.root === null
+      ? {
+          root: posture.root,
+          yaw: posture.yaw,
+          pitch: posture.pitch,
+          roll: posture.roll,
+        }
+      : {
+          root: pose.root.translation,
+          ...humanPostureHeading.angles(pose.root.rotation),
+        };
+  }
+
+  /**
    * Where a posture's hips joint is: its root plus the hips' rest place turned
    * by its heading.
    */
@@ -395,3 +374,24 @@ export namespace floorEntry {
     );
   }
 }
+
+/** The alternatives of `HipsPosture`'s site. */
+type HipsPosture = "root" | "yaw" | "pitch" | "roll";
+
+/** The alternatives of `BetweenHeading`'s site. */
+type BetweenHeading = "yaw" | "pitch" | "roll";
+
+/** The alternatives of `DisplayedFrameResult`'s site. */
+type DisplayedFrameResult = "root" | "yaw" | "pitch" | "roll";
+
+/** The alternatives of `ReferenceFromOver`'s site. */
+type ReferenceFromOver = "hips" | "feet";
+
+/** The alternatives of `ReferenceFromContext`'s site. */
+type ReferenceFromContext = "body" | "entry";
+
+/** The alternatives of `StartOver`'s site. */
+type StartOver = "hips" | "feet";
+
+/** The alternatives of `StartContext`'s site. */
+type StartContext = "body" | "entry";

@@ -27,9 +27,6 @@ import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned
 import { AutoMovieMotionHumanArmPlayed } from "./AutoMovieMotionHumanArmPlayed";
 import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
 
-/** The alternatives of `CarriedLimb`'s site. */
-type CarriedLimb = "leftArm" | "rightArm";
-
 /**
  * An arm carried toward a goal: the joint-space carry between held angles
  * (`AutoMovieMotionHumanArmAngles`) and a goal, and the primitive that writes
@@ -442,3 +439,6 @@ export namespace AutoMovieMotionHumanArmCarry {
       );
   }
 }
+
+/** The alternatives of `CarriedLimb`'s site. */
+type CarriedLimb = "leftArm" | "rightArm";

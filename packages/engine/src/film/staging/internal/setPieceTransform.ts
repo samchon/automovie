@@ -7,9 +7,6 @@ import {
 import { Quaternion } from "../../../math/Quaternion";
 import { setPieceScale } from "./setPieceScale";
 
-/** World up, the axis `facingDeg` turns about. */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
 /**
  * The world transform a staged set piece's node carries.
  *
@@ -34,3 +31,6 @@ export function setPieceTransform(
     scale: setPieceScale(piece.scale),
   };
 }
+
+/** World up, the axis `facingDeg` turns about. */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

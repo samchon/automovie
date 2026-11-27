@@ -8,26 +8,8 @@ import {
 } from "../../core";
 import { AutoMovieArchetypeVessel } from "../AutoMovieArchetypeVessel";
 
-/** The model-space construction for the selected contact IDs. */
-type Builder<Id extends AutoMovieArchetypeVessel.Affordance> = AutoMovieArchetypeBuilder<
-  Id,
-  AutoMovieArchetypeVessel.Dimension
->;
-
 /** Create a model-space point in metres. */
 const v: typeof Vector3.create = Vector3.create;
-
-/** The contact ids every vessel draw builds. */
-type DrawContact = "inside" | "rim";
-
-/** What {@link draw} prepares for its caller. */
-interface IDrawResult<Id extends AutoMovieArchetypeVessel.Affordance> {
-  /** The prepared `builder` this call returns. */
-  builder: Builder<Id | DrawContact>;
-
-  /** The prepared `d` this call returns. */
-  d: Record<AutoMovieArchetypeVessel.Dimension, number>;
-}
 
 /**
  * Resolve recorded sizing, then lay out the shared open floor, walls and
@@ -121,9 +103,6 @@ function draw<Id extends AutoMovieArchetypeVessel.Affordance>(
   });
   return { builder, d };
 }
-
-/** The values {@link dishGrip} accepts at this place in its signature. */
-type DishGripGrip = "two-hand" | "precision";
 
 /** Define a grip from below the bottom floor of a shallow vessel. */
 function dishGrip(
@@ -284,3 +263,24 @@ export namespace VesselConstruction {
     return builder.build(d.mass);
   }
 }
+
+/** The model-space construction for the selected contact IDs. */
+type Builder<Id extends AutoMovieArchetypeVessel.Affordance> = AutoMovieArchetypeBuilder<
+  Id,
+  AutoMovieArchetypeVessel.Dimension
+>;
+
+/** The contact ids every vessel draw builds. */
+type DrawContact = "inside" | "rim";
+
+/** What {@link draw} prepares for its caller. */
+interface IDrawResult<Id extends AutoMovieArchetypeVessel.Affordance> {
+  /** The prepared `builder` this call returns. */
+  builder: Builder<Id | DrawContact>;
+
+  /** The prepared `d` this call returns. */
+  d: Record<AutoMovieArchetypeVessel.Dimension, number>;
+}
+
+/** The values {@link dishGrip} accepts at this place in its signature. */
+type DishGripGrip = "two-hand" | "precision";

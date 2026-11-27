@@ -15,18 +15,6 @@ import type { prepareHumanPostureProjection } from "../../posture/internal/prepa
 import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { supportContact } from "./supportContact";
 
-/** The blended posture's achieved pin and its clear floor height. */
-interface IPinFloor {
-  /** Achieved pin of the unshifted direct posture, world metres. */
-  point: IAutoMovieVector3;
-
-  /**
-   * The smallest world root height keeping the direct colliders above the
-   * floor, metres.
-   */
-  floor: number;
-}
-
 /**
  * Read the pin and floor of a support interval's direct joint blend together.
  *
@@ -81,4 +69,16 @@ export function prepareSupportPinFloor(
       floor: -minima(bones)[0]!,
     };
   };
+}
+
+/** The blended posture's achieved pin and its clear floor height. */
+interface IPinFloor {
+  /** Achieved pin of the unshifted direct posture, world metres. */
+  point: IAutoMovieVector3;
+
+  /**
+   * The smallest world root height keeping the direct colliders above the
+   * floor, metres.
+   */
+  floor: number;
 }

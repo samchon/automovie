@@ -1,9 +1,6 @@
 import { SUBSURFACE_TARGET } from "../../SUBSURFACE_TARGET.js";
 import { SUBSURFACE_TEXTURE_SIZE } from "../SUBSURFACE_TEXTURE_SIZE.js";
 
-const { cosines: COSINES, blurs: BLURS }: typeof SUBSURFACE_TEXTURE_SIZE =
-  SUBSURFACE_TEXTURE_SIZE;
-
 /**
  * Replace the supported physical direct-diffuse line with the current RGB table
  * lookup while preserving all other supplied chunk text. An absent target
@@ -36,3 +33,6 @@ vec3 subsurfaceDiffuse( const in float dotNL ) {
     )
   );
 }
+
+const { cosines: COSINES, blurs: BLURS }: typeof SUBSURFACE_TEXTURE_SIZE =
+  SUBSURFACE_TEXTURE_SIZE;

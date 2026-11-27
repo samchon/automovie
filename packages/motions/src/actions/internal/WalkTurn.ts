@@ -1,17 +1,3 @@
-/** The record of `IAtB`'s site. */
-type IAtB = { seconds: number; yaw: number };
-
-/** The record of `IAtA`'s site. */
-type IAtA = { seconds: number; yaw: number };
-
-/** The record of `IAtLast`'s site. */
-type IAtLast = { seconds: number; yaw: number };
-
-/** The record of `IAtFirst`'s site. */
-type IAtFirst = { seconds: number; yaw: number };
-
-/** The record of `IWalkTurnKnotsItem`'s site. */
-type IWalkTurnKnotsItem = { seconds: number; yaw: number };
 /**
  * The pelvis's heading through a stepping gait, a curve through the headings
  * its footfalls give it: at each heel strike the pelvis faces midway between
@@ -84,3 +70,17 @@ export class WalkTurn {
     );
   }
 }
+
+/** The record of `IAtB`'s site. */
+type IAtB = { seconds: number; yaw: number };
+
+/** The record of `IAtA`'s site. */
+type IAtA = { seconds: number; yaw: number };
+
+/** The record of `IAtLast`'s site. */
+type IAtLast = { seconds: number; yaw: number };
+
+/** The record of `IAtFirst`'s site. */
+type IAtFirst = { seconds: number; yaw: number };
+/** The record of `IWalkTurnKnotsItem`'s site. */
+type IWalkTurnKnotsItem = { seconds: number; yaw: number };

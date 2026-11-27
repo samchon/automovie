@@ -6,9 +6,6 @@ import type {
 
 import type { HumanMountRider } from "./HumanMountRider";
 
-/** The material contact frame consumed by the rider's wrist fit. */
-type Grip = Parameters<typeof HumanMountRider.hold>[3];
-
 /** A local transfer between a rim's material trajectory and a released hand. */
 export namespace HandrimMaterialTransfer {
   /**
@@ -70,3 +67,6 @@ export namespace HandrimMaterialTransfer {
     };
   }
 }
+
+/** The material contact frame consumed by the rider's wrist fit. */
+type Grip = Parameters<typeof HumanMountRider.hold>[3];

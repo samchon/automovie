@@ -13,36 +13,6 @@ import type {
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanShapeFraming } from "./HumanShapeFraming";
 
-/** The record of `IRelativeResult`'s site. */
-type IRelativeResult = { point: IAutoMovieVector3; turn: IAutoMovieQuaternion };
-
-/** The alternatives of `ReachableOwner`'s site. */
-type ReachableOwner = "upper" | "lower" | "hand";
-
-/** The alternatives of `ReachableOriginEntry`'s site. */
-type ReachableOriginEntry = "upper" | "lower" | "hand";
-
-/** The alternatives of `ReachableBeforeEntry`'s site. */
-type ReachableBeforeEntry = "upper" | "lower" | "hand";
-
-/** The alternatives of `ScreenOfOwner2`'s site. */
-type ScreenOfOwner2 = "upper" | "lower" | "hand";
-
-/** The alternatives of `ScreenOfOwner`'s site. */
-type ScreenOfOwner = "upper" | "lower" | "hand";
-
-/** The alternatives of `ScreenEntry`'s site. */
-type ScreenEntry = "upper" | "lower" | "hand";
-
-/** The alternatives of `NearbyOwner`'s site. */
-type NearbyOwner = "upper" | "lower" | "hand";
-
-/** The alternatives of `SegmentOwner`'s site. */
-type SegmentOwner = "upper" | "lower" | "hand";
-
-/** The alternatives of `SegmentResult`'s site. */
-type SegmentResult = "upperArm" | "lowerArm" | "hand";
-
 /**
  * The shapes an arm placed by the trajectory's coordinates (`HumanArmGeometry`)
  * meets: the segment each of its probes lies on, the shapes a probe or a
@@ -432,6 +402,36 @@ export namespace HumanArmShapes {
     };
   }
 }
+
+/** The record of `IRelativeResult`'s site. */
+type IRelativeResult = { point: IAutoMovieVector3; turn: IAutoMovieQuaternion };
+
+/** The alternatives of `ReachableOwner`'s site. */
+type ReachableOwner = "upper" | "lower" | "hand";
+
+/** The alternatives of `ReachableOriginEntry`'s site. */
+type ReachableOriginEntry = "upper" | "lower" | "hand";
+
+/** The alternatives of `ReachableBeforeEntry`'s site. */
+type ReachableBeforeEntry = "upper" | "lower" | "hand";
+
+/** The alternatives of `ScreenOfOwner2`'s site. */
+type ScreenOfOwner2 = "upper" | "lower" | "hand";
+
+/** The alternatives of `ScreenOfOwner`'s site. */
+type ScreenOfOwner = "upper" | "lower" | "hand";
+
+/** The alternatives of `ScreenEntry`'s site. */
+type ScreenEntry = "upper" | "lower" | "hand";
+
+/** The alternatives of `NearbyOwner`'s site. */
+type NearbyOwner = "upper" | "lower" | "hand";
+
+/** The alternatives of `SegmentOwner`'s site. */
+type SegmentOwner = "upper" | "lower" | "hand";
+
+/** The alternatives of `SegmentResult`'s site. */
+type SegmentResult = "upperArm" | "lowerArm" | "hand";
 
 /**
  * What `reachable` keeps a shape by beyond its bound, metres: a nanometre, far

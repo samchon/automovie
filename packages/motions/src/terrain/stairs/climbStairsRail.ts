@@ -28,21 +28,6 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { climbStairsRailLine } from "./climbStairsRailLine";
 
-/** Allowed displayed grip residual, in metres. */
-const MISS: number = 0.015;
-
-/** Provisional bracing share of the body weight during a rail-assisted flight. */
-const LOAD: number = 0.12;
-
-/** The longest reach onto and off the rail, seconds (provisional). */
-const TRANSIT: number = 0.4;
-
-/**
- * The reach's largest share of the climb's duration, so the grip bears over at
- * least three fifths of it (provisional).
- */
-const TRANSIT_SHARE: number = 0.2;
-
 /**
  * Carry a stance hand along a fixed rail on the stair's existing clock. The
  * hand closes on the named finite bar, slides along its axis while bearing and
@@ -255,3 +240,18 @@ export function climbStairsRail(
     ],
   };
 }
+
+/** Allowed displayed grip residual, in metres. */
+const MISS: number = 0.015;
+
+/** Provisional bracing share of the body weight during a rail-assisted flight. */
+const LOAD: number = 0.12;
+
+/** The longest reach onto and off the rail, seconds (provisional). */
+const TRANSIT: number = 0.4;
+
+/**
+ * The reach's largest share of the climb's duration, so the grip bears over at
+ * least three fifths of it (provisional).
+ */
+const TRANSIT_SHARE: number = 0.2;

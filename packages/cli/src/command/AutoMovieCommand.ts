@@ -1,3 +1,15 @@
+/** One public CLI command request. */
+export type AutoMovieCommand =
+  | IAutoMovieHelpCommand
+  | IAutoMovieVersionCommand
+  | IAutoMovieCreateCommand
+  | IAutoMovieAddCommand
+  | IAutoMovieCaptureCommand
+  | IAutoMovieInspectCommand
+  | IAutoMovieRenderCommand
+  | IAutoMovieReviewCommand
+  | IAutoMovieCheckCommand;
+
 /**
  * One admitted CLI request, discriminated by `command`.
  *
@@ -132,15 +144,3 @@ interface IAutoMovieCheckCommand {
   /** The tokens after `check`, as typed; the check command reads them. */
   args: string[];
 }
-
-/** One public CLI command request. */
-export type AutoMovieCommand =
-  | IAutoMovieHelpCommand
-  | IAutoMovieVersionCommand
-  | IAutoMovieCreateCommand
-  | IAutoMovieAddCommand
-  | IAutoMovieCaptureCommand
-  | IAutoMovieInspectCommand
-  | IAutoMovieRenderCommand
-  | IAutoMovieReviewCommand
-  | IAutoMovieCheckCommand;

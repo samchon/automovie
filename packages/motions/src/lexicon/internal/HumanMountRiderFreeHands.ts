@@ -12,9 +12,6 @@ import type { prepareHumanPostureProjection } from "../../posture/internal/prepa
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import type { HumanMountRider } from "./HumanMountRider";
 
-/** The alternatives of `FreeHandsArm`'s site. */
-type FreeHandsArm = "leftArm" | "rightArm";
-
 /**
  * The wrists as the posture shows them, before either grip is assigned: an arm
  * the posture already places, such as a hand resting on a thigh, starts from
@@ -83,3 +80,6 @@ export function HumanMountRiderFreeHands(
   }
   return out;
 }
+
+/** The alternatives of `FreeHandsArm`'s site. */
+type FreeHandsArm = "leftArm" | "rightArm";

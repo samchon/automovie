@@ -3,30 +3,6 @@ import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 import { compareAutoMovieInspectionFindings } from "./compareAutoMovieInspectionFindings.js";
 import { sameAutoMovieInspectionShotClock } from "./sameAutoMovieInspectionShotClock.js";
 
-/** An episode while its end and worst witness can still advance. */
-type IMutableEpisode = {
-  -readonly [K in keyof IAutoMovieInspectionDiagnostics.IEpisode]: IAutoMovieInspectionDiagnostics.IEpisode[K];
-};
-
-/** A coverage range while its last observed clock can still advance. */
-type IMutableCoverage = {
-  -readonly [K in keyof IAutoMovieInspectionDiagnostics.ICoverageRange]: IAutoMovieInspectionDiagnostics.ICoverageRange[K];
-};
-
-/** The previous observation and open ranges for one continuity occurrence. */
-interface IOpenScope {
-  /** Last distinct sample seen for this occurrence. */
-  packet: IAutoMovieInspectionDiagnostics;
-
-  shotClock: IAutoMovieInspectionDiagnostics.ITime;
-
-  /** Episodes with checked coverage in that sample. */
-  episodes: Map<string, IMutableEpisode>;
-
-  /** Coverage ranges with an observation in that sample. */
-  coverage: Map<string, IMutableCoverage>;
-}
-
 /**
  * Group ordered scene observations into episodes and coalesce their coverage.
  *
@@ -145,6 +121,30 @@ export function reduceAutoMovieInspectionEpisodes(
           (row.status === "deferred" || row.status === "unsupported"),
       ),
   };
+}
+
+/** An episode while its end and worst witness can still advance. */
+type IMutableEpisode = {
+  -readonly [K in keyof IAutoMovieInspectionDiagnostics.IEpisode]: IAutoMovieInspectionDiagnostics.IEpisode[K];
+};
+
+/** A coverage range while its last observed clock can still advance. */
+type IMutableCoverage = {
+  -readonly [K in keyof IAutoMovieInspectionDiagnostics.ICoverageRange]: IAutoMovieInspectionDiagnostics.ICoverageRange[K];
+};
+
+/** The previous observation and open ranges for one continuity occurrence. */
+interface IOpenScope {
+  /** Last distinct sample seen for this occurrence. */
+  packet: IAutoMovieInspectionDiagnostics;
+
+  shotClock: IAutoMovieInspectionDiagnostics.ITime;
+
+  /** Episodes with checked coverage in that sample. */
+  episodes: Map<string, IMutableEpisode>;
+
+  /** Coverage ranges with an observation in that sample. */
+  coverage: Map<string, IMutableCoverage>;
 }
 
 /** Extend matching coverage rows or start new ranges at the current sample. */

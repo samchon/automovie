@@ -27,15 +27,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 
 /** A dismount's material-frame custody up to the instant it leaves support. */
 export namespace HumanMountOffSupports {
-  /** A measured world twist at the exact outgoing support boundary. */
-  interface IRate {
-    /** Linear velocity, world metres per second. */
-    readonly velocity: IAutoMovieVector3;
-
-    /** Angular velocity, world radians per second. */
-    readonly spin: IAutoMovieVector3;
-  }
-
   /** A prepared world frame, frozen at the actual release for flight. */
   export interface IFrame extends IRate {
     /** The last held pose, on the exact release second. */
@@ -44,18 +35,6 @@ export namespace HumanMountOffSupports {
     /** The world frame at an action second. */
     at(seconds: number): IAutoMovieRigidTransform;
   }
-
-  /** A support's world frame at a film second. */
-  type Read = (film: number) => IAutoMovieRigidTransform;
-
-  /** A planted foot's exact world goal, including its complete orientation. */
-  type Foot = IAutoMovieHumanLimbGoal & { rotation: IAutoMovieQuaternion };
-
-  /** The source pose and named material readers of the dismount. */
-  type Context = Pick<
-    IAutoMovieMotionHumanActionContext,
-    "body" | "entry" | "prop" | "start"
-  >;
 
   /** The goal while the foot bears, and its world placement on departing. */
   export interface IFoot extends IRate {
@@ -305,4 +284,25 @@ export namespace HumanMountOffSupports {
       };
     };
   }
+
+  /** A measured world twist at the exact outgoing support boundary. */
+  interface IRate {
+    /** Linear velocity, world metres per second. */
+    readonly velocity: IAutoMovieVector3;
+
+    /** Angular velocity, world radians per second. */
+    readonly spin: IAutoMovieVector3;
+  }
+
+  /** A support's world frame at a film second. */
+  type Read = (film: number) => IAutoMovieRigidTransform;
+
+  /** A planted foot's exact world goal, including its complete orientation. */
+  type Foot = IAutoMovieHumanLimbGoal & { rotation: IAutoMovieQuaternion };
+
+  /** The source pose and named material readers of the dismount. */
+  type Context = Pick<
+    IAutoMovieMotionHumanActionContext,
+    "body" | "entry" | "prop" | "start"
+  >;
 }

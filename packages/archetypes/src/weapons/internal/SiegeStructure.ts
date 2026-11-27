@@ -61,16 +61,6 @@ export namespace SiegeStructure {
     "release-carriage",
   ];
 
-  /** One dimension-derived box, with its complete support bounds. */
-  interface IBox {
-    /** Part identity. */
-    id: string;
-    /** Full positive sizes, metres. */
-    size: IAutoMovieVector3;
-    /** Neutral centre, model metres. */
-    at: IAutoMovieVector3;
-  }
-
   /**
    * Design a representable moving section at the complete support boundary.
    *
@@ -347,6 +337,16 @@ export namespace SiegeStructure {
           `Siege ${id} crosses its declared floor over the angle domain`,
         );
     }
+  }
+
+  /** One dimension-derived box, with its complete support bounds. */
+  interface IBox {
+    /** Part identity. */
+    id: string;
+    /** Full positive sizes, metres. */
+    size: IAutoMovieVector3;
+    /** Neutral centre, model metres. */
+    at: IAutoMovieVector3;
   }
 
   /**

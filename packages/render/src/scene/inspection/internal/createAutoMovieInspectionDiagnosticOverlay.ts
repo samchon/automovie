@@ -12,47 +12,6 @@ import type { IAutoMovieInspectionOverlay } from "../../IAutoMovieInspectionOver
 import type { IRenderAutoMovieInspectionDiagnosticsProps } from "../../IRenderAutoMovieInspectionDiagnosticsProps.js";
 import { buildAutoMovieInspectionMarks } from "./buildAutoMovieInspectionMarks.js";
 
-/** The review overlay uses red, in sRGB. */
-const COLOR: number = 0xff0000;
-
-/** Possible errors that have a located point appear in amber. */
-const POSSIBLE_COLOR: number = 0xe6a300;
-
-/** Half the side of a witness cube, in world metres. */
-const HALF_SIDE_METRES: number = 0.025;
-
-/** Endpoints of each edge, relative to the cube centre. */
-const EDGES: readonly (readonly [
-  number,
-  number,
-  number,
-  number,
-  number,
-  number,
-])[] = [
-  [-1, -1, -1, 1, -1, -1],
-  [-1, 1, -1, 1, 1, -1],
-  [-1, -1, 1, 1, -1, 1],
-  [-1, 1, 1, 1, 1, 1],
-  [-1, -1, -1, -1, 1, -1],
-  [1, -1, -1, 1, 1, -1],
-  [-1, -1, 1, -1, 1, 1],
-  [1, -1, 1, 1, 1, 1],
-  [-1, -1, -1, -1, -1, 1],
-  [1, -1, -1, 1, -1, 1],
-  [-1, 1, -1, -1, 1, 1],
-  [1, 1, -1, 1, 1, 1],
-];
-
-/** The cubes built for one sequence of colours and stroke. */
-interface IKept {
-  overlay: IAutoMovieInspectionOverlay;
-  marks: { mark: IAutoMovieMark; color: number }[];
-  signature: string;
-  width: number;
-  height: number;
-}
-
 /**
  * Create a witness-cube overlay that review pictures share.
  *
@@ -133,6 +92,47 @@ export function createAutoMovieInspectionDiagnosticOverlay(): IAutoMovieInspecti
       kept = undefined;
     },
   };
+}
+
+/** The review overlay uses red, in sRGB. */
+const COLOR: number = 0xff0000;
+
+/** Possible errors that have a located point appear in amber. */
+const POSSIBLE_COLOR: number = 0xe6a300;
+
+/** Half the side of a witness cube, in world metres. */
+const HALF_SIDE_METRES: number = 0.025;
+
+/** Endpoints of each edge, relative to the cube centre. */
+const EDGES: readonly (readonly [
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+])[] = [
+  [-1, -1, -1, 1, -1, -1],
+  [-1, 1, -1, 1, 1, -1],
+  [-1, -1, 1, 1, -1, 1],
+  [-1, 1, 1, 1, 1, 1],
+  [-1, -1, -1, -1, 1, -1],
+  [1, -1, -1, 1, 1, -1],
+  [-1, -1, 1, -1, 1, 1],
+  [1, -1, 1, 1, 1, 1],
+  [-1, -1, -1, -1, -1, 1],
+  [1, -1, -1, 1, -1, 1],
+  [-1, 1, -1, -1, 1, 1],
+  [1, 1, -1, 1, 1, 1],
+];
+
+/** The cubes built for one sequence of colours and stroke. */
+interface IKept {
+  overlay: IAutoMovieInspectionOverlay;
+  marks: { mark: IAutoMovieMark; color: number }[];
+  signature: string;
+  width: number;
+  height: number;
 }
 
 /**

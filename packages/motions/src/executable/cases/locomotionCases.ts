@@ -12,27 +12,6 @@ import { MotionBodies } from "../internal/MotionBodies";
 import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { locomotionCase } from "./locomotionCase";
 
-/** The record of `ILocomotionCasesAllItem`'s site. */
-type ILocomotionCasesAllItem = {
-  gait: locomotionCase.IGait;
-  froude: number;
-  label: string;
-  to: IAutoMovieVector3;
-  extra: Omit<IAutoMovieMotionHumanWalkParams, AllExtraItem>;
-};
-
-/** The alternatives of `AllExtraItem`'s site. */
-type AllExtraItem = "to" | "pace";
-
-/** The record of `ILocomotionCasesPrepared`'s site. */
-type ILocomotionCasesPrepared = {
-  men: humanPolygonMan.IPolygonMan[];
-  bodies: IAutoMovieMotionHumanBody[];
-};
-
-/** The alternatives of `LocomotionCasesKind`'s site. */
-type LocomotionCasesKind = "walk" | "run";
-
 /**
  * Capture cases of the walk law on the polygon man (E0): every body of
  * `MotionBodies.SWEEP` walks 4 m ahead alone, one case per body and pace
@@ -151,3 +130,24 @@ export function* locomotionCases(
     }
   }
 }
+
+/** The record of `ILocomotionCasesAllItem`'s site. */
+type ILocomotionCasesAllItem = {
+  gait: locomotionCase.IGait;
+  froude: number;
+  label: string;
+  to: IAutoMovieVector3;
+  extra: Omit<IAutoMovieMotionHumanWalkParams, AllExtraItem>;
+};
+
+/** The alternatives of `AllExtraItem`'s site. */
+type AllExtraItem = "to" | "pace";
+
+/** The record of `ILocomotionCasesPrepared`'s site. */
+type ILocomotionCasesPrepared = {
+  men: humanPolygonMan.IPolygonMan[];
+  bodies: IAutoMovieMotionHumanBody[];
+};
+
+/** The alternatives of `LocomotionCasesKind`'s site. */
+type LocomotionCasesKind = "walk" | "run";

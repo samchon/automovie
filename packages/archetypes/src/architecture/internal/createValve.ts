@@ -4,18 +4,6 @@ import { Vector3 } from "@automovie/engine";
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
 /**
- * The construction sizes no source read gives, metres, each an estimate no act
- * reads and no band declares: `run`, the pipe stub's length either side of the
- * valve as a share of the height; `rim`, the handwheel rim's thickness; `body`,
- * the bonnet's diameter as a share of the bore.
- */
-const ESTIMATES: Readonly<{ run: number; rim: number; body: number }> = {
-  run: 0.5,
-  rim: 0.02,
-  body: 1.4,
-};
-
-/**
  * A gate valve on a pipe, opened and closed by its handwheel.
  *
  * The pipe runs along `X` lying on the floor, its axis a bore's radius up over
@@ -119,3 +107,15 @@ export function createValve(
   });
   return builder.build(d.mass, { rests: "steel" });
 }
+
+/**
+ * The construction sizes no source read gives, metres, each an estimate no act
+ * reads and no band declares: `run`, the pipe stub's length either side of the
+ * valve as a share of the height; `rim`, the handwheel rim's thickness; `body`,
+ * the bonnet's diameter as a share of the bore.
+ */
+const ESTIMATES: Readonly<{ run: number; rim: number; body: number }> = {
+  run: 0.5,
+  rim: 0.02,
+  body: 1.4,
+};

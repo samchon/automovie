@@ -17,14 +17,6 @@ import { KickForm } from "./KickForm";
 import { StrikingReach } from "./StrikingReach";
 import { StrikingStance } from "./StrikingStance";
 
-/** The record of `IChooseSet`'s site. */
-type IChooseSet = {
-  drive?: number;
-};
-
-/** The alternatives of `ChooseSet`'s site. */
-type ChooseSet = "turn" | "pitch";
-
 /**
  * A kick's contact, decided on the figure itself: the carriage
  * ({@link KickCarriage}) under which the leg, solved from the hip the carriage
@@ -379,3 +371,11 @@ export namespace KickContact {
     solved: IAutoMovieMotionHumanStrikingReach.ISolution;
   }
 }
+
+/** The record of `IChooseSet`'s site. */
+type IChooseSet = {
+  drive?: number;
+};
+
+/** The alternatives of `ChooseSet`'s site. */
+type ChooseSet = "turn" | "pitch";

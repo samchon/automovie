@@ -17,36 +17,6 @@ import { pickUpAdjustStepped } from "./pickUpAdjustStepped";
 import { pickUpAdjustTimed } from "./pickUpAdjustTimed";
 import type { pickUpPosture } from "./pickUpPosture";
 
-/** The alternatives of `PlantsPart`'s site. */
-type PlantsPart = "leftFoot" | "rightFoot";
-
-/** The alternatives of `TwistAddBone2`'s site. */
-type TwistAddBone2 = "chest" | "spine";
-
-/** The alternatives of `TwistAddBone`'s site. */
-type TwistAddBone = "chest" | "spine";
-
-/** The alternatives of `TurnedLeastBone`'s site. */
-type TurnedLeastBone = "chest" | "spine";
-
-/** The alternatives of `TurnedMostBone`'s site. */
-type TurnedMostBone = "chest" | "spine";
-
-/** The alternatives of `TurnedHeldBone2`'s site. */
-type TurnedHeldBone2 = "chest" | "spine";
-
-/** The alternatives of `TurnedHeldBone`'s site. */
-type TurnedHeldBone = "chest" | "spine";
-
-/** The alternatives of `ShareEntryItem`'s site. */
-type ShareEntryItem = "chest" | "spine";
-
-/** The alternatives of `TurnedRangeBone2`'s site. */
-type TurnedRangeBone2 = "chest" | "spine";
-
-/** The alternatives of `TurnedRangeBone`'s site. */
-type TurnedRangeBone = "chest" | "spine";
-
 /**
  * How a standing reach adapts its body before its arm refuses a grip it still
  * misses (`pickUp`): the trunk turns toward the grip, and then one foot takes
@@ -322,6 +292,36 @@ export namespace pickUpAdjust {
    */
   export const LATERAL: number = 30;
 }
+
+/** The alternatives of `PlantsPart`'s site. */
+type PlantsPart = "leftFoot" | "rightFoot";
+
+/** The alternatives of `TwistAddBone2`'s site. */
+type TwistAddBone2 = "chest" | "spine";
+
+/** The alternatives of `TwistAddBone`'s site. */
+type TwistAddBone = "chest" | "spine";
+
+/** The alternatives of `TurnedLeastBone`'s site. */
+type TurnedLeastBone = "chest" | "spine";
+
+/** The alternatives of `TurnedMostBone`'s site. */
+type TurnedMostBone = "chest" | "spine";
+
+/** The alternatives of `TurnedHeldBone2`'s site. */
+type TurnedHeldBone2 = "chest" | "spine";
+
+/** The alternatives of `TurnedHeldBone`'s site. */
+type TurnedHeldBone = "chest" | "spine";
+
+/** The alternatives of `ShareEntryItem`'s site. */
+type ShareEntryItem = "chest" | "spine";
+
+/** The alternatives of `TurnedRangeBone2`'s site. */
+type TurnedRangeBone2 = "chest" | "spine";
+
+/** The alternatives of `TurnedRangeBone`'s site. */
+type TurnedRangeBone = "chest" | "spine";
 
 /** Same-person exact FK loan borrowed by an actual adjusted stance invocation. */
 type IFK = Parameters<pickUpPosture.IStance["at"]>[1];

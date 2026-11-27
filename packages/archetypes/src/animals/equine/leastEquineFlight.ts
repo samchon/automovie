@@ -16,34 +16,6 @@ import { EquinePitch } from "./EquinePitch";
 import { QuadrupedRestFloor } from "../quadruped/QuadrupedRestFloor";
 
 /**
- * Rotations whose lowest Y reads a part's least X, greatest X, least Z and
- * greatest Z.
- */
-const SIDES: readonly IAutoMovieQuaternion[] = [
-  Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
-  Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -90),
-  Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
-  Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
-];
-
-/**
- * One part's clearance over one obstacle: its need, its lowest point from the
- * centre of mass and its window after takeoff.
- */
-interface ILimit {
-  /** Metres the part's lowest point must rise. */
-  need: number;
-  /** Height of that point above the centre of mass, metres. */
-  up: number;
-  /** Fore-aft position of the part ahead of the centre of mass, metres. */
-  ahead: number;
-  /** Seconds after takeoff the part reaches the obstacle. */
-  first: number;
-  /** Seconds after takeoff the part leaves it. */
-  last: number;
-}
-
-/**
  * The least flight that lifts a candidate takeoff's displayed body over every
  * obstacle by the clearance, as the trunk's plan flies it (`EquinePitch`): a
  * closed-form bound with the trunk level, then a bisection with its turn.
@@ -216,4 +188,32 @@ export function leastEquineFlight(
   return recovery <= request.end && plan.at(plan.when(recovery)).speed === u
     ? least
     : undefined;
+}
+
+/**
+ * Rotations whose lowest Y reads a part's least X, greatest X, least Z and
+ * greatest Z.
+ */
+const SIDES: readonly IAutoMovieQuaternion[] = [
+  Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
+  Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -90),
+  Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
+  Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+];
+
+/**
+ * One part's clearance over one obstacle: its need, its lowest point from the
+ * centre of mass and its window after takeoff.
+ */
+interface ILimit {
+  /** Metres the part's lowest point must rise. */
+  need: number;
+  /** Height of that point above the centre of mass, metres. */
+  up: number;
+  /** Fore-aft position of the part ahead of the centre of mass, metres. */
+  ahead: number;
+  /** Seconds after takeoff the part reaches the obstacle. */
+  first: number;
+  /** Seconds after takeoff the part leaves it. */
+  last: number;
 }

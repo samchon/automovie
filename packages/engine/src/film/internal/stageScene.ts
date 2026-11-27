@@ -37,12 +37,6 @@ import { setPieceTransform } from "../staging/internal/setPieceTransform";
 import { validateLightPlacementShape } from "../staging/internal/validateLightPlacementShape";
 import { validateStageCamera } from "../staging/internal/validateStageCamera";
 
-/** World up, the axis an actor's `facingDeg` turns about. */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/** Largest accepted deviation of a set rotation's length from one. */
-const UNIT_QUATERNION_TOLERANCE: number = 1e-6;
-
 /**
  * The STAGING consumer: fold the script's cast and the staging write's
  * placements into the {@link IAutoMovieScene} every later stage performs into,
@@ -307,6 +301,12 @@ export function stageScene(
     ...(supports.length === 0 ? {} : { supports }),
   };
 }
+
+/** World up, the axis an actor's `facingDeg` turns about. */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/** Largest accepted deviation of a set rotation's length from one. */
+const UNIT_QUATERNION_TOLERANCE: number = 1e-6;
 
 /** A delegated validator's violation with its `$input` root moved to `root`. */
 function reRooted(

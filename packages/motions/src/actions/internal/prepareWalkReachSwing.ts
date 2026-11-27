@@ -24,44 +24,6 @@ import type { walkReach } from "./walkReach";
  */
 const SETTLED: number = 1e-6;
 
-/** Fixed physical bounds supplied by the walking reach rule's owner. */
-interface IBounds {
-  /** Minimum knee flexion, degrees. */
-  knee: number;
-
-  /** Maximum thigh extension, degrees. */
-  extension: number;
-
-  /** Maximum ankle side lean, degrees. */
-  side: number;
-
-  /** Maximum hip twist, degrees. */
-  twist: number;
-
-  /** Swing share over which the ranges enter or leave. */
-  fade: number;
-}
-/** The record of `IPrepareWalkReachSwingRead`'s site. */
-type IPrepareWalkReachSwingRead = {
-  ankle: IAutoMovieVector3;
-  rotation: IAutoMovieQuaternion;
-  low: number;
-};
-
-/** The record of `IPrepareWalkReachSwingPlacedResult`'s site. */
-type IPrepareWalkReachSwingPlacedResult = {
-  ankle: IAutoMovieVector3;
-  rotation: IAutoMovieQuaternion;
-  low: number;
-};
-
-/** The record of `IPrepareWalkReachSwingPlaced`'s site. */
-type IPrepareWalkReachSwingPlaced = {
-  ankle: IAutoMovieVector3;
-  rotation: IAutoMovieQuaternion;
-  low: number;
-};
-
 /**
  * Prepare one body's swing reach bounds and heel socket for changing feet.
  *
@@ -370,10 +332,6 @@ export function prepareWalkReachSwing(
     return best;
   }
 }
-
-/** A ranged foot at a lift: its ankle, rotation and lowest point's height. */
-type IPlacedFoot = IPrepareWalkReachSwingRead;
-
 /**
  * The lift that puts a ranged foot's lowest point on its target: lift by each
  * pass's penetration while a pass at least halves it, as fast as a bisection
@@ -448,3 +406,45 @@ export namespace prepareWalkReachSwing {
     lift: number;
   }
 }
+
+/** Fixed physical bounds supplied by the walking reach rule's owner. */
+interface IBounds {
+  /** Minimum knee flexion, degrees. */
+  knee: number;
+
+  /** Maximum thigh extension, degrees. */
+  extension: number;
+
+  /** Maximum ankle side lean, degrees. */
+  side: number;
+
+  /** Maximum hip twist, degrees. */
+  twist: number;
+
+  /** Swing share over which the ranges enter or leave. */
+  fade: number;
+}
+
+/** The record of `IPrepareWalkReachSwingRead`'s site. */
+type IPrepareWalkReachSwingRead = {
+  ankle: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+  low: number;
+};
+
+/** The record of `IPrepareWalkReachSwingPlacedResult`'s site. */
+type IPrepareWalkReachSwingPlacedResult = {
+  ankle: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+  low: number;
+};
+
+/** The record of `IPrepareWalkReachSwingPlaced`'s site. */
+type IPrepareWalkReachSwingPlaced = {
+  ankle: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+  low: number;
+};
+
+/** A ranged foot at a lift: its ankle, rotation and lowest point's height. */
+type IPlacedFoot = IPrepareWalkReachSwingRead;

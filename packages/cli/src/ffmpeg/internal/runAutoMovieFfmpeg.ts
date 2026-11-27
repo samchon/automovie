@@ -2,9 +2,6 @@ import { spawn } from "node:child_process";
 
 import type { AutoMovieCliFfmpeg } from "../AutoMovieCliFfmpeg";
 
-/** Lines of FFmpeg's error output kept for a failure message. */
-const TAIL: number = 12;
-
 /**
  * Run FFmpeg once with the given arguments, resolving with its error output
  * when it exits as `accept` allows and rejecting otherwise.
@@ -78,3 +75,6 @@ export function runAutoMovieFfmpeg(
     },
   );
 }
+
+/** Lines of FFmpeg's error output kept for a failure message. */
+const TAIL: number = 12;

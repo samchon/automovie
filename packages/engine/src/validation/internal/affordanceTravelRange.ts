@@ -3,13 +3,6 @@ import type {
   IAutoMovieAffordanceTravelRange,
 } from "@automovie/interface";
 
-/** The kinds that may move the other way from rest by their `reverse`. */
-const REVERSIBLE: ReadonlySet<IAutoMovieAffordance["kind"]> = new Set([
-  "hinge",
-  "knob",
-  "slider",
-]);
-
 /**
  * The travel range of an articulation affordance, in its kind's unit: degrees
  * for a `hinge`, `knob`, `crank` and `wheel`, metres for a `slider`, `button`,
@@ -42,3 +35,10 @@ export function affordanceTravelRange(
     maximum: travel ?? 0,
   };
 }
+
+/** The kinds that may move the other way from rest by their `reverse`. */
+const REVERSIBLE: ReadonlySet<IAutoMovieAffordance["kind"]> = new Set([
+  "hinge",
+  "knob",
+  "slider",
+]);

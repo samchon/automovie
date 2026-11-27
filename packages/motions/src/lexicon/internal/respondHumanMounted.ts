@@ -11,19 +11,6 @@ import { readHumanBone } from "../../body/internal/readHumanBone";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { HumanMountRider } from "./HumanMountRider";
 
-/** Standard gravity, metres per second squared. */
-const GRAVITY: number = 9.80665;
-/** The alternatives of `SHARESItem`'s site. */
-type SHARESItem = "spine" | "chest";
-
-/** The trunk joints that share the response, and each one's share of it. */
-const SHARES: readonly (readonly [SHARESItem, number])[] = [
-  ["spine", 0.6],
-  ["chest", 0.4],
-];
-/** The alternatives of `RespondHumanMountedTurn`'s site. */
-type RespondHumanMountedTurn = "yaw" | "pitch" | "roll";
-
 /**
  * A mounted rider's seat response to the carrier's own pitch and roll: the
  * trunk leans against the carrier's turn away from its attitude when the
@@ -94,6 +81,19 @@ export function respondHumanMounted(
         reach * HumanMountRider.lean(body, leant, grips),
       );
 }
+/** Standard gravity, metres per second squared. */
+const GRAVITY: number = 9.80665;
+
+/** The alternatives of `SHARESItem`'s site. */
+type SHARESItem = "spine" | "chest";
+/** The trunk joints that share the response, and each one's share of it. */
+const SHARES: readonly (readonly [SHARESItem, number])[] = [
+  ["spine", 0.6],
+  ["chest", 0.4],
+];
+
+/** The alternatives of `RespondHumanMountedTurn`'s site. */
+type RespondHumanMountedTurn = "yaw" | "pitch" | "roll";
 
 /** A joint range of the engine's constraint table. */
 type Range = NonNullable<ReturnType<typeof AutoMovieEngineKinematics.getConstraint>>["flexion"];

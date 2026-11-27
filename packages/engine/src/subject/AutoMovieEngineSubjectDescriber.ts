@@ -26,14 +26,6 @@ import { describeAutoMovieInstanceSetSubject } from "./internal/describeAutoMovi
 import { describeAutoMovieInstanceSubject } from "./internal/describeAutoMovieInstanceSubject";
 import { describeAutoMovieSpaceSubject } from "./internal/describeAutoMovieSpaceSubject";
 
-type ISceneNode =
-  IAutoMovieSubjectArtifact["compiled"]["scene"]["nodes"][number];
-
-interface IBuiltElementEntry {
-  environment: IAutoMovieBuiltEnvironment;
-  element: IAutoMovieBuiltElement;
-}
-
 /**
  * Describes the subjects of one compiled shot artifact, sharing every index and
  * measurement across one description pass.
@@ -468,4 +460,12 @@ export class AutoMovieEngineSubjectDescriber {
     }
     return geometry;
   }
+}
+
+type ISceneNode =
+  IAutoMovieSubjectArtifact["compiled"]["scene"]["nodes"][number];
+
+interface IBuiltElementEntry {
+  environment: IAutoMovieBuiltEnvironment;
+  element: IAutoMovieBuiltElement;
 }

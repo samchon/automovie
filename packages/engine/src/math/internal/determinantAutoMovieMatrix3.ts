@@ -1,14 +1,5 @@
 import { overflowsBinary64 } from "./overflowsBinary64";
 
-const PRODUCTS: readonly (readonly [number, number, number, number])[] = [
-  [0, 4, 8, 1],
-  [1, 5, 6, 1],
-  [2, 3, 7, 1],
-  [2, 4, 6, -1],
-  [1, 3, 8, -1],
-  [0, 5, 7, -1],
-];
-
 /**
  * Evaluate a finite row-major 3 by 3 determinant with an exact-sign fallback. A
  * conservative forward-error filter accepts a separated binary64 value.
@@ -108,3 +99,12 @@ export function determinantAutoMovieMatrix3(matrix: readonly number[]): number {
     );
   return converted;
 }
+
+const PRODUCTS: readonly (readonly [number, number, number, number])[] = [
+  [0, 4, 8, 1],
+  [1, 5, 6, 1],
+  [2, 3, 7, 1],
+  [2, 4, 6, -1],
+  [1, 3, 8, -1],
+  [0, 5, 7, -1],
+];

@@ -44,9 +44,6 @@ import { useToolCycle } from "./useToolCycle";
 import { useToolPose } from "./useToolPose";
 import { useToolTarget } from "./useToolTarget";
 
-/** The record of `IPlanFace`'s site. */
-type IPlanFace = { point: IAutoMovieVector3; direction: IAutoMovieVector3 };
-
 /**
  * Working with a one-handed tool held in the hand, in cycles over a work point
  * while standing: hammering, sawing, stirring or turning a screwdriver.
@@ -84,6 +81,21 @@ type IPlanFace = { point: IAutoMovieVector3; direction: IAutoMovieVector3 };
  * fatigue (Cote et al. 2002, 2005).
  */
 export namespace useTool {
+  /**
+   * A working pose: the tool's unit line toward its working point, the grip's
+   * place and the hand's rotation.
+   */
+  export interface IWork {
+    /** The tool's unit line toward its working point, world frame. */
+    axis: IAutoMovieVector3;
+
+    /** The grip's place, world metres. */
+    grip: IAutoMovieVector3;
+
+    /** The hand's rotation, world frame. */
+    rotation: IAutoMovieQuaternion;
+  }
+
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "useTool";
 
@@ -169,21 +181,6 @@ export namespace useTool {
    * turns onto the asked palm.
    */
   const PALM: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
-
-  /**
-   * A working pose: the tool's unit line toward its working point, the grip's
-   * place and the hand's rotation.
-   */
-  export interface IWork {
-    /** The tool's unit line toward its working point, world frame. */
-    axis: IAutoMovieVector3;
-
-    /** The grip's place, world metres. */
-    grip: IAutoMovieVector3;
-
-    /** The hand's rotation, world frame. */
-    rotation: IAutoMovieQuaternion;
-  }
 
   /**
    * Plan a tool's use.
@@ -520,3 +517,6 @@ export namespace useTool {
     return plan;
   }
 }
+
+/** The record of `IPlanFace`'s site. */
+type IPlanFace = { point: IAutoMovieVector3; direction: IAutoMovieVector3 };

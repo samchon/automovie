@@ -15,9 +15,6 @@ import { physicalContactSupportGoals } from "./physicalContactSupportGoals";
 import { preparePhysicalContactTargetSeed } from "./preparePhysicalContactTargetSeed";
 import { samplePhysicalTrackingTarget } from "./samplePhysicalTrackingTarget";
 
-type Body = IAutoMoviePhysicalSimulationInput.IBody;
-type Target = IAutoMoviePhysicalSimulationInput.ITarget;
-
 /**
  * Fit every member of the caller's admitted group against the same native scene
  * snapshot, then replace each member's interval plan together. The caller
@@ -146,3 +143,6 @@ export function trackPhysicalCoupledTargets(props: {
     );
   bound.coupling!.record([fit.report]);
 }
+type Body = IAutoMoviePhysicalSimulationInput.IBody;
+
+type Target = IAutoMoviePhysicalSimulationInput.ITarget;

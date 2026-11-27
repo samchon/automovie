@@ -6,10 +6,6 @@ import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
 import { AUTO_MOVIE_INSPECTION_DEPTH_LEAD } from "../../AUTO_MOVIE_INSPECTION_DEPTH_LEAD.js";
 
-/** The line of three.js's line shader after which both ends are in view space. */
-const VIEW_SPACE_ENDS: string =
-  "vec4 end = modelViewMatrix * vec4( instanceEnd, 1.0 );";
-
 /**
  * Make the line object inspection marks are drawn with: segments taken in
  * vertex pairs, one colour per vertex, `stroke` pixels wide in every renderer,
@@ -79,3 +75,7 @@ export function createAutoMovieInspectionStrokes(
   if (options.xray) strokes.renderOrder = Number.MAX_SAFE_INTEGER;
   return strokes;
 }
+
+/** The line of three.js's line shader after which both ends are in view space. */
+const VIEW_SPACE_ENDS: string =
+  "vec4 end = modelViewMatrix * vec4( instanceEnd, 1.0 );";

@@ -31,35 +31,7 @@ export namespace minimumJerk {
     return evaluate(u, "profile") as IAutoMovieMinimumJerk.IProfile;
   }
 
-  /** Actual output demands selected only by this module's public reads. */
-  type IDemand = "profile" | "share" | "rate";
-  type IReading = IAutoMovieMinimumJerk.IProfile | number;
-
-  /** One admission/clipping/polynomial owner, evaluating only demanded fields. */
-  function evaluate(u: number, demand: IDemand): IReading {
-    if (u <= 0) return demand === "profile" ? { s: 0, ds: 0, dds: 0 } : 0;
-    if (u >= 1)
-      return demand === "profile"
-        ? { s: 1, ds: 0, dds: 0 }
-        : demand === "share"
-          ? 1
-          : 0;
-    const reflected: boolean = demand !== "rate" && u > 0.5;
-    const t: number = reflected ? 1 - u : u;
-    const t2: number = t * t;
-    if (demand === "rate") return 30 * t2 * (1 - 2 * u + t2);
-    const firstHalf: number = t2 * t * (10 - 15 * t + 6 * t2);
-    const s: number = reflected ? 1 - firstHalf : firstHalf;
-    if (demand === "share") return s;
-    const u2: number = reflected ? u * u : t2;
-    return {
-      s,
-      ds: 30 * u2 * (1 - 2 * u + u2),
-      dds: 60 * u * (1 - 3 * u + 2 * u2),
-    };
-  }
-
-    /**
+  /**
    * The same normalized displacement fraction s, without derivative work or a
    * profile record. Any finite time is admitted and outside [0,1] holds the
    * corresponding endpoint; nonfinite time keeps the original refusal.
@@ -67,7 +39,6 @@ export namespace minimumJerk {
   export function share(u: number): number {
     return evaluate(u, "share") as number;
   }
-
   /**
    * The first derivative ds with respect to normalized time, without the
    * displacement, second derivative or profile record. Finite times outside
@@ -93,5 +64,34 @@ export namespace minimumJerk {
       1,
       2 ** -48,
     );
+  }
+
+    /** Actual output demands selected only by this module's public reads. */
+  type IDemand = "profile" | "share" | "rate";
+
+  type IReading = IAutoMovieMinimumJerk.IProfile | number;
+
+  /** One admission/clipping/polynomial owner, evaluating only demanded fields. */
+  function evaluate(u: number, demand: IDemand): IReading {
+    if (u <= 0) return demand === "profile" ? { s: 0, ds: 0, dds: 0 } : 0;
+    if (u >= 1)
+      return demand === "profile"
+        ? { s: 1, ds: 0, dds: 0 }
+        : demand === "share"
+          ? 1
+          : 0;
+    const reflected: boolean = demand !== "rate" && u > 0.5;
+    const t: number = reflected ? 1 - u : u;
+    const t2: number = t * t;
+    if (demand === "rate") return 30 * t2 * (1 - 2 * u + t2);
+    const firstHalf: number = t2 * t * (10 - 15 * t + 6 * t2);
+    const s: number = reflected ? 1 - firstHalf : firstHalf;
+    if (demand === "share") return s;
+    const u2: number = reflected ? u * u : t2;
+    return {
+      s,
+      ds: 30 * u2 * (1 - 2 * u + u2),
+      dds: 60 * u * (1 - 3 * u + 2 * u2),
+    };
   }
 }

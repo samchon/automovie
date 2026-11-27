@@ -20,42 +20,6 @@ import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { FootSlip } from "./FootSlip";
 import { locomotionCaseInstants } from "./internal/locomotionCaseInstants";
 
-/** The record of `ILocomotionCasePartsResult`'s site. */
-type ILocomotionCasePartsResult = { h: number; p: number; r: number };
-
-/** The alternatives of `LocomotionCasePhase`'s site. */
-type LocomotionCasePhase = "stance" | "swing";
-
-/** The record of `ILocomotionCasePop`'s site. */
-type ILocomotionCasePop = { value: number; where: string };
-
-/** The record of `ILocomotionCaseTurnEntry`'s site. */
-type ILocomotionCaseTurnEntry = { value: number; where: string };
-
-/** The alternatives of `LocomotionCaseTurnEntry`'s site. */
-type LocomotionCaseTurnEntry = "stance" | "swing";
-
-/** The record of `ILocomotionCaseReach`'s site. */
-type ILocomotionCaseReach = { value: number; where: string };
-
-/** The record of `ILocomotionCaseSink`'s site. */
-type ILocomotionCaseSink = { value: number; where: string };
-
-/** The record of `ILocomotionCaseSlip`'s site. */
-type ILocomotionCaseSlip = { value: number; where: string };
-
-/** The record of `ILocomotionCaseDriftItem`'s site. */
-type ILocomotionCaseDriftItem = { at: IAutoMovieVector3; drift: number };
-
-/** The record of `ILocomotionCaseTrailsItem`'s site. */
-type ILocomotionCaseTrailsItem = { color: number; points: IAutoMovieVector3[] };
-
-/** The alternatives of `LocomotionCaseOne2`'s site. */
-type LocomotionCaseOne2 = "jog" | "run" | "sprint";
-
-/** The alternatives of `LocomotionCaseOne`'s site. */
-type LocomotionCaseOne = "slow" | "normal" | "fast";
-
 /**
  * One walk or run capture case of `locomotionCases`: one body walks or runs to
  * its goal at the row's pace, with the frames, trails and verdicts that
@@ -438,9 +402,6 @@ export function locomotionCase(
   };
 }
 
-/** The alternatives of `LocomotionCaseInputExtra`'s site. */
-type LocomotionCaseInputExtra = "to" | "pace";
-
 /** Companion types of `locomotionCase`. */
 export namespace locomotionCase {
   /**
@@ -488,3 +449,42 @@ export namespace locomotionCase {
     | { law: "walk"; pace: LocomotionCaseOne }
     | { law: "run"; pace: LocomotionCaseOne2 };
 }
+
+/** The record of `ILocomotionCasePartsResult`'s site. */
+type ILocomotionCasePartsResult = { h: number; p: number; r: number };
+
+/** The alternatives of `LocomotionCasePhase`'s site. */
+type LocomotionCasePhase = "stance" | "swing";
+
+/** The record of `ILocomotionCasePop`'s site. */
+type ILocomotionCasePop = { value: number; where: string };
+
+/** The record of `ILocomotionCaseTurnEntry`'s site. */
+type ILocomotionCaseTurnEntry = { value: number; where: string };
+
+/** The alternatives of `LocomotionCaseTurnEntry`'s site. */
+type LocomotionCaseTurnEntry = "stance" | "swing";
+
+/** The record of `ILocomotionCaseReach`'s site. */
+type ILocomotionCaseReach = { value: number; where: string };
+
+/** The record of `ILocomotionCaseSink`'s site. */
+type ILocomotionCaseSink = { value: number; where: string };
+
+/** The record of `ILocomotionCaseSlip`'s site. */
+type ILocomotionCaseSlip = { value: number; where: string };
+
+/** The record of `ILocomotionCaseDriftItem`'s site. */
+type ILocomotionCaseDriftItem = { at: IAutoMovieVector3; drift: number };
+
+/** The record of `ILocomotionCaseTrailsItem`'s site. */
+type ILocomotionCaseTrailsItem = { color: number; points: IAutoMovieVector3[] };
+
+/** The alternatives of `LocomotionCaseOne2`'s site. */
+type LocomotionCaseOne2 = "jog" | "run" | "sprint";
+
+/** The alternatives of `LocomotionCaseOne`'s site. */
+type LocomotionCaseOne = "slow" | "normal" | "fast";
+
+/** The alternatives of `LocomotionCaseInputExtra`'s site. */
+type LocomotionCaseInputExtra = "to" | "pace";

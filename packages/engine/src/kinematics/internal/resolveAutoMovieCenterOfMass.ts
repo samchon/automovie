@@ -18,33 +18,6 @@ import { AutoMovieGravity } from "../../physics/AutoMovieGravity";
 import { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";
 import { resolvePose } from "./resolvePose";
 
-/**
- * Resolve a body's mass model: every profile segment's mass and centre of mass
- * as a point riding its bone, so the whole-body centre of mass of any pose is
- * the mass-weighted mean of those points (the segmental method of biomechanics,
- * Winter, Biomechanics and Motor Control of Human Movement, ch. 4).
- *
- * A segment's centre of mass is read at rest from its neutral frame and stored
- * relative to its bone's rest joint in the bone's rest frame, the same
- * bone-local convention as the surface frames, so posing it is the bone's world
- * position plus its world rotation applied to the stored point.
- *
- * @param skeleton The rig.
- * @param profile Its physical profile, segments keyed by rig bones.
- * @returns The mass model.
- * @throws {Error} When a segment's bone is not in the rig or the profile has no
- *   positive mass.
- */
-function resolveAutoMovieCenterOfMassRun(
-  skeleton: IAutoMovieSkeleton,
-  profile: IAutoMoviePhysicalProfile,
-): IAutoMovieResolveCenterOfMass.IModel {
-  return fromRest(
-    profile,
-    resolvePose({ skeleton: skeleton.id, root: null, joints: [] }, skeleton),
-  );
-}
-
 /** Companion types and helpers of {@link resolveAutoMovieCenterOfMass}. */
 export namespace resolveAutoMovieCenterOfMass {
   /** Execute the operation without merging a callable with this namespace. */
@@ -237,6 +210,33 @@ export namespace resolveAutoMovieCenterOfMass {
     const distance: number = nearestHullEdge(point, hull).distance;
     return hull.length >= 3 && pointInHull(point, hull) ? distance : -distance;
   }
+}
+
+/**
+ * Resolve a body's mass model: every profile segment's mass and centre of mass
+ * as a point riding its bone, so the whole-body centre of mass of any pose is
+ * the mass-weighted mean of those points (the segmental method of biomechanics,
+ * Winter, Biomechanics and Motor Control of Human Movement, ch. 4).
+ *
+ * A segment's centre of mass is read at rest from its neutral frame and stored
+ * relative to its bone's rest joint in the bone's rest frame, the same
+ * bone-local convention as the surface frames, so posing it is the bone's world
+ * position plus its world rotation applied to the stored point.
+ *
+ * @param skeleton The rig.
+ * @param profile Its physical profile, segments keyed by rig bones.
+ * @returns The mass model.
+ * @throws {Error} When a segment's bone is not in the rig or the profile has no
+ *   positive mass.
+ */
+function resolveAutoMovieCenterOfMassRun(
+  skeleton: IAutoMovieSkeleton,
+  profile: IAutoMoviePhysicalProfile,
+): IAutoMovieResolveCenterOfMass.IModel {
+  return fromRest(
+    profile,
+    resolvePose({ skeleton: skeleton.id, root: null, joints: [] }, skeleton),
+  );
 }
 
 /**

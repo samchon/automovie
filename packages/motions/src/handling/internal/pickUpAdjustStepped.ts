@@ -18,35 +18,6 @@ import { pickUpAdjustTimed } from "./pickUpAdjustTimed";
 import type { pickUpPosture } from "./pickUpPosture";
 import { pickUpStepReach } from "./pickUpStepReach";
 
-/** A ready stance and the distance its adjustment foot travels, metres. */
-interface IStep {
-  /** Foot travel along the floor, metres. */
-  length: number;
-
-  /** The body and its retained step schedule. */
-  stance: pickUpPosture.IStance;
-}
-
-/** The requested adjustment may lie beyond a single step. */
-type Step = IStep | null;
-
-/** The least foot travel, if its reach intersects the permitted course. */
-type Travel = pickUpStepReach.Distance;
-
-/** The opposite ankle is absent when the entry has no placement for it. */
-type Ankle = IAutoMovieHumanLimbGoal | undefined;
-
-/** Whether another admitted reach adjustment can use the stepped base. */
-type Accept = (posture: IAutoMovieMotionHumanPosture) => boolean;
-
-/** A leg goal addressed by the side of its support. */
-type Leg = `${AutoMovieHumanSide}Leg`;
-
-/** Same-person exact FK loan borrowed by an actual adjusted stance invocation. */
-type IFK = Parameters<pickUpPosture.IStance["at"]>[1];
-
-type IROM = Parameters<pickUpPosture.IStance["at"]>[2];
-
 /**
  * A stance that takes one adjustment step toward a grip its arm still misses, a
  * foot stepping toward the wrist's place: the least step whose half, the pelvis
@@ -318,3 +289,32 @@ export function pickUpAdjustStepped(
     };
   }
 }
+
+/** A ready stance and the distance its adjustment foot travels, metres. */
+interface IStep {
+  /** Foot travel along the floor, metres. */
+  length: number;
+
+  /** The body and its retained step schedule. */
+  stance: pickUpPosture.IStance;
+}
+
+/** The requested adjustment may lie beyond a single step. */
+type Step = IStep | null;
+
+/** The least foot travel, if its reach intersects the permitted course. */
+type Travel = pickUpStepReach.Distance;
+
+/** The opposite ankle is absent when the entry has no placement for it. */
+type Ankle = IAutoMovieHumanLimbGoal | undefined;
+
+/** Whether another admitted reach adjustment can use the stepped base. */
+type Accept = (posture: IAutoMovieMotionHumanPosture) => boolean;
+
+/** A leg goal addressed by the side of its support. */
+type Leg = `${AutoMovieHumanSide}Leg`;
+
+/** Same-person exact FK loan borrowed by an actual adjusted stance invocation. */
+type IFK = Parameters<pickUpPosture.IStance["at"]>[1];
+
+type IROM = Parameters<pickUpPosture.IStance["at"]>[2];

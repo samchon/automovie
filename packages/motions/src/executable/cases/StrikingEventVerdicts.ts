@@ -3,9 +3,6 @@ import type { IAutoMovieMotionHumanSegment } from "@automovie/interface";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { StrikingVerdicts } from "./StrikingVerdicts";
 
-/** The record of `IDefenceParams`'s site. */
-type IDefenceParams = { outcome?: string };
-
 /**
  * The striking capture's verdicts read off a plan's events rather than off a
  * strike's displayed limb: whether a defence's events class as its declared
@@ -77,3 +74,6 @@ export namespace StrikingEventVerdicts {
     };
   }
 }
+
+/** The record of `IDefenceParams`'s site. */
+type IDefenceParams = { outcome?: string };

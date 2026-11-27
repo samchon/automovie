@@ -190,24 +190,6 @@ export namespace AutoMovieViewJointedCourse {
     };
   }
 
-  /**
-   * One value-only course walk; derivative vectors are allocated only by the
-   * analytic jet query.
-   */
-  interface ISample {
-    /** Actual quadrature-origin frame value. */
-    value: IAutoMovieLoftSectionFrame;
-
-    /** Analytic unit tangent at that station. */
-    tangent: AutoMovieVector3Tuple;
-
-    /** Active nonzero turn, absent on a straight run or turn endpoint. */
-    active: IAutoMovieViewJointedCourse.ITurn | undefined;
-
-    /** Unit turn share when active, zero otherwise. */
-    offset: number;
-  }
-
   /** Integral of one admitted turn's tangent over an arclength from its start. */
   export function integrate(
     tangent: AutoMovieVector3Tuple,
@@ -226,6 +208,24 @@ export namespace AutoMovieViewJointedCourse {
         );
       }
     return sum;
+  }
+
+  /**
+   * One value-only course walk; derivative vectors are allocated only by the
+   * analytic jet query.
+   */
+  interface ISample {
+    /** Actual quadrature-origin frame value. */
+    value: IAutoMovieLoftSectionFrame;
+
+    /** Analytic unit tangent at that station. */
+    tangent: AutoMovieVector3Tuple;
+
+    /** Active nonzero turn, absent on a straight run or turn endpoint. */
+    active: IAutoMovieViewJointedCourse.ITurn | undefined;
+
+    /** Unit turn share when active, zero otherwise. */
+    offset: number;
   }
 }
 

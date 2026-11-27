@@ -8,15 +8,6 @@ import {
 import { AutoMovieArchetypeFirearm } from "./AutoMovieArchetypeFirearm";
 import type { AutoMovieArchetypeLongGun } from "../AutoMovieArchetypeLongGun";
 
-/** A long gun under construction. */
-type Builder = AutoMovieArchetypeBuilder<
-  AutoMovieArchetypeLongGun.Affordance,
-  AutoMovieArchetypeLongGun.Dimension
->;
-
-/** A long gun's drawn and read dimensions. */
-type Drawn = Readonly<Partial<Record<AutoMovieArchetypeLongGun.Dimension, number>>>;
-
 /**
  * The mechanisms of the period and repeating long guns, laid on the gun
  * `createLongGun` builds along `+Z`, its barrel's line at `y = 0` and its lock
@@ -117,17 +108,6 @@ export namespace LongGunLock {
       lean: 0.01,
     },
   };
-
-  /**
-   * The front pipe's middle along the gun, metres: `ESTIMATES.rod.pipe` behind
-   * the muzzle.
-   *
-   * @param d The gun's dimensions.
-   * @returns Its place along `+Z`.
-   */
-  function pipeFront(d: Drawn): number {
-    return d.length! - ESTIMATES.rod.pipe;
-  }
 
   /**
    * Where a musket's supporting hand holds it, the swell of the stock, along
@@ -354,7 +334,27 @@ export namespace LongGunLock {
       follows: { id: "lever", ratio: e.lever.hammer / e.lever.swing },
     });
   }
+
+  /**
+   * The front pipe's middle along the gun, metres: `ESTIMATES.rod.pipe` behind
+   * the muzzle.
+   *
+   * @param d The gun's dimensions.
+   * @returns Its place along `+Z`.
+   */
+  function pipeFront(d: Drawn): number {
+    return d.length! - ESTIMATES.rod.pipe;
+  }
 }
+
+/** A long gun under construction. */
+type Builder = AutoMovieArchetypeBuilder<
+  AutoMovieArchetypeLongGun.Affordance,
+  AutoMovieArchetypeLongGun.Dimension
+>;
+
+/** A long gun's drawn and read dimensions. */
+type Drawn = Readonly<Partial<Record<AutoMovieArchetypeLongGun.Dimension, number>>>;
 
 /**
  * The Short Land musket's ramrod pipes: "four brass ramrod tubes, steel ramrod"

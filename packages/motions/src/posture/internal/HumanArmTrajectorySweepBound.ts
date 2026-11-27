@@ -6,9 +6,6 @@ import { HumanArmTrajectoryHalfStep } from "./HumanArmTrajectoryHalfStep";
 import type { HumanArmTrajectoryLinks } from "./HumanArmTrajectoryLinks";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
-/** The frame times needed to bound a probe's chord travel. */
-type ChordClock = Pick<M.IContext, "times">;
-
 /**
  * The motion bounds the arm's sweeps (`HumanArmTrajectorySweep`) certify frame
  * steps by, prepared once per course: conservative advancement (Mirtich 1996,
@@ -110,3 +107,6 @@ export namespace HumanArmTrajectorySweepBound {
       : AutoMovieMotionBound.prepare(along, speeds);
   }
 }
+
+/** The frame times needed to bound a probe's chord travel. */
+type ChordClock = Pick<M.IContext, "times">;

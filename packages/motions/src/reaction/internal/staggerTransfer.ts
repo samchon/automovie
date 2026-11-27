@@ -1,34 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/** The record of `IStaggerTransferParticularResult`'s site. */
-type IStaggerTransferParticularResult = {
-  x: IAutoMovieVector3;
-  dx: IAutoMovieVector3;
-  p: IAutoMovieVector3;
-};
-
-/** The record of `IStaggerTransferParticular`'s site. */
-type IStaggerTransferParticular = {
-  x: IAutoMovieVector3;
-  dx: IAutoMovieVector3;
-  p: IAutoMovieVector3;
-};
-
-/** The record of `IStaggerTransferResult`'s site. */
-type IStaggerTransferResult = {
-  s: IAutoMovieVector3;
-  v: IAutoMovieVector3;
-  p: IAutoMovieVector3;
-};
-
-/** The record of `IStaggerTransferFrom`'s site. */
-type IStaggerTransferFrom = {
-  p: IAutoMovieVector3;
-  s: IAutoMovieVector3;
-  v: IAutoMovieVector3;
-};
-
 /**
  * Hof's pendulum over a weight shift in closed form: the centre of pressure
  * runs from `p` to `q` on a minimum-jerk course over `span` seconds (`p(t) = p
@@ -107,3 +79,31 @@ export function staggerTransfer(
     ),
   };
 }
+
+/** The record of `IStaggerTransferParticularResult`'s site. */
+type IStaggerTransferParticularResult = {
+  x: IAutoMovieVector3;
+  dx: IAutoMovieVector3;
+  p: IAutoMovieVector3;
+};
+
+/** The record of `IStaggerTransferParticular`'s site. */
+type IStaggerTransferParticular = {
+  x: IAutoMovieVector3;
+  dx: IAutoMovieVector3;
+  p: IAutoMovieVector3;
+};
+
+/** The record of `IStaggerTransferResult`'s site. */
+type IStaggerTransferResult = {
+  s: IAutoMovieVector3;
+  v: IAutoMovieVector3;
+  p: IAutoMovieVector3;
+};
+
+/** The record of `IStaggerTransferFrom`'s site. */
+type IStaggerTransferFrom = {
+  p: IAutoMovieVector3;
+  s: IAutoMovieVector3;
+  v: IAutoMovieVector3;
+};

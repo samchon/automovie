@@ -7,16 +7,6 @@ import type {
 
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 
-/** Invocation-local normalized positive Bernstein terms, before velocity work. */
-interface Basis<T> {
-  /** Normalized first extent. */ a: T;
-  /** Normalized second extent. */ b: T;
-  /** Frozen primal scaling gauge. */ gauge: T;
-  /** First coordinate numerator basis. */ left: T;
-  /** Second coordinate numerator basis. */ right: T;
-  /** Shared positive rational denominator. */ denominator: T;
-}
-
 /** Shared rational-quadratic algebra and fixed-clock source readings. */
 export namespace AutoMovieConicArcField {
   /** The original dimensionless shoulder-to-weight map. */
@@ -124,49 +114,6 @@ export namespace AutoMovieConicArcField {
     return restorePoint(ops, pointBasis(ops, a, b, w, t));
   }
 
-  /** Preserve the original pre-velocity operation order and normalization. */
-  function pointBasis<T>(
-    ops: IAutoMovieAlgebra<T>,
-    a: T,
-    b: T,
-    w: T,
-    t: T,
-  ): Basis<T> {
-    const scale: number = Math.max(
-      Math.abs(ops.value(a)),
-      Math.abs(ops.value(b)),
-    );
-    const gauge: T = ops.constant(scale);
-    const A: T = ops.divide(a, gauge);
-    const B: T = ops.divide(b, gauge);
-    const s: T = ops.subtract(ops.constant(1), t);
-    const middle: T = ops.multiply(
-      ops.multiply(ops.multiply(ops.constant(2), w), t),
-      s,
-    );
-    const left: T = ops.add(ops.multiply(s, s), middle);
-    const right: T = ops.add(middle, ops.multiply(t, t));
-    const denominator: T = ops.add(left, ops.multiply(t, t));
-    return { a: A, b: B, gauge, left, right, denominator };
-  }
-
-  /** The same final point operations occur after velocity work in evaluate. */
-  function restorePoint<T>(
-    ops: IAutoMovieAlgebra<T>,
-    basis: Basis<T>,
-  ): readonly [T, T] {
-    return [
-      ops.multiply(
-        ops.divide(ops.multiply(basis.a, basis.left), basis.denominator),
-        basis.gauge,
-      ),
-      ops.multiply(
-        ops.divide(ops.multiply(basis.b, basis.right), basis.denominator),
-        basis.gauge,
-      ),
-    ];
-  }
-
   /** Reflect a selected end back to its original quarter chart. */
   export function orient<T>(
     ops: IAutoMovieAlgebra<T>,
@@ -241,4 +188,57 @@ export namespace AutoMovieConicArcField {
       evaluate(ops, a, b, weight(ops, shoulder), ops.constant(ray.native));
     return finish(orient(ops, geometry, ray.reverse), ray);
   }
+
+  /** Preserve the original pre-velocity operation order and normalization. */
+  function pointBasis<T>(
+    ops: IAutoMovieAlgebra<T>,
+    a: T,
+    b: T,
+    w: T,
+    t: T,
+  ): Basis<T> {
+    const scale: number = Math.max(
+      Math.abs(ops.value(a)),
+      Math.abs(ops.value(b)),
+    );
+    const gauge: T = ops.constant(scale);
+    const A: T = ops.divide(a, gauge);
+    const B: T = ops.divide(b, gauge);
+    const s: T = ops.subtract(ops.constant(1), t);
+    const middle: T = ops.multiply(
+      ops.multiply(ops.multiply(ops.constant(2), w), t),
+      s,
+    );
+    const left: T = ops.add(ops.multiply(s, s), middle);
+    const right: T = ops.add(middle, ops.multiply(t, t));
+    const denominator: T = ops.add(left, ops.multiply(t, t));
+    return { a: A, b: B, gauge, left, right, denominator };
+  }
+
+  /** The same final point operations occur after velocity work in evaluate. */
+  function restorePoint<T>(
+    ops: IAutoMovieAlgebra<T>,
+    basis: Basis<T>,
+  ): readonly [T, T] {
+    return [
+      ops.multiply(
+        ops.divide(ops.multiply(basis.a, basis.left), basis.denominator),
+        basis.gauge,
+      ),
+      ops.multiply(
+        ops.divide(ops.multiply(basis.b, basis.right), basis.denominator),
+        basis.gauge,
+      ),
+    ];
+  }
+}
+
+/** Invocation-local normalized positive Bernstein terms, before velocity work. */
+interface Basis<T> {
+  /** Normalized first extent. */ a: T;
+  /** Normalized second extent. */ b: T;
+  /** Frozen primal scaling gauge. */ gauge: T;
+  /** First coordinate numerator basis. */ left: T;
+  /** Second coordinate numerator basis. */ right: T;
+  /** Shared positive rational denominator. */ denominator: T;
 }

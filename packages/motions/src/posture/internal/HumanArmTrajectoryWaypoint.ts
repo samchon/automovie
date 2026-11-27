@@ -14,15 +14,6 @@ import type { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
-/** The alternatives of `NormalsOwnersResult`'s site. */
-type NormalsOwnersResult = "upper" | "lower" | "hand";
-
-/** The alternatives of `OwnersItemResult`'s site. */
-type OwnersItemResult = "upper" | "lower" | "hand";
-
-/** The alternatives of `NormalsOwnersItem`'s site. */
-type NormalsOwnersItem = "upper" | "lower" | "hand";
-
 /**
  * A waypoint's record, built: the arm resting there placed (`resting`) and its
  * colliders, and each site's touched collider and outward normal, the collider
@@ -167,3 +158,12 @@ export namespace HumanArmTrajectoryWaypoint {
     reachable: number[][];
   }
 }
+
+/** The alternatives of `NormalsOwnersResult`'s site. */
+type NormalsOwnersResult = "upper" | "lower" | "hand";
+
+/** The alternatives of `OwnersItemResult`'s site. */
+type OwnersItemResult = "upper" | "lower" | "hand";
+
+/** The alternatives of `NormalsOwnersItem`'s site. */
+type NormalsOwnersItem = "upper" | "lower" | "hand";

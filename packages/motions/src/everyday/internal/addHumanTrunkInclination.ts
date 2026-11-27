@@ -1,8 +1,5 @@
 import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
 
-/** A trunk bone an inclination's spinal share flexes. */
-type AddHumanTrunkInclinationBone = "spine" | "chest";
-
 /**
  * Add a share of the spine's flexion to one bone, keeping its other angles
  * (`HumanTrunk.incline`).
@@ -21,3 +18,6 @@ export function addHumanTrunkInclination(
   const was: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
   joints[bone] = [was[0] + part * spine, was[1], was[2]];
 }
+
+/** A trunk bone an inclination's spinal share flexes. */
+type AddHumanTrunkInclinationBone = "spine" | "chest";

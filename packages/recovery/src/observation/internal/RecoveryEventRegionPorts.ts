@@ -6,21 +6,6 @@ import type {
   IAutoMovieRecoveryEventRegionTopology,
 } from "@automovie/interface";
 
-type Node = ReturnType<
-  ReturnType<IAutoMovieRecoveryEventRegion.Operation>
->["nodes"][number];
-
-type Occurrence = ReturnType<
-  ReturnType<IAutoMovieRecoveryEventRegion.Operation>
->["occurrences"][number];
-
-type Issue = ReturnType<
-  ReturnType<IAutoMovieRecoveryEventRegion.Operation>
->["issues"][number];
-
-type PortReference = Parameters<
-  ReturnType<IAutoMovieRecoveryEventRegion.Operation>
->[0]["ports"][number]["reference"];
 /**
  * Attach contact and port ownership evidence after component topology is
  * complete.
@@ -196,3 +181,18 @@ export function RecoveryEventRegionPorts(
   });
   return result;
 }
+
+type Node = ReturnType<
+  ReturnType<IAutoMovieRecoveryEventRegion.Operation>
+>["nodes"][number];
+
+type Occurrence = ReturnType<
+  ReturnType<IAutoMovieRecoveryEventRegion.Operation>
+>["occurrences"][number];
+
+type Issue = ReturnType<
+  ReturnType<IAutoMovieRecoveryEventRegion.Operation>
+>["issues"][number];
+type PortReference = Parameters<
+  ReturnType<IAutoMovieRecoveryEventRegion.Operation>
+>[0]["ports"][number]["reference"];

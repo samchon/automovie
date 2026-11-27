@@ -4,10 +4,6 @@ import * as fs from "node:fs/promises";
 import { AutoMovieMp4Boxes } from "../../delivery/internal/AutoMovieMp4Boxes";
 import type { IAutoMovieDeliveryProfileFinding } from "../../delivery/internal/IAutoMovieDeliveryProfileFinding";
 
-/** The box readers the audit walks the movie box with. */
-const { children, field, handler, only }: typeof AutoMovieMp4Boxes =
-  AutoMovieMp4Boxes;
-
 /**
  * Check that a transparent render's `.mov` holds the drawn frame files
  * themselves: one video sample per frame, each sample's bytes hashing to its
@@ -113,6 +109,10 @@ export async function auditAutoMovieAlphaSamples(props: {
   }
   return findings;
 }
+
+/** The box readers the audit walks the movie box with. */
+const { children, field, handler, only }: typeof AutoMovieMp4Boxes =
+  AutoMovieMp4Boxes;
 
 /**
  * Every sample's file offset and size from a track's `stsz`, `stsc` and `stco`

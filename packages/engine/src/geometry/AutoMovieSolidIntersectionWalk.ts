@@ -14,16 +14,9 @@ import { AutoMovieSolidTraceObservation as Observation } from "./construction/Au
 import { AutoMovieSolidTraceSolve } from "./AutoMovieSolidTraceSolve";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-/** World point or direction used by the original predictor. */
-type Vec3 = AutoMovieVector3Tuple;
-/** Surface partials used to construct the intersection tangent. */
-type IJet = IAutoMovieSolidSurface.IJet;
-/** The unchanged public meeting-point result. */
-type IPoint = IAutoMovieSolidIntersection.IPoint;
 /** World-vector operations for the original tangent and predictor equations. */
 const { add, cross, dot, norm, scale, sub }: typeof AutoMovieSolidVector =
   AutoMovieSolidVector;
-
 /**
  * Original arc-mode loop preparation, separate from parameterized trace
  * publication.
@@ -481,3 +474,10 @@ export namespace AutoMovieSolidIntersectionWalk {
     };
   }
 }
+/** World point or direction used by the original predictor. */
+type Vec3 = AutoMovieVector3Tuple;
+/** Surface partials used to construct the intersection tangent. */
+type IJet = IAutoMovieSolidSurface.IJet;
+
+/** The unchanged public meeting-point result. */
+type IPoint = IAutoMovieSolidIntersection.IPoint;

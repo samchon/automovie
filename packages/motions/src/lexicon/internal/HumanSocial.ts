@@ -16,60 +16,6 @@ import { highFive } from "../../touch/internal/highFive";
 import { kiss } from "../../touch/internal/kiss";
 import { touch } from "../../touch/internal/touch";
 
-/** The alternatives of `CastEntryItem5`'s site. */
-type CastEntryItem5 = "host" | "guest" | "third" | "fourth";
-
-/** The alternatives of `ToastOfFourRole`'s site. */
-type ToastOfFourRole = "host" | "guest" | "third" | "fourth";
-
-/** The alternatives of `ToastOfFour`'s site. */
-type ToastOfFour = "host" | "guest" | "third" | "fourth";
-
-/** The alternatives of `CastEntryItem4`'s site. */
-type CastEntryItem4 = "one" | "other";
-
-/** The alternatives of `ThumbWrestleRole`'s site. */
-type ThumbWrestleRole = "one" | "other";
-
-/** The alternatives of `ThumbWrestle`'s site. */
-type ThumbWrestle = "one" | "other";
-
-/** The alternatives of `CastEntryItem3`'s site. */
-type CastEntryItem3 = "one" | "other";
-
-/** The alternatives of `ArmWrestleRole`'s site. */
-type ArmWrestleRole = "one" | "other";
-
-/** The alternatives of `ArmWrestle`'s site. */
-type ArmWrestle = "one" | "other";
-
-/** The alternatives of `RockPaperScissors`'s site. */
-type RockPaperScissors = "one" | "other";
-
-/** The alternatives of `CastEntryItem2`'s site. */
-type CastEntryItem2 = "host" | "guest";
-
-/** The alternatives of `ToastRole`'s site. */
-type ToastRole = "host" | "guest";
-
-/** The alternatives of `Toast`'s site. */
-type Toast = "host" | "guest";
-
-/** The alternatives of `CastEntryItem`'s site. */
-type CastEntryItem = "one" | "other";
-
-/** The record of `IBumpParams`'s site. */
-type IBumpParams = { window?: IAutoMovieMotionMeeting.IWindow };
-
-/** The alternatives of `BumpRole`'s site. */
-type BumpRole = "one" | "other";
-
-/** The alternatives of `Bump`'s site. */
-type Bump = "one" | "other";
-
-/** The record of `IBump`'s site. */
-type IBump = { window?: IAutoMovieMotionMeeting.IWindow };
-
 /**
  * Things two people do together or to each other in company, as rows of shipped
  * actions and as mutual records over them (`HumanChain.mutual`). Register the
@@ -379,3 +325,57 @@ export namespace HumanSocial {
     }),
   };
 }
+
+/** The alternatives of `CastEntryItem5`'s site. */
+type CastEntryItem5 = "host" | "guest" | "third" | "fourth";
+
+/** The alternatives of `ToastOfFourRole`'s site. */
+type ToastOfFourRole = "host" | "guest" | "third" | "fourth";
+
+/** The alternatives of `ToastOfFour`'s site. */
+type ToastOfFour = "host" | "guest" | "third" | "fourth";
+
+/** The alternatives of `CastEntryItem4`'s site. */
+type CastEntryItem4 = "one" | "other";
+
+/** The alternatives of `ThumbWrestleRole`'s site. */
+type ThumbWrestleRole = "one" | "other";
+
+/** The alternatives of `ThumbWrestle`'s site. */
+type ThumbWrestle = "one" | "other";
+
+/** The alternatives of `CastEntryItem3`'s site. */
+type CastEntryItem3 = "one" | "other";
+
+/** The alternatives of `ArmWrestleRole`'s site. */
+type ArmWrestleRole = "one" | "other";
+
+/** The alternatives of `ArmWrestle`'s site. */
+type ArmWrestle = "one" | "other";
+
+/** The alternatives of `RockPaperScissors`'s site. */
+type RockPaperScissors = "one" | "other";
+
+/** The alternatives of `CastEntryItem2`'s site. */
+type CastEntryItem2 = "host" | "guest";
+
+/** The alternatives of `ToastRole`'s site. */
+type ToastRole = "host" | "guest";
+
+/** The alternatives of `Toast`'s site. */
+type Toast = "host" | "guest";
+
+/** The alternatives of `CastEntryItem`'s site. */
+type CastEntryItem = "one" | "other";
+
+/** The record of `IBumpParams`'s site. */
+type IBumpParams = { window?: IAutoMovieMotionMeeting.IWindow };
+
+/** The alternatives of `BumpRole`'s site. */
+type BumpRole = "one" | "other";
+
+/** The alternatives of `Bump`'s site. */
+type Bump = "one" | "other";
+
+/** The record of `IBump`'s site. */
+type IBump = { window?: IAutoMovieMotionMeeting.IWindow };

@@ -17,9 +17,6 @@ import type {
 
 import { HumanObject } from "../HumanObject";
 
-/** The record of `IObjectBounds`'s site. */
-type IObjectBounds = { min: IAutoMovieVector3; max: IAutoMovieVector3 };
-
 /**
  * What stands in a person's way: a wall, a piece of furniture, a door frame,
  * each a solid of the scene with the openings a person may pass through.
@@ -417,3 +414,6 @@ export namespace HumanObstacle {
     return enter;
   };
 }
+
+/** The record of `IObjectBounds`'s site. */
+type IObjectBounds = { min: IAutoMovieVector3; max: IAutoMovieVector3 };

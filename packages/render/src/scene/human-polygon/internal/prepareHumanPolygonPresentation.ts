@@ -9,86 +9,6 @@ import { Quaternion, Vector3 } from "three";
 
 import type { AutoMovieHumanPolygon } from "../../AutoMovieHumanPolygon.js";
 
-/** A complete evaluated pose in registered Human body coordinates. */
-type AutoMoviePolygonPose = Pick<IAutoMovieHumanSkeleton.IOutput, "posed">;
-
-/** One evaluated frame retained or used for rigid placement arithmetic. */
-interface IAutoMoviePolygonFrame {
-  position: Vector3;
-  rotation: Quaternion;
-}
-
-/** Shared timing and authored rotation of a prepared visual cue. */
-interface IAutoMoviePolygonCueTiming {
-  at: number;
-  duration: number;
-  rotation: Quaternion;
-}
-
-/** A live bend or a frozen shot-world release with its authored displacement. */
-type AutoMoviePreparedPolygonCue = IAutoMoviePolygonCueTiming &
-  (
-    | { kind: "bend"; bone: string }
-    | {
-        kind: "detach";
-        pivot: Vector3;
-        released: ReadonlyMap<string, IAutoMoviePolygonFrame>;
-        translation: Vector3;
-      }
-  );
-
-/**
- * Admit a finite quaternion with the same squared-norm tolerance as a polygon
- * pose.
- */
-function unitRotation(
-  x: number,
-  y: number,
-  z: number,
-  w: number,
-  label: string,
-): Quaternion {
-  if (Math.abs(x ** 2 + y ** 2 + z ** 2 + w ** 2 - 1) > 1e-6)
-    throw new Error(`Invalid polygon rotation: ${label}`);
-  return new Quaternion(x, y, z, w).normalize();
-}
-
-/**
- * Copy one source joint frame for arithmetic without mutating the evaluated
- * pose.
- */
-function boneFrame(
-  placement: IAutoMovieHumanBonePlacement,
-): IAutoMoviePolygonFrame {
-  if (placement.position.length !== 3 || placement.rotation.length !== 4)
-    throw new Error(`Invalid polygon placement: ${placement.bone}`);
-  return {
-    position: new Vector3(...placement.position),
-    rotation: unitRotation(...placement.rotation, placement.bone),
-  };
-}
-
-/** Read the actor parent frame in shot world or use the fixed identity frame. */
-function actorFrame(
-  actorFrameAt: AutoMovieHumanPolygon.IPresentation["actorFrameAt"],
-  seconds: number,
-): IAutoMoviePolygonFrame {
-  if (actorFrameAt === undefined)
-    return { position: new Vector3(), rotation: new Quaternion() };
-  const { position, rotation }: IAutoMovieRigidTransform =
-    actorFrameAt(seconds);
-  return {
-    position: new Vector3(position.x, position.y, position.z),
-    rotation: unitRotation(
-      rotation.x,
-      rotation.y,
-      rotation.z,
-      rotation.w,
-      "actor frame",
-    ),
-  };
-}
-
 /** Prepare rigid visual cues for one polygon drawing on its source clock. */
 export function prepareHumanPolygonPresentation(
   presentation: AutoMovieHumanPolygon.IPresentation,
@@ -296,5 +216,85 @@ export function prepareHumanPolygonPresentation(
         },
       ),
     };
+  };
+}
+
+/** A complete evaluated pose in registered Human body coordinates. */
+type AutoMoviePolygonPose = Pick<IAutoMovieHumanSkeleton.IOutput, "posed">;
+
+/** One evaluated frame retained or used for rigid placement arithmetic. */
+interface IAutoMoviePolygonFrame {
+  position: Vector3;
+  rotation: Quaternion;
+}
+
+/** Shared timing and authored rotation of a prepared visual cue. */
+interface IAutoMoviePolygonCueTiming {
+  at: number;
+  duration: number;
+  rotation: Quaternion;
+}
+
+/** A live bend or a frozen shot-world release with its authored displacement. */
+type AutoMoviePreparedPolygonCue = IAutoMoviePolygonCueTiming &
+  (
+    | { kind: "bend"; bone: string }
+    | {
+        kind: "detach";
+        pivot: Vector3;
+        released: ReadonlyMap<string, IAutoMoviePolygonFrame>;
+        translation: Vector3;
+      }
+  );
+
+/**
+ * Admit a finite quaternion with the same squared-norm tolerance as a polygon
+ * pose.
+ */
+function unitRotation(
+  x: number,
+  y: number,
+  z: number,
+  w: number,
+  label: string,
+): Quaternion {
+  if (Math.abs(x ** 2 + y ** 2 + z ** 2 + w ** 2 - 1) > 1e-6)
+    throw new Error(`Invalid polygon rotation: ${label}`);
+  return new Quaternion(x, y, z, w).normalize();
+}
+
+/**
+ * Copy one source joint frame for arithmetic without mutating the evaluated
+ * pose.
+ */
+function boneFrame(
+  placement: IAutoMovieHumanBonePlacement,
+): IAutoMoviePolygonFrame {
+  if (placement.position.length !== 3 || placement.rotation.length !== 4)
+    throw new Error(`Invalid polygon placement: ${placement.bone}`);
+  return {
+    position: new Vector3(...placement.position),
+    rotation: unitRotation(...placement.rotation, placement.bone),
+  };
+}
+
+/** Read the actor parent frame in shot world or use the fixed identity frame. */
+function actorFrame(
+  actorFrameAt: AutoMovieHumanPolygon.IPresentation["actorFrameAt"],
+  seconds: number,
+): IAutoMoviePolygonFrame {
+  if (actorFrameAt === undefined)
+    return { position: new Vector3(), rotation: new Quaternion() };
+  const { position, rotation }: IAutoMovieRigidTransform =
+    actorFrameAt(seconds);
+  return {
+    position: new Vector3(position.x, position.y, position.z),
+    rotation: unitRotation(
+      rotation.x,
+      rotation.y,
+      rotation.z,
+      rotation.w,
+      "actor frame",
+    ),
   };
 }

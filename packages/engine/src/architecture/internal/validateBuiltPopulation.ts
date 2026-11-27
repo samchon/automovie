@@ -6,12 +6,6 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-/** Largest deviation from unit norm a stated slot rotation may carry. */
-const UNIT_QUATERNION_EPSILON: number = 1e-6;
-
-/** The three world axes every vector check walks. */
-const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
-
 /**
  * Check exactly what a building owns about one population it stages.
  *
@@ -49,6 +43,12 @@ export function validateBuiltPopulation(
   );
   validateSet(population.set, `${path}.set`, collector);
 }
+
+/** Largest deviation from unit norm a stated slot rotation may carry. */
+const UNIT_QUATERNION_EPSILON: number = 1e-6;
+
+/** The three world axes every vector check walks. */
+const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
 
 const validatePrototypeBounds: (
   bounds: IAutoMovieBuiltPopulation["prototypeBounds"],

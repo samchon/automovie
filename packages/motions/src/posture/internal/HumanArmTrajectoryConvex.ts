@@ -20,9 +20,6 @@ import type { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
 
-/** The alternatives of `ConvexifyCarriedOwner`'s site. */
-type ConvexifyCarriedOwner = "upper" | "lower" | "hand";
-
 /**
  * The convex subproblem of an arms' trajectory about an iterate
  * (`HumanArmTrajectoryModel`), TrajOpt's: the objective's quadratic model and
@@ -420,6 +417,9 @@ export namespace HumanArmTrajectoryConvex {
     return { n: variables, band: fullBand, p: expanded, q: linear, rows };
   }
 }
+
+/** The alternatives of `ConvexifyCarriedOwner`'s site. */
+type ConvexifyCarriedOwner = "upper" | "lower" | "hand";
 
 /** A linear form in the subproblem's variables. */
 interface ILinear {

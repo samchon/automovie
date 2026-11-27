@@ -1,11 +1,5 @@
 import { hingedArmSwivel } from "../hingedArmSwivel";
 
-/** The original articulation's fixed swivel step, degrees. */
-const STEP: number = hingedArmSwivel.STEP;
-
-/** The original golden-section contraction factor. */
-const GOLDEN: number = hingedArmSwivel.GOLDEN;
-
 /**
  * Refine one swivel bracket by the articulation's original golden-section
  * search (Kiefer 1953), preserving the caller's complete candidate ordering. A
@@ -60,3 +54,9 @@ export function refineHingedSwivel<T>(
   }
   return better(atOuter, atInner) ? atOuter : atInner;
 }
+
+/** The original articulation's fixed swivel step, degrees. */
+const STEP: number = hingedArmSwivel.STEP;
+
+/** The original golden-section contraction factor. */
+const GOLDEN: number = hingedArmSwivel.GOLDEN;

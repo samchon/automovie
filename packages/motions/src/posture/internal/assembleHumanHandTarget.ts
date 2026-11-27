@@ -12,11 +12,6 @@ import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieM
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanBendPreparation } from "../../compose/internal/AutoMovieMotionHumanBendPreparation";
 
-/** Existing surface-offset emitter retained only by the prepared hand owner. */
-type ITargetEmitter = ReturnType<
-  typeof AutoMovieMotionHumanArmTarget.prepareTarget
->;
-
 /** Assemble a full hand target with its original default or authored elbow. */
 export function assembleHumanHandTarget(
   body: IAutoMovieMotionHumanBody,
@@ -63,3 +58,8 @@ export function assembleHumanHandTarget(
     ...(options.curl === undefined ? {} : { curl: options.curl }),
   };
 }
+
+/** Existing surface-offset emitter retained only by the prepared hand owner. */
+type ITargetEmitter = ReturnType<
+  typeof AutoMovieMotionHumanArmTarget.prepareTarget
+>;

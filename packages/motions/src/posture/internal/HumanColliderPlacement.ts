@@ -16,12 +16,6 @@ import type {
 } from "@automovie/interface";
 
 /**
- * The body fields the neutral collider rows are read from: the rig, its rest
- * joints and the profile, all fixed before any of the body's solves.
- */
-type HumanColliderRig = "profile" | "rest" | "skeleton";
-
-/**
  * Place the profile in its original order, skipping absent posed bones.
  *
  * @param body Canonical body with unchanged rest/profile metadata.
@@ -134,18 +128,6 @@ export namespace HumanColliderPlacement {
   }
 }
 
-/**
- * Actual copied name membership; callers cannot supply the numerical group
- * lists.
- */
-interface IMinimaSelection {
-  /** Number of groups, including empty groups. */
-  count: number;
-
-  /** Original ascending group indices for each actual selected bone name. */
-  membership: ReadonlyMap<string, readonly number[]>;
-}
-
 /** Keep the returned reader outside any source-body or caller-set lexical scope. */
 function bindMinima(
   segments: readonly ISided[],
@@ -248,12 +230,6 @@ function place(
   return out;
 }
 
-/** Fixed neutral segment data, before current bone placement. */
-type ISided = IAutoMovieMotionHumanColliders.ISegment;
-
-/** The neutral records and the canonical names their placement consumes. */
-type INeutral = IAutoMovieMotionHumanColliders.INeutral;
-
 /**
  * Read unchanged neutral data, lazily indexing first profile names in original
  * scan order.
@@ -351,3 +327,27 @@ function mirrorTurn(
 ): IAutoMovieRigidTransform["rotation"] {
   return { x: rotation.x, y: -rotation.y, z: -rotation.z, w: rotation.w };
 }
+
+/**
+ * The body fields the neutral collider rows are read from: the rig, its rest
+ * joints and the profile, all fixed before any of the body's solves.
+ */
+type HumanColliderRig = "profile" | "rest" | "skeleton";
+
+/**
+ * Actual copied name membership; callers cannot supply the numerical group
+ * lists.
+ */
+interface IMinimaSelection {
+  /** Number of groups, including empty groups. */
+  count: number;
+
+  /** Original ascending group indices for each actual selected bone name. */
+  membership: ReadonlyMap<string, readonly number[]>;
+}
+
+/** Fixed neutral segment data, before current bone placement. */
+type ISided = IAutoMovieMotionHumanColliders.ISegment;
+
+/** The neutral records and the canonical names their placement consumes. */
+type INeutral = IAutoMovieMotionHumanColliders.INeutral;

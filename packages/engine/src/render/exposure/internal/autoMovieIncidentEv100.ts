@@ -1,10 +1,4 @@
 /**
- * Incident-light calibration constant in lux seconds, the value ISO 2720:1974
- * recommends for flat-receptor meters.
- */
-const CALIBRATION: number = 250;
-
-/**
  * The exposure value at ISO 100 an incident-light meter sets for an
  * illuminance: `log2(lux × 100 / 250)`, the incident-light meter equation of
  * ISO 2720:1974, `EV = log2(E × S / C)`, at speed `S = 100` with calibration
@@ -27,3 +21,9 @@ export function autoMovieIncidentEv100(lux: number): number {
     );
   return Math.log2((lux * 100) / CALIBRATION);
 }
+
+/**
+ * Incident-light calibration constant in lux seconds, the value ISO 2720:1974
+ * recommends for flat-receptor meters.
+ */
+const CALIBRATION: number = 250;

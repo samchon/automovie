@@ -11,12 +11,6 @@ import type {
 import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** The record of `IReadEdged`'s site. */
-type IReadEdged = { point: IAutoMovieVector3; direction: IAutoMovieVector3 };
-
-/** The record of `IReadTip`'s site. */
-type IReadTip = { point: IAutoMovieVector3; direction: IAutoMovieVector3 };
-
 /**
  * The working points and axes read from a held prop's rigid frame. A two-point
  * working line is distinct from a surface normal, and the point's own frame
@@ -158,3 +152,9 @@ export namespace StrikingHeldFrame {
     return { x: 1, y: 0, z: 0 };
   };
 }
+
+/** The record of `IReadEdged`'s site. */
+type IReadEdged = { point: IAutoMovieVector3; direction: IAutoMovieVector3 };
+
+/** The record of `IReadTip`'s site. */
+type IReadTip = { point: IAutoMovieVector3; direction: IAutoMovieVector3 };

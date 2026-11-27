@@ -17,9 +17,6 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/** The alternatives of `OfContext`'s site. */
-type OfContext = "body" | "entry" | "params";
-
 /**
  * The balance arm's primitive.
  *
@@ -135,3 +132,6 @@ export namespace throwObjectBalance {
   /** How far ahead of the shoulder, a share of the arm's length (provisional). */
   export const AHEAD: number = 0.25;
 }
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "entry" | "params";

@@ -1,23 +1,5 @@
 import type { IAutoMovieMotionHumanArmClearance } from "@automovie/interface";
 
-/** The record of `ICourseProps`'s site. */
-type ICourseProps = {
-  plain: (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
-  planned?: (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
-  share: number;
-  clear: (
-    arm: IAutoMovieMotionHumanArmClearance.IArm,
-    share: number,
-  ) => IAutoMovieMotionHumanArmClearance.IArm;
-};
-
-/** The record of `IOfProps`'s site. */
-type IOfProps = {
-  arm: IAutoMovieMotionHumanArmClearance.IArm;
-  over: (arm: IAutoMovieMotionHumanArmClearance.IArm) => number;
-  range: (arm: IAutoMovieMotionHumanArmClearance.IArm) => number;
-};
-
 /**
  * The most a clearing turns either freedom from the given arm, degrees
  * (provisional: beyond it the arm is no longer the carry's).
@@ -241,9 +223,6 @@ export namespace HumanArmClearing {
       sample(plain, (key: number): Turn => turns[key]!, share);
   }
 
-  /** Shoulder abduction and elbow flexion corrections, in clinical degrees. */
-  type Turn = readonly [number, number];
-
   /**
    * Read one original key's clearance correction. The fixed ends retain their
    * angles.
@@ -291,4 +270,25 @@ export namespace HumanArmClearing {
       hand: arm.hand,
     };
   }
+
+  /** Shoulder abduction and elbow flexion corrections, in clinical degrees. */
+  type Turn = readonly [number, number];
 }
+
+/** The record of `ICourseProps`'s site. */
+type ICourseProps = {
+  plain: (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
+  planned?: (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
+  share: number;
+  clear: (
+    arm: IAutoMovieMotionHumanArmClearance.IArm,
+    share: number,
+  ) => IAutoMovieMotionHumanArmClearance.IArm;
+};
+
+/** The record of `IOfProps`'s site. */
+type IOfProps = {
+  arm: IAutoMovieMotionHumanArmClearance.IArm;
+  over: (arm: IAutoMovieMotionHumanArmClearance.IArm) => number;
+  range: (arm: IAutoMovieMotionHumanArmClearance.IArm) => number;
+};

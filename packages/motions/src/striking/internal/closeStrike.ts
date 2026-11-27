@@ -35,12 +35,6 @@ import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 
-/** The alternatives of `PlanBuildFrom`'s site. */
-type PlanBuildFrom = "point" | "rotation";
-
-/** The alternatives of `PlanBuildLimb`'s site. */
-type PlanBuildLimb = "leftArm" | "rightArm";
-
 /**
  * The close strikes (`IAutoMovieMotionHumanCloseStrike`): an elbow, a spinning
  * elbow or backfist, or a headbutt, out to the target on the punch's measured
@@ -542,3 +536,9 @@ export namespace closeStrike {
     };
   }
 }
+
+/** The alternatives of `PlanBuildFrom`'s site. */
+type PlanBuildFrom = "point" | "rotation";
+
+/** The alternatives of `PlanBuildLimb`'s site. */
+type PlanBuildLimb = "leftArm" | "rightArm";

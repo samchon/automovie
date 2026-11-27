@@ -5,9 +5,6 @@ import { StrikingBody } from "./StrikingBody";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingStance } from "./StrikingStance";
 
-/** The alternatives of `AtArmResult`'s site. */
-type AtArmResult = "leftArm" | "rightArm";
-
 /**
  * Where a defence brings its arms and its checking leg: goals on the defender's
  * own body, read from the posture the body holds at that instant and from the
@@ -285,3 +282,6 @@ export namespace defendGoals {
     return out;
   }
 }
+
+/** The alternatives of `AtArmResult`'s site. */
+type AtArmResult = "leftArm" | "rightArm";

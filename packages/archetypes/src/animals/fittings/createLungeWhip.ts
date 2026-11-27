@@ -9,37 +9,6 @@ import {
 } from "../../core/index";
 
 /**
- * The shaft's length, metres: 65 in, the Weaver Leather lunge whip's listed
- * shaft (retailer listing, Farm & Fleet), whose 67 in lash and 11 in popper are
- * not laid.
- */
-const SHAFT: number = 1.65;
-
-/** The handle's size. */
-interface IHandle {
-  /** Length up from the butt, metres. */
-  length: number;
-
-  /** Radius, metres. */
-  radius: number;
-}
-
-/**
- * The handle's length up from the butt and its radius, metres: authored, no
- * listing read gives them.
- */
-const HANDLE: IHandle = {
-  length: 0.3,
-  radius: 0.013,
-};
-
-/** The stock's radius above the handle, metres: authored. */
-const STOCK: number = 0.006;
-
-/** The whip's mass, kilograms: authored, no listing read gives it. */
-const MASS: number = 0.25;
-
-/**
  * A lunge whip: a handle at the butt and a long stock up `+Y`, the shaft a
  * handler points at a lunged equid's quarters.
  *
@@ -92,3 +61,34 @@ export function createLungeWhip(
   });
   return builder.build(MASS);
 }
+
+/**
+ * The shaft's length, metres: 65 in, the Weaver Leather lunge whip's listed
+ * shaft (retailer listing, Farm & Fleet), whose 67 in lash and 11 in popper are
+ * not laid.
+ */
+const SHAFT: number = 1.65;
+
+/** The handle's size. */
+interface IHandle {
+  /** Length up from the butt, metres. */
+  length: number;
+
+  /** Radius, metres. */
+  radius: number;
+}
+
+/**
+ * The handle's length up from the butt and its radius, metres: authored, no
+ * listing read gives them.
+ */
+const HANDLE: IHandle = {
+  length: 0.3,
+  radius: 0.013,
+};
+
+/** The stock's radius above the handle, metres: authored. */
+const STOCK: number = 0.006;
+
+/** The whip's mass, kilograms: authored, no listing read gives it. */
+const MASS: number = 0.25;

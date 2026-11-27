@@ -10,9 +10,6 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import type { HumanMountedFrame } from "./HumanMountedFrame";
 
-/** The alternatives of `BOUNDSEntryItem`'s site. */
-type BOUNDSEntryItem = "speed" | "reach" | "rise" | "drop";
-
 /**
  * Bounds of an admitted boarding, in the seat's moving frame (provisional): the
  * most the performer moves relative to the seat at the take-off, metres per
@@ -139,3 +136,6 @@ export namespace HumanBoardAdmit {
         });
   }
 }
+
+/** The alternatives of `BOUNDSEntryItem`'s site. */
+type BOUNDSEntryItem = "speed" | "reach" | "rise" | "drop";

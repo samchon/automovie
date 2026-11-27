@@ -21,26 +21,6 @@ import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
 import { walkLegRise } from "./walkLegRise";
 
-/** The record of `IPrepareResult2`'s site. */
-type IPrepareResult2 = {
-  end: walkFoot.IEnd;
-  contact: IAutoMovieVector3;
-  pitch: number;
-};
-
-/** The alternatives of `PrepareAbout`'s site. */
-type PrepareAbout = "heel" | "mtp";
-
-/** The record of `IPrepareResult`'s site. */
-type IPrepareResult = {
-  end: walkFoot.IEnd;
-  contact: IAutoMovieVector3;
-  pitch: number;
-};
-
-/** The alternatives of `SIDEBone`'s site. */
-type SIDEBone = "leftFoot" | "rightFoot";
-
 /**
  * A planted foot of a stepping gait as its leg can hold it under a hip
  * (`walkReach.ground` places each stance by it): a stance whose shank leans
@@ -420,6 +400,26 @@ export namespace walkReachStance {
     };
   }
 }
+
+/** The record of `IPrepareResult2`'s site. */
+type IPrepareResult2 = {
+  end: walkFoot.IEnd;
+  contact: IAutoMovieVector3;
+  pitch: number;
+};
+
+/** The alternatives of `PrepareAbout`'s site. */
+type PrepareAbout = "heel" | "mtp";
+
+/** The record of `IPrepareResult`'s site. */
+type IPrepareResult = {
+  end: walkFoot.IEnd;
+  contact: IAutoMovieVector3;
+  pitch: number;
+};
+
+/** The alternatives of `SIDEBone`'s site. */
+type SIDEBone = "leftFoot" | "rightFoot";
 
 /** A heel-strike stance's forefoot rocker, prepared on its first hip. */
 interface IHandover {

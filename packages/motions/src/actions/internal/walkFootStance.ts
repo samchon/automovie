@@ -9,9 +9,6 @@ import type {
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import type { humanFootOffset } from "../../posture/internal/humanFootOffset";
 
-/** The foot point a stance rocker turns about. */
-type WalkFootPivot = "heel" | "mtp";
-
 /**
  * Prepare a foot in stance on a footprint: heel rocker after its strike, flat,
  * forefoot rocker before its toe-off.
@@ -191,3 +188,6 @@ export namespace walkFootStance {
    */
   export const PUSH_SHARE: number = (60 - 30) / 60;
 }
+
+/** The foot point a stance rocker turns about. */
+type WalkFootPivot = "heel" | "mtp";

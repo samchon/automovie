@@ -12,9 +12,6 @@ import type {
 
 import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
-/** The alternatives of `UnloadedBearsPart`'s site. */
-type UnloadedBearsPart = "leftFoot" | "rightFoot";
-
 /**
  * Whether every joint of a displayed motion stays inside its anatomical range
  * of motion at every instant.
@@ -158,3 +155,6 @@ export namespace AutoMovieMotionHumanAuditRange {
     return out;
   }
 }
+
+/** The alternatives of `UnloadedBearsPart`'s site. */
+type UnloadedBearsPart = "leftFoot" | "rightFoot";

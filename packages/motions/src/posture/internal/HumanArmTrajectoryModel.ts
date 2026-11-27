@@ -14,48 +14,6 @@ import { HumanArmTrajectoryStep } from "./HumanArmTrajectoryStep";
 import { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
-/** The alternatives of `InnerC`'s site. */
-type InnerC = "n" | "open";
-
-/** The record of `IPairsItemItem`'s site. */
-type IPairsItemItem = {
-  deepest: Map<number, P.IPair>;
-  embedded: Map<number, P.IEmbedded>;
-};
-
-/** The alternatives of `ContextLyingSegment`'s site. */
-type ContextLyingSegment = "upperArm" | "lowerArm" | "hand";
-
-/** The record of `IContextBeyond`'s site. */
-type IContextBeyond = {
-  before?: readonly (readonly number[])[];
-  after?: readonly (readonly number[])[];
-};
-
-/** The alternatives of `RestPart`'s site. */
-type RestPart = "upperArm" | "lowerArm";
-
-/** The record of `ISiteOn`'s site. */
-type ISiteOn = {
-  /** The other arm's index in the problem. */
-  arm: number;
-  /** Its segment. */
-  owner: SiteOnOwner;
-  /** The point in the segment's frame. */
-  point: IAutoMovieVector3;
-  /**
-   * The touched collider's outward normal there, in the segment's frame; none
-   * for a grip on an object both hands hold, a closed chain whose contact is
-   * held to the point on every axis.
-   */
-  normal?: IAutoMovieVector3;
-  /** The hand's rotation in the segment's frame. */
-  rotation?: IAutoMovieQuaternion;
-};
-
-/** The alternatives of `SiteOnOwner`'s site. */
-type SiteOnOwner = "upper" | "lower" | "hand";
-
 /**
  * The objective and the constraints of an arms' trajectory
  * (`HumanArmTrajectory`), evaluated at an iterate; its context is built by
@@ -447,14 +405,9 @@ export namespace HumanArmTrajectoryModel {
     return out;
   }
 
-  /** The chart and coordinate ranges needed to project one arm. */
-  type RangeContext = Pick<IContext, "rest" | "back" | "free" | "bounds">;
-
   /** The chart radius owned by HumanArmTrajectoryInvalid.swing. */
   export const swing: typeof HumanArmTrajectoryInvalid.swing =
     HumanArmTrajectoryInvalid.swing;
-  /** The record of `IEvaluateKept`'s site. */
-  type IEvaluateKept = { reading: IEvaluation; laid: readonly boolean[] };
 
   /**
    * The objective and the constraints' violations at an iterate, read in full
@@ -478,8 +431,55 @@ export namespace HumanArmTrajectoryModel {
   ): IEvaluation {
     return HumanArmTrajectoryEvaluate(c, x, kept, contact);
   }
-
   /** Configuration validity owned by HumanArmTrajectoryInvalid.of. */
   export const invalid: typeof HumanArmTrajectoryInvalid =
     HumanArmTrajectoryInvalid;
+
+  /** The chart and coordinate ranges needed to project one arm. */
+  type RangeContext = Pick<IContext, "rest" | "back" | "free" | "bounds">;
+
+  /** The record of `IEvaluateKept`'s site. */
+  type IEvaluateKept = { reading: IEvaluation; laid: readonly boolean[] };
 }
+
+/** The alternatives of `InnerC`'s site. */
+type InnerC = "n" | "open";
+
+/** The record of `IPairsItemItem`'s site. */
+type IPairsItemItem = {
+  deepest: Map<number, P.IPair>;
+  embedded: Map<number, P.IEmbedded>;
+};
+
+/** The alternatives of `ContextLyingSegment`'s site. */
+type ContextLyingSegment = "upperArm" | "lowerArm" | "hand";
+
+/** The record of `IContextBeyond`'s site. */
+type IContextBeyond = {
+  before?: readonly (readonly number[])[];
+  after?: readonly (readonly number[])[];
+};
+
+/** The alternatives of `RestPart`'s site. */
+type RestPart = "upperArm" | "lowerArm";
+
+/** The record of `ISiteOn`'s site. */
+type ISiteOn = {
+  /** The other arm's index in the problem. */
+  arm: number;
+  /** Its segment. */
+  owner: SiteOnOwner;
+  /** The point in the segment's frame. */
+  point: IAutoMovieVector3;
+  /**
+   * The touched collider's outward normal there, in the segment's frame; none
+   * for a grip on an object both hands hold, a closed chain whose contact is
+   * held to the point on every axis.
+   */
+  normal?: IAutoMovieVector3;
+  /** The hand's rotation in the segment's frame. */
+  rotation?: IAutoMovieQuaternion;
+};
+
+/** The alternatives of `SiteOnOwner`'s site. */
+type SiteOnOwner = "upper" | "lower" | "hand";

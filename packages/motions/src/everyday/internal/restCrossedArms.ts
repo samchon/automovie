@@ -19,30 +19,6 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
 
-/** The record of `IRestCrossedArmsGoalResult`'s site. */
-type IRestCrossedArmsGoalResult = {
-  goal: IAutoMovieMotionHumanRest.IGoal;
-  excess: number;
-};
-
-/** The record of `IRestCrossedArmsGoal`'s site. */
-type IRestCrossedArmsGoal = {
-  goal: IAutoMovieMotionHumanRest.IGoal;
-  excess: number;
-};
-
-/** The alternatives of `RestCrossedArmsLengthTo2`'s site. */
-type RestCrossedArmsLengthTo2 = "LowerArm" | "Hand";
-
-/** The alternatives of `RestCrossedArmsLengthFrom2`'s site. */
-type RestCrossedArmsLengthFrom2 = "UpperArm" | "LowerArm";
-
-/** The alternatives of `RestCrossedArmsLengthTo`'s site. */
-type RestCrossedArmsLengthTo = "LowerArm" | "Hand";
-
-/** The alternatives of `RestCrossedArmsLengthFrom`'s site. */
-type RestCrossedArmsLengthFrom = "UpperArm" | "LowerArm";
-
 /**
  * Both crossed-arms goals on upper arms set before the goals: each hangs
  * forward by `FLEXION` or, if more, until its elbow stands the forearm's radius
@@ -243,6 +219,30 @@ export function restCrossedArms(
     };
   }
 }
+
+/** The record of `IRestCrossedArmsGoalResult`'s site. */
+type IRestCrossedArmsGoalResult = {
+  goal: IAutoMovieMotionHumanRest.IGoal;
+  excess: number;
+};
+
+/** The record of `IRestCrossedArmsGoal`'s site. */
+type IRestCrossedArmsGoal = {
+  goal: IAutoMovieMotionHumanRest.IGoal;
+  excess: number;
+};
+
+/** The alternatives of `RestCrossedArmsLengthTo2`'s site. */
+type RestCrossedArmsLengthTo2 = "LowerArm" | "Hand";
+
+/** The alternatives of `RestCrossedArmsLengthFrom2`'s site. */
+type RestCrossedArmsLengthFrom2 = "UpperArm" | "LowerArm";
+
+/** The alternatives of `RestCrossedArmsLengthTo`'s site. */
+type RestCrossedArmsLengthTo = "LowerArm" | "Hand";
+
+/** The alternatives of `RestCrossedArmsLengthFrom`'s site. */
+type RestCrossedArmsLengthFrom = "UpperArm" | "LowerArm";
 
 /** Immutable arm geometry read by the crossed-arm width search. */
 interface IArm {

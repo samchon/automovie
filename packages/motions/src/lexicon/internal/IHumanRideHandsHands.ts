@@ -8,9 +8,6 @@ import type {
 import type { HumanRideHands } from "./HumanRideHands";
 import type { fixedSeatWorkingPostures } from "./fixedSeatWorkingPostures";
 
-/** Each hand's current, complete support-relative hold. */
-type Grips = Partial<Record<AutoMovieHumanSide, HumanRideHands.IMaterialGrip>>;
-
 /** The ride's holding hands. */
 export interface IHumanRideHandsHands {
   /**
@@ -46,3 +43,6 @@ export interface IHumanRideHandsHands {
     Record<AutoMovieHumanSide, IAutoMovieMotionHumanPosture["joints"]>
   >;
 }
+
+/** Each hand's current, complete support-relative hold. */
+type Grips = Partial<Record<AutoMovieHumanSide, HumanRideHands.IMaterialGrip>>;

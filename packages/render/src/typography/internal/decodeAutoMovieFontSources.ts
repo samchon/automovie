@@ -3,13 +3,6 @@ import type { IAutoMovieFont } from "@automovie/interface";
 
 import type { IAutoMovieRenderTypographyDecodeFontSourcesProps } from "../IAutoMovieRenderTypographyDecodeFontSourcesProps.js";
 
-/**
- * RFC 4648 section 4 base64: the standard alphabet in padded four-character
- * groups.
- */
-const BASE64: RegExp =
-  /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
-
 /** Decode the font-source records used by surface text layout. */
 export async function decodeAutoMovieFontSources(
   props: IAutoMovieRenderTypographyDecodeFontSourcesProps,
@@ -68,3 +61,10 @@ export async function decodeAutoMovieFontSources(
   }
   return fonts;
 }
+
+/**
+ * RFC 4648 section 4 base64: the standard alphabet in padded four-character
+ * groups.
+ */
+const BASE64: RegExp =
+  /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;

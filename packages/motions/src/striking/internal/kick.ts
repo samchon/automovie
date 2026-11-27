@@ -31,12 +31,6 @@ import { StrikingWeapon } from "./StrikingWeapon";
 import { StrikingWeaponTable } from "./StrikingWeaponTable";
 import { strikingReadBack } from "./strikingReadBack";
 
-/** The alternatives of `PlanLimb`'s site. */
-type PlanLimb = "leftLeg" | "rightLeg";
-
-/** The alternatives of `LegResult`'s site. */
-type LegResult = "lead" | "rear";
-
 /**
  * A kick: the round kick's lower shin or the push kick's ball of the foot
  * brought onto the target, through a chamber, and recoiled to the replant.
@@ -390,3 +384,9 @@ export namespace kick {
     return { side, lead, prep, chamber, impact, duration: impact + recoil };
   }
 }
+
+/** The alternatives of `PlanLimb`'s site. */
+type PlanLimb = "leftLeg" | "rightLeg";
+
+/** The alternatives of `LegResult`'s site. */
+type LegResult = "lead" | "rear";

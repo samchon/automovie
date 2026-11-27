@@ -18,9 +18,6 @@ import { AutoMovieEngineSpace } from "../../space/index";
 
 import { setPieceMatrix } from "../staging/internal/setPieceMatrix";
 
-/** Relative tolerance below which a face normal counts as horizontal. */
-const EDGE_ON_TOLERANCE: number = 1e-9;
-
 /**
  * The face one `on-support` relation resolves to, or `null` when the record
  * states none.
@@ -116,6 +113,9 @@ export function propSupportFace(
     height,
   };
 }
+
+/** Relative tolerance below which a face normal counts as horizontal. */
+const EDGE_ON_TOLERANCE: number = 1e-9;
 
 /**
  * The plane a transform carries its local XZ plane onto, spelled as the height

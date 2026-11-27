@@ -229,12 +229,6 @@ export namespace HumanPropSweepColliders {
     return found;
   }
 
-  /** The world frame, a shape's parent placed at the origin unturned. */
-  const ORIGIN: IAutoMovieRigidTransform = {
-    position: { x: 0, y: 0, z: 0 },
-    rotation: { x: 0, y: 0, z: 0, w: 1 },
-  };
-
   /** A surface's outward normal and velocity at its point nearest a segment. */
   export interface ISurface {
     /** The outward unit normal there, world. */
@@ -263,6 +257,12 @@ export namespace HumanPropSweepColliders {
     b: IAutoMovieVector3,
     seconds: number,
   ) => ISurface;
+
+  /** The world frame, a shape's parent placed at the origin unturned. */
+  const ORIGIN: IAutoMovieRigidTransform = {
+    position: { x: 0, y: 0, z: 0 },
+    rotation: { x: 0, y: 0, z: 0, w: 1 },
+  };
 
   /** The finger bones, whose colliders a fast flight may pass. */
   const FINGER: RegExp = /(Thumb|Index|Middle|Ring|Little)/;

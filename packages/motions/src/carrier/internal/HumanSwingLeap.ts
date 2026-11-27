@@ -25,19 +25,13 @@ import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShape
 import { shankTilt } from "./shankTilt";
 import { unloadedFoot } from "./unloadedFoot";
 
-type Params = IAutoMovieMotionHumanPlayground.ISwingLeapParams;
-type Plan = IAutoMovieMotionHumanActionPlan;
-type Posture = IAutoMovieMotionHumanPosture;
-
 /** The step that reads the seat's velocity at release, seconds. */
 const RATE: number = 1e-3;
-
 /**
  * The landing's knee give: the pelvis lands this share of its standing height
  * (provisional staging).
  */
 const LAND: number = 0.8;
-
 /** Seconds from touchdown to standing still (provisional staging). */
 const SETTLE: number = 0.4;
 
@@ -321,3 +315,9 @@ export namespace HumanSwingLeap {
     return speed < 0 ? (2 * rise) / (root - speed) : (speed + root) / g;
   }
 }
+
+type Params = IAutoMovieMotionHumanPlayground.ISwingLeapParams;
+
+type Plan = IAutoMovieMotionHumanActionPlan;
+
+type Posture = IAutoMovieMotionHumanPosture;

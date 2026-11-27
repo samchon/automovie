@@ -2,25 +2,6 @@ import type { IAutoMovieRasterImage } from "@automovie/interface";
 
 import { crcAutoMoviePngChunk } from "./crcAutoMoviePngChunk.js";
 
-/** The eight bytes every PNG file starts with. */
-const SIGNATURE: readonly number[] = [
-  0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
-];
-
-/**
- * Samples per pixel of each PNG colour type, with the bit depths the
- * specification allows for it.
- */
-const COLOUR_TYPES: Readonly<
-  Record<number, { channels: number; depths: readonly number[] }>
-> = {
-  0: { channels: 1, depths: [1, 2, 4, 8, 16] },
-  2: { channels: 3, depths: [8, 16] },
-  3: { channels: 1, depths: [1, 2, 4, 8] },
-  4: { channels: 2, depths: [8, 16] },
-  6: { channels: 4, depths: [8, 16] },
-};
-
 /**
  * Decode a PNG file into the picture record the sheet, the comparison and the
  * content hash take: 8-bit RGBA rows from the top.
@@ -209,6 +190,25 @@ export async function decodeAutoMovieRasterPng(
   }
   return { width, height, pixels };
 }
+
+/** The eight bytes every PNG file starts with. */
+const SIGNATURE: readonly number[] = [
+  0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+];
+
+/**
+ * Samples per pixel of each PNG colour type, with the bit depths the
+ * specification allows for it.
+ */
+const COLOUR_TYPES: Readonly<
+  Record<number, { channels: number; depths: readonly number[] }>
+> = {
+  0: { channels: 1, depths: [1, 2, 4, 8, 16] },
+  2: { channels: 3, depths: [8, 16] },
+  3: { channels: 1, depths: [1, 2, 4, 8] },
+  4: { channels: 2, depths: [8, 16] },
+  6: { channels: 4, depths: [8, 16] },
+};
 
 /**
  * The Paeth predictor of the PNG specification, section 9.4: the neighbour

@@ -41,12 +41,6 @@ import { punchFootwork } from "./punchFootwork";
 import type { punchLaunch } from "./punchLaunch";
 import type { punchReach } from "./punchReach";
 
-/** The alternatives of `BuildOff`'s site. */
-type BuildOff = "leftArm" | "rightArm";
-
-/** The alternatives of `TimingWhich`'s site. */
-type TimingWhich = "lead" | "rear";
-
 /**
  * A built punch: the stroke of the wrist from the launch through the contact
  * back to the guard, composed with the footwork into a posture per second.
@@ -549,3 +543,9 @@ export namespace punchGeometry {
     };
   }
 }
+
+/** The alternatives of `BuildOff`'s site. */
+type BuildOff = "leftArm" | "rightArm";
+
+/** The alternatives of `TimingWhich`'s site. */
+type TimingWhich = "lead" | "rear";

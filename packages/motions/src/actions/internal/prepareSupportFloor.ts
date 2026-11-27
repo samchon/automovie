@@ -12,58 +12,6 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
 import { supportContact } from "./supportContact";
 import { supportWindows } from "./supportWindows";
 
-/** A support point in world metres, or an unnamed floor place. */
-type Point = IAutoMovieVector3 | null;
-
-/** A contact whose floor location is read in a solved key. */
-interface IFloorDatum {
-  id: string;
-  part: IAutoMovieMotionHumanSupport.Part;
-}
-
-/** A placed contact compares the entry's achieved point to micrometre precision. */
-const SAME_PLACE: number = 1e-6;
-
-/**
- * Test the structural support frame identity, independent of point offsets and
- * event labels.
- */
-function sameFrame(
-  a: IAutoMovieMotionHumanContactWindow.Support,
-  b: IAutoMovieMotionHumanContactWindow.Support,
-): boolean {
-  if (a.kind === "ground") return b.kind === "ground";
-  if (a.kind === "prop")
-    return (
-      b.kind === "prop" &&
-      a.subject === b.subject &&
-      (a.point === undefined || b.point === undefined || a.point === b.point)
-    );
-  return (
-    b.kind === "person" &&
-    a.subject === b.subject &&
-    ("region" in a
-      ? "region" in b && a.region === b.region
-      : "bone" in b && a.bone === b.bone)
-  );
-}
-
-/** A support sequence's own instantaneous floor targets. */
-interface IFloor {
-  inherited: readonly IAutoMovieMotionHumanSupport.IContact[];
-  laid: ReadonlyMap<string, IAutoMovieVector3>;
-  recordFloors(
-    posture: IAutoMovieMotionHumanPosture,
-    contacts: readonly IAutoMovieMotionHumanSupport.IContact[],
-  ): void;
-}
-/** The record of `IPrepareSupportFloorNamedItem`'s site. */
-type IPrepareSupportFloorNamedItem = {
-  contact: IAutoMovieMotionHumanSupport.IContact;
-  at: IAutoMovieVector3;
-  ground: boolean;
-};
-
 /**
  * Identify inherited support at entry and record unnamed floor placements.
  *
@@ -176,3 +124,55 @@ export function prepareSupportFloor(
   recordFloors(entry, inherited);
   return { inherited, laid, recordFloors };
 }
+
+/** A support point in world metres, or an unnamed floor place. */
+type Point = IAutoMovieVector3 | null;
+
+/** A contact whose floor location is read in a solved key. */
+interface IFloorDatum {
+  id: string;
+  part: IAutoMovieMotionHumanSupport.Part;
+}
+
+/** A placed contact compares the entry's achieved point to micrometre precision. */
+const SAME_PLACE: number = 1e-6;
+
+/**
+ * Test the structural support frame identity, independent of point offsets and
+ * event labels.
+ */
+function sameFrame(
+  a: IAutoMovieMotionHumanContactWindow.Support,
+  b: IAutoMovieMotionHumanContactWindow.Support,
+): boolean {
+  if (a.kind === "ground") return b.kind === "ground";
+  if (a.kind === "prop")
+    return (
+      b.kind === "prop" &&
+      a.subject === b.subject &&
+      (a.point === undefined || b.point === undefined || a.point === b.point)
+    );
+  return (
+    b.kind === "person" &&
+    a.subject === b.subject &&
+    ("region" in a
+      ? "region" in b && a.region === b.region
+      : "bone" in b && a.bone === b.bone)
+  );
+}
+/** A support sequence's own instantaneous floor targets. */
+interface IFloor {
+  inherited: readonly IAutoMovieMotionHumanSupport.IContact[];
+  laid: ReadonlyMap<string, IAutoMovieVector3>;
+  recordFloors(
+    posture: IAutoMovieMotionHumanPosture,
+    contacts: readonly IAutoMovieMotionHumanSupport.IContact[],
+  ): void;
+}
+
+/** The record of `IPrepareSupportFloorNamedItem`'s site. */
+type IPrepareSupportFloorNamedItem = {
+  contact: IAutoMovieMotionHumanSupport.IContact;
+  at: IAutoMovieVector3;
+  ground: boolean;
+};

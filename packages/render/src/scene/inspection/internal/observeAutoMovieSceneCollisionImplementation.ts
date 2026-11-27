@@ -13,9 +13,6 @@ import { findAutoMovieCollisionWitness } from "./findAutoMovieCollisionWitness.j
 import { observeAutoMovieSweptCollision } from "./observeAutoMovieSweptCollision.js";
 import { resolveAutoMovieCollisionHit } from "./resolveAutoMovieCollisionHit.js";
 
-type ILimits = AutoMovieRenderInspection.IPlacedSceneCollisionLimits;
-type ILayer = AutoMovieRenderInspection.IPlacedSceneCollisionLayer;
-type IProps = AutoMovieRenderInspection.IPlacedSceneCollisionProps;
 /**
  * Observe one already placed scene frame for external contact and certified
  * interval violations. The caller supplies its active world layers.
@@ -57,6 +54,9 @@ export function observeAutoMovieSceneCollisionImplementation(
     }
   return { findings, coverage };
 }
+type ILimits = AutoMovieRenderInspection.IPlacedSceneCollisionLimits;
+type ILayer = AutoMovieRenderInspection.IPlacedSceneCollisionLayer;
+type IProps = AutoMovieRenderInspection.IPlacedSceneCollisionProps;
 
 /** Every kind of work an observation may spend. */
 const LIMIT_KINDS: readonly (keyof ILimits)[] = [

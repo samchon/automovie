@@ -13,83 +13,6 @@ import {
 } from "../../core/index";
 
 /**
- * Length, beam, draft and freeboard bands for fictional sets. All dimensions
- * and masses are provisional scene estimates.
- */
-const PROFILES: Readonly<
-  Record<
-    AutoMovieArchetypeScenicShip.Kind,
-    {
-      dimensions: readonly [
-        length: number,
-        beam: number,
-        draft: number,
-        freeboard: number,
-        mass: number,
-      ];
-      stern: number;
-      source: string;
-    }
-  >
-> = {
-  oared: {
-    dimensions: [20, 4.4, 0.8, 0.65, 8000],
-    stern: 0.14,
-    source:
-      "Single-bank hull and station silhouette from the Viking Ship Museum's Skuldelev 5 reconstruction, https://www.vikingeskibsmuseet.dk/en/professions/the-boat-collection/helge-ask/",
-  },
-  squareSail: {
-    dimensions: [44, 9, 2.4, 2.5, 200000],
-    stern: 0.58,
-    source:
-      "Three-mast silhouette, weather-deck gangway and stern helm from Royal Museums Greenwich's Cutty Sark guide, https://www.rmg.co.uk/sites/default/files/import/Cutty_Sark_Teachers_Guide_2016.pdf",
-  },
-  wheelhouse: {
-    dimensions: [19, 5.4, 1.1, 1.0, 24000],
-    stern: 0.9,
-    source:
-      "Transom, wheelhouse and aft deck from National Historic Ships UK's surviving Arun-class lifeboat, https://www.nationalhistoricships.org.uk/register/3793/sir-william-arnold",
-  },
-};
-
-/** Rail and boarding passage dimensions in metres for the actor set. */
-const PASSAGE: Readonly<{
-  gap: number;
-  width: number;
-  rail: number;
-  radius: number;
-}> = {
-  gap: 1.4,
-  width: 1,
-  rail: 0.86,
-  radius: 0.035,
-};
-
-/** Upper-deck furnishing dimensions in metres for seated performers. */
-const BENCH: Readonly<{
-  height: number;
-  depth: number;
-  width: number;
-  thickness: number;
-}> = {
-  height: 0.43,
-  depth: 0.34,
-  width: 0.7,
-  thickness: 0.07,
-};
-
-/** SI units for the recorded staging dimensions. */
-const UNITS: Readonly<
-  Record<AutoMovieArchetypeScenicShip.Dimension, AutoMovieArchetypeDrawSession.Unit>
-> = {
-  length: "m",
-  beam: "m",
-  draft: "m",
-  freeboard: "m",
-  mass: "kg",
-};
-
-/**
  * A rigid, fictional ship for people on deck. The root sits at the still-water
  * line, with the bow toward +Z and +Y up. The boarding side and its passage are
  * along +X. The deck and boarding frames lie on the deck top. Boarding faces
@@ -412,6 +335,83 @@ export function createScenicShip(
   );
   return builder.build(d.mass);
 }
+
+/**
+ * Length, beam, draft and freeboard bands for fictional sets. All dimensions
+ * and masses are provisional scene estimates.
+ */
+const PROFILES: Readonly<
+  Record<
+    AutoMovieArchetypeScenicShip.Kind,
+    {
+      dimensions: readonly [
+        length: number,
+        beam: number,
+        draft: number,
+        freeboard: number,
+        mass: number,
+      ];
+      stern: number;
+      source: string;
+    }
+  >
+> = {
+  oared: {
+    dimensions: [20, 4.4, 0.8, 0.65, 8000],
+    stern: 0.14,
+    source:
+      "Single-bank hull and station silhouette from the Viking Ship Museum's Skuldelev 5 reconstruction, https://www.vikingeskibsmuseet.dk/en/professions/the-boat-collection/helge-ask/",
+  },
+  squareSail: {
+    dimensions: [44, 9, 2.4, 2.5, 200000],
+    stern: 0.58,
+    source:
+      "Three-mast silhouette, weather-deck gangway and stern helm from Royal Museums Greenwich's Cutty Sark guide, https://www.rmg.co.uk/sites/default/files/import/Cutty_Sark_Teachers_Guide_2016.pdf",
+  },
+  wheelhouse: {
+    dimensions: [19, 5.4, 1.1, 1.0, 24000],
+    stern: 0.9,
+    source:
+      "Transom, wheelhouse and aft deck from National Historic Ships UK's surviving Arun-class lifeboat, https://www.nationalhistoricships.org.uk/register/3793/sir-william-arnold",
+  },
+};
+
+/** Rail and boarding passage dimensions in metres for the actor set. */
+const PASSAGE: Readonly<{
+  gap: number;
+  width: number;
+  rail: number;
+  radius: number;
+}> = {
+  gap: 1.4,
+  width: 1,
+  rail: 0.86,
+  radius: 0.035,
+};
+
+/** Upper-deck furnishing dimensions in metres for seated performers. */
+const BENCH: Readonly<{
+  height: number;
+  depth: number;
+  width: number;
+  thickness: number;
+}> = {
+  height: 0.43,
+  depth: 0.34,
+  width: 0.7,
+  thickness: 0.07,
+};
+
+/** SI units for the recorded staging dimensions. */
+const UNITS: Readonly<
+  Record<AutoMovieArchetypeScenicShip.Dimension, AutoMovieArchetypeDrawSession.Unit>
+> = {
+  length: "m",
+  beam: "m",
+  draft: "m",
+  freeboard: "m",
+  mass: "kg",
+};
 
 /**
  * Size intervals for scenery staging. The cited vessel establishes the

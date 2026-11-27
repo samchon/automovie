@@ -16,23 +16,6 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { handReach } from "./handReach";
 import { palmSagitta } from "./palmSagitta";
 
-/** The palm site and its orientation in the actual thigh's frame. */
-interface IBrace {
-  /** World metres, out from the collider by the hand's contact depth. */
-  point: IAutoMovieVector3;
-
-  /** The outward world normal of the thigh region. */
-  normal: IAutoMovieVector3;
-
-  /** Rotation seating the open palm along this thigh. */
-  rotation: IAutoMovieQuaternion;
-}
-
-/** The bones displayed by a single braced posture. */
-type IRead = (
-  bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-) => IBrace;
-
 /**
  * Where a palm braces on its own thigh just above the knee, the hand support of
  * a low posture (Kingma, Faber and van Dieen 2016, J Biomech 49:881, on
@@ -235,6 +218,23 @@ export function braceOnThighPoint(
     return nearest;
   };
 }
+
+/** The palm site and its orientation in the actual thigh's frame. */
+interface IBrace {
+  /** World metres, out from the collider by the hand's contact depth. */
+  point: IAutoMovieVector3;
+
+  /** The outward world normal of the thigh region. */
+  normal: IAutoMovieVector3;
+
+  /** Rotation seating the open palm along this thigh. */
+  rotation: IAutoMovieQuaternion;
+}
+
+/** The bones displayed by a single braced posture. */
+type IRead = (
+  bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+) => IBrace;
 
 /**
  * A tenth of a millimetre resolves the surface intersection below skin

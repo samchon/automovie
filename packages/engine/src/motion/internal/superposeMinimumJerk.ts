@@ -48,10 +48,24 @@ export namespace superposeMinimumJerk {
     ) as IAutoMovieSuperposeMinimumJerk.IState;
   }
 
+  /**
+   * The same accumulated position in metres, with one fresh point and no
+   * velocity/acceleration/state records. Original unit order, positive-duration
+   * admission, normalized-time refusal and position arithmetic remain; empty
+   * units return a fresh origin clone without adding a time check.
+   */
+  export function position(
+    origin: IAutoMovieVector3,
+    units: readonly IAutoMovieSuperposeMinimumJerk.IUnit[],
+    seconds: number,
+  ): IAutoMovieVector3 {
+    return evaluate(origin, units, seconds, false) as IAutoMovieVector3;
+  }
+
   /** Only the two actual public demands select this private result union. */
   type IReading = IAutoMovieSuperposeMinimumJerk.IState | IAutoMovieVector3;
 
-  /** One original accumulation, computing derivatives only for complete state. */
+    /** One original accumulation, computing derivatives only for complete state. */
   function evaluate(
     origin: IAutoMovieVector3,
     units: readonly IAutoMovieSuperposeMinimumJerk.IUnit[],
@@ -85,19 +99,5 @@ export namespace superposeMinimumJerk {
     return derivatives
       ? { position, velocity: velocity!, acceleration: acceleration! }
       : position;
-  }
-
-    /**
-   * The same accumulated position in metres, with one fresh point and no
-   * velocity/acceleration/state records. Original unit order, positive-duration
-   * admission, normalized-time refusal and position arithmetic remain; empty
-   * units return a fresh origin clone without adding a time check.
-   */
-  export function position(
-    origin: IAutoMovieVector3,
-    units: readonly IAutoMovieSuperposeMinimumJerk.IUnit[],
-    seconds: number,
-  ): IAutoMovieVector3 {
-    return evaluate(origin, units, seconds, false) as IAutoMovieVector3;
   }
 }

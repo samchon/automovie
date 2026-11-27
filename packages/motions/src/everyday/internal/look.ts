@@ -231,26 +231,6 @@ export namespace look {
   }
 
   /**
-   * A simple reaction time to a cue, seconds: an ex-Gaussian draw (a normal
-   * plus an exponential) with skill-scaled parameters.
-   *
-   * @param skill The skill; its `reaction` axis scales the parameters.
-   * @param random The stream; reads indices 0 to 2.
-   * @param cue Visual or acoustic.
-   * @returns Seconds; at least 0.1.
-   */
-  function reaction(
-    skill: IAutoMovieMotionHumanSkill,
-    random: IAutoMovieRandom,
-    cue: ReactionCue,
-  ): number {
-    return Math.max(
-      0.1,
-      HumanSkill.reaction(reactionLaw(skill, cue), random, 0),
-    );
-  }
-
-  /**
    * The ex-Gaussian parameters of an orienting reaction, seconds: mu 0.26 s to
    * 0.22 s, sigma 35 ms to 25 ms and tau 70 ms to 40 ms on the `reaction` axis
    * (provisional), mu 40 ms lower for an acoustic cue (Welford 1980).
@@ -270,6 +250,26 @@ export namespace look {
       sigma: HumanSkill.quantity(skill, "reaction", 0.035, 0.025),
       tau: HumanSkill.quantity(skill, "reaction", 0.07, 0.04),
     };
+  }
+
+  /**
+   * A simple reaction time to a cue, seconds: an ex-Gaussian draw (a normal
+   * plus an exponential) with skill-scaled parameters.
+   *
+   * @param skill The skill; its `reaction` axis scales the parameters.
+   * @param random The stream; reads indices 0 to 2.
+   * @param cue Visual or acoustic.
+   * @returns Seconds; at least 0.1.
+   */
+  function reaction(
+    skill: IAutoMovieMotionHumanSkill,
+    random: IAutoMovieRandom,
+    cue: ReactionCue,
+  ): number {
+    return Math.max(
+      0.1,
+      HumanSkill.reaction(reactionLaw(skill, cue), random, 0),
+    );
   }
 }
 

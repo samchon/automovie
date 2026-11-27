@@ -175,6 +175,84 @@ export namespace AutoMovieViewConic {
       : { point: kind === "end" ? [p[1], p[0]] : p, quarter: q };
   }
 
+  /** Original smaller-adjacent guide policy in the supplied scalar algebra. */
+  export function curvatures<T>(
+    ops: IAutoMovieConicFieldJet.IAlgebra<T>,
+    extents: readonly T[],
+    shoulders: readonly T[],
+  ): [T, T, T, T] {
+    return AutoMovieConicPreparation.curvatures(ops, extents, shoulders);
+  }
+
+  /** Project prepared algebra-valued geometry to numeric lookup data. */
+  export function primal<T>(
+    ops: IAutoMovieConicFieldJet.IAlgebra<T>,
+    curve: IAutoMovieViewConic.ICurve<T>,
+  ): IAutoMovieViewConic.ICurve {
+    return {
+      failure: curve.failure,
+      quarters: curve.quarters.map(
+        (
+          arc: IAutoMovieViewConic.IQuarter<T>,
+        ): IAutoMovieViewConic.IQuarter => ({
+          extents: [ops.value(arc.extents[0]), ops.value(arc.extents[1])],
+          shoulder: ops.value(arc.shoulder),
+          start: projectedPatch(ops, arc.start),
+          end: projectedPatch(ops, arc.end),
+          parameters: [...arc.parameters],
+          guides: [ops.value(arc.guides[0]), ops.value(arc.guides[1])],
+          curvatures: [
+            ops.value(arc.curvatures[0]),
+            ops.value(arc.curvatures[1]),
+          ],
+        }),
+      ),
+    };
+  }
+
+  /**
+   * Native conic-turn and G2-end boundary observations, which do not define an
+   * interpolant.
+   */
+  export function samples(
+    curve: IAutoMovieViewConic.ICurve,
+  ): IAutoMoviePolarSector.IGuide[] {
+    if (curve.failure !== null) return [];
+    const result: IAutoMoviePolarSector.IGuide[] = [];
+    for (let q: number = 0; q < 4; q++) {
+      const arc: IAutoMovieViewConic.IQuarter = curve.quarters[q]!;
+      const start: number = (q * Math.PI) / 2;
+      const angles: number[] = [
+        0,
+        ...(arc.start === null ? [] : [arc.start.angle]),
+        ...(arc.end === null ? [] : [Math.PI / 2 - arc.end.angle]),
+      ];
+      for (const parameter of arc.parameters.slice(1, -1))
+        angles.push(
+          AutoMovieConicArc.guide(
+            arc.extents[0],
+            arc.extents[1],
+            arc.shoulder,
+            parameter,
+          ).angle,
+        );
+      for (const angle of [...new Set(angles)].sort(
+        (a: number, b: number): number => a - b,
+      )) {
+        const phi: number = start + angle;
+        if (phi >= 2 * Math.PI || result.at(-1)?.angle === phi) continue;
+        const jet: IAutoMoviePolarSector.Jet = radius(curve, phi);
+        result.push({
+          angle: phi,
+          value: jet[0],
+          slope: jet[1],
+          curvature: jet[2],
+        });
+      }
+    }
+    return result;
+  }
+
   /** Numeric branch data shared before either capability performs its inverse. */
   interface Selection {
     /** Original quarter. */ q: number;
@@ -219,41 +297,6 @@ export namespace AutoMovieViewConic {
     return { q, local, toEnd, arc, kind };
   }
 
-  /** Original smaller-adjacent guide policy in the supplied scalar algebra. */
-  export function curvatures<T>(
-    ops: IAutoMovieConicFieldJet.IAlgebra<T>,
-    extents: readonly T[],
-    shoulders: readonly T[],
-  ): [T, T, T, T] {
-    return AutoMovieConicPreparation.curvatures(ops, extents, shoulders);
-  }
-
-  /** Project prepared algebra-valued geometry to numeric lookup data. */
-  export function primal<T>(
-    ops: IAutoMovieConicFieldJet.IAlgebra<T>,
-    curve: IAutoMovieViewConic.ICurve<T>,
-  ): IAutoMovieViewConic.ICurve {
-    return {
-      failure: curve.failure,
-      quarters: curve.quarters.map(
-        (
-          arc: IAutoMovieViewConic.IQuarter<T>,
-        ): IAutoMovieViewConic.IQuarter => ({
-          extents: [ops.value(arc.extents[0]), ops.value(arc.extents[1])],
-          shoulder: ops.value(arc.shoulder),
-          start: projectedPatch(ops, arc.start),
-          end: projectedPatch(ops, arc.end),
-          parameters: [...arc.parameters],
-          guides: [ops.value(arc.guides[0]), ops.value(arc.guides[1])],
-          curvatures: [
-            ops.value(arc.curvatures[0]),
-            ops.value(arc.curvatures[1]),
-          ],
-        }),
-      ),
-    };
-  }
-
   /**
    * Copy one prepared patch's primal values; no preparation formula is
    * repeated.
@@ -279,49 +322,6 @@ export namespace AutoMovieViewConic {
           ),
           weights: patch.weights.map((weight: T): number => ops.value(weight)),
         };
-  }
-
-  /**
-   * Native conic-turn and G2-end boundary observations, which do not define an
-   * interpolant.
-   */
-  export function samples(
-    curve: IAutoMovieViewConic.ICurve,
-  ): IAutoMoviePolarSector.IGuide[] {
-    if (curve.failure !== null) return [];
-    const result: IAutoMoviePolarSector.IGuide[] = [];
-    for (let q: number = 0; q < 4; q++) {
-      const arc: IAutoMovieViewConic.IQuarter = curve.quarters[q]!;
-      const start: number = (q * Math.PI) / 2;
-      const angles: number[] = [
-        0,
-        ...(arc.start === null ? [] : [arc.start.angle]),
-        ...(arc.end === null ? [] : [Math.PI / 2 - arc.end.angle]),
-      ];
-      for (const parameter of arc.parameters.slice(1, -1))
-        angles.push(
-          AutoMovieConicArc.guide(
-            arc.extents[0],
-            arc.extents[1],
-            arc.shoulder,
-            parameter,
-          ).angle,
-        );
-      for (const angle of [...new Set(angles)].sort(
-        (a: number, b: number): number => a - b,
-      )) {
-        const phi: number = start + angle;
-        if (phi >= 2 * Math.PI || result.at(-1)?.angle === phi) continue;
-        const jet: IAutoMoviePolarSector.Jet = radius(curve, phi);
-        result.push({
-          angle: phi,
-          value: jet[0],
-          slope: jet[1],
-          curvature: jet[2],
-        });
-      }
-    }
-    return result;
   }
 
   /**

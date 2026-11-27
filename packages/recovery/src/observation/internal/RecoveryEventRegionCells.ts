@@ -6,12 +6,6 @@ import type {
   IAutoMovieRecoverySourceCellNode,
 } from "@automovie/interface";
 
-type Triangle =
-  Parameters<IAutoMovieRecoveryEventRegion.Operation>[0]["triangles"][number];
-type Cell = ReturnType<
-  ReturnType<IAutoMovieRecoveryEventRegion.Operation>
->["cells"][number];
-
 /** Clip one ordered candidate population into fresh private query cells. */
 export function RecoveryEventRegionCells(
   source: Parameters<IAutoMovieRecoveryEventRegionCells.Operation>[0],
@@ -206,3 +200,9 @@ export function RecoveryEventRegionCells(
 
   return { result, lower, upper, nodeMap, cellNodes, faceCells, issue };
 }
+type Triangle =
+  Parameters<IAutoMovieRecoveryEventRegion.Operation>[0]["triangles"][number];
+
+type Cell = ReturnType<
+  ReturnType<IAutoMovieRecoveryEventRegion.Operation>
+>["cells"][number];

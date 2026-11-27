@@ -31,9 +31,6 @@ export namespace AutoMovieHumanAperturePocket {
    */
   const HANDLE: number = 0.5;
 
-  /** A meridian's cubic controls: rim, first handle, last handle, pole. */
-  type IControls = [number[], number[], number[], number[]];
-
   /** A point of a meridian's cubic. */
   function cubic(c: IControls, t: number): number[] {
     return c[0].map(
@@ -215,4 +212,7 @@ export namespace AutoMovieHumanAperturePocket {
       rings,
     );
   }
+
+  /** A meridian's cubic controls: rim, first handle, last handle, pole. */
+  type IControls = [number[], number[], number[], number[]];
 }

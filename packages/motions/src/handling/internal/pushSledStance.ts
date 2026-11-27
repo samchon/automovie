@@ -17,9 +17,6 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/** The alternatives of `INCLINESEntryItem`'s site. */
-type INCLINESEntryItem = "hip" | "midway" | "shoulder";
-
 /**
  * The stance a sled push (`pushSled`) takes its handles from: how far the trunk
  * inclines into the load and how far the body sinks onto bent knees.
@@ -195,6 +192,9 @@ export namespace pushSledStance {
     );
   }
 }
+
+/** The alternatives of `INCLINESEntryItem`'s site. */
+type INCLINESEntryItem = "hip" | "midway" | "shoulder";
 
 /**
  * The display-rate rise observes only the current world's authored root

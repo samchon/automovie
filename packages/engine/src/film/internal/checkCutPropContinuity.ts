@@ -15,50 +15,6 @@ import { channelKey } from "../../resolve/internal/channelKey";
 import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 
-/** One declared prop-channel requirement. */
-type PropRequirement = NonNullable<
-  IAutoMovieEditPlan["requiredPropContinuity"]
->[number];
-
-/** One boundary sample, or the sampling fault that prevented it. */
-type Boundary =
-  | {
-      channels: Map<string, IAutoMovieSampledChannel>;
-      discontinuities: Set<string>;
-    }
-  | { fault: string };
-
-/** A hard cut's two shot-local reads, shared by every valid requirement on it. */
-interface IBoundaryDemand {
-  /** Object clips from the shot leaving the cut. */
-  outgoing: readonly IAutoMovieClip[];
-
-  /** Shot-local end of the outgoing play, in seconds. */
-  end: number;
-
-  /** Object clips from the shot entering the cut. */
-  incoming: readonly IAutoMovieClip[];
-
-  /** Shot-local start of the incoming play, in seconds. */
-  start: number;
-}
-
-/** The two once-sampled reads and their source times for reporting. */
-interface IBoundaryPair {
-  /** The outgoing sample and its local time in seconds. */
-  left: Boundary;
-  end: number;
-
-  /** The incoming sample and its local time in seconds. */
-  right: Boundary;
-  start: number;
-}
-
-/** One plan item in original order, ready to compare or report. */
-type Check =
-  | { path: string; requirement: PropRequirement }
-  | { violations: IAutoMovieConstraintViolation[] };
-
 /**
  * Check declared prop channels across adjoining plays of the same staged set.
  * Layout admission must already have checked spans, ids and references. Report
@@ -151,6 +107,50 @@ export function checkCutPropContinuity(
       );
   }
 }
+
+/** One declared prop-channel requirement. */
+type PropRequirement = NonNullable<
+  IAutoMovieEditPlan["requiredPropContinuity"]
+>[number];
+
+/** One boundary sample, or the sampling fault that prevented it. */
+type Boundary =
+  | {
+      channels: Map<string, IAutoMovieSampledChannel>;
+      discontinuities: Set<string>;
+    }
+  | { fault: string };
+
+/** A hard cut's two shot-local reads, shared by every valid requirement on it. */
+interface IBoundaryDemand {
+  /** Object clips from the shot leaving the cut. */
+  outgoing: readonly IAutoMovieClip[];
+
+  /** Shot-local end of the outgoing play, in seconds. */
+  end: number;
+
+  /** Object clips from the shot entering the cut. */
+  incoming: readonly IAutoMovieClip[];
+
+  /** Shot-local start of the incoming play, in seconds. */
+  start: number;
+}
+
+/** The two once-sampled reads and their source times for reporting. */
+interface IBoundaryPair {
+  /** The outgoing sample and its local time in seconds. */
+  left: Boundary;
+  end: number;
+
+  /** The incoming sample and its local time in seconds. */
+  right: Boundary;
+  start: number;
+}
+
+/** One plan item in original order, ready to compare or report. */
+type Check =
+  | { path: string; requirement: PropRequirement }
+  | { violations: IAutoMovieConstraintViolation[] };
 
 /**
  * Validate one requirement and bind the two source times and clip lists it asks

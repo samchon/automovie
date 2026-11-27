@@ -19,9 +19,6 @@ import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 
 /** Existing transactional body assembly and frozen host snapshots. */
 export namespace AutoMovieSolidBodyMerge {
-  /** A surface/grid descriptor before body assembly adds cycles. */
-  type IFaceInput = IAutoMovieSolidBody.IFaceInput;
-
   /**
    * The body as an atlas of its faces, leaving one out (the part of a merge
    * that is already a face).
@@ -411,4 +408,7 @@ export namespace AutoMovieSolidBodyMerge {
       )
     );
   }
+
+  /** A surface/grid descriptor before body assembly adds cycles. */
+  type IFaceInput = IAutoMovieSolidBody.IFaceInput;
 }

@@ -16,27 +16,11 @@ const NAMES: Readonly<Record<AutoMovieArchetypeMobilityAid.Kind, string>> = {
   infusionStand: "infusion stand",
 };
 
-/** The model-space construction for the selected contact IDs. */
-type Builder<Id extends AutoMovieArchetypeMobilityAid.Affordance> =
-  AutoMovieArchetypeBuilder<Id, AutoMovieArchetypeMobilityAid.Dimension>;
-
-/** Model dimensions in the legacy family's recorded units. */
-type Dimensions = Partial<Record<AutoMovieArchetypeMobilityAid.Dimension, number>>;
-
 /** Model coordinates in metres. */
 const v: typeof Vector3.create = Vector3.create;
 
 /** The shared painted metal part color. */
 const metal: string = "#9aa1a6";
-
-/** A started construction: its builder and its drawn dimensions. */
-interface IDrawn<Id extends AutoMovieArchetypeMobilityAid.Affordance> {
-  /** The model-space builder for the selected contact ids. */
-  builder: Builder<Id>;
-
-  /** The drawn and fixed dimensions in the family's recorded units. */
-  d: Dimensions;
-}
 
 /**
  * Draw the selected stand or aid's admitted dimensions in the historical
@@ -267,4 +251,20 @@ export namespace MobilityAidConstruction {
     tip(builder);
     return builder.build(d.mass!);
   }
+}
+
+/** The model-space construction for the selected contact IDs. */
+type Builder<Id extends AutoMovieArchetypeMobilityAid.Affordance> =
+  AutoMovieArchetypeBuilder<Id, AutoMovieArchetypeMobilityAid.Dimension>;
+
+/** Model dimensions in the legacy family's recorded units. */
+type Dimensions = Partial<Record<AutoMovieArchetypeMobilityAid.Dimension, number>>;
+
+/** A started construction: its builder and its drawn dimensions. */
+interface IDrawn<Id extends AutoMovieArchetypeMobilityAid.Affordance> {
+  /** The model-space builder for the selected contact ids. */
+  builder: Builder<Id>;
+
+  /** The drawn and fixed dimensions in the family's recorded units. */
+  d: Dimensions;
 }

@@ -2,9 +2,6 @@ import { type AutoMovieEnginePhysicsGjkTypes, AutoMovieEnginePhysics, Vector3, A
 
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/** An interval of material-axis translation, metres. */
-type Span = readonly [number, number];
-
 /**
  * Enclose the obstructed part of one finite translation of a fixed convex
  * solid. Its intersecting placements are the line through the convex
@@ -95,3 +92,6 @@ export function mountCastObstruction(
   const to: number = boundary(last, hi, lo);
   return from < to ? [from, to] : undefined;
 }
+
+/** An interval of material-axis translation, metres. */
+type Span = readonly [number, number];

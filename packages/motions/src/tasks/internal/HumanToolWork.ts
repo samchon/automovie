@@ -11,17 +11,6 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** The record of `IOfWork`'s site. */
-type IOfWork = {
-  kind: IAutoMovieMotionHumanToolWork.Kind;
-  on: IAutoMovieMotionTarget;
-  forward: IAutoMovieVector3;
-  length: number;
-};
-
-/** The alternatives of `OfContext`'s site. */
-type OfContext = "aim" | "body" | "prop" | "start";
-
 /**
  * Where a tool works.
  *
@@ -179,3 +168,14 @@ export namespace HumanToolWork {
     };
   }
 }
+
+/** The record of `IOfWork`'s site. */
+type IOfWork = {
+  kind: IAutoMovieMotionHumanToolWork.Kind;
+  on: IAutoMovieMotionTarget;
+  forward: IAutoMovieVector3;
+  length: number;
+};
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "aim" | "body" | "prop" | "start";

@@ -4,6 +4,41 @@ import { AutoMovieArchetypeDrawSession, AutoMovieArchetypeUnits, type IAutoMovie
 
 /** Public operations for Auto Movie Archetype Exercise Mat. */
 export namespace AutoMovieArchetypeExerciseMat {
+  /** The kinds. */
+  export type Kind = "yoga" | "gym";
+
+  /** The affordance ids: `surface`, the mat's top. */
+  export type Affordance = "surface";
+
+  /**
+   * The free dimensions, metres unless stated:
+   *
+   * - `length`, `width`, `thickness`: the mat's.
+   * - `mass`: kilograms.
+   */
+  export type Dimension = "length" | "width" | "thickness" | "mass";
+
+  /** A yoga mat's lengths, Manduka PRO's that it gives a mass for. */
+  export type Size = "71in" | "85in";
+
+  /**
+   * The parameters: the kind, a yoga mat's size, and any free dimension fixed
+   * to a value inside its band.
+   */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Which mat. */
+    kind: Kind;
+
+    /**
+     * A yoga mat's length; drawn from the seed when absent. A gym mat has one
+     * size.
+     */
+    size?: Size;
+
+    /** The model's id, unique in a scene; `exerciseMat` when absent. */
+    id?: string;
+  }
+
   /**
    * An exercise mat laid on the floor: a thin yoga mat or a thicker gym mat.
    *
@@ -27,22 +62,8 @@ export namespace AutoMovieArchetypeExerciseMat {
     return createExerciseMatImplementation(params, seed);
   }
 
-  /** The kinds. */
-  export type Kind = "yoga" | "gym";
-
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["yoga", "gym"];
-
-  /** The affordance ids: `surface`, the mat's top. */
-  export type Affordance = "surface";
-
-  /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `length`, `width`, `thickness`: the mat's.
-   * - `mass`: kilograms.
-   */
-  export type Dimension = "length" | "width" | "thickness" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: Readonly<
@@ -53,9 +74,6 @@ export namespace AutoMovieArchetypeExerciseMat {
     thickness: "m",
     mass: "kg",
   };
-
-  /** A yoga mat's lengths, Manduka PRO's that it gives a mass for. */
-  export type Size = "71in" | "85in";
 
   /**
    * The figures each size fixes, by kind, the default first: the Manduka PRO 6
@@ -75,24 +93,6 @@ export namespace AutoMovieArchetypeExerciseMat {
       "85in": { length: 85 * AutoMovieArchetypeUnits.INCH, mass: 4.3 },
     },
   };
-
-  /**
-   * The parameters: the kind, a yoga mat's size, and any free dimension fixed
-   * to a value inside its band.
-   */
-  export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which mat. */
-    kind: Kind;
-
-    /**
-     * A yoga mat's length; drawn from the seed when absent. A gym mat has one
-     * size.
-     */
-    size?: Size;
-
-    /** The model's id, unique in a scene; `exerciseMat` when absent. */
-    id?: string;
-  }
 
   /** Manduka's PRO mat, read. */
   const MANDUKA: string =

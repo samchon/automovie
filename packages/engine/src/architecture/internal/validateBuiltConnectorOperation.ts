@@ -13,13 +13,6 @@ import { builtConnectorStops } from "./builtConnectorStops";
 import { builtElementSubtree } from "./builtElementSubtree";
 import { validateBuiltTravelMotion } from "./validateBuiltTravelMotion";
 
-/** The three ways a powered run may stand: driven either way, or not at all. */
-const CONNECTOR_DRIVES: readonly IAutoMovieConnectorState["drive"][] = [
-  "forward",
-  "reverse",
-  "still",
-];
-
 /**
  * Validate the travelling carriages, named states, and stops of one run.
  *
@@ -224,3 +217,10 @@ export function validateBuiltConnectorOperation(
       operation.state,
     );
 }
+
+/** The three ways a powered run may stand: driven either way, or not at all. */
+const CONNECTOR_DRIVES: readonly IAutoMovieConnectorState["drive"][] = [
+  "forward",
+  "reverse",
+  "still",
+];

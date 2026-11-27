@@ -12,16 +12,6 @@ import { AutoMovieArchetypeQuadrupedSkeleton } from "../../animals/AutoMovieArch
 import { QuadrupedRestFloor } from "../../animals/quadruped/QuadrupedRestFloor";
 import type { AutoMovieArchetype } from "../../core/index";
 
-/** A primitive's two axis endpoints and joint frame, in model metres. */
-interface Bar {
-  /** Lower local-Y endpoint: the generic joint origin. */
-  from: IAutoMovieVector3;
-  /** Upper local-Y endpoint: the bar's distal axis end. */
-  to: IAutoMovieVector3;
-  /** Rigid frame at from, with the part rotation. */
-  frame: IAutoMovieTransform;
-}
-
 /**
  * Prepare quadruped bone, attachment, sole and floor observations.
  *
@@ -212,6 +202,16 @@ export function archetypeQuadrupedMarks(
       };
     }
   };
+}
+
+/** A primitive's two axis endpoints and joint frame, in model metres. */
+interface Bar {
+  /** Lower local-Y endpoint: the generic joint origin. */
+  from: IAutoMovieVector3;
+  /** Upper local-Y endpoint: the bar's distal axis end. */
+  to: IAutoMovieVector3;
+  /** Rigid frame at from, with the part rotation. */
+  frame: IAutoMovieTransform;
 }
 
 /** Decode the part directly so a disconnected posed chain remains observable. */

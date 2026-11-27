@@ -31,9 +31,6 @@ const RIGHT: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 
 /** Forward of the tangent-plane frame before it is turned to the entry. */
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
-/** The alternatives of `PlanPart`'s site. */
-type PlanPart = "leftLeg" | "rightLeg";
-
 /**
  * One continuous bilateral glide for ice and snow. An authored arc travels in a
  * level or inclined plane and the two ankles travel with that frame. The loaded
@@ -422,3 +419,6 @@ export namespace HumanSurfaceGlide {
 function rampIntegral(u: number): number {
   return u * u * u * (1 - u / 2);
 }
+
+/** The alternatives of `PlanPart`'s site. */
+type PlanPart = "leftLeg" | "rightLeg";

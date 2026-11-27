@@ -142,9 +142,6 @@ export function placeOverHeadHandGap(
   }
 }
 
-/** The prepared signed distance to a fixed partner shape. */
-type Query = ReturnType<typeof AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance>;
-
 /** Roundoff in locating the wear socket on an adjoining collider surface. */
 const SHAPE_ROUNDING: number = 1e-9;
 
@@ -238,3 +235,6 @@ export namespace placeOverHeadHandGap {
     };
   }
 }
+
+/** The prepared signed distance to a fixed partner shape. */
+type Query = ReturnType<typeof AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance>;

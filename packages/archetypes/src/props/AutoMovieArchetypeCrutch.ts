@@ -15,24 +15,6 @@ import {
 const SOURCE: string =
   "Walk Easy 445 adult half-cuff forearm crutch, grip to floor 29.8–38.0 in, grip to cuff 9.0 in, cuff inside diameter 3.5 in, grip length 4.25 in and diameter 1.5 in, mass 552.8 g each (https://walkeasy.com/shop/crutches/forearm-elbow/445.php)";
 
-/** The crutch's drawn proportions, metres. */
-interface ICrutchShape {
-  /** The shaft's radius. */
-  shaft: number;
-
-  /** The rubber tip's radius. */
-  baseRadius: number;
-
-  /** The rubber tip's height. */
-  baseHeight: number;
-
-  /** The cuff band's section. */
-  cuffSection: number;
-
-  /** How far the cuff's top stands behind the grip. */
-  topSetback: number;
-}
-
 /** Visual simplifications for the shaft, tip and cuff section, in metres. */
 const SHAPE: Readonly<ICrutchShape> = {
   shaft: 0.011,
@@ -164,4 +146,22 @@ export function create(
       SOURCE,
     ),
   };
+}
+
+/** The crutch's drawn proportions, metres. */
+interface ICrutchShape {
+  /** The shaft's radius. */
+  shaft: number;
+
+  /** The rubber tip's radius. */
+  baseRadius: number;
+
+  /** The rubber tip's height. */
+  baseHeight: number;
+
+  /** The cuff band's section. */
+  cuffSection: number;
+
+  /** How far the cuff's top stands behind the grip. */
+  topSetback: number;
 }

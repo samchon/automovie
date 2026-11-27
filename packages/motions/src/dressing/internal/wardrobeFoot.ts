@@ -25,9 +25,6 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { wardrobeFootRaisedLeg } from "./wardrobeFootRaisedLeg";
 import { wardrobeHands } from "./wardrobeHands";
 
-/** Positive axial clearance at either end of a visible hand-foot exchange. */
-const AIR: number = 0.025;
-
 /**
  * Stage seated shoe or sock transfer with one foot raised and the other
  * grounded.
@@ -324,6 +321,9 @@ export function wardrobeFoot(
   course.shown = shown;
   return shown;
 }
+
+/** Positive axial clearance at either end of a visible hand-foot exchange. */
+const AIR: number = 0.025;
 
 /**
  * The coursed plan once it is laid, read by the shell's custody through the

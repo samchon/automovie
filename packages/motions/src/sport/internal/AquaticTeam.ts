@@ -20,9 +20,6 @@ const CONTACT_BLEND: number = 0.22;
  * provisional, an unhurried sculling arm.
  */
 const BASE_REACH: number = 0.5;
-/** The alternatives of `PlanLimbIndex`'s site. */
-type PlanLimbIndex = 0 | 1;
-
 /**
  * An artistic figure with optional team support. Flat and vertical sculls
  * follow the form distinctions measured by Homma et al. (PMID 31718520). The
@@ -321,3 +318,6 @@ export namespace AquaticTeam {
 
 /** A provisional cos(36.9°) minimum for a submerged palm bearing upward. */
 const UPWARD: number = 0.8;
+
+/** The alternatives of `PlanLimbIndex`'s site. */
+type PlanLimbIndex = 0 | 1;

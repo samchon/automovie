@@ -202,45 +202,6 @@ export namespace crossingClearance {
   ]);
 }
 
-/** A fixture shape placed in the world with its bounds. */
-interface IFixtureShape {
-  /** The shape in the fixture's frame. */
-  shape: IAutoMoviePhysicalShape;
-
-  /** Its world bounds. */
-  bounds: IAutoMoviePhysicalShapeBounds.IResult;
-}
-
-/** A named fixture placed at the action's start. */
-interface IFixture {
-  /** Its subject. */
-  subject: string;
-
-  /** Its world frame. */
-  pose: IAutoMovieRigidTransform;
-
-  /** Its shapes. */
-  shapes: IFixtureShape[];
-}
-
-/** The deepest entry of a body segment into a fixture beyond its allowance. */
-interface ICollision {
-  /** The entering bone. */
-  bone: AutoMovieHumanoidBone;
-
-  /** The fixture entered. */
-  subject: string;
-
-  /** When, seconds since the action's start. */
-  seconds: number;
-
-  /** The signed distance, metres; negative inside. */
-  gap: number;
-
-  /** The depth beyond the allowance, metres. */
-  excess: number;
-}
-
 /** Whether two axis-aligned bounds overlap. */
 function overlap(
   a: IAutoMoviePhysicalShapeBounds.IResult,
@@ -283,4 +244,43 @@ function bearing(
       share >= contact.from &&
       share <= contact.to,
   );
+}
+
+/** A fixture shape placed in the world with its bounds. */
+interface IFixtureShape {
+  /** The shape in the fixture's frame. */
+  shape: IAutoMoviePhysicalShape;
+
+  /** Its world bounds. */
+  bounds: IAutoMoviePhysicalShapeBounds.IResult;
+}
+
+/** A named fixture placed at the action's start. */
+interface IFixture {
+  /** Its subject. */
+  subject: string;
+
+  /** Its world frame. */
+  pose: IAutoMovieRigidTransform;
+
+  /** Its shapes. */
+  shapes: IFixtureShape[];
+}
+
+/** The deepest entry of a body segment into a fixture beyond its allowance. */
+interface ICollision {
+  /** The entering bone. */
+  bone: AutoMovieHumanoidBone;
+
+  /** The fixture entered. */
+  subject: string;
+
+  /** When, seconds since the action's start. */
+  seconds: number;
+
+  /** The signed distance, metres; negative inside. */
+  gap: number;
+
+  /** The depth beyond the allowance, metres. */
+  excess: number;
 }

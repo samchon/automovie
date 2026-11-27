@@ -3,14 +3,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** An actual angular RHS reading at a rejected trial's endpoint. */
-interface IEndpoint {
-  /** Owned quaternion supplied to the RHS, before any later knot normalization. */
-  q: IAutoMovieQuaternion;
-  /** Owned body angular rate returned for that quaternion, rad/s. */
-  w: IAutoMovieVector3;
-}
-
 /**
  * A trajectory reached its existing time-resolution guard, with its last
  * rejection. The airborne wrapper consumes this numeric context to explain its
@@ -79,4 +71,12 @@ export class MotionTrajectoryFailure extends Error {
     );
     this.name = "MotionTrajectoryFailure";
   }
+}
+
+/** An actual angular RHS reading at a rejected trial's endpoint. */
+interface IEndpoint {
+  /** Owned quaternion supplied to the RHS, before any later knot normalization. */
+  q: IAutoMovieQuaternion;
+  /** Owned body angular rate returned for that quaternion, rad/s. */
+  w: IAutoMovieVector3;
 }

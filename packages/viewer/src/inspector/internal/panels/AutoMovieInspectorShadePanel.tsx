@@ -6,9 +6,6 @@ import type { ChangeEvent, JSX } from "react";
 
 import type { IAutoMovieInspectorAction } from "../../IAutoMovieInspectorAction.js";
 
-/** Each shade keyed by itself, so the compiler refuses a list that misses one. */
-type IShadeIndex = { [Shade in AutoMovieInspectionShade]: Shade };
-
 /** Every shade offered. */
 const SHADES: IShadeIndex = {
   beauty: "beauty",
@@ -93,3 +90,6 @@ export namespace AutoMovieInspectorShadePanel {
     dispatch: (action: IAutoMovieInspectorAction) => void;
   }
 }
+
+/** Each shade keyed by itself, so the compiler refuses a list that misses one. */
+type IShadeIndex = { [Shade in AutoMovieInspectionShade]: Shade };

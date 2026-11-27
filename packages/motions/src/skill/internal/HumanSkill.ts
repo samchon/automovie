@@ -7,9 +7,6 @@ import type {
   IAutoMovieReactionTimeDistribution,
 } from "@automovie/interface";
 
-/** The alternatives of `LEVELSEntryItem`'s site. */
-type LEVELSEntryItem = "novice" | "amateur" | "trained" | "elite";
-
 /**
  * A performer's skill as numbers laws read: each proficiency axis resolved to
  * [0, 1], the interpolation every family's quantities use, the seeded draw
@@ -276,3 +273,6 @@ export namespace HumanSkill {
     );
   }
 }
+
+/** The alternatives of `LEVELSEntryItem`'s site. */
+type LEVELSEntryItem = "novice" | "amateur" | "trained" | "elite";

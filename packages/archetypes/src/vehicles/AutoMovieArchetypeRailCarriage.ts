@@ -16,6 +16,42 @@ const CONCRETE_DENSITY: number = 2_400;
 /** Constructs the rail carriage archetype from its recipe. */
 export namespace AutoMovieArchetypeRailCarriage {
   /**
+   * Fixed shell dimensions, named carriage contacts and the authored seat
+   * height.
+   *
+   * Boarding supports and hand contact at the principal bay plus the positive-Z
+   * leader and negative-Z follower of each paired door.
+   */
+  export type Affordance =
+    | "threshold"
+    | "doorway"
+    | "aisle"
+    | "seat"
+    | "grabRail"
+    | DoorId;
+
+  /** The height of the seat pad's top above the finished cabin floor, in metres. */
+  export type Dimension = "seatHeight";
+
+  /** Optional seat height in metres for staging seated contact. */
+  export interface IParams {
+    /** Scene model id, defaulting to railCarriage. */
+    id?: string;
+
+    /**
+     * Seat pad top above the cabin floor, 17–19 inches expressed in metres.
+     * Defaults to 0.45 m without a seed and draws in the band with a seed.
+     */
+    seatHeight?: number;
+  }
+
+  /** Parameters for the stationary boarding platform. */
+  export interface IPlatformParams {
+    /** Unique scene id; defaults to `railPlatform`. */
+    id?: string;
+  }
+
+  /**
    * A rapid-transit middle car based on the Southern California Rapid Transit
    * District's 1968 preliminary design, §§I.B and II.C.3–5 and II.C.10
    * (https://libraryarchives.metro.net/DPGTL/scrtd/1968-metro-rail-preliminary-design-criteria-and-outline-specifications.pdf).
@@ -397,53 +433,11 @@ export namespace AutoMovieArchetypeRailCarriage {
     ],
   } as const;
 
-  /** Leader, moving toward +Z, then follower, moving toward −Z. */
-  type DoorPair = (typeof DOORS)[keyof typeof DOORS][number];
-
-  /** The six independently controlled pairs' leaf ids. */
-  type DoorId = DoorPair[number];
-
-  /**
-   * Fixed shell dimensions, named carriage contacts and the authored seat
-   * height.
-   *
-   * Boarding supports and hand contact at the principal bay plus the positive-Z
-   * leader and negative-Z follower of each paired door.
-   */
-  export type Affordance =
-    | "threshold"
-    | "doorway"
-    | "aisle"
-    | "seat"
-    | "grabRail"
-    | DoorId;
-
-  /** The height of the seat pad's top above the finished cabin floor, in metres. */
-  export type Dimension = "seatHeight";
-
-  /** Optional seat height in metres for staging seated contact. */
-  export interface IParams {
-    /** Scene model id, defaulting to railCarriage. */
-    id?: string;
-
-    /**
-     * Seat pad top above the cabin floor, 17–19 inches expressed in metres.
-     * Defaults to 0.45 m without a seed and draws in the band with a seed.
-     */
-    seatHeight?: number;
-  }
-
   /** Outside width and floor height above rail in metres, reference §II.C.3. */
   export const REFERENCE: Readonly<{ width: number; floor: number }> = {
     width: 126 * AutoMovieArchetypeUnits.INCH,
     floor: 40 * AutoMovieArchetypeUnits.INCH,
   };
-
-  /** Parameters for the stationary boarding platform. */
-  export interface IPlatformParams {
-    /** Unique scene id; defaults to `railPlatform`. */
-    id?: string;
-  }
 
   /**
    * A one-car segment of a level-boarding station platform, aligned with
@@ -582,4 +576,10 @@ export namespace AutoMovieArchetypeRailCarriage {
 
   /** Colored upholstery distinguishes the passenger supports from the shell. */
   const SEAT: AutoMovieArchetypeBuilder.IOptions = { color: "#326878" };
+
+  /** Leader, moving toward +Z, then follower, moving toward −Z. */
+  type DoorPair = (typeof DOORS)[keyof typeof DOORS][number];
+
+  /** The six independently controlled pairs' leaf ids. */
+  type DoorId = DoorPair[number];
 }

@@ -23,12 +23,6 @@ import type {
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned contact retains its original parent and admitted scalar source; query temporaries and vectors have call scope, with no global cache.
  */
 export namespace AutoMovieHumanHeadLipContact {
-  /** The same native field with optional implicit-coordinate total2. */
-  interface IField extends IAutoMovieHumanHeadLipContact.IReading {
-    /** Fy, Fz, Fyy, Fyz, Fzz for world X=F(world Y,world Z). */
-    derivatives: [number, number, number, number, number] | null;
-  }
-
   /**
    * Admit one original level field, retaining the actual source and axis.
    * Queries reject unsupported charts and domains instead of moving a point.
@@ -220,6 +214,12 @@ export namespace AutoMovieHumanHeadLipContact {
         };
       },
     };
+  }
+
+  /** The same native field with optional implicit-coordinate total2. */
+  interface IField extends IAutoMovieHumanHeadLipContact.IReading {
+    /** Fy, Fz, Fyy, Fyz, Fzz for world X=F(world Y,world Z). */
+    derivatives: [number, number, number, number, number] | null;
   }
 
   /**

@@ -4,22 +4,6 @@ import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanoidSurfa
 
 import { HumanFoot } from "./HumanFoot";
 
-/** Borrowed geometry readers for one unchanged displayed body evaluation. */
-interface IReading {
-  /**
-   * The original bearing base; sides keep their given order and default to
-   * both.
-   */
-  base(sides?: readonly AutoMovieHumanSide[]): IAutoMovieVector3[];
-  /**
-   * A side's borrowed placed sockets, heel first; do not mutate them during
-   * this reading.
-   */
-  sockets(
-    side: AutoMovieHumanSide,
-  ): readonly IAutoMovieMotionHumanFoot.ISocket[];
-}
-
 /**
  * Share actual foot socket/outline placement within one synchronous reading.
  *
@@ -78,4 +62,20 @@ export function readHumanFoot(
         );
       }),
   };
+}
+
+/** Borrowed geometry readers for one unchanged displayed body evaluation. */
+interface IReading {
+  /**
+   * The original bearing base; sides keep their given order and default to
+   * both.
+   */
+  base(sides?: readonly AutoMovieHumanSide[]): IAutoMovieVector3[];
+  /**
+   * A side's borrowed placed sockets, heel first; do not mutate them during
+   * this reading.
+   */
+  sockets(
+    side: AutoMovieHumanSide,
+  ): readonly IAutoMovieMotionHumanFoot.ISocket[];
 }

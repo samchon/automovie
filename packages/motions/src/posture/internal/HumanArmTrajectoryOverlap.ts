@@ -15,15 +15,6 @@ import { HumanArmTrajectoryShapeOwners } from "./HumanArmTrajectoryShapeOwners";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanAuditModel } from "./HumanAuditModel";
 
-/** The alternatives of `EmbeddedVisitOwn`'s site. */
-type EmbeddedVisitOwn = "upperArm" | "lowerArm" | "hand";
-
-/** The alternatives of `EmbeddedOwner`'s site. */
-type EmbeddedOwner = "upper" | "lower" | "hand";
-
-/** The alternatives of `CrossingOwner`'s site. */
-type CrossingOwner = "upper" | "lower" | "hand";
-
 /**
  * Collision pairs against moving arm colliders: the two solved arms against
  * each other, and the body's and external segments' corners inside an arm.
@@ -472,6 +463,15 @@ export namespace HumanArmTrajectoryOverlap {
     return out;
   }
 }
+
+/** The alternatives of `EmbeddedVisitOwn`'s site. */
+type EmbeddedVisitOwn = "upperArm" | "lowerArm" | "hand";
+
+/** The alternatives of `EmbeddedOwner`'s site. */
+type EmbeddedOwner = "upper" | "lower" | "hand";
+
+/** The alternatives of `CrossingOwner`'s site. */
+type CrossingOwner = "upper" | "lower" | "hand";
 
 /** The segment of the arm a collider shape rides on. */
 type Owner = HumanArmTrajectoryShapeOwners.Owner;

@@ -64,15 +64,6 @@ export const crossAnkleOverKnee: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
     },
     plan: planCrossAnkleOverKnee,
   };
-/** The alternatives of `PlanCrossAnkleOverKneeKnee`'s site. */
-type PlanCrossAnkleOverKneeKnee = "leftLowerLeg" | "rightLowerLeg";
-
-/** The alternatives of `PlanCrossAnkleOverKneeSwing`'s site. */
-type PlanCrossAnkleOverKneeSwing = "leftLeg" | "rightLeg";
-
-/** The alternatives of `PlanCrossAnkleOverKneeLifted`'s site. */
-type PlanCrossAnkleOverKneeLifted = "leftFoot" | "rightFoot";
-
 /**
  * Cross one ankle over the other knee while seated, hold, and put the foot
  * back. Register under `crossAnkleOverKnee` and perform after a completed chair
@@ -211,3 +202,12 @@ function planCrossAnkleOverKnee(
     },
   };
 }
+
+/** The alternatives of `PlanCrossAnkleOverKneeKnee`'s site. */
+type PlanCrossAnkleOverKneeKnee = "leftLowerLeg" | "rightLowerLeg";
+
+/** The alternatives of `PlanCrossAnkleOverKneeSwing`'s site. */
+type PlanCrossAnkleOverKneeSwing = "leftLeg" | "rightLeg";
+
+/** The alternatives of `PlanCrossAnkleOverKneeLifted`'s site. */
+type PlanCrossAnkleOverKneeLifted = "leftFoot" | "rightFoot";

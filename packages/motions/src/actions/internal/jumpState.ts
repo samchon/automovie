@@ -115,17 +115,6 @@ export namespace jumpState {
     return poseBones.prepare(body, LEG_BONES);
   }
 
-  /**
-   * Only achieved ankles and knees are consumed after full canonical endpoint
-   * resolution.
-   */
-  const LEG_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-    "leftFoot",
-    "rightFoot",
-    "leftLowerLeg",
-    "rightLowerLeg",
-  ]);
-
   /** One achieved leg in the canonical root frame. */
   export interface ILeg {
     /** Achieved ankle, root-frame metres. */
@@ -147,4 +136,15 @@ export namespace jumpState {
     /** Achieved geometry of both legs in the canonical root frame. */
     legs: Record<AutoMovieHumanSide, ILeg>;
   }
+
+  /**
+   * Only achieved ankles and knees are consumed after full canonical endpoint
+   * resolution.
+   */
+  const LEG_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+    "leftFoot",
+    "rightFoot",
+    "leftLowerLeg",
+    "rightLowerLeg",
+  ]);
 }

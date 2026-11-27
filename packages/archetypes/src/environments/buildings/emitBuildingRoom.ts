@@ -13,9 +13,6 @@ import type {
 import type { buildingPlans } from "./buildingPlans";
 import { buildingRegionModel } from "./buildingRegionModel";
 
-/** A neutral floor finish independent of the wall swatch. */
-const FLOOR_COLOR: string = "#918575";
-
 /** Record the logical enclosure, staged slabs and support of one admitted room. */
 export function emitBuildingRoom(
   environment: IAutoMovieBuiltEnvironment,
@@ -102,6 +99,9 @@ export function emitBuildingRoom(
     });
   }
 }
+
+/** A neutral floor finish independent of the wall swatch. */
+const FLOOR_COLOR: string = "#918575";
 
 /**
  * Convert a positive region triangulation into convex world-space prisms with

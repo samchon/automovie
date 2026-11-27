@@ -10,12 +10,6 @@ import type {
 const COMPONENTS: readonly ["x", "y", "z"] = ["x", "y", "z"];
 
 /**
- * One Cartesian vector component, distinct from the quaternion scalar
- * component.
- */
-type Component = (typeof COMPONENTS)[number];
-
-/**
  * Write the original Hamilton product a*b into one caller-owned quaternion.
  * Compute X/Y/Z/W before publishing any field, so target may alias an input. No
  * normalization or unit premise changes the raw product's rounding.
@@ -190,3 +184,9 @@ function vectorComponent(
   if (axis === "y") return a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x;
   return a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w;
 }
+
+/**
+ * One Cartesian vector component, distinct from the quaternion scalar
+ * component.
+ */
+type Component = (typeof COMPONENTS)[number];

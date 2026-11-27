@@ -12,23 +12,6 @@ import { clampJointRom } from "../../rom/internal/clampJointRom";
 import { getConstraint } from "../../rom/internal/getConstraint";
 
 /**
- * Scale one input deflection down the recoil chain. An absent or zero push is
- * represented as `null`, the pose model's resting axis, so a zero-excluding ROM
- * does not drag an untouched axis to its minimum and the resulting pose remains
- * legal under the same validator. A non-zero deflection stays explicit for the
- * shared whole-joint ROM clamp.
- */
-function scaledPushAxis(value: number | null, scale: number): number | null {
-  if (value === null) return null;
-  const scaled: number = value * scale;
-  return scaled === 0 ? null : scaled;
-}
-
-function readPushAxis(value: number | undefined): number | null {
-  return value === undefined || value === 0 ? null : value;
-}
-
-/**
  * Build the **flinch** a struck body yields under an impact: the reactive
  * `push` (a deflection driven by the impulse) propagates down a `chain` of
  * bones (from the contact bone toward the body) losing strength by `falloff`
@@ -83,3 +66,20 @@ export const impactRecoil: (
   );
   return { skeleton: skeleton.id, root: null, joints };
 };
+
+/**
+ * Scale one input deflection down the recoil chain. An absent or zero push is
+ * represented as `null`, the pose model's resting axis, so a zero-excluding ROM
+ * does not drag an untouched axis to its minimum and the resulting pose remains
+ * legal under the same validator. A non-zero deflection stays explicit for the
+ * shared whole-joint ROM clamp.
+ */
+function scaledPushAxis(value: number | null, scale: number): number | null {
+  if (value === null) return null;
+  const scaled: number = value * scale;
+  return scaled === 0 ? null : scaled;
+}
+
+function readPushAxis(value: number | undefined): number | null {
+  return value === undefined || value === 0 ? null : value;
+}

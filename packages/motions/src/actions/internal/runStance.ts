@@ -9,30 +9,6 @@ import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
 import { walkStepFoot } from "./walkStepFoot";
 
-/** The record of `IPlanReachAt`'s site. */
-type IPlanReachAt = { z: number; y: number };
-
-/** The record of `IPlanStruck`'s site. */
-type IPlanStruck = { z: number; y: number };
-
-/** The record of `IPlanAboutResult`'s site. */
-type IPlanAboutResult = { z: number; y: number };
-
-/** The record of `IPlanAbout`'s site. */
-type IPlanAbout = { z: number; y: number };
-
-/** The record of `IPlanProps`'s site. */
-type IPlanProps = {
-  stride: number;
-  share: number;
-  front: number;
-  lead: number;
-  heels: number;
-};
-
-/** The record of `IStanceBob`'s site. */
-type IStanceBob = { mean: number; amplitude: number };
-
 /**
  * The stance of a gait with a flight, as the spring-mass model of running has
  * it (Blickhan 1989, J Biomech 22:1217; McMahon and Cheng 1990, J Biomech 23
@@ -54,6 +30,18 @@ type IStanceBob = { mean: number; amplitude: number };
  * push and no shallower than its held heel.
  */
 export namespace runStance {
+  /** A cruising stance's oscillation and push. */
+  export interface IStance {
+    /**
+     * The pelvis's oscillation about standing, hip heights: its mean and its
+     * amplitude, lowest at mid-stance.
+     */
+    bob: IStanceBob;
+
+    /** The toe-off pitch, degrees toes-down. */
+    push: number;
+  }
+
   /**
    * The knee's flexion at contact and at toe-off, degrees (provisional,
    * Novacheck 1998).
@@ -71,18 +59,6 @@ export namespace runStance {
    * `MIDDLE` and inside the knee's range.
    */
   const BRACKET: number = 120;
-
-  /** A cruising stance's oscillation and push. */
-  export interface IStance {
-    /**
-     * The pelvis's oscillation about standing, hip heights: its mean and its
-     * amplitude, lowest at mid-stance.
-     */
-    bob: IStanceBob;
-
-    /** The toe-off pitch, degrees toes-down. */
-    push: number;
-  }
 
   /**
    * A cruising stance of a gait with a flight.
@@ -236,3 +212,27 @@ export namespace runStance {
     return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
   }
 }
+
+/** The record of `IPlanReachAt`'s site. */
+type IPlanReachAt = { z: number; y: number };
+
+/** The record of `IPlanStruck`'s site. */
+type IPlanStruck = { z: number; y: number };
+
+/** The record of `IPlanAboutResult`'s site. */
+type IPlanAboutResult = { z: number; y: number };
+
+/** The record of `IPlanAbout`'s site. */
+type IPlanAbout = { z: number; y: number };
+
+/** The record of `IPlanProps`'s site. */
+type IPlanProps = {
+  stride: number;
+  share: number;
+  front: number;
+  lead: number;
+  heels: number;
+};
+
+/** The record of `IStanceBob`'s site. */
+type IStanceBob = { mean: number; amplitude: number };

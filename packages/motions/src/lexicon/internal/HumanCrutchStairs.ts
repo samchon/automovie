@@ -36,9 +36,6 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 /** No offset: a planted crutch's grip lies on the support course. */
 const STILL: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
-/** The two joints a held leg sets. */
-type LegJoint = "hip" | "knee";
-
 /**
  * The hip's and knee's flexion that hold the injured foot off the steps,
  * degrees: the crutch walk's three-point gait's.
@@ -495,3 +492,6 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
     };
   },
 };
+
+/** The two joints a held leg sets. */
+type LegJoint = "hip" | "knee";

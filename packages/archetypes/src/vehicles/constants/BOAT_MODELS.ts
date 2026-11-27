@@ -1,11 +1,6 @@
 import { AutoMovieArchetypeUnits } from "../../core";
 import type { AutoMovieArchetypeBoat } from "../AutoMovieArchetypeBoat";
 
-/** One boat's or option's figures by dimension. */
-type Figures = Readonly<
-  Partial<Record<AutoMovieArchetypeBoat.Dimension, number>>
->;
-
 /** Inches. */
 const IN: number = AutoMovieArchetypeUnits.INCH;
 
@@ -182,3 +177,8 @@ export const BOAT_MODELS: Readonly<{
     },
   ],
 };
+
+/** One boat's or option's figures by dimension. */
+type Figures = Readonly<
+  Partial<Record<AutoMovieArchetypeBoat.Dimension, number>>
+>;

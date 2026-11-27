@@ -8,9 +8,6 @@ import type {
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { seated } from "./seated";
 
-/** The alternatives of `PrepareSeatedRootHeading`'s site. */
-type PrepareSeatedRootHeading = "yaw" | "pitch" | "roll";
-
 /**
  * Prepare a fixed body's seat socket under an unchanged rigid heading: its rest
  * offset is turned by the heading here, so every point yields the root that
@@ -32,3 +29,6 @@ export function prepareSeatedRoot(
   return (at: IAutoMovieVector3): IAutoMovieVector3 =>
     Vector3.subtract(at, offset);
 }
+
+/** The alternatives of `PrepareSeatedRootHeading`'s site. */
+type PrepareSeatedRootHeading = "yaw" | "pitch" | "roll";

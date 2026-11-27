@@ -21,20 +21,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { StrikingStance } from "./StrikingStance";
 
-/** The kicking leg's solution at a key of the strike. */
-interface IKey {
-  /** The leg's reference solution there. */
-  reference: IAutoMovieHumanLimbReference;
-
-  /** The foot's world attitude there. */
-  attitude: IAutoMovieQuaternion;
-
-  /** The ankle's clinical angles there, degrees. */
-  ankle: readonly [number, number, number];
-}
-/** The alternatives of `FootStrikeLegSolveGoal`'s site. */
-type FootStrikeLegSolveGoal = "point" | "bend" | "rotation";
-
 /**
  * The kicking leg of a foot strike: planted until its release, lifted and
  * folded into the chamber, extended through the contact and recoiled to its
@@ -258,7 +244,6 @@ export function FootStrikeLeg(
   };
   return leg;
 }
-
 /** Companion types of {@link FootStrikeLeg}. */
 export namespace FootStrikeLeg {
   /**
@@ -350,3 +335,18 @@ export namespace FootStrikeLeg {
     ) => IAutoMovieVector3;
   }
 }
+
+/** The kicking leg's solution at a key of the strike. */
+interface IKey {
+  /** The leg's reference solution there. */
+  reference: IAutoMovieHumanLimbReference;
+
+  /** The foot's world attitude there. */
+  attitude: IAutoMovieQuaternion;
+
+  /** The ankle's clinical angles there, degrees. */
+  ankle: readonly [number, number, number];
+}
+
+/** The alternatives of `FootStrikeLegSolveGoal`'s site. */
+type FootStrikeLegSolveGoal = "point" | "bend" | "rotation";

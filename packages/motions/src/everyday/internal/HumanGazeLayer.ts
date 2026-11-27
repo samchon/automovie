@@ -9,34 +9,6 @@ import type {
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { HumanGaze } from "./HumanGaze";
 
-/** A part of the body a gaze recruits on its own timing. */
-type GazePart = "eyes" | "head" | "trunk";
-
-/** A target's direction from the eyes, degrees. */
-type IStageTowards = { yaw: number; pitch: number };
-
-/**
- * One request showing at an instant: the request, its target's point, its
- * direction from the posture under the layer and its parts' turn durations,
- * seconds.
- */
-interface IStage {
-  /** The request. */
-  request: IAutoMovieMotionHumanGaze.ILayer;
-
-  /** Where its target is at the instant, world metres. */
-  point: IAutoMovieVector3;
-
-  /**
-   * The target's direction from the eyes on the posture under the layer,
-   * degrees.
-   */
-  towards: IStageTowards;
-
-  /** Each part's onset and return duration, seconds. */
-  durations: Record<GazePart, number>;
-}
-
 /**
  * A gaze layer (`HumanGaze.layer`): from `from` the eyes, head and trunk turn
  * toward the target on their own timings and track it; from `to` they return. A
@@ -174,6 +146,34 @@ export function HumanGazeLayer(
       return out;
     },
   };
+}
+
+/** A part of the body a gaze recruits on its own timing. */
+type GazePart = "eyes" | "head" | "trunk";
+
+/** A target's direction from the eyes, degrees. */
+type IStageTowards = { yaw: number; pitch: number };
+
+/**
+ * One request showing at an instant: the request, its target's point, its
+ * direction from the posture under the layer and its parts' turn durations,
+ * seconds.
+ */
+interface IStage {
+  /** The request. */
+  request: IAutoMovieMotionHumanGaze.ILayer;
+
+  /** Where its target is at the instant, world metres. */
+  point: IAutoMovieVector3;
+
+  /**
+   * The target's direction from the eyes on the posture under the layer,
+   * degrees.
+   */
+  towards: IStageTowards;
+
+  /** Each part's onset and return duration, seconds. */
+  durations: Record<GazePart, number>;
 }
 
 /**

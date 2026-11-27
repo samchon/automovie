@@ -10,21 +10,6 @@ import { prepareThighSkin } from "./prepareThighSkin";
 import { seatedFlatHand } from "./seatedFlatHand";
 
 /**
- * The thigh intersection and hand support function in their own rigid
- * coordinates.
- */
-interface IPalm {
-  /** Put the fixed skin hit onto a current resolved thigh bone. */
-  readonly skin: ReturnType<typeof prepareThighSkin>;
-
-  /**
-   * Depth of the flat hand past its palm in a given wrist-local direction,
-   * metres.
-   */
-  readonly reach: ReturnType<typeof handReach>;
-}
-
-/**
  * Prepare thigh-local rays and the flat palms' geometry for a seated shift. The
  * placed posture changes by translating its root and fitting its planted legs.
  * Thigh motion transports the same skin point, and the arm's changing world
@@ -55,4 +40,19 @@ export function prepareSeatedPalms(
       ),
     };
   }
+}
+
+/**
+ * The thigh intersection and hand support function in their own rigid
+ * coordinates.
+ */
+interface IPalm {
+  /** Put the fixed skin hit onto a current resolved thigh bone. */
+  readonly skin: ReturnType<typeof prepareThighSkin>;
+
+  /**
+   * Depth of the flat hand past its palm in a given wrist-local direction,
+   * metres.
+   */
+  readonly reach: ReturnType<typeof handReach>;
 }

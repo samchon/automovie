@@ -42,27 +42,6 @@ const NURSE: Readonly<INurseShape> = {
   ease: 1,
 };
 
-/** A suckling foal's authored place. */
-interface INurseShape {
-  /** Metres out from the mare's centre line. */
-  out: number;
-
-  /** Degrees of its last turn in, from the mare's heading. */
-  turn: number;
-
-  /** Metres of radius of its last turn in. */
-  radius: number;
-
-  /** Its walking speed, metres per second. */
-  speed: number;
-
-  /** Seconds it settles before reaching. */
-  settle: number;
-
-  /** Seconds its reach eases in and out. */
-  ease: number;
-}
-
 /**
  * The udder's place along the mare's trunk bar from its rear end, a share of
  * the bar: authored.
@@ -74,12 +53,6 @@ const UDDER: number = 0.3;
  * coarse body draws no udder.
  */
 const HANG: number = 0.15;
-
-/** A mare's lying for the foaling: everything but its start. */
-type Lying = Omit<EquineRecumbency.ICue, "from">;
-
-/** A named instant of a ride. */
-type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
 
 /**
  * A mare and her foal: following at her flank, suckling, and the foaling.
@@ -493,3 +466,30 @@ export namespace AutoMovieArchetypeEquineFoal {
     ]);
   }
 }
+
+/** A suckling foal's authored place. */
+interface INurseShape {
+  /** Metres out from the mare's centre line. */
+  out: number;
+
+  /** Degrees of its last turn in, from the mare's heading. */
+  turn: number;
+
+  /** Metres of radius of its last turn in. */
+  radius: number;
+
+  /** Its walking speed, metres per second. */
+  speed: number;
+
+  /** Seconds it settles before reaching. */
+  settle: number;
+
+  /** Seconds its reach eases in and out. */
+  ease: number;
+}
+
+/** A mare's lying for the foaling: everything but its start. */
+type Lying = Omit<EquineRecumbency.ICue, "from">;
+
+/** A named instant of a ride. */
+type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];

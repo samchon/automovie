@@ -10,9 +10,6 @@ import type {
 
 import { mountCastObstruction } from "./mountCastObstruction";
 
-/** A range along the deck's forward axis, metres. */
-type Span = readonly [number, number];
-
 /** From the pelvis towards the deck, in the material axes. */
 const DOWN: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
 
@@ -253,3 +250,6 @@ export namespace prepareMountSeat {
     range: Span;
   }
 }
+
+/** A range along the deck's forward axis, metres. */
+type Span = readonly [number, number];

@@ -1,15 +1,5 @@
 import type { IAutoMovieAxisFrame } from "@automovie/interface";
 
-/** Admit the original actual frame reads only when a nonnull angle uses them. */
-function assertAxisFrame(
-  label: string,
-  frame: IAutoMovieAxisFrame | undefined,
-): void {
-  if (frame === undefined) return;
-  if (frame.sign !== 1 && frame.sign !== -1)
-    throw new Error(`${label} sign must be 1 or -1, but was ${frame.sign}`);
-}
-
 /** Own rig angle conversion and its prepared readers. */
 export namespace AutoMovieEngineRigAngle {
     /**
@@ -27,6 +17,25 @@ export namespace AutoMovieEngineRigAngle {
   ): number | null {
     return convert(clinical, frame);
   }
+
+  /** Lazy fixed-frame arithmetic for actual repeated joint composition. */
+
+    /**
+     * Prepare one lazy converter; construction reads no frame or angle. Null
+     * remains null without admission. Each same-identity frame must stay
+     * unchanged until replacement or reader release. A replacement runs the
+     * original checks, and failed admission never replaces valid metadata.
+     */
+    export function prepareToRigAngle(): (
+      clinical: number | null,
+      frame: IAutoMovieAxisFrame | undefined,
+    ) => number | null {
+      const state: IConversionState = {};
+      return (
+        clinical: number | null,
+        frame: IAutoMovieAxisFrame | undefined,
+      ): number | null => convert(clinical, frame, state);
+    }
 
   /** One prepared axis's latest unchanged frame and its actual affine operands. */
   interface IConversionState {
@@ -67,23 +76,14 @@ export namespace AutoMovieEngineRigAngle {
     if (state !== undefined) state.reading = { frame, neutral, sign };
     return result;
   }
+}
 
-  /** Lazy fixed-frame arithmetic for actual repeated joint composition. */
-
-    /**
-     * Prepare one lazy converter; construction reads no frame or angle. Null
-     * remains null without admission. Each same-identity frame must stay
-     * unchanged until replacement or reader release. A replacement runs the
-     * original checks, and failed admission never replaces valid metadata.
-     */
-    export function prepareToRigAngle(): (
-      clinical: number | null,
-      frame: IAutoMovieAxisFrame | undefined,
-    ) => number | null {
-      const state: IConversionState = {};
-      return (
-        clinical: number | null,
-        frame: IAutoMovieAxisFrame | undefined,
-      ): number | null => convert(clinical, frame, state);
-    }
+/** Admit the original actual frame reads only when a nonnull angle uses them. */
+function assertAxisFrame(
+  label: string,
+  frame: IAutoMovieAxisFrame | undefined,
+): void {
+  if (frame === undefined) return;
+  if (frame.sign !== 1 && frame.sign !== -1)
+    throw new Error(`${label} sign must be 1 or -1, but was ${frame.sign}`);
 }

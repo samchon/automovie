@@ -19,9 +19,6 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
 import { HumanMount } from "./HumanMount";
 import type { HumanMountedSeats } from "./HumanMountedSeats";
 
-/** The alternatives of `SolveAttitude`'s site. */
-type SolveAttitude = "yaw" | "pitch" | "roll";
-
 /**
  * The out-of-saddle seats of a mounted performance: the two-point seat, the
  * racing crouch and standing in the stirrups, each with both soles' balls on
@@ -319,3 +316,6 @@ export namespace HumanMountedStirrups {
     };
   }
 }
+
+/** The alternatives of `SolveAttitude`'s site. */
+type SolveAttitude = "yaw" | "pitch" | "roll";

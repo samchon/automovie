@@ -77,10 +77,6 @@ export const HumanLanceCouch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHum
     plan: planHumanLanceCouch,
   };
 
-/** The law's context. */
-type Context =
-  IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLanceCouch>;
-
 /**
  * Admit the act, find the strike, lay the stations, then sample.
  *
@@ -441,3 +437,7 @@ function striking(
     }
   return HumanLanceCouchPick(options, reaches).laid;
 }
+
+/** The law's context. */
+type Context =
+  IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLanceCouch>;

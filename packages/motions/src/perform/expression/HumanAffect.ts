@@ -120,6 +120,56 @@ export namespace HumanAffect {
   }
 
   /**
+   * The affect layer.
+   *
+   * @param displays The displays, in any order; overlapping ones add.
+   * @returns The layer, named `affect`.
+   * @throws {HumanRefusal} When a display's length is one `angles` refuses.
+   */
+  export function layer(
+    displays: readonly IAutoMovieMotionHumanAffect.IDisplay[],
+  ): IAutoMovieMotionHumanLayer {
+    for (const d of displays) admit(d.kind, d.duration ?? LENGTH[d.kind]);
+    return {
+      name: "affect",
+
+      // The jaw and the head, and the spine, the chest and the shoulder
+      // girdles: every display's pulse is on those joints.
+      channels: ["head", "trunk"],
+      apply: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+        context: IAutoMovieMotionHumanLayer.IContext,
+      ): IAutoMovieMotionHumanPosture => {
+        const joints: IAutoMovieMotionHumanPosture["joints"] = {
+          ...posture.joints,
+        };
+        let active: boolean = false;
+        for (const d of displays) {
+          const length: number = d.duration ?? LENGTH[d.kind];
+          const kind: IAutoMovieMotionHumanAffect.Kind = d.kind;
+          const elapsed: number = seconds - d.at;
+          const intensity: number = d.amplitude ?? 1;
+          if (!(elapsed > 0 && elapsed < length)) continue;
+          active = true;
+          pattern(
+            kind,
+            elapsed,
+            length,
+            intensity,
+            d.seed ?? `${kind}@${d.at}`,
+            joints,
+          );
+        }
+        // Between displays the layer adds nothing and holds no hand.
+        return active
+          ? affectHeldHands(posture, { ...posture, joints }, seconds, context)
+          : posture;
+      },
+    };
+  }
+
+  /**
    * Refuse a length a display cannot fit: any not positive, and a sneeze too
    * short for its burst to rise within its last `1 - SNEEZE_BUILD`.
    */
@@ -293,56 +343,6 @@ export namespace HumanAffect {
       }
     }
     return joints;
-  }
-
-  /**
-   * The affect layer.
-   *
-   * @param displays The displays, in any order; overlapping ones add.
-   * @returns The layer, named `affect`.
-   * @throws {HumanRefusal} When a display's length is one `angles` refuses.
-   */
-  export function layer(
-    displays: readonly IAutoMovieMotionHumanAffect.IDisplay[],
-  ): IAutoMovieMotionHumanLayer {
-    for (const d of displays) admit(d.kind, d.duration ?? LENGTH[d.kind]);
-    return {
-      name: "affect",
-
-      // The jaw and the head, and the spine, the chest and the shoulder
-      // girdles: every display's pulse is on those joints.
-      channels: ["head", "trunk"],
-      apply: (
-        posture: IAutoMovieMotionHumanPosture,
-        seconds: number,
-        context: IAutoMovieMotionHumanLayer.IContext,
-      ): IAutoMovieMotionHumanPosture => {
-        const joints: IAutoMovieMotionHumanPosture["joints"] = {
-          ...posture.joints,
-        };
-        let active: boolean = false;
-        for (const d of displays) {
-          const length: number = d.duration ?? LENGTH[d.kind];
-          const kind: IAutoMovieMotionHumanAffect.Kind = d.kind;
-          const elapsed: number = seconds - d.at;
-          const intensity: number = d.amplitude ?? 1;
-          if (!(elapsed > 0 && elapsed < length)) continue;
-          active = true;
-          pattern(
-            kind,
-            elapsed,
-            length,
-            intensity,
-            d.seed ?? `${kind}@${d.at}`,
-            joints,
-          );
-        }
-        // Between displays the layer adds nothing and holds no hand.
-        return active
-          ? affectHeldHands(posture, { ...posture, joints }, seconds, context)
-          : posture;
-      },
-    };
   }
 }
 

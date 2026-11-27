@@ -326,12 +326,6 @@ export namespace AutoMovieHumanHeadEyeParts {
     );
   }
 
-  /** Four source Bernstein controls, scalar values in calibration mm. */
-  type ICubic = readonly [number, number, number, number];
-
-  /** Fixed chart-coordinate records accepted by the engine source-axis owner. */
-  type IOrigin = Parameters<typeof AutoMovieHumanHeadSourceAxis.of>[0];
-
   /**
    * Evaluate authored controls only to publish source values; the engine owns
    * every actual interpolated curve.
@@ -392,4 +386,10 @@ export namespace AutoMovieHumanHeadEyeParts {
       ),
     };
   }
+
+  /** Four source Bernstein controls, scalar values in calibration mm. */
+  type ICubic = readonly [number, number, number, number];
+
+  /** Fixed chart-coordinate records accepted by the engine source-axis owner. */
+  type IOrigin = Parameters<typeof AutoMovieHumanHeadSourceAxis.of>[0];
 }

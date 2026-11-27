@@ -16,13 +16,6 @@ import { designFrameScale } from "./designFrameScale";
 import { designReferenceWorldPoint } from "./designReferenceWorldPoint";
 import { validateDesignReference } from "./validateDesignReference";
 
-/** Primitive families that carry promotable metric geometry. */
-const GEOMETRIC_PRIMITIVES: ReadonlySet<string> = new Set([
-  "line",
-  "polyline",
-  "region",
-]);
-
 /**
  * Ask one reference for metric geometry, and get back what it can honestly
  * give.
@@ -199,3 +192,10 @@ export function promoteDesignObservations(
   }
   return promotion;
 }
+
+/** Primitive families that carry promotable metric geometry. */
+const GEOMETRIC_PRIMITIVES: ReadonlySet<string> = new Set([
+  "line",
+  "polyline",
+  "region",
+]);

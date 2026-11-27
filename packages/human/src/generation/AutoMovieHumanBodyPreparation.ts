@@ -186,15 +186,6 @@ export namespace AutoMovieHumanBodyPreparation {
     return null;
   }
 
-  /** A completed trial is not a final parent when the actual trunk source failed publication. */
-  function completeLeg(context: IAutoMovieHumanBodySources.IOriginal): void {
-    const actual: IAutoMovieHumanTrunkBuild.IOutput = trunkSource(context);
-    if (actual.trunk === null)
-      throw new Error(
-        `The actual coupled trunk parent is unavailable: ${JSON.stringify(actual.diagnostics)}`,
-      );
-  }
-
   /** Loft exactly the requested original once; failures keep their actual diagnostics, without a fallback or unrelated generation. */
   export function loft(
     context: IAutoMovieHumanBodySources.IOriginal,
@@ -256,5 +247,14 @@ export namespace AutoMovieHumanBodyPreparation {
       muscularity: inputs.muscularity,
       scale: inputs.scale,
     };
+  }
+
+  /** A completed trial is not a final parent when the actual trunk source failed publication. */
+  function completeLeg(context: IAutoMovieHumanBodySources.IOriginal): void {
+    const actual: IAutoMovieHumanTrunkBuild.IOutput = trunkSource(context);
+    if (actual.trunk === null)
+      throw new Error(
+        `The actual coupled trunk parent is unavailable: ${JSON.stringify(actual.diagnostics)}`,
+      );
   }
 }

@@ -5,18 +5,6 @@ import { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 import { HumanQuadraticEquilibration as Equilibration } from "./HumanQuadraticEquilibration";
 import type { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace";
 
-/** The record of `IPreparedScaling`'s site. */
-type IPreparedScaling = {
-  /**
-   * Current column-scale proposals, overwritten from curvature norms before
-   * each pass.
-   */
-  dx: Float64Array;
-
-  /** Current curvature norms, reset to positive zero before each reduction. */
-  curvature: Float64Array;
-};
-
 /**
  * Numeric preparation shared by solves of one convexification. Modified Ruiz
  * equilibration follows Stellato et al. 2020, section 5.1, algorithm 2
@@ -167,6 +155,18 @@ export namespace HumanQuadraticPreparation {
     scaling: IPreparedScaling;
   }
 }
+
+/** The record of `IPreparedScaling`'s site. */
+type IPreparedScaling = {
+  /**
+   * Current column-scale proposals, overwritten from curvature norms before
+   * each pass.
+   */
+  dx: Float64Array;
+
+  /** Current curvature norms, reset to positive zero before each reduction. */
+  curvature: Float64Array;
+};
 /** The alternatives of `Core`'s site. */
 type Core = "lo" | "hi" | "weight";
 

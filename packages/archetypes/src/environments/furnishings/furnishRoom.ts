@@ -213,15 +213,6 @@ export function furnishRoom(
   };
 }
 
-/** One member of the repeated group, placed at the group's own origin. */
-interface IGroupPart {
-  /** Local role suffix; empty selects the group role. */
-  role: string;
-
-  /** The member's placement relative to the group origin. */
-  placement: FurnishingRect.IPlacement;
-}
-
 /**
  * Fill the grid's missing roles slot by slot: a slot is taken when the whole
  * group box fits the room and every missing member's box enters no blocked
@@ -417,4 +408,13 @@ export namespace furnishRoom {
       throw new Error(`${model.id} has no measurable furniture geometry`);
     return result;
   }
+}
+
+/** One member of the repeated group, placed at the group's own origin. */
+interface IGroupPart {
+  /** Local role suffix; empty selects the group role. */
+  role: string;
+
+  /** The member's placement relative to the group origin. */
+  placement: FurnishingRect.IPlacement;
 }

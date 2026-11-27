@@ -15,10 +15,6 @@ import { EquineStanceSupport } from "./EquineStanceSupport";
 import { EquineLibertyConstants } from "./EquineLibertyConstants";
 
 const { HUMERUS_DROP, STRETCH, KNEEL_FOLD, KINDS, SETTLE, ZERO } = EquineLibertyConstants;
-type End = EquineLibertyConstants.End;
-type Trunk = EquineLibertyConstants.Trunk;
-type Fore = EquineLibertyConstants.Fore;
-
 /**
  * The liberty cue poses as stance rows: the bow, the kneel and the sit.
  *
@@ -492,3 +488,7 @@ export namespace EquineLibertyRows {
     );
   }
 }
+type End = EquineLibertyConstants.End;
+type Trunk = EquineLibertyConstants.Trunk;
+
+type Fore = EquineLibertyConstants.Fore;

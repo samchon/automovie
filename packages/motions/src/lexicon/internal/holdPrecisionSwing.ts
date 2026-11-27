@@ -1,12 +1,6 @@
 import type { IAutoMovieMotionHumanStrikingHeld } from "@automovie/interface";
 
 /**
- * The bisection rounds that find where a swing's arm meets the trunk or its
- * reach.
- */
-const ROUNDS: number = 40;
-
-/**
  * A swing's path held where its arm would pass into the trunk or out of reach:
  * the backswing (progress 0 to 1) and the follow-through (progress 1 to 2, the
  * clock's passage overshoot) go on only while `clear` stays positive, and hold
@@ -36,3 +30,9 @@ export function holdPrecisionSwing(
   return (progress: number): IAutoMovieMotionHumanStrikingHeld.IHandFrame =>
     path(Math.min(Math.max(progress, floor), cap));
 }
+
+/**
+ * The bisection rounds that find where a swing's arm meets the trunk or its
+ * reach.
+ */
+const ROUNDS: number = 40;

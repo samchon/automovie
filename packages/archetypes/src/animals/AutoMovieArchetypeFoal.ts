@@ -30,15 +30,6 @@ const TRUNK: number = 0.9;
  */
 const GIRTH: number = 2.04 / 1.72;
 
-/** A growth fraction at birth and at weaning. */
-interface IEnds {
-  /** At birth. */
-  birth: number;
-
-  /** At weaning. */
-  weaning: number;
-}
-
 /**
  * Constructs the foal archetype from its recipe.
  *
@@ -211,4 +202,13 @@ export function create(
       },
     };
   }
+}
+
+/** A growth fraction at birth and at weaning. */
+interface IEnds {
+  /** At birth. */
+  birth: number;
+
+  /** At weaning. */
+  weaning: number;
 }

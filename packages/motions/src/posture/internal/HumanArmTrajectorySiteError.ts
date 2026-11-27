@@ -42,9 +42,6 @@ export namespace HumanArmTrajectorySiteError {
     offsetRows: number[][];
   }
 
-  /** The site components and their linearized coordinates. */
-  type ILinearisation = Pick<IReading, "offsets" | "index" | "offsetRows">;
-
   /**
    * Project the contact onto its authored disc and hold each component of the
    * projected point as an equality in the local quadratic program.
@@ -176,6 +173,9 @@ export namespace HumanArmTrajectorySiteError {
       offsetRows,
     };
   }
+
+  /** The site components and their linearized coordinates. */
+  type ILinearisation = Pick<IReading, "offsets" | "index" | "offsetRows">;
 
   /** The error at one point: the slide's excess and the offsets. */
   interface IValue {

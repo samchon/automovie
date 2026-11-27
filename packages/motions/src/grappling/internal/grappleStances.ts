@@ -12,9 +12,6 @@ import { lieDown } from "../../floor/internal/lieDown";
 import { clinch } from "./clinch";
 import { grappleSumo } from "./grappleSumo";
 
-/** The alternatives of `RowGrip`'s site. */
-type RowGrip = "collarSleeve" | "oneLeg" | "bothLegs" | "shoulders" | "mat";
-
 /**
  * Floor support keys and hand regions for preplanned grappling performances.
  * The phase shares, turns and body angles are provisional staging values. The
@@ -24,42 +21,6 @@ type RowGrip = "collarSleeve" | "oneLeg" | "bothLegs" | "shoulders" | "mat";
  * The studies do not supply these choreography values.
  */
 export namespace grappleStances {
-  /** Whether the receiver finishes on the back, or the actors separate standing. */
-  type Finish = "back" | "hold" | "reset";
-
-  /**
-   * Visible character of one actor's entry, by pelvis and trunk angles in
-   * degrees.
-   */
-  interface IEntry {
-    /** Pelvis turn toward the actor's lead side. */
-    turn: number;
-    /** Trunk forward inclination at the entry. */
-    pitch: number;
-    /** Trunk tilt toward the actor's lead side. */
-    roll: number;
-    /** Trunk twist relative to the pelvis. */
-    twist: number;
-    /** Hip and knee flexion of the entry. */
-    depth: number;
-    /** Additional outward arm angle for free hands during the staged pose. */
-    armSpread?: number;
-  }
-
-  /** Paired preferences and contact family for a staged scene. */
-  interface IRow {
-    /** Default scene length in seconds. */
-    seconds: number;
-    /** Initiating actor's entry. */
-    initiator: IEntry;
-    /** Receiving actor's response. */
-    receiver: IEntry;
-    /** The shared transition to the final supports. */
-    finish: Finish;
-    /** Initiator's right-lead grip family. */
-    grip: RowGrip;
-  }
-
   /**
    * Illustrative poses separate moving silhouettes within the same rules
    * family.
@@ -474,4 +435,43 @@ export namespace grappleStances {
       }),
     );
   }
+
+  /** Whether the receiver finishes on the back, or the actors separate standing. */
+  type Finish = "back" | "hold" | "reset";
+
+  /**
+   * Visible character of one actor's entry, by pelvis and trunk angles in
+   * degrees.
+   */
+  interface IEntry {
+    /** Pelvis turn toward the actor's lead side. */
+    turn: number;
+    /** Trunk forward inclination at the entry. */
+    pitch: number;
+    /** Trunk tilt toward the actor's lead side. */
+    roll: number;
+    /** Trunk twist relative to the pelvis. */
+    twist: number;
+    /** Hip and knee flexion of the entry. */
+    depth: number;
+    /** Additional outward arm angle for free hands during the staged pose. */
+    armSpread?: number;
+  }
+
+  /** Paired preferences and contact family for a staged scene. */
+  interface IRow {
+    /** Default scene length in seconds. */
+    seconds: number;
+    /** Initiating actor's entry. */
+    initiator: IEntry;
+    /** Receiving actor's response. */
+    receiver: IEntry;
+    /** The shared transition to the final supports. */
+    finish: Finish;
+    /** Initiator's right-lead grip family. */
+    grip: RowGrip;
+  }
 }
+
+/** The alternatives of `RowGrip`'s site. */
+type RowGrip = "collarSleeve" | "oneLeg" | "bothLegs" | "shoulders" | "mat";

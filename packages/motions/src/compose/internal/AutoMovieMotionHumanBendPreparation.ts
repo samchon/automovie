@@ -10,21 +10,6 @@ import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
 import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 import { AutoMovieMotionHumanBendSide } from "./AutoMovieMotionHumanBendSide";
 
-/** The alternatives of `BothFixed`'s site. */
-type BothFixed = "body" | "posture";
-
-/** The alternatives of `OfFound2`'s site. */
-type OfFound2 = AutoMovieMotionHumanBendSearch.ICandidate | string;
-
-/** The alternatives of `OfFound`'s site. */
-type OfFound = AutoMovieMotionHumanBendSearch.ICandidate | string;
-
-/** The alternatives of `OfFixed`'s site. */
-type OfFixed = "body" | "posture" | "side";
-
-/** The alternatives of `Goal`'s site. */
-type Goal = "point" | "rotation" | "fallback";
-
 /** Prepare one actual unchanged body/trunk/side for all of its requested sweeps. */
 export function AutoMovieMotionHumanBendPreparation(
   fixed: Pick<IAutoMovieMotionHumanBend.ISolve, OfFixed>,
@@ -140,3 +125,18 @@ export namespace AutoMovieMotionHumanBendPreparation {
     };
   }
 }
+
+/** The alternatives of `BothFixed`'s site. */
+type BothFixed = "body" | "posture";
+
+/** The alternatives of `OfFound2`'s site. */
+type OfFound2 = AutoMovieMotionHumanBendSearch.ICandidate | string;
+
+/** The alternatives of `OfFound`'s site. */
+type OfFound = AutoMovieMotionHumanBendSearch.ICandidate | string;
+
+/** The alternatives of `OfFixed`'s site. */
+type OfFixed = "body" | "posture" | "side";
+
+/** The alternatives of `Goal`'s site. */
+type Goal = "point" | "rotation" | "fallback";

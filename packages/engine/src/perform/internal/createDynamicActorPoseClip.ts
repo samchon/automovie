@@ -5,27 +5,6 @@ import {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-const BONE_TARGET_HZ: number = 24 as const;
-
-const boneTargetTimes: (
-  duration: number,
-  landmarks?: readonly number[],
-) => number[] = (
-  duration: number,
-  landmarks: readonly number[] = [],
-): number[] => {
-  const count: number = Math.max(2, Math.ceil(duration * BONE_TARGET_HZ) + 1);
-  return [
-    ...new Set([
-      ...Array.from(
-        { length: count },
-        (_: unknown, index: number): number => (duration * index) / (count - 1),
-      ),
-      ...landmarks,
-    ]),
-  ].sort((a: number, b: number): number => a - b);
-};
-
 /**
  * Bake a live pose callback at 24 Hz plus exact caller landmarks over a
  * positive second duration. Return null if any callback sample cannot resolve;
@@ -54,3 +33,24 @@ export function createDynamicActorPoseClip(
     keyframes,
   };
 }
+
+const BONE_TARGET_HZ: number = 24 as const;
+
+const boneTargetTimes: (
+  duration: number,
+  landmarks?: readonly number[],
+) => number[] = (
+  duration: number,
+  landmarks: readonly number[] = [],
+): number[] => {
+  const count: number = Math.max(2, Math.ceil(duration * BONE_TARGET_HZ) + 1);
+  return [
+    ...new Set([
+      ...Array.from(
+        { length: count },
+        (_: unknown, index: number): number => (duration * index) / (count - 1),
+      ),
+      ...landmarks,
+    ]),
+  ].sort((a: number, b: number): number => a - b);
+};

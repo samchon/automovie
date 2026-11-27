@@ -9,18 +9,6 @@ import {
 import { TabletopStack } from "./TabletopStack";
 
 /**
- * A casino gaming chip: "The chips used in United States casinos typically
- * weigh about 10 grams" (English Wikipedia, Casino token, read 2026-11-21). No
- * read source gave the diameter or thickness, so the common 39 mm by 3.3 mm are
- * provisional estimates.
- */
-const CHIP: Readonly<AutoMovieArchetypeGamingChip.IChip> = {
-  diameter: 0.039,
-  thickness: 0.0033,
-  mass: 0.01,
-};
-
-/**
  * One gaming chip lying flat.
  *
  * The chip is a disc in the `XZ` plane, its origin the centre of its underside.
@@ -62,3 +50,15 @@ export function createGamingChip(
   TabletopStack.contacts(builder, CHIP.thickness, CHIP.diameter);
   return builder.build(CHIP.mass);
 }
+
+/**
+ * A casino gaming chip: "The chips used in United States casinos typically
+ * weigh about 10 grams" (English Wikipedia, Casino token, read 2026-11-21). No
+ * read source gave the diameter or thickness, so the common 39 mm by 3.3 mm are
+ * provisional estimates.
+ */
+const CHIP: Readonly<AutoMovieArchetypeGamingChip.IChip> = {
+  diameter: 0.039,
+  thickness: 0.0033,
+  mass: 0.01,
+};

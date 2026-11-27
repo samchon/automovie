@@ -56,6 +56,18 @@ import { standingLegs } from "./standingLegs";
  * every seed, its statistics unchanged.
  */
 export namespace stand {
+  /** The stand's two ends as a climb reads them (`footprints`). */
+  export interface IFootprints {
+    /** The stand's first instant: the entry the climb continues. */
+    standing: IAutoMovieMotionHumanPosture;
+
+    /** Each foot where the entry put it, world metres. */
+    entered: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
+
+    /** Each foot flat in the settled quiet stance, world metres. */
+    settled: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
+  }
+
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "stand";
 
@@ -378,17 +390,5 @@ export namespace stand {
         right: placement(settled, "right"),
       },
     };
-  }
-
-  /** The stand's two ends as a climb reads them (`footprints`). */
-  export interface IFootprints {
-    /** The stand's first instant: the entry the climb continues. */
-    standing: IAutoMovieMotionHumanPosture;
-
-    /** Each foot where the entry put it, world metres. */
-    entered: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
-
-    /** Each foot flat in the settled quiet stance, world metres. */
-    settled: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
   }
 }

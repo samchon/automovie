@@ -10,56 +10,6 @@ import { parseAutoMovieInspectionRequest } from "../../scene/inspection/internal
 import { parseAutoMovieInspectionView } from "../../scene/inspection/internal/parseAutoMovieInspectionView.js";
 import { AUTO_MOVIE_CAPTURE_PLAN_KEYS } from "../AUTO_MOVIE_CAPTURE_PLAN_KEYS.js";
 
-/** Every key the reader admits, for constant-time lookup. */
-const KNOWN: ReadonlySet<string> = new Set(AUTO_MOVIE_CAPTURE_PLAN_KEYS);
-
-/**
- * Stills per second of an even sampling when none is asked: five, the sparser
- * end of the five to ten stills per second
- * `.agents/skills/visual-debugging/capture.md` asks for a moving picture.
- */
-const RATE: number = 5;
-
-/**
- * Frames drawn on each side of an event when none is asked: three, so an event
- * shows seven consecutive frames of the output, the approach, the instant and
- * the release, as `capture.md` asks around every contact, cut and join.
- */
-const WINDOW: number = 3;
-
-/**
- * The scene-cut score when none is asked: 10, the default of FFmpeg's `scdet`
- * filter.
- */
-const THRESHOLD: number = 10;
-
-/**
- * The reader's longest edge when none is asked, in pixels: the size the Claude
- * vision guide downsizes above on older models.
- */
-const LONGEST: number = 1568;
-
-/**
- * The smallest legible cell edge when none is asked, in pixels: the size under
- * which the Claude vision guide reads an image unreliably.
- */
-const SMALLEST: number = 200;
-
-/**
- * The view drawn when none is asked: the subject's own camera, which shows the
- * delivered framing.
- */
-const VIEW: string = "film";
-
-/** Separator of view texts, which may themselves hold commas and colons. */
-const VIEW_SEPARATOR: string = ";";
-
-/**
- * A round name: letters, digits, dots, underscores and hyphens, starting with a
- * letter or digit, so it is one folder name.
- */
-const ROUND: RegExp = /^[a-z0-9][a-z0-9._-]*$/iu;
-
 /**
  * Read a capture plan request from named text values, the one reader every host
  * maps its source onto: the page passes its address's `URLSearchParams`, the
@@ -218,6 +168,56 @@ export function parseAutoMovieCapturePlanRequest(
     inspection: { ...inspection, shade: passes[0]! },
   };
 }
+
+/** Every key the reader admits, for constant-time lookup. */
+const KNOWN: ReadonlySet<string> = new Set(AUTO_MOVIE_CAPTURE_PLAN_KEYS);
+
+/**
+ * Stills per second of an even sampling when none is asked: five, the sparser
+ * end of the five to ten stills per second
+ * `.agents/skills/visual-debugging/capture.md` asks for a moving picture.
+ */
+const RATE: number = 5;
+
+/**
+ * Frames drawn on each side of an event when none is asked: three, so an event
+ * shows seven consecutive frames of the output, the approach, the instant and
+ * the release, as `capture.md` asks around every contact, cut and join.
+ */
+const WINDOW: number = 3;
+
+/**
+ * The scene-cut score when none is asked: 10, the default of FFmpeg's `scdet`
+ * filter.
+ */
+const THRESHOLD: number = 10;
+
+/**
+ * The reader's longest edge when none is asked, in pixels: the size the Claude
+ * vision guide downsizes above on older models.
+ */
+const LONGEST: number = 1568;
+
+/**
+ * The smallest legible cell edge when none is asked, in pixels: the size under
+ * which the Claude vision guide reads an image unreliably.
+ */
+const SMALLEST: number = 200;
+
+/**
+ * The view drawn when none is asked: the subject's own camera, which shows the
+ * delivered framing.
+ */
+const VIEW: string = "film";
+
+/** Separator of view texts, which may themselves hold commas and colons. */
+const VIEW_SEPARATOR: string = ";";
+
+/**
+ * A round name: letters, digits, dots, underscores and hyphens, starting with a
+ * letter or digit, so it is one folder name.
+ */
+const ROUND: RegExp = /^[a-z0-9][a-z0-9._-]*$/iu;
 
 /** Throw the refusal of a value: the key, the text and what is accepted. */
 function refuse(key: string, text: string, accepted: string): never {

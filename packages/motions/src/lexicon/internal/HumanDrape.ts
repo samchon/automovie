@@ -12,6 +12,25 @@ import { mixHumanPosture } from "../../posture/internal/mixHumanPosture";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { humanDrapeLying } from "./humanDrapeLying";
 
+/**
+ * A limp body laid across a saddle (`IAutoMovieMotionHumanDrape`): in the
+ * carrier contact's frame the body lies face down across the seat, its trunk
+ * level and pointing to the head's side, the hips resting on the seat a trunk's
+ * half depth above it and folded so the legs hang down the other side, the arms
+ * and head hanging; it comes to lie so from the entry over `lay` by a
+ * minimum-jerk share and is carried by the contact. Register `HumanDrape` to
+ * use it.
+ *
+ * The author gives `seconds` of the drape after the laying movement; no natural
+ * value is defined (provisional).
+ */
+export const HumanDrape: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanDrape> =
+  {
+    name: "drape",
+    interrupts: {},
+    plan: planHumanDrape,
+  };
+
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDrape>;
 
@@ -58,22 +77,3 @@ function planHumanDrape(context: Context): IAutoMovieMotionHumanActionPlan {
     },
   };
 }
-
-/**
- * A limp body laid across a saddle (`IAutoMovieMotionHumanDrape`): in the
- * carrier contact's frame the body lies face down across the seat, its trunk
- * level and pointing to the head's side, the hips resting on the seat a trunk's
- * half depth above it and folded so the legs hang down the other side, the arms
- * and head hanging; it comes to lie so from the entry over `lay` by a
- * minimum-jerk share and is carried by the contact. Register `HumanDrape` to
- * use it.
- *
- * The author gives `seconds` of the drape after the laying movement; no natural
- * value is defined (provisional).
- */
-export const HumanDrape: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanDrape> =
-  {
-    name: "drape",
-    interrupts: {},
-    plan: planHumanDrape,
-  };

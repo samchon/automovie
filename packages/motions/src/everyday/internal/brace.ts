@@ -25,12 +25,6 @@ import { braceBody } from "./braceBody";
 import { gestureHands } from "./gestureHands";
 import { prepareGroundedBalance } from "./prepareGroundedBalance";
 
-/** The record of `IPlanFootAtResult`'s site. */
-type IPlanFootAtResult = { ankle: IAutoMovieVector3; planted: boolean };
-
-/** The record of `IPlanFootAt`'s site. */
-type IPlanFootAt = { ankle: IAutoMovieVector3; planted: boolean };
-
 /**
  * Bracing for an expected impact, push or a falling body: the stance widens and
  * staggers along the line of the coming force, the body lowers and leans into
@@ -394,3 +388,9 @@ export namespace brace {
     return planned;
   }
 }
+
+/** The record of `IPlanFootAtResult`'s site. */
+type IPlanFootAtResult = { ankle: IAutoMovieVector3; planted: boolean };
+
+/** The record of `IPlanFootAt`'s site. */
+type IPlanFootAt = { ankle: IAutoMovieVector3; planted: boolean };

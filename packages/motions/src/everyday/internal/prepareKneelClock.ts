@@ -3,9 +3,6 @@ import type { IAutoMovieMotionClock } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 
-/** The record of `IPrepareKneelClock`'s site. */
-type IPrepareKneelClock = { name: string };
-
 /**
  * Prepare the kneel's phase-start lookup while retaining the same eased
  * progress and its existing 1 ns phase-selection allowance.
@@ -56,3 +53,6 @@ export function prepareKneelClock<T extends IPrepareKneelClock>(
     };
   };
 }
+
+/** The record of `IPrepareKneelClock`'s site. */
+type IPrepareKneelClock = { name: string };

@@ -8,9 +8,6 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapes as S } from "./HumanArmShapes";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
-/** The alternatives of `PointOwner`'s site. */
-type PointOwner = "upper" | "lower" | "hand";
-
 /**
  * An arm's course from a read waypoint to the next, as the swept readings take
  * it: the arm placed at every frame on the way, each place carried into a
@@ -242,3 +239,6 @@ export namespace HumanArmTrajectoryHalfStep {
     return S.relative(now, next, p);
   }
 }
+
+/** The alternatives of `PointOwner`'s site. */
+type PointOwner = "upper" | "lower" | "hand";

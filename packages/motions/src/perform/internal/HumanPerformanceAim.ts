@@ -6,15 +6,6 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
-/** The alternatives of `FramePosture`'s site. */
-type FramePosture = "root" | "yaw";
-
-/** The record of `IAimMoving`'s site. */
-type IAimMoving = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
-
-/** The record of `IAimResult`'s site. */
-type IAimResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
-
 /**
  * A target's world point and outward normal at a film second: a person's
  * region, the performer's own, a prop's point, a point of the world or of the
@@ -230,12 +221,6 @@ export namespace HumanPerformanceAim {
     }
   }
 
-  /** The +Z forward direction at a heading in degrees about world +Y. */
-  function heading(degrees: number): IAutoMovieVector3 {
-    const yaw: number = (degrees * Math.PI) / 180;
-    return { x: Math.sin(yaw), y: 0, z: Math.cos(yaw) };
-  }
-
   /**
    * The aiming frame of a performer standing in a posture: its root and
    * heading, and a `none` target's lines on a virtual opponent of the
@@ -273,4 +258,19 @@ export namespace HumanPerformanceAim {
       ...(subject === undefined ? {} : { subject }),
     };
   }
+
+  /** The +Z forward direction at a heading in degrees about world +Y. */
+  function heading(degrees: number): IAutoMovieVector3 {
+    const yaw: number = (degrees * Math.PI) / 180;
+    return { x: Math.sin(yaw), y: 0, z: Math.cos(yaw) };
+  }
 }
+
+/** The alternatives of `FramePosture`'s site. */
+type FramePosture = "root" | "yaw";
+
+/** The record of `IAimMoving`'s site. */
+type IAimMoving = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
+/** The record of `IAimResult`'s site. */
+type IAimResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };

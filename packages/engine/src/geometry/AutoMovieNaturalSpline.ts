@@ -54,36 +54,6 @@ export namespace AutoMovieNaturalSpline {
     return valueAt(spline, x, k);
   }
 
-  /** Same polynomial and tangent arithmetic at an already selected span. */
-  function valueAt(
-    spline: IAutoMovieNaturalCubicSpline,
-    x: number,
-    k: number,
-  ): number {
-    const { xs, ys, curvatures }: IAutoMovieNaturalCubicSpline = spline;
-    const h: number = xs[k + 1]! - xs[k]!;
-    const t: number = x - xs[k]!;
-    const slope: number =
-      (ys[k + 1]! - ys[k]!) / h -
-      (h * (2 * curvatures[k]! + curvatures[k + 1]!)) / 6;
-    if (t < 0) return ys[k]! + t * slope;
-    if (t > h) {
-      const end: number =
-        slope +
-        h * curvatures[k]! +
-        (h * (curvatures[k + 1]! - curvatures[k]!)) / 2;
-      return ys[k + 1]! + (t - h) * end;
-    }
-    return (
-      ys[k]! +
-      t *
-        (slope +
-          t *
-            (curvatures[k]! / 2 +
-              (t * (curvatures[k + 1]! - curvatures[k]!)) / (6 * h)))
-    );
-  }
-
   /**
    * First and second derivatives at x of the same piecewise cubic as
    * {@link evaluate}: on an interval `S' = slope + M_k t + (M_{k+1} - M_k) t^2 /
@@ -102,30 +72,6 @@ export namespace AutoMovieNaturalSpline {
     return derivativeAt(spline, x, k);
   }
 
-  /** Same derivative and exterior arithmetic at an already selected span. */
-  function derivativeAt(
-    spline: IAutoMovieNaturalCubicSpline,
-    x: number,
-    k: number,
-  ): [number, number] {
-    const { xs, ys, curvatures }: IAutoMovieNaturalCubicSpline = spline;
-    const n: number = xs.length;
-    const h: number = xs[k + 1]! - xs[k]!;
-    const t: number = Math.min(h, Math.max(0, x - xs[k]!));
-    const slope: number =
-      (ys[k + 1]! - ys[k]!) / h -
-      (h * (2 * curvatures[k]! + curvatures[k + 1]!)) / 6;
-    const inside: boolean = x >= xs[0]! && x <= xs[n - 1]!;
-    return [
-      slope +
-        curvatures[k]! * t +
-        ((curvatures[k + 1]! - curvatures[k]!) * t * t) / (2 * h),
-      inside
-        ? curvatures[k]! + ((curvatures[k + 1]! - curvatures[k]!) * t) / h
-        : 0,
-    ];
-  }
-
   /** Value and first/second derivatives with one shared interval lookup. */
   export function read(
     spline: IAutoMovieNaturalCubicSpline,
@@ -135,21 +81,6 @@ export namespace AutoMovieNaturalSpline {
     const value: number = valueAt(spline, x, k);
     const jet: [number, number] = derivativeAt(spline, x, k);
     return [value, jet[0], jet[1]];
-  }
-
-  /**
-   * First span whose right knot is >=x; failed comparisons retain the old
-   * last-span NaN policy.
-   */
-  function interval(xs: readonly number[], x: number): number {
-    let lo: number = 0;
-    let hi: number = xs.length - 2;
-    while (lo < hi) {
-      const middle: number = lo + Math.floor((hi - lo) / 2);
-      if (x <= xs[middle + 1]!) hi = middle;
-      else lo = middle + 1;
-    }
-    return lo;
   }
 
   /**
@@ -188,5 +119,74 @@ export namespace AutoMovieNaturalSpline {
    */
   export function periodic(values: readonly number[]): (psi: number) => number {
     return AutoMoviePeriodicCubic.create(values).at;
+  }
+
+  /** Same polynomial and tangent arithmetic at an already selected span. */
+  function valueAt(
+    spline: IAutoMovieNaturalCubicSpline,
+    x: number,
+    k: number,
+  ): number {
+    const { xs, ys, curvatures }: IAutoMovieNaturalCubicSpline = spline;
+    const h: number = xs[k + 1]! - xs[k]!;
+    const t: number = x - xs[k]!;
+    const slope: number =
+      (ys[k + 1]! - ys[k]!) / h -
+      (h * (2 * curvatures[k]! + curvatures[k + 1]!)) / 6;
+    if (t < 0) return ys[k]! + t * slope;
+    if (t > h) {
+      const end: number =
+        slope +
+        h * curvatures[k]! +
+        (h * (curvatures[k + 1]! - curvatures[k]!)) / 2;
+      return ys[k + 1]! + (t - h) * end;
+    }
+    return (
+      ys[k]! +
+      t *
+        (slope +
+          t *
+            (curvatures[k]! / 2 +
+              (t * (curvatures[k + 1]! - curvatures[k]!)) / (6 * h)))
+    );
+  }
+
+  /** Same derivative and exterior arithmetic at an already selected span. */
+  function derivativeAt(
+    spline: IAutoMovieNaturalCubicSpline,
+    x: number,
+    k: number,
+  ): [number, number] {
+    const { xs, ys, curvatures }: IAutoMovieNaturalCubicSpline = spline;
+    const n: number = xs.length;
+    const h: number = xs[k + 1]! - xs[k]!;
+    const t: number = Math.min(h, Math.max(0, x - xs[k]!));
+    const slope: number =
+      (ys[k + 1]! - ys[k]!) / h -
+      (h * (2 * curvatures[k]! + curvatures[k + 1]!)) / 6;
+    const inside: boolean = x >= xs[0]! && x <= xs[n - 1]!;
+    return [
+      slope +
+        curvatures[k]! * t +
+        ((curvatures[k + 1]! - curvatures[k]!) * t * t) / (2 * h),
+      inside
+        ? curvatures[k]! + ((curvatures[k + 1]! - curvatures[k]!) * t) / h
+        : 0,
+    ];
+  }
+
+  /**
+   * First span whose right knot is >=x; failed comparisons retain the old
+   * last-span NaN policy.
+   */
+  function interval(xs: readonly number[], x: number): number {
+    let lo: number = 0;
+    let hi: number = xs.length - 2;
+    while (lo < hi) {
+      const middle: number = lo + Math.floor((hi - lo) / 2);
+      if (x <= xs[middle + 1]!) hi = middle;
+      else lo = middle + 1;
+    }
+    return lo;
   }
 }

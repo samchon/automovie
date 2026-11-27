@@ -23,9 +23,6 @@ import { appendServiceNetworkSystems } from "./appendServiceNetworkSystems";
 import { appendServiceSleeveOnFace } from "./appendServiceSleeveOnFace";
 import { portRecords } from "./portRecords";
 
-/** Tolerance for a run's end standing on the port it joins, in metres. */
-const ENDPOINT_EPSILON: number = 1e-6;
-
 /**
  * Admit a typed distribution network against its served built environment.
  * Vocabulary, references, units, port directions, declared capacity and root
@@ -214,6 +211,9 @@ export function validateServiceNetwork(
 
   return out.toValidation();
 }
+
+/** Tolerance for a run's end standing on the port it joins, in metres. */
+const ENDPOINT_EPSILON: number = 1e-6;
 
 /**
  * Preserve the first id set while collecting every duplicate-id finding in

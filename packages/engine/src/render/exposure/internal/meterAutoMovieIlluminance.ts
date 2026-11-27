@@ -11,16 +11,6 @@ import { autoMovieSkyIlluminance } from "../../../analysis/internal/autoMovieSky
 import { Quaternion } from "../../../math/Quaternion";
 import { Vector3 } from "../../../math/Vector3";
 
-/** A light's local -Z, its direction of travel. */
-const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
-
-/**
- * Smallest squared distance the beauty pass divides by, in square metres: the
- * renderer's punctual falloff is `1 / max(d², 0.01)`, so a light nearer than
- * 0.1 m does not grow without bound.
- */
-const NEAREST_SQUARED: number = 0.01;
-
 /**
  * Meter the illuminance at a point of a scene, as an incident-light meter held
  * there facing `normal` would read the light the beauty pass draws.
@@ -111,6 +101,16 @@ export function meterAutoMovieIlluminance(
     unmetered,
   };
 }
+
+/** A light's local -Z, its direction of travel. */
+const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
+
+/**
+ * Smallest squared distance the beauty pass divides by, in square metres: the
+ * renderer's punctual falloff is `1 / max(d², 0.01)`, so a light nearer than
+ * 0.1 m does not grow without bound.
+ */
+const NEAREST_SQUARED: number = 0.01;
 
 /**
  * The geometric factor that turns a light's photometric intensity into

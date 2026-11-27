@@ -1,8 +1,5 @@
 import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
 
-/** A row's bounds before equilibration. */
-type Interval = Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "l" | "u">;
-
 /**
  * Whether a linearized site constraint can meet one trust box. A linear form
  * takes its extrema on a box by choosing each coordinate's endpoint from the
@@ -29,3 +26,6 @@ export function HumanArmSiteStepFeasible(
   });
   return row.l <= high + tolerance && row.u >= low - tolerance;
 }
+
+/** A row's bounds before equilibration. */
+type Interval = Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "l" | "u">;

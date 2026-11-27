@@ -4,35 +4,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** The record of `IMotionCaptureCaseBoxesItem`'s site. */
-type IMotionCaptureCaseBoxesItem = {
-  centre: IAutoMovieVector3;
-  half: IAutoMovieVector3;
-  color: number;
-};
-
-/** The record of `IMotionCaptureCaseDriftItem`'s site. */
-type IMotionCaptureCaseDriftItem = {
-  samples: ISamplesItemItem[];
-  limit: number;
-};
-
-/** The record of `ISamplesItemItem`'s site. */
-type ISamplesItemItem = { at: IAutoMovieVector3; drift: number };
-
-/** The record of `IMotionCaptureCaseTargetsItem`'s site. */
-type IMotionCaptureCaseTargetsItem = {
-  at: IAutoMovieVector3;
-  radius: number;
-  color: number;
-};
-
-/** The record of `IMotionCaptureCaseTrailsItem`'s site. */
-type IMotionCaptureCaseTrailsItem = {
-  color: number;
-  points: IAutoMovieVector3[];
-};
-
 /**
  * One capture of the motion harness: who is drawn, at which instants, with
  * which overlays, and which numeric verdicts the run reports.
@@ -76,6 +47,7 @@ export interface IMotionCaptureCase {
   /** Extra per-case data written to the manifest. */
   metrics?: Record<string, unknown>;
 }
+
 /** Companion types of {@link IMotionCaptureCase}. */
 export namespace IMotionCaptureCase {
   /** One drawn instant. */
@@ -120,3 +92,31 @@ export namespace IMotionCaptureCase {
     detail: string;
   }
 }
+
+/** The record of `IMotionCaptureCaseBoxesItem`'s site. */
+type IMotionCaptureCaseBoxesItem = {
+  centre: IAutoMovieVector3;
+  half: IAutoMovieVector3;
+  color: number;
+};
+
+/** The record of `IMotionCaptureCaseDriftItem`'s site. */
+type IMotionCaptureCaseDriftItem = {
+  samples: ISamplesItemItem[];
+  limit: number;
+};
+
+/** The record of `ISamplesItemItem`'s site. */
+type ISamplesItemItem = { at: IAutoMovieVector3; drift: number };
+
+/** The record of `IMotionCaptureCaseTargetsItem`'s site. */
+type IMotionCaptureCaseTargetsItem = {
+  at: IAutoMovieVector3;
+  radius: number;
+  color: number;
+};
+/** The record of `IMotionCaptureCaseTrailsItem`'s site. */
+type IMotionCaptureCaseTrailsItem = {
+  color: number;
+  points: IAutoMovieVector3[];
+};

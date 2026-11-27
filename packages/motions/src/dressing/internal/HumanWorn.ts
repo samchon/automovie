@@ -16,12 +16,6 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 
-/** The record of `IPrepareSiteResult`'s site. */
-type IPrepareSiteResult = {
-  frame: (turn: number) => IAutoMovieRigidTransform;
-  point: () => IAutoMovieVector3;
-};
-
 /**
  * Where a wearable sits once worn: its `wear` socket on the body region it goes
  * onto, the socket's `+Y` toward the body (into the region, against the
@@ -121,6 +115,12 @@ export namespace HumanWorn {
     };
   }
 }
+
+/** The record of `IPrepareSiteResult`'s site. */
+type IPrepareSiteResult = {
+  frame: (turn: number) => IAutoMovieRigidTransform;
+  point: () => IAutoMovieVector3;
+};
 
 /**
  * The wearable's `wear` socket, or the refusal naming the contacts it does

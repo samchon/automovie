@@ -9,9 +9,6 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { gesture } from "./gesture";
 import { gestureStrokeTables } from "./gestureStrokeTables";
 
-/** The alternatives of `PlanSidesWhich`'s site. */
-type PlanSidesWhich = "one" | "both" | "none";
-
 /**
  * A gesture's admitted counts and the hands it moves: its stroke count (the
  * parameter or the kind's rhythm), its hold, its bow depth within
@@ -86,3 +83,6 @@ export namespace gestureAdmit {
     sides: AutoMovieHumanSide[];
   }
 }
+
+/** The alternatives of `PlanSidesWhich`'s site. */
+type PlanSidesWhich = "one" | "both" | "none";

@@ -7,25 +7,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
 /**
- * The deepest address hinge, degrees. Golf address trunk flexion is about 30 to
- * 45 degrees (Hume, Keogh and Reid 2005, Sports Med 35:429); the provisional
- * cap leaves room for shorter implements and lower balls.
- */
-const LIMIT: number = 60;
-
-/**
- * Share of the upper arm and forearm a fitted grip may sit from its shoulder,
- * keeping the elbow off its lock; provisional.
- */
-const ARM: number = 0.95;
-
-/**
- * Share of the thigh and shank a planted leg may span from hip to ankle,
- * keeping the knee off its lock; provisional.
- */
-const LEG: number = 0.98;
-
-/**
  * Address a ball below the standing hand's reach: hinge the trunk forward at
  * the hips, move the pelvis back so the shoulders stay over their standing
  * place and on by the centre of mass's remaining travel, read once at the full
@@ -205,3 +186,22 @@ export function addressPrecisionStroke(
       hinge * share,
     );
 }
+
+/**
+ * The deepest address hinge, degrees. Golf address trunk flexion is about 30 to
+ * 45 degrees (Hume, Keogh and Reid 2005, Sports Med 35:429); the provisional
+ * cap leaves room for shorter implements and lower balls.
+ */
+const LIMIT: number = 60;
+
+/**
+ * Share of the upper arm and forearm a fitted grip may sit from its shoulder,
+ * keeping the elbow off its lock; provisional.
+ */
+const ARM: number = 0.95;
+
+/**
+ * Share of the thigh and shank a planted leg may span from hip to ankle,
+ * keeping the knee off its lock; provisional.
+ */
+const LEG: number = 0.98;

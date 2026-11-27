@@ -16,21 +16,6 @@ import { StrikingStance } from "../../striking/internal/StrikingStance";
 import { StrikingTarget } from "../../striking/internal/StrikingTarget";
 import { staggerBounds } from "./staggerBounds";
 
-/** The record of `IBendingShiftMore2`'s site. */
-type IBendingShiftMore2 = {
-  pitch: number;
-  roll: number;
-};
-
-/** The record of `IBendingShiftMore`'s site. */
-type IBendingShiftMore = {
-  pitch: number;
-  roll: number;
-};
-
-/** The alternatives of `BendingEntryResult`'s site. */
-type BendingEntryResult = "pitch" | "roll";
-
 /**
  * The body readings a stagger's legs and trunk share (`StaggerFeet`,
  * `staggerAdmission`, `stagger`): the trunk's shift of the centre of mass, the
@@ -158,3 +143,18 @@ export namespace staggerKnots {
     );
   }
 }
+
+/** The record of `IBendingShiftMore2`'s site. */
+type IBendingShiftMore2 = {
+  pitch: number;
+  roll: number;
+};
+
+/** The record of `IBendingShiftMore`'s site. */
+type IBendingShiftMore = {
+  pitch: number;
+  roll: number;
+};
+
+/** The alternatives of `BendingEntryResult`'s site. */
+type BendingEntryResult = "pitch" | "roll";

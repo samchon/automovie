@@ -7,10 +7,6 @@ import type {
   IAutoMovieRecoveryChartBoundaryNetworkRegistry,
 } from "@automovie/interface";
 
-type Binding = ReturnType<
-  ReturnType<IAutoMovieRecoveryChartBoundary.Operation>["get"]
->;
-
 /** Bind maximal physical arcs to all copied chart sides after augmentation. */
 export function RecoveryChartBoundaryNetworkBindings(
   input: Parameters<IAutoMovieRecoveryChartBoundaryNetworkBindings.Operation>[0],
@@ -361,3 +357,7 @@ export function RecoveryChartBoundaryNetworkBindings(
   );
   return { charts, diagnostics, maximumPointChangeMm: maximumPointChange };
 }
+
+type Binding = ReturnType<
+  ReturnType<IAutoMovieRecoveryChartBoundary.Operation>["get"]
+>;

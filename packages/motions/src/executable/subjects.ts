@@ -62,12 +62,6 @@ export const subjects: AutoMovieDrawSubjects<IMotionCaptureProps | null> = (
     },
   };
 };
-/** The record of `IBuildFiguresItem`'s site. */
-type IBuildFiguresItem = {
-  figure: MotionCaptureFigure;
-  poses: IAutoMoviePose[];
-};
-
 /** Build the case's scene. */
 function build(data: IMotionCaptureProps): IAutoMovieDrawScene {
   const scene: THREE.Scene = new THREE.Scene();
@@ -235,3 +229,9 @@ function build(data: IMotionCaptureProps): IAutoMovieDrawScene {
       disposers.forEach((dispose: () => void): void => dispose()),
   };
 }
+
+/** The record of `IBuildFiguresItem`'s site. */
+type IBuildFiguresItem = {
+  figure: MotionCaptureFigure;
+  poses: IAutoMoviePose[];
+};

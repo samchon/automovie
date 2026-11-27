@@ -9,15 +9,6 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeLongTool } from "../AutoMovieArchetypeLongTool";
 
-/** A long tool under construction. */
-type Builder = AutoMovieArchetypeBuilder<
-  AutoMovieArchetypeLongTool.Affordance,
-  AutoMovieArchetypeLongTool.Dimension
->;
-
-/** A long tool's drawn dimensions. */
-type Drawn = Readonly<Partial<Record<AutoMovieArchetypeLongTool.Dimension, number>>>;
-
 /** Gränsfors Bruk's Scandinavian Forest Axe, read at the maker. */
 const FOREST_AXE: string =
   "Gränsfors Bruk Scandinavian Forest Axe 430, 64 cm and 1,2 kg (https://www.gransforsbruk.com/en/p/scandinavian-forest-axe); The Axe Book (Gränsfors Bruks AB 2005, ISBN 91-975532-5-5, p. 9, https://www.canadianoutdoorequipment.com/downloads/TheAxeBook.pdf): a 3 1/2 in face, a 25 in hickory handle and a 2 lb head";
@@ -148,3 +139,12 @@ export namespace ForestAxe {
     });
   }
 }
+
+/** A long tool under construction. */
+type Builder = AutoMovieArchetypeBuilder<
+  AutoMovieArchetypeLongTool.Affordance,
+  AutoMovieArchetypeLongTool.Dimension
+>;
+
+/** A long tool's drawn dimensions. */
+type Drawn = Readonly<Partial<Record<AutoMovieArchetypeLongTool.Dimension, number>>>;

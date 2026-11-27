@@ -9,9 +9,6 @@ import type {
 
 import { HumanColliderBound } from "./HumanColliderBound";
 
-/** The record of `ISphereResult`'s site. */
-type ISphereResult = { centre: IAutoMovieVector3; radius: number };
-
 /**
  * A hull's face planes packed four numbers each, the normal then the offset, in
  * the hull's own frame: the same for every posed frame of the same hull (a fit
@@ -182,3 +179,6 @@ export namespace HumanShapeFraming {
     };
   }
 }
+
+/** The record of `ISphereResult`'s site. */
+type ISphereResult = { centre: IAutoMovieVector3; radius: number };

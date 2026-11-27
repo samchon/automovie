@@ -6,26 +6,6 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** The contact geometry in the guitar's frame, in metres. */
-interface ISites {
-  /** The intersection of the chosen fret and string bars. */
-  stop: IAutoMovieVector3;
-
-  /** The soundboard centre projected onto the chosen string. */
-  pluck: IAutoMovieVector3;
-
-  /** The direction away from the soundboard. */
-  normal: IAutoMovieVector3;
-
-  /** The cross-string half-stroke, bounded by half the closest string spacing. */
-  sweep: IAutoMovieVector3;
-}
-
-/** Tolerance for intersecting the rigid coplanar affordance axes, metres. */
-const COINCIDENCE: number = 1e-6;
-/** The record of `IResolveGuitarStringContactParamsItem`'s site. */
-type IResolveGuitarStringContactParamsItem = { fret: string; string: string };
-
 /**
  * Resolve the crossing of one pitched string with a fret and the place to sound
  * it over the body. The sounding segment runs from the fret toward the string
@@ -138,6 +118,26 @@ export function resolveGuitarStringContact(
     });
   return { stop, pluck, normal, sweep: Vector3.scale(sweep, spacing / 2) };
 }
+
+/** The contact geometry in the guitar's frame, in metres. */
+interface ISites {
+  /** The intersection of the chosen fret and string bars. */
+  stop: IAutoMovieVector3;
+
+  /** The soundboard centre projected onto the chosen string. */
+  pluck: IAutoMovieVector3;
+
+  /** The direction away from the soundboard. */
+  normal: IAutoMovieVector3;
+
+  /** The cross-string half-stroke, bounded by half the closest string spacing. */
+  sweep: IAutoMovieVector3;
+}
+/** Tolerance for intersecting the rigid coplanar affordance axes, metres. */
+const COINCIDENCE: number = 1e-6;
+
+/** The record of `IResolveGuitarStringContactParamsItem`'s site. */
+type IResolveGuitarStringContactParamsItem = { fret: string; string: string };
 /** The alternatives of `SiteKind`'s site. */
 type SiteKind = "bar" | "surface";
 

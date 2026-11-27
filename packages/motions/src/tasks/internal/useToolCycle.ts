@@ -9,12 +9,6 @@ import type {
 import { HumanToolWork } from "./HumanToolWork";
 import { useTool } from "./useTool";
 
-/** The record of `IPlanCycleResult`'s site. */
-type IPlanCycleResult = {
-  grip: IAutoMovieVector3;
-  rotation: IAutoMovieQuaternion;
-};
-
 /**
  * The hand at a phase of the work, 0 at a contact and periodic in 1: a hammer's
  * head rising about the wrist and coming down on the work, a saw's teeth
@@ -104,3 +98,9 @@ export namespace useToolCycle {
     left: IAutoMovieVector3;
   }
 }
+
+/** The record of `IPlanCycleResult`'s site. */
+type IPlanCycleResult = {
+  grip: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+};

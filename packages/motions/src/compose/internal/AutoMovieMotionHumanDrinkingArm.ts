@@ -30,18 +30,6 @@ import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
 import { HumanTouchArmReference } from "./HumanTouchArmReference";
 import { measureDrinkingShoulder } from "./measureDrinkingShoulder";
 
-/** The alternatives of `CarriedTouch`'s site. */
-type CarriedTouch = "body" | "side" | "rest" | "effector" | "held";
-
-/** The record of `IPrepareReadBased`'s site. */
-type IPrepareReadBased = {
-  posture: IAutoMovieMotionHumanPosture;
-  pose: IAutoMoviePose;
-};
-
-/** The alternatives of `ReadLimb`'s site. */
-type ReadLimb = "leftArm" | "rightArm";
-
 /**
  * The arm a held vessel is brought to the lips with, read as a person drinks:
  * the arm the resolver fits for a goal, read on its displayed bones, and
@@ -231,14 +219,6 @@ export namespace AutoMovieMotionHumanDrinkingArm {
       );
     return arm;
   }
-
-  interface IObservation extends IAutoMovieMotionHumanDrinkingArm.IArm {
-    reference?: IAutoMovieHumanLimbReference;
-  }
-
-  type SelectReference = (
-    arm: IAutoMovieMotionHumanDrinkingArm.IArm,
-  ) => boolean;
 
   /** Prepare actual arm observations for one synchronous unchanged-body search. */
   export function prepareRead(
@@ -462,7 +442,27 @@ export namespace AutoMovieMotionHumanDrinkingArm {
       fix: "bring the vessel to a region nearer the chin, or take it by a grip the arm can drink from: picked up for its use (`pickUp` with `use`), by its side, or with the other hand",
     });
   }
+
+  interface IObservation extends IAutoMovieMotionHumanDrinkingArm.IArm {
+    reference?: IAutoMovieHumanLimbReference;
+  }
+
+  type SelectReference = (
+    arm: IAutoMovieMotionHumanDrinkingArm.IArm,
+  ) => boolean;
 }
+
+/** The alternatives of `CarriedTouch`'s site. */
+type CarriedTouch = "body" | "side" | "rest" | "effector" | "held";
+
+/** The record of `IPrepareReadBased`'s site. */
+type IPrepareReadBased = {
+  posture: IAutoMovieMotionHumanPosture;
+  pose: IAutoMoviePose;
+};
+
+/** The alternatives of `ReadLimb`'s site. */
+type ReadLimb = "leftArm" | "rightArm";
 
 /**
  * How far a reached hand carries the vessel's asked axis, degrees: the asked

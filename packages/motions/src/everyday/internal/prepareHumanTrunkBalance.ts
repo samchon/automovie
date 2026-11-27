@@ -8,38 +8,12 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/** A stance can borrow the caller's synchronous FK and ROM metadata. */
-type Balance = (
-  posture: IAutoMovieMotionHumanPosture,
-  weight: number,
-  resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-  projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
-  sides?: readonly AutoMovieHumanSide[],
-  share?: number,
-) => IAutoMovieMotionHumanPosture;
-
 /** The clinical turn that tilts the upper body without moving the planted feet. */
 const FLEXION: IAutoMovieMotionHumanJacobian.IVariable = {
   kind: "angle",
   bone: "spine",
   axis: 0,
 };
-
-/**
- * A tilted mass centre is a fixed point plus cos and sin terms of the lumbar
- * angle.
- */
-interface IArc {
-  /** The portion of the centre invariant under rotation, world metres. */
-  fixed: IAutoMovieVector3;
-  /**
-   * The radial term of the impact of the rotated subtree on the total mass
-   * centre.
-   */
-  radial: IAutoMovieVector3;
-  /** The perpendicular term in the direction of a positive clinical turn. */
-  tangent: IAutoMovieVector3;
-}
 
 /**
  * Tilt a supported trunk only enough to put its centre over its actual foot
@@ -223,4 +197,30 @@ export namespace prepareHumanTrunkBalance {
       share: number,
     ): IAutoMovieVector3[];
   }
+}
+
+/** A stance can borrow the caller's synchronous FK and ROM metadata. */
+type Balance = (
+  posture: IAutoMovieMotionHumanPosture,
+  weight: number,
+  resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
+  sides?: readonly AutoMovieHumanSide[],
+  share?: number,
+) => IAutoMovieMotionHumanPosture;
+
+/**
+ * A tilted mass centre is a fixed point plus cos and sin terms of the lumbar
+ * angle.
+ */
+interface IArc {
+  /** The portion of the centre invariant under rotation, world metres. */
+  fixed: IAutoMovieVector3;
+  /**
+   * The radial term of the impact of the rotated subtree on the total mass
+   * centre.
+   */
+  radial: IAutoMovieVector3;
+  /** The perpendicular term in the direction of a positive clinical turn. */
+  tangent: IAutoMovieVector3;
 }

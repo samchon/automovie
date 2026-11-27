@@ -29,15 +29,6 @@ import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 import { StrikingRoll } from "../../striking/internal/StrikingRoll";
 
-/** The alternatives of `OfBendGoal2`'s site. */
-type OfBendGoal2 = "point" | "rotation";
-
-/** The alternatives of `OfBendGoal`'s site. */
-type OfBendGoal = "point" | "rotation";
-
-/** The alternatives of `OfContext`'s site. */
-type OfContext = "body" | "entry" | "prop" | "subject";
-
 /**
  * The load of a workout.
  *
@@ -447,3 +438,12 @@ export namespace WorkoutLoad {
     };
   }
 }
+
+/** The alternatives of `OfBendGoal2`'s site. */
+type OfBendGoal2 = "point" | "rotation";
+
+/** The alternatives of `OfBendGoal`'s site. */
+type OfBendGoal = "point" | "rotation";
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "entry" | "prop" | "subject";

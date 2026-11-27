@@ -4,36 +4,8 @@ import { AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand, AutoMovieA
 
 /** Public operations for Auto Movie Archetype Glove. */
 export namespace AutoMovieArchetypeGlove {
-  /**
-   * A baseball glove: a fielder's glove or a catcher's mitt.
-   *
-   * It lies on its back on the floor, the pocket up, the fingers toward `+Z` and
-   * the wrist opening toward `-Z`, its centre over the origin. `hand` is the
-   * wrist opening the hand slides into, its `+Y` out of the opening; `pocket` the
-   * catching face a ball comes to, facing up. A glove is worn on the hand
-   * (`IHumanProp.worn`), so a catch reads the pocket where the hand carries it.
-   *
-   * @param params The kind and any dimension the author fixes.
-   * @param seed The seed that draws every dimension left free inside its band;
-   *   absent, each takes the middle of its band.
-   * @returns The glove.
-   * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
-   */
-  export function create(params: AutoMovieArchetypeGlove.IParams, seed?: number): AutoMovieArchetype<AutoMovieArchetypeGlove.Affordance, AutoMovieArchetypeGlove.Dimension> {
-    return createGloveImplementation(params, seed);
-  }
-
   /** The kinds. */
   export type Kind = "fielder" | "catcher";
-
-  /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["fielder", "catcher"];
-
-  /** The glove's thickness lying on its back, metres, by kind: estimates. */
-  export const THICKNESS: Readonly<Record<Kind, number>> = {
-    fielder: 0.07,
-    catcher: 0.09,
-  };
 
   /**
    * The affordance ids:
@@ -53,15 +25,6 @@ export namespace AutoMovieArchetypeGlove {
    */
   export type Dimension = "length" | "width" | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<
-    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
-  > = {
-    length: "m",
-    width: "m",
-    mass: "kg",
-  };
-
   /**
    * The parameters: the kind, and any free dimension fixed to a value inside
    * its band.
@@ -73,6 +36,43 @@ export namespace AutoMovieArchetypeGlove {
     /** The model's id, unique in a scene; `glove` when absent. */
     id?: string;
   }
+
+  /**
+   * A baseball glove: a fielder's glove or a catcher's mitt.
+   *
+   * It lies on its back on the floor, the pocket up, the fingers toward `+Z` and
+   * the wrist opening toward `-Z`, its centre over the origin. `hand` is the
+   * wrist opening the hand slides into, its `+Y` out of the opening; `pocket` the
+   * catching face a ball comes to, facing up. A glove is worn on the hand
+   * (`IHumanProp.worn`), so a catch reads the pocket where the hand carries it.
+   *
+   * @param params The kind and any dimension the author fixes.
+   * @param seed The seed that draws every dimension left free inside its band;
+   *   absent, each takes the middle of its band.
+   * @returns The glove.
+   * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+   */
+  export function create(params: AutoMovieArchetypeGlove.IParams, seed?: number): AutoMovieArchetype<AutoMovieArchetypeGlove.Affordance, AutoMovieArchetypeGlove.Dimension> {
+    return createGloveImplementation(params, seed);
+  }
+
+  /** Every kind, for a caller that reads one at run time. */
+  export const KINDS: readonly Kind[] = ["fielder", "catcher"];
+
+  /** The glove's thickness lying on its back, metres, by kind: estimates. */
+  export const THICKNESS: Readonly<Record<Kind, number>> = {
+    fielder: 0.07,
+    catcher: 0.09,
+  };
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
+    length: "m",
+    width: "m",
+    mass: "kg",
+  };
 
   /** The Official Baseball Rules 2024. */
   const OBR: string =

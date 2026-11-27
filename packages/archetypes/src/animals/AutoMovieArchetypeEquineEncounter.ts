@@ -35,41 +35,11 @@ const REGIONS: Readonly<
   hindquarters: { bar: "hindquarters", along: 0.5 },
 };
 
-/** A struck horse's authored response. */
-interface IResponse {
-  /** Seconds it lasts. */
-  seconds: number;
-
-  /** Seconds of its ease in and out. */
-  ease: number;
-}
-
-/** Where a region is on the body. */
-interface IRegion {
-  /** The bar it lies on. */
-  bar: AutoMovieArchetypeQuadrupedBody.Bone;
-
-  /** The share along the bar, from its start. */
-  along: number;
-}
-
-/** A point on a body's surface and its outward normal. */
-interface ISurface {
-  /** The point, world metres. */
-  point: IAutoMovieVector3;
-
-  /** The unit outward normal. */
-  normal: IAutoMovieVector3;
-}
-
 /**
  * Closed-form passes refining a bite's target and the poll the reach will put
  * above it: authored.
  */
 const REFINE: number = 4;
-
-/** Two of a kind, one per horse. */
-type Pair<T> = readonly [T, T];
 
 /**
  * Two horses' agonistic encounter on one scene clock: threats, bites, rearing
@@ -443,6 +413,36 @@ export namespace AutoMovieArchetypeEquineEncounter {
     };
   }
 }
+
+/** A struck horse's authored response. */
+interface IResponse {
+  /** Seconds it lasts. */
+  seconds: number;
+
+  /** Seconds of its ease in and out. */
+  ease: number;
+}
+
+/** Where a region is on the body. */
+interface IRegion {
+  /** The bar it lies on. */
+  bar: AutoMovieArchetypeQuadrupedBody.Bone;
+
+  /** The share along the bar, from its start. */
+  along: number;
+}
+
+/** A point on a body's surface and its outward normal. */
+interface ISurface {
+  /** The point, world metres. */
+  point: IAutoMovieVector3;
+
+  /** The unit outward normal. */
+  normal: IAutoMovieVector3;
+}
+
+/** Two of a kind, one per horse. */
+type Pair<T> = readonly [T, T];
 
 /** A bar's ends and radius. */
 interface IBar {

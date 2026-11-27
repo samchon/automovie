@@ -162,6 +162,57 @@ export namespace AutoMovieXpbdArticulation {
     rates: number[][];
   }
 
+  /** Every jointed body's node and the joints outside the articulated forest. */
+  export interface IForest {
+    /** Every jointed body's node. */
+    nodes: ReadonlyMap<AutoMovieXpbdBody, INode>;
+    /** The joints outside the forest, in creation order. */
+    loops: readonly AutoMovieXpbdJoint[];
+  }
+
+  /** One body's position in the articulated forest. */
+  export interface INode {
+    /** The world's body. */
+    body: AutoMovieXpbdBody;
+    /** The joint to its parent; absent at a root. */
+    edge?: AutoMovieXpbdJoint;
+    /** Its parent node; absent at a root. */
+    parent?: INode;
+    /** Its child nodes, in joint creation order. */
+    children: INode[];
+  }
+
+  /** Inputs for the support impulse room left by contact passes. */
+  export interface IRoomInput {
+    /** The support force bound, newtons. */
+    force: number;
+    /** The substep, seconds. */
+    h: number;
+    /** The impulse already given by contact passes, newton seconds. */
+    given: number;
+  }
+
+  /** An actuated axis between a pressed support and the tree root. */
+  export type IActuator = Contacts.IActuator;
+
+  /** A solved support response and the impulses to record. */
+  export type IHeld = Contacts.IHeld;
+
+  /** One support impulse to record on a contact. */
+  export type IRecord = Contacts.IRecord;
+
+  /** One contact row acting on a body in the tree. */
+  export type IRow = Contacts.IRow;
+
+  /** The rows and friction of one participating support patch. */
+  export type IPatch = Contacts.IPatch;
+
+  /** All support rows and patches for a tree. */
+  export type ISet = Contacts.ISet;
+
+  /** Two tangential values on a support patch. */
+  export type ISlip = Contacts.ISlip;
+
   /**
    * Factor a tree's inward sweep.
    *
@@ -427,57 +478,6 @@ export namespace AutoMovieXpbdArticulation {
 
   /** The 3x3 identity's columns, concatenated. */
   const IDENTITY: number[] = [1, 0, 0, 0, 1, 0, 0, 0, 1];
-
-  /** Every jointed body's node and the joints outside the articulated forest. */
-  export interface IForest {
-    /** Every jointed body's node. */
-    nodes: ReadonlyMap<AutoMovieXpbdBody, INode>;
-    /** The joints outside the forest, in creation order. */
-    loops: readonly AutoMovieXpbdJoint[];
-  }
-
-  /** One body's position in the articulated forest. */
-  export interface INode {
-    /** The world's body. */
-    body: AutoMovieXpbdBody;
-    /** The joint to its parent; absent at a root. */
-    edge?: AutoMovieXpbdJoint;
-    /** Its parent node; absent at a root. */
-    parent?: INode;
-    /** Its child nodes, in joint creation order. */
-    children: INode[];
-  }
-
-  /** Inputs for the support impulse room left by contact passes. */
-  export interface IRoomInput {
-    /** The support force bound, newtons. */
-    force: number;
-    /** The substep, seconds. */
-    h: number;
-    /** The impulse already given by contact passes, newton seconds. */
-    given: number;
-  }
-
-  /** An actuated axis between a pressed support and the tree root. */
-  export type IActuator = Contacts.IActuator;
-
-  /** A solved support response and the impulses to record. */
-  export type IHeld = Contacts.IHeld;
-
-  /** One support impulse to record on a contact. */
-  export type IRecord = Contacts.IRecord;
-
-  /** One contact row acting on a body in the tree. */
-  export type IRow = Contacts.IRow;
-
-  /** The rows and friction of one participating support patch. */
-  export type IPatch = Contacts.IPatch;
-
-  /** All support rows and patches for a tree. */
-  export type ISet = Contacts.ISet;
-
-  /** Two tangential values on a support patch. */
-  export type ISlip = Contacts.ISlip;
   /**
    * The normal impulse a bounded support group's rows may still add over a
    * substep, newton seconds: its force bound over the substep less what the

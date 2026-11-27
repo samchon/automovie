@@ -18,16 +18,6 @@ import { plantingContainsPoint } from "./plantingContainsPoint";
 import { plantingPruningDistance } from "./plantingPruningDistance";
 import { plantingYaw } from "./plantingYaw";
 
-const SALT_TRUNK: number = 0x74726e6b;
-
-const SALT_LENGTH: number = 0x6c656e67;
-
-const SALT_DIRECTION: number = 0x64697200;
-
-const SALT_LEAF_SCALE: number = 0x6c656166;
-
-const SALT_LEAF_ROLL: number = 0x726f6c6c;
-
 /**
  * Derive recipe-local depth-first branches and leaves at one normalized growth
  * stage. Level extension is
@@ -178,6 +168,16 @@ export function growPlanting(
     bounds: plantingCanopyBounds(branches, leaves),
   };
 }
+
+const SALT_TRUNK: number = 0x74726e6b;
+
+const SALT_LENGTH: number = 0x6c656e67;
+
+const SALT_DIRECTION: number = 0x64697200;
+
+const SALT_LEAF_SCALE: number = 0x6c656166;
+
+const SALT_LEAF_ROLL: number = 0x726f6c6c;
 
 /**
  * Leaves borne by one derived branch, in stable index order.

@@ -22,9 +22,6 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/** The alternatives of `OfContext`'s site. */
-type OfContext = "body" | "entry" | "prop";
-
 /**
  * Read the prop a hand holds at an action's entry.
  *
@@ -252,3 +249,6 @@ export namespace AutoMovieMotionHumanHeld {
     };
   }
 }
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "entry" | "prop";

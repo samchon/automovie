@@ -22,53 +22,6 @@ import { touchHold } from "./touchHold";
 import { touchRegion } from "./touchRegion";
 
 /**
- * How far a strain can move while every angle it reads moves within
- * `ROM_TOLERANCE`, the resolution to which the elbow search and the fits
- * resolve a joint's angle, so two strains closer than the sum of theirs are one
- * strain. Each of the strain's `n` terms is `(d / H)^2`, `d` an angle's
- * distance from the hanging arm's and `H` its axis's half range
- * (`AutoMovieMotionHumanBend.solve`): a change `e` in `d` moves a term by at
- * most `2 |d| e / H^2 + e^2 / H^2`, and the whole strain `S`, by Cauchy-Schwarz
- * over the terms with the least half range `h`, by at most `2 sqrt(n S) e / h +
- * n (e / h)^2`. The terms are the shoulder's three axes, the forearm's twist
- * and the wrist's flexion, their ranges read from the rig (`getConstraint`) as
- * the elbow search reads them.
- *
- * @param body The body.
- * @param side The arm.
- * @param strain The strain, unitless.
- * @returns The bound, unitless; `Infinity` for an infinite strain.
- */
-function resolution(
-  body: IAutoMovieMotionHumanBody,
-  side: AutoMovieHumanSide,
-  strain: number,
-): number {
-  if (strain === Infinity) return Infinity;
-  const range = (
-    bone: AutoMovieHumanoidBone,
-  ): IAutoMovieJointConstraint | null =>
-    AutoMovieEngineKinematics.getConstraint(bone, readHumanBone(body, bone)?.constraint ?? null);
-  const shoulder: IAutoMovieJointConstraint | null = range(`${side}UpperArm`);
-  const halves: number[] = [
-    shoulder?.flexion,
-    shoulder?.abduction,
-    shoulder?.twist,
-    range(`${side}LowerArm`)?.twist,
-    range(`${side}Hand`)?.flexion,
-  ]
-    .filter(
-      (r: IAutoMovieAngleRange | null | undefined): r is IAutoMovieAngleRange =>
-        r !== null && r !== undefined && r.max > r.min,
-    )
-    .map((r: IAutoMovieAngleRange): number => (r.max - r.min) / 2);
-  if (halves.length === 0) return 0;
-  const e: number = ROM_TOLERANCE / Math.min(...halves);
-  const n: number = halves.length;
-  return 2 * Math.sqrt(n * strain) * e + n * e * e;
-}
-
-/**
  * The touching hand.
  *
  * @param context The action's context.
@@ -171,4 +124,51 @@ export function touchSide(
     resolution(body, "left", left) + resolution(body, "right", right)
     ? "left"
     : "right";
+}
+
+/**
+ * How far a strain can move while every angle it reads moves within
+ * `ROM_TOLERANCE`, the resolution to which the elbow search and the fits
+ * resolve a joint's angle, so two strains closer than the sum of theirs are one
+ * strain. Each of the strain's `n` terms is `(d / H)^2`, `d` an angle's
+ * distance from the hanging arm's and `H` its axis's half range
+ * (`AutoMovieMotionHumanBend.solve`): a change `e` in `d` moves a term by at
+ * most `2 |d| e / H^2 + e^2 / H^2`, and the whole strain `S`, by Cauchy-Schwarz
+ * over the terms with the least half range `h`, by at most `2 sqrt(n S) e / h +
+ * n (e / h)^2`. The terms are the shoulder's three axes, the forearm's twist
+ * and the wrist's flexion, their ranges read from the rig (`getConstraint`) as
+ * the elbow search reads them.
+ *
+ * @param body The body.
+ * @param side The arm.
+ * @param strain The strain, unitless.
+ * @returns The bound, unitless; `Infinity` for an infinite strain.
+ */
+function resolution(
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+  strain: number,
+): number {
+  if (strain === Infinity) return Infinity;
+  const range = (
+    bone: AutoMovieHumanoidBone,
+  ): IAutoMovieJointConstraint | null =>
+    AutoMovieEngineKinematics.getConstraint(bone, readHumanBone(body, bone)?.constraint ?? null);
+  const shoulder: IAutoMovieJointConstraint | null = range(`${side}UpperArm`);
+  const halves: number[] = [
+    shoulder?.flexion,
+    shoulder?.abduction,
+    shoulder?.twist,
+    range(`${side}LowerArm`)?.twist,
+    range(`${side}Hand`)?.flexion,
+  ]
+    .filter(
+      (r: IAutoMovieAngleRange | null | undefined): r is IAutoMovieAngleRange =>
+        r !== null && r !== undefined && r.max > r.min,
+    )
+    .map((r: IAutoMovieAngleRange): number => (r.max - r.min) / 2);
+  if (halves.length === 0) return 0;
+  const e: number = ROM_TOLERANCE / Math.min(...halves);
+  const n: number = halves.length;
+  return 2 * Math.sqrt(n * strain) * e + n * e * e;
 }

@@ -35,15 +35,6 @@ import { manipulateShape } from "./manipulateShape";
 import { prepareZipperPinch } from "./prepareZipperPinch";
 import { zipSites } from "./zipSites";
 
-/** The alternatives of `DigitGoalDigit`'s site. */
-type DigitGoalDigit = "thumb" | "index";
-
-/** A sampled fingertip contact within one planned hand shape. */
-interface IDigitGoal {
-  digit: DigitGoalDigit;
-  at: (seconds: number) => IAutoMovieMotionHumanOperateDrive.IPlace;
-}
-
 /**
  * Brace a supported pouch and pinch its slider tab through a straight stroke.
  *
@@ -60,6 +51,15 @@ export const zip: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanZip> = {
   },
   plan,
 };
+
+/** The alternatives of `DigitGoalDigit`'s site. */
+type DigitGoalDigit = "thumb" | "index";
+
+/** A sampled fingertip contact within one planned hand shape. */
+interface IDigitGoal {
+  digit: DigitGoalDigit;
+  at: (seconds: number) => IAutoMovieMotionHumanOperateDrive.IPlace;
+}
 
 /**
  * Admit a single independent slider carrying the two opposing tab faces.

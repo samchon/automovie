@@ -11,16 +11,6 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { StrikingBody } from "../../striking/internal/StrikingBody";
 
-/** The alternatives of `ANGLESEntry`'s site. */
-type ANGLESEntry =
-  | "recline"
-  | "hip"
-  | "lying"
-  | "neck"
-  | "lift"
-  | "open"
-  | "elbow";
-
 /**
  * The existing knockdown fold and its body's floor fit. The law owns the clock
  * and heading; this owner evaluates the clinical fold, its collision bounds and
@@ -329,3 +319,13 @@ export namespace KnockdownFloor {
     }),
   };
 }
+
+/** The alternatives of `ANGLESEntry`'s site. */
+type ANGLESEntry =
+  | "recline"
+  | "hip"
+  | "lying"
+  | "neck"
+  | "lift"
+  | "open"
+  | "elbow";

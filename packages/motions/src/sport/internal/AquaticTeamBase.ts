@@ -39,21 +39,6 @@ const ELBOW_OUT: number = 0.08;
 const ELBOW_DOWN: number = 0.03;
 const ELBOW_BACK: number = 0.13;
 
-/** Fixed plan-time placement and pose offer of one supporting hand. */
-interface IPalmOffer {
-  /** The supporting hand's anatomical side. */
-  side: AutoMovieHumanSide;
-
-  /** Its bearing palm offset in hand coordinates, metres. */
-  contact: IAutoMovieVector3;
-
-  /** Its horizontal set position on the beat, world metres. */
-  at: IAutoMovieVector3;
-
-  /** Its bearing orientation, with the palm facing up. */
-  rotation: IAutoMovieQuaternion;
-}
-
 /**
  * An artistic base's support: its palm offered under a flyer's foot, and the
  * turn of a limb onto or off a supporting palm or sole.
@@ -213,4 +198,19 @@ export namespace AquaticTeamBase {
       contact,
     };
   }
+}
+
+/** Fixed plan-time placement and pose offer of one supporting hand. */
+interface IPalmOffer {
+  /** The supporting hand's anatomical side. */
+  side: AutoMovieHumanSide;
+
+  /** Its bearing palm offset in hand coordinates, metres. */
+  contact: IAutoMovieVector3;
+
+  /** Its horizontal set position on the beat, world metres. */
+  at: IAutoMovieVector3;
+
+  /** Its bearing orientation, with the palm facing up. */
+  rotation: IAutoMovieQuaternion;
 }

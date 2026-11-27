@@ -409,6 +409,26 @@ export namespace AutoMovieHumanBodySurfacePoles {
     }
   }
 
+  /** Resolved boundary of a chain end; ends without an event are poles. */
+  export function boundary(
+    context: IAutoMovieHumanSurfaceContext,
+    target: IAutoMovieLoftChain,
+    end: "bottom" | "top",
+  ): IAutoMovieHumanSurfaceBoundary {
+    const resolved: IAutoMovieHumanSurfaceBoundary | undefined =
+      context.boundaries.get(target.name + ":" + end);
+    if (resolved !== undefined) return resolved;
+    for (const roots of context.roots.values())
+      if (
+        roots.some(
+          (r): boolean =>
+            r.appendage?.chain === target.name && r.appendage.end === end,
+        )
+      )
+        return { kind: "root" };
+    return { kind: "pole" };
+  }
+
   /**
    * The test that sorts a chain's cells: the key of the hole a cell with a
    * corner inside one of the chain's root loops belongs to (the chain's name,
@@ -459,25 +479,5 @@ export namespace AutoMovieHumanBodySurfacePoles {
       hole!.charts.set(x, corners[c]!);
       hole!.owners.set(x, target.name);
     });
-  }
-
-  /** Resolved boundary of a chain end; ends without an event are poles. */
-  export function boundary(
-    context: IAutoMovieHumanSurfaceContext,
-    target: IAutoMovieLoftChain,
-    end: "bottom" | "top",
-  ): IAutoMovieHumanSurfaceBoundary {
-    const resolved: IAutoMovieHumanSurfaceBoundary | undefined =
-      context.boundaries.get(target.name + ":" + end);
-    if (resolved !== undefined) return resolved;
-    for (const roots of context.roots.values())
-      if (
-        roots.some(
-          (r): boolean =>
-            r.appendage?.chain === target.name && r.appendage.end === end,
-        )
-      )
-        return { kind: "root" };
-    return { kind: "pole" };
   }
 }

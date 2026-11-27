@@ -16,19 +16,6 @@ import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
 import { AutoMovieLoftViewSource } from "./AutoMovieLoftViewSource";
 import { AutoMovieLoftViewWorldJet } from "./construction/internal/AutoMovieLoftViewWorldJet";
 
-/** A fresh world coordinate or derivative vector. */
-type V = AutoMovieVector3Tuple;
-
-/** One immutable station's Point0 preparation, without physical derivatives. */
-interface Station {
-  /** Actual physical station in mm. */
-  s: number;
-  /** Original axis value at that station. */
-  frame: IAutoMovieLoftSectionFrame;
-  /** A declared collapsed pole has no polar point reader. */
-  local: ReturnType<typeof AutoMovieLoftSectionNative.point> | null;
-}
-
 /**
  * Original native field values and physical2 before any loft or mesh.
  * Relief/shift composition is shared with chain consumers. This reader owns no
@@ -146,4 +133,17 @@ export namespace AutoMovieLoftViewFullSource {
       },
     };
   }
+}
+
+/** A fresh world coordinate or derivative vector. */
+type V = AutoMovieVector3Tuple;
+
+/** One immutable station's Point0 preparation, without physical derivatives. */
+interface Station {
+  /** Actual physical station in mm. */
+  s: number;
+  /** Original axis value at that station. */
+  frame: IAutoMovieLoftSectionFrame;
+  /** A declared collapsed pole has no polar point reader. */
+  local: ReturnType<typeof AutoMovieLoftSectionNative.point> | null;
 }

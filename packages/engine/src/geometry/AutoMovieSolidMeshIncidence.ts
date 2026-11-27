@@ -6,24 +6,6 @@ import type {
 
 import { orientAutoMovieSolidChart } from "./construction/internal/orientAutoMovieSolidChart";
 
-/** A directed incidence, including its endpoint's explicit cover image. */
-interface Halfedge {
-  /** Original source vertex ID. */
-  from: number;
-
-  /** Original target vertex ID. */
-  to: number;
-
-  /** Relative period turn from source to target. */
-  turn: number;
-
-  /** Oppositely directed incidence of the same subconstraint. */
-  twin: number;
-
-  /** Lifted target used for angular order at its source. */
-  end: Readonly<AutoMovieVector2Tuple>;
-}
-
 /**
  * Native-chart halfedge incidence after shared constraint subdivision.
  *
@@ -151,6 +133,24 @@ export namespace AutoMovieSolidMeshIncidence {
     }
     return result;
   }
+}
+
+/** A directed incidence, including its endpoint's explicit cover image. */
+interface Halfedge {
+  /** Original source vertex ID. */
+  from: number;
+
+  /** Original target vertex ID. */
+  to: number;
+
+  /** Relative period turn from source to target. */
+  turn: number;
+
+  /** Oppositely directed incidence of the same subconstraint. */
+  twin: number;
+
+  /** Lifted target used for angular order at its source. */
+  end: Readonly<AutoMovieVector2Tuple>;
 }
 
 /**

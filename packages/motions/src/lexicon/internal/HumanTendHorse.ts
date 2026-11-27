@@ -367,18 +367,6 @@ function planHumanTendHorse(
 }
 
 /**
- * A held tool's working face in the holding hand's wrist frame, and how far
- * beyond the palm it lies.
- */
-interface IHeldTool {
-  /** The face's centre in the wrist frame, metres. */
-  face: IAutoMovieVector3;
-
-  /** The face's distance beyond the palm along the palm's normal, metres. */
-  depth: number;
-}
-
-/**
  * Read where a held tool's working face sits in the holding hand, from the
  * displayed hand and tool where the action begins, as a put-down reads its held
  * offset.
@@ -421,4 +409,16 @@ function heldTool(
     face: local,
     depth: Vector3.dot(Vector3.subtract(local, palm.point), palm.normal),
   };
+}
+
+/**
+ * A held tool's working face in the holding hand's wrist frame, and how far
+ * beyond the palm it lies.
+ */
+interface IHeldTool {
+  /** The face's centre in the wrist frame, metres. */
+  face: IAutoMovieVector3;
+
+  /** The face's distance beyond the palm along the palm's normal, metres. */
+  depth: number;
 }

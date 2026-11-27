@@ -6,9 +6,6 @@ import {
 import { Vector3 } from "../../math/Vector3";
 import { AUTOMOVIE_FULL_TURN_EPSILON } from "../AUTOMOVIE_FULL_TURN_EPSILON";
 
-/** A travel axis this short or shorter has no direction. */
-const AXIS_EPSILON: number = 1e-12;
-
 /**
  * Validate the one degree of freedom a moving member travels on.
  *
@@ -74,3 +71,6 @@ export function validateBuiltTravelMotion(
       motion.max,
     );
 }
+
+/** A travel axis this short or shorter has no direction. */
+const AXIS_EPSILON: number = 1e-12;

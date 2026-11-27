@@ -61,17 +61,6 @@ import { gatePerformShotScript } from "./gatePerformShotScript";
 import { memoizePerformShotSynthesis } from "./memoizePerformShotSynthesis";
 import { plantPerformShotStanceFeet } from "./plantPerformShotStanceFeet";
 
-/** Event order at one instant: cause before effect, pickup before release. */
-const EVENT_KIND_ORDER: Record<IAutoMovieInteractionEvent["kind"], number> = {
-  contact: 0,
-  hit: 1,
-  fall: 2,
-  grab: 3,
-  attach: 4,
-  detach: 5,
-  release: 6,
-};
-
 /**
  * Fold one beat's action calls into an {@link IAutoMovieShot} through
  * {@link compilePerformance}, gating both sides of the seam.
@@ -435,3 +424,14 @@ export function performShot(
     );
   return { success: true, shot, motions, plants };
 }
+
+/** Event order at one instant: cause before effect, pickup before release. */
+const EVENT_KIND_ORDER: Record<IAutoMovieInteractionEvent["kind"], number> = {
+  contact: 0,
+  hit: 1,
+  fall: 2,
+  grab: 3,
+  attach: 4,
+  detach: 5,
+  release: 6,
+};

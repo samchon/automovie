@@ -4,9 +4,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { HumanBikeGuideStance } from "./HumanBikeGuideStance";
 import type { IHumanBikeGuidePrint } from "./IHumanBikeGuidePrint";
 
-/** Toe clearance at mid-swing, metres: provisional for a hurried walk. */
-const CLEARANCE: number = 0.06;
-
 /**
  * Where a foot is at a second. On its print the ball stays put while, over the
  * second half of the stance, the heel rises about it to `ROCKER` degrees by
@@ -50,3 +47,6 @@ export function HumanBikeGuidePlace(
   }
   return HumanBikeGuideStance(prints.at(-1)!, t, ball);
 }
+
+/** Toe clearance at mid-swing, metres: provisional for a hurried walk. */
+const CLEARANCE: number = 0.06;

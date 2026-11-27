@@ -51,29 +51,6 @@ import { HumanGraspTarget } from "./HumanGraspTarget";
 import { HumanGrip } from "./HumanGrip";
 import { heldSupportGrip } from "./heldSupportGrip";
 
-/** The record of `IPlanHumanHeldSupportSelected`'s site. */
-type IPlanHumanHeldSupportSelected = {
-  wrist: IAutoMovieMotionHumanHand.IWrist;
-  reference: IAutoMovieHumanLimbReference;
-  miss: number;
-  station: number;
-  reserve: number;
-  digits: IAutoMovieMotionHumanPosture["joints"];
-};
-
-/** The alternatives of `PlanHumanHeldSupportLimb`'s site. */
-type PlanHumanHeldSupportLimb = "leftArm" | "rightArm";
-
-/** The record of `IPlanHumanHeldSupportProps`'s site. */
-type IPlanHumanHeldSupportProps = {
-  context: IAutoMovieMotionHumanActionContext;
-  lead: IAutoMovieMotionHumanActionPlan;
-  span: IAutoMovieMotionHumanArmPlanned.ISpan;
-};
-
-/** The alternatives of `PlanHumanHeldSupportProps`'s site. */
-type PlanHumanHeldSupportProps = "context" | "key" | "goal" | "weight";
-
 /**
  * Plan the support grip while the primary arm holds a tool at its use.
  *
@@ -459,3 +436,26 @@ export function planHumanHeldSupport(
     },
   ];
 }
+
+/** The record of `IPlanHumanHeldSupportSelected`'s site. */
+type IPlanHumanHeldSupportSelected = {
+  wrist: IAutoMovieMotionHumanHand.IWrist;
+  reference: IAutoMovieHumanLimbReference;
+  miss: number;
+  station: number;
+  reserve: number;
+  digits: IAutoMovieMotionHumanPosture["joints"];
+};
+
+/** The alternatives of `PlanHumanHeldSupportLimb`'s site. */
+type PlanHumanHeldSupportLimb = "leftArm" | "rightArm";
+
+/** The record of `IPlanHumanHeldSupportProps`'s site. */
+type IPlanHumanHeldSupportProps = {
+  context: IAutoMovieMotionHumanActionContext;
+  lead: IAutoMovieMotionHumanActionPlan;
+  span: IAutoMovieMotionHumanArmPlanned.ISpan;
+};
+
+/** The alternatives of `PlanHumanHeldSupportProps`'s site. */
+type PlanHumanHeldSupportProps = "context" | "key" | "goal" | "weight";

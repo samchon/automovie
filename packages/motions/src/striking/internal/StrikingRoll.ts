@@ -21,24 +21,6 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { StrikingHeld } from "./StrikingHeld";
 import { StrikingStrain } from "./StrikingStrain";
 
-/** The record of `IHandCandidate`'s site. */
-type IHandCandidate = { values: number[] };
-
-/** The record of `IHandB`'s site. */
-type IHandB = { rank: number };
-
-/** The record of `IHandA`'s site. */
-type IHandA = { rank: number };
-
-/** The record of `IHandCandidatesItem`'s site. */
-type IHandCandidatesItem = { values: number[]; rank: number };
-
-/**
- * The body at the decisive instant, or its reader per candidate frame: the
- * union the interface declares (`IAutoMovieMotionHumanStrikingRoll.IChoice`).
- */
-type HandPosture = IAutoMovieMotionHumanStrikingRoll.IChoice["posture"];
-
 /**
  * Whether the arm can hold a held tool in a pose, and the turn of the tool
  * about its own line where the action leaves it free.
@@ -444,6 +426,24 @@ export namespace StrikingRoll {
       SHOULDERS[side],
     ).get(`${side}UpperArm`)!.worldPosition;
 }
+
+/** The record of `IHandCandidate`'s site. */
+type IHandCandidate = { values: number[] };
+
+/** The record of `IHandB`'s site. */
+type IHandB = { rank: number };
+
+/** The record of `IHandA`'s site. */
+type IHandA = { rank: number };
+
+/** The record of `IHandCandidatesItem`'s site. */
+type IHandCandidatesItem = { values: number[]; rank: number };
+
+/**
+ * The body at the decisive instant, or its reader per candidate frame: the
+ * union the interface declares (`IAutoMovieMotionHumanStrikingRoll.IChoice`).
+ */
+type HandPosture = IAutoMovieMotionHumanStrikingRoll.IChoice["posture"];
 
 /** The two actual output branches consumed by tool-pose judging. */
 const HANDS: Readonly<

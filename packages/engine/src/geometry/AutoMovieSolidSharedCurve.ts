@@ -11,14 +11,6 @@ import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-/** World point or derivative, mm. */
-type Vec3 = AutoMovieVector3Tuple;
-
-/** A surface's 2-jet at a chart point. */
-type IJet = IAutoMovieSolidSurface.IJet;
-
-/** A point of the shared curve. */
-type IPoint = IAutoMovieSolidIntersection.IPoint;
 const {
   combine,
   cross,
@@ -425,3 +417,11 @@ export namespace AutoMovieSolidSharedCurve {
     };
   }
 }
+
+/** World point or derivative, mm. */
+type Vec3 = AutoMovieVector3Tuple;
+/** A surface's 2-jet at a chart point. */
+type IJet = IAutoMovieSolidSurface.IJet;
+
+/** A point of the shared curve. */
+type IPoint = IAutoMovieSolidIntersection.IPoint;

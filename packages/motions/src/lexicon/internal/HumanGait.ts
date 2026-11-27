@@ -28,42 +28,6 @@ import { HumanGaitRegulated } from "./HumanGaitRegulated";
 import { HumanGaitSneaking } from "./HumanGaitSneaking";
 import { HumanGaitStyled } from "./HumanGaitStyled";
 
-/** The record of `IDRUNKItem`'s site. */
-type IDRUNKItem = {
-  froude: number;
-  unevenness: number;
-  every: number;
-  aside: number;
-};
-
-/** The record of `ILIMPItem`'s site. */
-type ILIMPItem = { froude: number; step: number; share: number };
-
-/** The alternatives of `MOODSEntryItem`'s site. */
-type MOODSEntryItem = "sad" | "proud";
-
-/** The record of `IDOUBLEItem`'s site. */
-type IDOUBLEItem = { cadence: number; step: number };
-
-/** The record of `IMarchDrill`'s site. */
-type IMarchDrill = { cadence: number; step: number };
-
-/** The record of `ISNEAKItem`'s site. */
-type ISNEAKItem = {
-  froude: number;
-  step: number;
-  drop: number;
-  arms: IAutoMovieMotionHumanWalkGait["arms"];
-};
-
-/** The record of `IMARCHItem`'s site. */
-type IMARCHItem = {
-  cadence: number;
-  step: number;
-  arms: IAutoMovieMotionHumanWalkGait["arms"];
-  unevenness: number;
-};
-
 /**
  * Named ways of going somewhere on foot; the composition gives the destination.
  * Register the ones a film uses.
@@ -432,3 +396,39 @@ export namespace HumanGait {
       },
     };
 }
+
+/** The record of `IDRUNKItem`'s site. */
+type IDRUNKItem = {
+  froude: number;
+  unevenness: number;
+  every: number;
+  aside: number;
+};
+
+/** The record of `ILIMPItem`'s site. */
+type ILIMPItem = { froude: number; step: number; share: number };
+
+/** The alternatives of `MOODSEntryItem`'s site. */
+type MOODSEntryItem = "sad" | "proud";
+
+/** The record of `IDOUBLEItem`'s site. */
+type IDOUBLEItem = { cadence: number; step: number };
+
+/** The record of `IMarchDrill`'s site. */
+type IMarchDrill = { cadence: number; step: number };
+
+/** The record of `ISNEAKItem`'s site. */
+type ISNEAKItem = {
+  froude: number;
+  step: number;
+  drop: number;
+  arms: IAutoMovieMotionHumanWalkGait["arms"];
+};
+
+/** The record of `IMARCHItem`'s site. */
+type IMARCHItem = {
+  cadence: number;
+  step: number;
+  arms: IAutoMovieMotionHumanWalkGait["arms"];
+  unevenness: number;
+};

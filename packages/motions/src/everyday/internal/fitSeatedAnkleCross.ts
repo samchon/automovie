@@ -21,11 +21,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { fitSeatedAnkleCrossShape } from "./fitSeatedAnkleCrossShape";
 import { fitSeatedAnkleCrossSweep } from "./fitSeatedAnkleCrossSweep";
 
-interface ILegPose {
-  hip: IAutoMovieJointPose;
-  knee: IAutoMovieJointPose;
-}
-
 const RAD = Math.PI / 180;
 
 /**
@@ -33,12 +28,6 @@ const RAD = Math.PI / 180;
  * fit.
  */
 const SURFACE_PRECISION = 0.00005;
-
-interface IReading {
-  moving: fitSeatedAnkleCrossShape.IShape[];
-  ankle: IAutoMovieVector3;
-  order: number;
-}
 
 const ANGLES = ["flexion", "abduction", "twist"] as const;
 
@@ -371,9 +360,6 @@ export namespace fitSeatedAnkleCross {
   export const interpolate = interpolateSeatedAnkleCross;
 }
 
-/** The record of `IUpperSurfaceResult`'s site. */
-type IUpperSurfaceResult = { y: number; normal: IAutoMovieVector3 };
-
 function upperSurface(
   rows: readonly fitSeatedAnkleCrossShape.IShape[],
   station: IAutoMovieVector3,
@@ -434,3 +420,17 @@ function liftedAbove(
   }
   return undefined;
 }
+
+interface ILegPose {
+  hip: IAutoMovieJointPose;
+  knee: IAutoMovieJointPose;
+}
+
+interface IReading {
+  moving: fitSeatedAnkleCrossShape.IShape[];
+  ankle: IAutoMovieVector3;
+  order: number;
+}
+
+/** The record of `IUpperSurfaceResult`'s site. */
+type IUpperSurfaceResult = { y: number; normal: IAutoMovieVector3 };

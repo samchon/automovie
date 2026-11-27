@@ -121,18 +121,6 @@ export namespace AutoMovieHumanFeatureTemplate {
     flat?: number;
   }
 
-  /** Refuse a template whose numbers the laws cannot read. */
-  function admit(template: ITemplate): void {
-    const { along, across }: ITemplate = template;
-    if (Math.abs(F.dot(along, along) - 1) > 1e-9 || Math.abs(F.dot(across, across) - 1) > 1e-9 || Math.abs(F.dot(along, across)) > 1e-9)
-      throw new Error("feature template: the directions of " + template.name + " must be unit and square");
-    if (!(template.extent[0] > 0 && template.extent[1] > 0)) throw new Error("feature template: the extents of " + template.name + " must be positive");
-    const n: number = template.squareness ?? 2;
-    if (!(n >= 2)) throw new Error("feature template: the squareness of " + template.name + " must be at least 2");
-    if (template.flat !== undefined && !(template.flat >= 0 && template.flat < 1)) throw new Error("feature template: the plateau of " + template.name + " must lie in [0, 1)");
-    if (n !== 2 && template.flat === undefined) throw new Error("feature template: the squared footprint of " + template.name + " takes a plateau");
-  }
-
   /**
    * A feature that runs between two landmarks of one segment: a tendon, a clavicle, a muscle's ridge, a furrow.
    *
@@ -244,5 +232,17 @@ export namespace AutoMovieHumanFeatureTemplate {
     if (r <= template.flat) return template.height;
     const t: number = (r - template.flat) / (1 - template.flat);
     return template.height * (1 - (10 * t ** 3 - 15 * t ** 4 + 6 * t ** 5));
+  }
+
+  /** Refuse a template whose numbers the laws cannot read. */
+  function admit(template: ITemplate): void {
+    const { along, across }: ITemplate = template;
+    if (Math.abs(F.dot(along, along) - 1) > 1e-9 || Math.abs(F.dot(across, across) - 1) > 1e-9 || Math.abs(F.dot(along, across)) > 1e-9)
+      throw new Error("feature template: the directions of " + template.name + " must be unit and square");
+    if (!(template.extent[0] > 0 && template.extent[1] > 0)) throw new Error("feature template: the extents of " + template.name + " must be positive");
+    const n: number = template.squareness ?? 2;
+    if (!(n >= 2)) throw new Error("feature template: the squareness of " + template.name + " must be at least 2");
+    if (template.flat !== undefined && !(template.flat >= 0 && template.flat < 1)) throw new Error("feature template: the plateau of " + template.name + " must lie in [0, 1)");
+    if (n !== 2 && template.flat === undefined) throw new Error("feature template: the squared footprint of " + template.name + " takes a plateau");
   }
 }

@@ -1,15 +1,5 @@
 import type { IAutoMovieAxisFrame } from "@automovie/interface";
 
-/** Admit the actual used affine frame before its forward clinical conversion. */
-function assertAxisFrame(
-  label: string,
-  frame: IAutoMovieAxisFrame | undefined,
-): void {
-  if (frame === undefined) return;
-  if (frame.sign !== 1 && frame.sign !== -1)
-    throw new Error(`${label} sign must be 1 or -1, but was ${frame.sign}`);
-}
-
 /** Own clinical angle conversion and its prepared readers. */
 export namespace AutoMovieEngineClinicalAngle {
     /**
@@ -26,6 +16,24 @@ export namespace AutoMovieEngineClinicalAngle {
   ): number | null {
     return convert(rig, frame);
   }
+
+  /** Lazy unchanged-frame arithmetic for actual repeated clinical conversions. */
+
+    /**
+     * Prepare one lazy reader without reading a frame or angle. Null bypasses
+     * unused frames; each used frame object stays unchanged until replacement or
+     * release, and failed admission leaves any valid prior reading intact.
+     */
+    export function prepareToClinicalAngle(): (
+      rig: number | null,
+      frame: IAutoMovieAxisFrame | undefined,
+    ) => number | null {
+      const state: IConversionState = {};
+      return (
+        rig: number | null,
+        frame: IAutoMovieAxisFrame | undefined,
+      ): number | null => convert(rig, frame, state);
+    }
 
   /** Actual immutable affine operands, kept only for the latest prepared frame. */
   interface IConversionState {
@@ -64,22 +72,14 @@ export namespace AutoMovieEngineClinicalAngle {
     if (state !== undefined) state.reading = { frame, sign, neutral };
     return result;
   }
+}
 
-  /** Lazy unchanged-frame arithmetic for actual repeated clinical conversions. */
-
-    /**
-     * Prepare one lazy reader without reading a frame or angle. Null bypasses
-     * unused frames; each used frame object stays unchanged until replacement or
-     * release, and failed admission leaves any valid prior reading intact.
-     */
-    export function prepareToClinicalAngle(): (
-      rig: number | null,
-      frame: IAutoMovieAxisFrame | undefined,
-    ) => number | null {
-      const state: IConversionState = {};
-      return (
-        rig: number | null,
-        frame: IAutoMovieAxisFrame | undefined,
-      ): number | null => convert(rig, frame, state);
-    }
+/** Admit the actual used affine frame before its forward clinical conversion. */
+function assertAxisFrame(
+  label: string,
+  frame: IAutoMovieAxisFrame | undefined,
+): void {
+  if (frame === undefined) return;
+  if (frame.sign !== 1 && frame.sign !== -1)
+    throw new Error(`${label} sign must be 1 or -1, but was ${frame.sign}`);
 }

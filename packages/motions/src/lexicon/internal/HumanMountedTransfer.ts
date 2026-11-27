@@ -11,9 +11,6 @@ import type {
 
 import { HumanMountedPaths } from "./HumanMountedPaths";
 
-/** A limb's joints by bone, clinical degrees `[flexion, abduction, twist]`. */
-type Joints = IAutoMovieMotionHumanPosture["joints"];
-
 /**
  * Shape a transfer between two keys at a share of it, in place on the blended
  * posture: each limb end turns the same share as it moves (a foot kept on its
@@ -159,3 +156,6 @@ export function HumanMountedTransfer(
       };
     }
 }
+
+/** A limb's joints by bone, clinical degrees `[flexion, abduction, twist]`. */
+type Joints = IAutoMovieMotionHumanPosture["joints"];

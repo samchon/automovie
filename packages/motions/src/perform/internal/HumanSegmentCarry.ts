@@ -20,12 +20,6 @@ import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
-/** The alternatives of `CarriesResult`'s site. */
-type CarriesResult = "leftArm" | "rightArm";
-
-/** The alternatives of `CarriesItemResult`'s site. */
-type CarriesItemResult = "leftArm" | "rightArm";
-
 /**
  * The carry of a prop an earlier action left held: the holding arm's place in
  * the frame the action that took hold placed the hand in, captured where that
@@ -206,16 +200,6 @@ export namespace HumanSegmentCarry {
       });
   }
 
-  /** Fresh world bones, optionally borrowing the current operation's exact FK. */
-  function bones(
-    person: IAutoMovieMotionHumanSegment.IPerson,
-    pose: IAutoMoviePose,
-    resolution?: ReturnType<typeof prepareHumanPoseResolution>,
-    requested?: ReadonlySet<AutoMovieHumanoidBone>,
-  ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    return poseBones(person.performer.body, pose, resolution?.(), requested);
-  }
-
   /**
    * A holding arm in its frame at the end of the action that took hold, the
    * attach of `carries`. The link the attach names is the bone the action's own
@@ -287,4 +271,20 @@ export namespace HumanSegmentCarry {
       ),
     };
   }
+
+  /** Fresh world bones, optionally borrowing the current operation's exact FK. */
+  function bones(
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    pose: IAutoMoviePose,
+    resolution?: ReturnType<typeof prepareHumanPoseResolution>,
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
+  ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+    return poseBones(person.performer.body, pose, resolution?.(), requested);
+  }
 }
+
+/** The alternatives of `CarriesResult`'s site. */
+type CarriesResult = "leftArm" | "rightArm";
+
+/** The alternatives of `CarriesItemResult`'s site. */
+type CarriesItemResult = "leftArm" | "rightArm";

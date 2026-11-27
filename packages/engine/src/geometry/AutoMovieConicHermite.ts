@@ -11,13 +11,6 @@ import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 import { AutoMovieConicHermiteField } from "./AutoMovieConicHermiteField";
 import { AutoMovieConicPreparation } from "./AutoMovieConicPreparation";
 
-/** A final projective reading of the unchanged bounded numeric inverse. */
-interface Located {
-  /** Same final point/log probabilities. */ reading: IAutoMovieConicHermiteField.IProjective<number>;
-  /** Null only for an explicit endpoint. */ clock: number | null;
-  /** Explicit selected position. */ position: "first" | "interior" | "last";
-}
-
 /**
  * Convex rational cubic G2 Hermite interpolation of a short conic end.
  *
@@ -225,4 +218,11 @@ export namespace AutoMovieConicHermite {
 
     return { reading, clock, position: "interior" };
   }
+}
+
+/** A final projective reading of the unchanged bounded numeric inverse. */
+interface Located {
+  /** Same final point/log probabilities. */ reading: IAutoMovieConicHermiteField.IProjective<number>;
+  /** Null only for an explicit endpoint. */ clock: number | null;
+  /** Explicit selected position. */ position: "first" | "interior" | "last";
 }

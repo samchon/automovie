@@ -15,15 +15,6 @@ import { typeText } from "../../everyday/internal/typeText";
 import { HumanHand } from "../../posture/internal/HumanHand";
 
 /**
- * Resting digit angles and the individual tips requiring clearance from the
- * surface.
- */
-interface IShape {
-  joints: IAutoMovieMotionHumanPosture["joints"];
-  avoid: NonNullable<IAutoMovieMotionHumanPosture["digits"]>;
-}
-
-/**
  * The hand's shape while one digit presses in a keyed contact sequence
  * (`manipulate`): that digit straight, as the flat hand holds it, for its
  * inverse kinematics to take down to its key. Other digits retain their relaxed
@@ -96,6 +87,15 @@ export function manipulateShape(
         joints[bone as AutoMovieHumanoidBone] = angles;
   }
   return { joints, avoid };
+}
+
+/**
+ * Resting digit angles and the individual tips requiring clearance from the
+ * surface.
+ */
+interface IShape {
+  joints: IAutoMovieMotionHumanPosture["joints"];
+  avoid: NonNullable<IAutoMovieMotionHumanPosture["digits"]>;
 }
 
 /** Anatomical digits on a manipulating hand. */

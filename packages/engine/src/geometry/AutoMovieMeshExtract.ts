@@ -217,231 +217,6 @@ export namespace AutoMovieMeshExtract {
   }
 
   /**
-   * Chains a section's segments through their shared crossings: chains start
-   * first at crossings of other than two segments (the ends of open chains),
-   * then anywhere on what remains (closed loops). Consecutive coincident points
-   * (two edges meeting at a vertex just above the plane) are merged.
-   */
-  function chain(
-    segments: readonly [string, string][],
-    place: (key: string) => [number, number],
-  ): { loops: IAutoMovieMeshSectionChain[]; dangling: number } {
-    const incident: Map<string, number[]> = new Map();
-    for (let s: number = 0; s < segments.length; ++s)
-      for (const key of segments[s]!) {
-        const list: number[] | undefined = incident.get(key);
-        if (list === undefined) incident.set(key, [s]);
-        else list.push(s);
-      }
-    let dangling: number = 0;
-    for (const list of incident.values()) if (list.length !== 2) dangling += 1;
-    const used: Uint8Array = new Uint8Array(segments.length);
-    const loops: IAutoMovieMeshSectionChain[] = [];
-    const walk: (start: string) => void = (start: string): void => {
-      const keys: string[] = [start];
-      let node: string = start;
-      // Steps along and against the segments' winding direction.
-      let along: number = 0;
-      for (;;) {
-        const next: number | undefined = incident
-          .get(node)!
-          .find((s: number): boolean => used[s] === 0);
-        if (next === undefined) break;
-        used[next] = 1;
-        const [p, q] = segments[next]!;
-        along += p === node ? 1 : -1;
-        node = p === node ? q : p;
-        keys.push(node);
-        if (node === start) break;
-      }
-      const closed: boolean = keys.length > 3 && keys.at(-1) === start;
-      if (closed) keys.pop();
-      // The chain follows the winding of most of its segments.
-      if (along < 0) keys.reverse();
-      const points: [number, number][] = [];
-      for (const key of keys) {
-        const p: [number, number] = place(key);
-        const last: [number, number] | undefined = points.at(-1);
-        if (
-          last === undefined ||
-          Math.hypot(p[0] - last[0], p[1] - last[1]) > 1e-9
-        )
-          points.push(p);
-      }
-      if (
-        closed &&
-        points.length > 1 &&
-        Math.hypot(
-          points[0]![0] - points.at(-1)![0],
-          points[0]![1] - points.at(-1)![1],
-        ) <= 1e-9
-      )
-        points.pop();
-      loops.push({ points, closed });
-    };
-    for (const [key, list] of incident)
-      if (list.length !== 2 && list.some((s: number): boolean => used[s] === 0))
-        walk(key);
-    for (let s: number = 0; s < segments.length; ++s)
-      if (used[s] === 0) walk(segments[s]![0]);
-    return { loops, dangling };
-  }
-
-  /**
-   * A cut's outer boundaries. Open chains are joined end to end, always the
-   * nearest pair of ends first while that gap stays within the bridge: first
-   * only a chain's tail to a chain's head (the winding agrees, so the join
-   * continues the same contour), then any two ends with a chain reversed (an
-   * inconsistently wound reference). A chain whose own tail meets its head
-   * closes. The closed pieces enclosed by another (tested at their first point,
-   * even-odd) are dropped; the rest return, largest area first.
-   */
-  function enclose(
-    pieces: readonly IAutoMovieMeshSectionChain[],
-    bridge: number,
-  ): {
-    outer: IAutoMovieMeshSectionChain[];
-    gaps: string[];
-    unclosed: number;
-  } {
-    const closed: [number, number][][] = pieces
-      .filter((l: IAutoMovieMeshSectionChain): boolean => l.closed)
-      .map((l: IAutoMovieMeshSectionChain): [number, number][] => l.points);
-    const open: [number, number][][] = pieces
-      .filter(
-        (l: IAutoMovieMeshSectionChain): boolean =>
-          !l.closed && l.points.length >= 1,
-      )
-      .map((l: IAutoMovieMeshSectionChain): [number, number][] =>
-        l.points.slice(),
-      );
-    const gaps: string[] = [];
-    const distance: (
-      p: readonly [number, number],
-      q: readonly [number, number],
-    ) => number = (
-      p: readonly [number, number],
-      q: readonly [number, number],
-    ): number => Math.hypot(p[0] - q[0], p[1] - q[1]);
-    for (const reversible of [false, true]) {
-      for (;;) {
-        // The nearest joinable pair: i's tail to j's head, after reversing i or j when allowed.
-        let best: {
-          i: number;
-          j: number;
-          flipI: boolean;
-          flipJ: boolean;
-          gap: number;
-        } | null = null;
-        for (let i: number = 0; i < open.length; ++i)
-          for (let j: number = 0; j < open.length; ++j) {
-            const a: [number, number][] = open[i]!;
-            const b: [number, number][] = open[j]!;
-            const options: [boolean, boolean][] =
-              i === j
-                ? a.length >= 3
-                  ? [[false, false]]
-                  : []
-                : reversible
-                  ? [
-                      [false, false],
-                      [false, true],
-                      [true, false],
-                    ]
-                  : [[false, false]];
-            for (const [flipI, flipJ] of options) {
-              const tail: [number, number] = flipI ? a[0]! : a.at(-1)!;
-              const head: [number, number] = flipJ ? b.at(-1)! : b[0]!;
-              const gap: number = distance(tail, head);
-              if (gap <= bridge && (best === null || gap < best.gap))
-                best = { i, j, flipI, flipJ, gap };
-            }
-          }
-        if (best === null) break;
-        const a: [number, number][] = best.flipI
-          ? open[best.i]!.slice().reverse()
-          : open[best.i]!;
-        if (best.gap > 1e-9)
-          gaps.push(
-            `bridged: ${best.gap.toFixed(3)} mm${best.flipI || best.flipJ ? " (a chain reversed)" : ""}`,
-          );
-        if (best.i === best.j) {
-          closed.push(a);
-          open.splice(best.i, 1);
-          continue;
-        }
-        const b: [number, number][] = best.flipJ
-          ? open[best.j]!.slice().reverse()
-          : open[best.j]!;
-        const joined: [number, number][] =
-          best.gap > 1e-9 ? a.concat(b) : a.concat(b.slice(1));
-        open[best.i] = joined;
-        open.splice(best.j, 1);
-      }
-    }
-    const loops: { points: [number, number][]; area: number }[] = closed
-      .filter((p: [number, number][]): boolean => p.length >= 3)
-      .map(
-        (
-          points: [number, number][],
-        ): { points: [number, number][]; area: number } => ({
-          points,
-          area: Math.abs(shoelace(points)),
-        }),
-      );
-    loops.sort(
-      (x: { area: number }, y: { area: number }): number => y.area - x.area,
-    );
-    const outer: IAutoMovieMeshSectionChain[] = [];
-    for (let k: number = 0; k < loops.length; ++k) {
-      const probe: [number, number] = loops[k]!.points[0]!;
-      let inside: boolean = false;
-      for (let m: number = 0; m < loops.length && !inside; ++m)
-        if (
-          m !== k &&
-          loops[m]!.area >= loops[k]!.area &&
-          contains(loops[m]!.points, probe)
-        )
-          inside = true;
-      if (!inside) outer.push({ points: loops[k]!.points, closed: true });
-    }
-    return { outer, gaps, unclosed: open.length };
-  }
-
-  /** The signed shoelace area of a closed polygon, positive counter-clockwise. */
-  function shoelace(points: readonly (readonly [number, number])[]): number {
-    let out: number = 0;
-    for (let i: number = 0; i < points.length; ++i) {
-      const p: readonly [number, number] = points[i]!;
-      const q: readonly [number, number] = points[(i + 1) % points.length]!;
-      out += (p[0] * q[1] - q[0] * p[1]) / 2;
-    }
-    return out;
-  }
-
-  /** Even-odd point-in-polygon by a ray along +x. */
-  function contains(
-    polygon: readonly (readonly [number, number])[],
-    p: readonly [number, number],
-  ): boolean {
-    let inside: boolean = false;
-    for (
-      let i: number = 0, j: number = polygon.length - 1;
-      i < polygon.length;
-      j = i++
-    ) {
-      const a: readonly [number, number] = polygon[i]!;
-      const b: readonly [number, number] = polygon[j]!;
-      if (
-        a[1] > p[1] !== b[1] > p[1] &&
-        p[0] < ((b[0] - a[0]) * (p[1] - a[1])) / (b[1] - a[1]) + a[0]
-      )
-        inside = !inside;
-    }
-    return inside;
-  }
-
-  /**
    * The fewest value-and-slope knots that hold a dense run within the
    * tolerance. Every sample starts as a knot with its central-difference slope;
    * knots are then removed one at a time, always the one whose removal deviates
@@ -819,6 +594,260 @@ export namespace AutoMovieMeshExtract {
   }
 
   /**
+   * The cubic Hermite through (s0, v0, m0) and (s1, v1, m1) at s: the span
+   * every knot pair of {@link reduce} and, per coordinate, of {@link reduceLoop}
+   * defines.
+   *
+   * @param s0 Start station.
+   * @param v0 Start value.
+   * @param m0 Start slope.
+   * @param s1 End station, different from `s0`.
+   * @param v1 End value.
+   * @param m1 End slope.
+   * @param s Station to read.
+   * @returns The span's value at `s`; outside `[s0, s1]` the same cubic
+   *   extended.
+   */
+  export function hermite(
+    s0: number,
+    v0: number,
+    m0: number,
+    s1: number,
+    v1: number,
+    m1: number,
+    s: number,
+  ): number {
+    const h: number = s1 - s0;
+    const [h00, h10, h01, h11] = basis((s - s0) / h);
+    return h00 * v0 + h10 * h * m0 + h01 * v1 + h11 * h * m1;
+  }
+
+  /**
+   * Chains a section's segments through their shared crossings: chains start
+   * first at crossings of other than two segments (the ends of open chains),
+   * then anywhere on what remains (closed loops). Consecutive coincident points
+   * (two edges meeting at a vertex just above the plane) are merged.
+   */
+  function chain(
+    segments: readonly [string, string][],
+    place: (key: string) => [number, number],
+  ): { loops: IAutoMovieMeshSectionChain[]; dangling: number } {
+    const incident: Map<string, number[]> = new Map();
+    for (let s: number = 0; s < segments.length; ++s)
+      for (const key of segments[s]!) {
+        const list: number[] | undefined = incident.get(key);
+        if (list === undefined) incident.set(key, [s]);
+        else list.push(s);
+      }
+    let dangling: number = 0;
+    for (const list of incident.values()) if (list.length !== 2) dangling += 1;
+    const used: Uint8Array = new Uint8Array(segments.length);
+    const loops: IAutoMovieMeshSectionChain[] = [];
+    const walk: (start: string) => void = (start: string): void => {
+      const keys: string[] = [start];
+      let node: string = start;
+      // Steps along and against the segments' winding direction.
+      let along: number = 0;
+      for (;;) {
+        const next: number | undefined = incident
+          .get(node)!
+          .find((s: number): boolean => used[s] === 0);
+        if (next === undefined) break;
+        used[next] = 1;
+        const [p, q] = segments[next]!;
+        along += p === node ? 1 : -1;
+        node = p === node ? q : p;
+        keys.push(node);
+        if (node === start) break;
+      }
+      const closed: boolean = keys.length > 3 && keys.at(-1) === start;
+      if (closed) keys.pop();
+      // The chain follows the winding of most of its segments.
+      if (along < 0) keys.reverse();
+      const points: [number, number][] = [];
+      for (const key of keys) {
+        const p: [number, number] = place(key);
+        const last: [number, number] | undefined = points.at(-1);
+        if (
+          last === undefined ||
+          Math.hypot(p[0] - last[0], p[1] - last[1]) > 1e-9
+        )
+          points.push(p);
+      }
+      if (
+        closed &&
+        points.length > 1 &&
+        Math.hypot(
+          points[0]![0] - points.at(-1)![0],
+          points[0]![1] - points.at(-1)![1],
+        ) <= 1e-9
+      )
+        points.pop();
+      loops.push({ points, closed });
+    };
+    for (const [key, list] of incident)
+      if (list.length !== 2 && list.some((s: number): boolean => used[s] === 0))
+        walk(key);
+    for (let s: number = 0; s < segments.length; ++s)
+      if (used[s] === 0) walk(segments[s]![0]);
+    return { loops, dangling };
+  }
+
+  /**
+   * A cut's outer boundaries. Open chains are joined end to end, always the
+   * nearest pair of ends first while that gap stays within the bridge: first
+   * only a chain's tail to a chain's head (the winding agrees, so the join
+   * continues the same contour), then any two ends with a chain reversed (an
+   * inconsistently wound reference). A chain whose own tail meets its head
+   * closes. The closed pieces enclosed by another (tested at their first point,
+   * even-odd) are dropped; the rest return, largest area first.
+   */
+  function enclose(
+    pieces: readonly IAutoMovieMeshSectionChain[],
+    bridge: number,
+  ): {
+    outer: IAutoMovieMeshSectionChain[];
+    gaps: string[];
+    unclosed: number;
+  } {
+    const closed: [number, number][][] = pieces
+      .filter((l: IAutoMovieMeshSectionChain): boolean => l.closed)
+      .map((l: IAutoMovieMeshSectionChain): [number, number][] => l.points);
+    const open: [number, number][][] = pieces
+      .filter(
+        (l: IAutoMovieMeshSectionChain): boolean =>
+          !l.closed && l.points.length >= 1,
+      )
+      .map((l: IAutoMovieMeshSectionChain): [number, number][] =>
+        l.points.slice(),
+      );
+    const gaps: string[] = [];
+    const distance: (
+      p: readonly [number, number],
+      q: readonly [number, number],
+    ) => number = (
+      p: readonly [number, number],
+      q: readonly [number, number],
+    ): number => Math.hypot(p[0] - q[0], p[1] - q[1]);
+    for (const reversible of [false, true]) {
+      for (;;) {
+        // The nearest joinable pair: i's tail to j's head, after reversing i or j when allowed.
+        let best: {
+          i: number;
+          j: number;
+          flipI: boolean;
+          flipJ: boolean;
+          gap: number;
+        } | null = null;
+        for (let i: number = 0; i < open.length; ++i)
+          for (let j: number = 0; j < open.length; ++j) {
+            const a: [number, number][] = open[i]!;
+            const b: [number, number][] = open[j]!;
+            const options: [boolean, boolean][] =
+              i === j
+                ? a.length >= 3
+                  ? [[false, false]]
+                  : []
+                : reversible
+                  ? [
+                      [false, false],
+                      [false, true],
+                      [true, false],
+                    ]
+                  : [[false, false]];
+            for (const [flipI, flipJ] of options) {
+              const tail: [number, number] = flipI ? a[0]! : a.at(-1)!;
+              const head: [number, number] = flipJ ? b.at(-1)! : b[0]!;
+              const gap: number = distance(tail, head);
+              if (gap <= bridge && (best === null || gap < best.gap))
+                best = { i, j, flipI, flipJ, gap };
+            }
+          }
+        if (best === null) break;
+        const a: [number, number][] = best.flipI
+          ? open[best.i]!.slice().reverse()
+          : open[best.i]!;
+        if (best.gap > 1e-9)
+          gaps.push(
+            `bridged: ${best.gap.toFixed(3)} mm${best.flipI || best.flipJ ? " (a chain reversed)" : ""}`,
+          );
+        if (best.i === best.j) {
+          closed.push(a);
+          open.splice(best.i, 1);
+          continue;
+        }
+        const b: [number, number][] = best.flipJ
+          ? open[best.j]!.slice().reverse()
+          : open[best.j]!;
+        const joined: [number, number][] =
+          best.gap > 1e-9 ? a.concat(b) : a.concat(b.slice(1));
+        open[best.i] = joined;
+        open.splice(best.j, 1);
+      }
+    }
+    const loops: { points: [number, number][]; area: number }[] = closed
+      .filter((p: [number, number][]): boolean => p.length >= 3)
+      .map(
+        (
+          points: [number, number][],
+        ): { points: [number, number][]; area: number } => ({
+          points,
+          area: Math.abs(shoelace(points)),
+        }),
+      );
+    loops.sort(
+      (x: { area: number }, y: { area: number }): number => y.area - x.area,
+    );
+    const outer: IAutoMovieMeshSectionChain[] = [];
+    for (let k: number = 0; k < loops.length; ++k) {
+      const probe: [number, number] = loops[k]!.points[0]!;
+      let inside: boolean = false;
+      for (let m: number = 0; m < loops.length && !inside; ++m)
+        if (
+          m !== k &&
+          loops[m]!.area >= loops[k]!.area &&
+          contains(loops[m]!.points, probe)
+        )
+          inside = true;
+      if (!inside) outer.push({ points: loops[k]!.points, closed: true });
+    }
+    return { outer, gaps, unclosed: open.length };
+  }
+
+  /** The signed shoelace area of a closed polygon, positive counter-clockwise. */
+  function shoelace(points: readonly (readonly [number, number])[]): number {
+    let out: number = 0;
+    for (let i: number = 0; i < points.length; ++i) {
+      const p: readonly [number, number] = points[i]!;
+      const q: readonly [number, number] = points[(i + 1) % points.length]!;
+      out += (p[0] * q[1] - q[0] * p[1]) / 2;
+    }
+    return out;
+  }
+
+  /** Even-odd point-in-polygon by a ray along +x. */
+  function contains(
+    polygon: readonly (readonly [number, number])[],
+    p: readonly [number, number],
+  ): boolean {
+    let inside: boolean = false;
+    for (
+      let i: number = 0, j: number = polygon.length - 1;
+      i < polygon.length;
+      j = i++
+    ) {
+      const a: readonly [number, number] = polygon[i]!;
+      const b: readonly [number, number] = polygon[j]!;
+      if (
+        a[1] > p[1] !== b[1] > p[1] &&
+        p[0] < ((b[0] - a[0]) * (p[1] - a[1])) / (b[1] - a[1]) + a[0]
+      )
+        inside = !inside;
+    }
+    return inside;
+  }
+
+  /**
    * A loop normalised to the unit clock: knot clocks from 0, points, and
    * tangents per clock unit.
    */
@@ -949,35 +978,6 @@ export namespace AutoMovieMeshExtract {
       [mix(b1, 0) / h, mix(b1, 1) / h],
       [mix(b2, 0) / (h * h), mix(b2, 1) / (h * h)],
     ];
-  }
-
-  /**
-   * The cubic Hermite through (s0, v0, m0) and (s1, v1, m1) at s: the span
-   * every knot pair of {@link reduce} and, per coordinate, of {@link reduceLoop}
-   * defines.
-   *
-   * @param s0 Start station.
-   * @param v0 Start value.
-   * @param m0 Start slope.
-   * @param s1 End station, different from `s0`.
-   * @param v1 End value.
-   * @param m1 End slope.
-   * @param s Station to read.
-   * @returns The span's value at `s`; outside `[s0, s1]` the same cubic
-   *   extended.
-   */
-  export function hermite(
-    s0: number,
-    v0: number,
-    m0: number,
-    s1: number,
-    v1: number,
-    m1: number,
-    s: number,
-  ): number {
-    const h: number = s1 - s0;
-    const [h00, h10, h01, h11] = basis((s - s0) / h);
-    return h00 * v0 + h10 * h * m0 + h01 * v1 + h11 * h * m1;
   }
 
   /**

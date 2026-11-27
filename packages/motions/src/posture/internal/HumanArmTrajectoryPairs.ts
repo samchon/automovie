@@ -18,30 +18,6 @@ import { HumanArmTrajectoryOverlap } from "./HumanArmTrajectoryOverlap";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanAuditModel } from "./HumanAuditModel";
 
-/** The record of `IRelativeResult`'s site. */
-type IRelativeResult = { point: IAutoMovieVector3; turn: IAutoMovieQuaternion };
-
-/** The record of `ILocatedRotation`'s site. */
-type ILocatedRotation = { rotation?: IAutoMovieQuaternion };
-
-/** The alternatives of `LocatedPlaced`'s site. */
-type LocatedPlaced = (arm: number) => IAutoMovieMotionHumanArmGeometry.IPlaced;
-
-/** The record of `ILocatedOn`'s site. */
-type ILocatedOn = {
-  /** Index of the arm carrying the site at this waypoint. */
-  arm: number;
-
-  /** Its rigid segment carrying the site. */
-  owner: LocatedOnOwner;
-
-  /** That segment's actual world origin, metres. */
-  origin: IAutoMovieVector3;
-};
-
-/** The alternatives of `LocatedOnOwner`'s site. */
-type LocatedOnOwner = "upper" | "lower" | "hand";
-
 /**
  * What the arm trajectory reads at one waypoint (`HumanArmTrajectoryModel`):
  * each segment's deepest collider probe against the body and another body, the
@@ -452,3 +428,27 @@ export namespace HumanArmTrajectoryPairs {
     return { x: (q.x / s) * theta, y: (q.y / s) * theta, z: (q.z / s) * theta };
   }
 }
+
+/** The record of `IRelativeResult`'s site. */
+type IRelativeResult = { point: IAutoMovieVector3; turn: IAutoMovieQuaternion };
+
+/** The record of `ILocatedRotation`'s site. */
+type ILocatedRotation = { rotation?: IAutoMovieQuaternion };
+
+/** The alternatives of `LocatedPlaced`'s site. */
+type LocatedPlaced = (arm: number) => IAutoMovieMotionHumanArmGeometry.IPlaced;
+
+/** The record of `ILocatedOn`'s site. */
+type ILocatedOn = {
+  /** Index of the arm carrying the site at this waypoint. */
+  arm: number;
+
+  /** Its rigid segment carrying the site. */
+  owner: LocatedOnOwner;
+
+  /** That segment's actual world origin, metres. */
+  origin: IAutoMovieVector3;
+};
+
+/** The alternatives of `LocatedOnOwner`'s site. */
+type LocatedOnOwner = "upper" | "lower" | "hand";

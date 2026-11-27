@@ -11,14 +11,6 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import type { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspReach } from "./HumanGraspReach";
 
-/** The record of `ITurnsPrevious`'s site. */
-type ITurnsPrevious = {
-  turn: number;
-  alignment: IAutoMovieQuaternion;
-  tilt: ReturnType<typeof Quaternion.prepareAxisAngle>;
-  point: IAutoMovieVector3;
-};
-
 /**
  * The wrist goal that lays a hand's grip socket on a grasp target: the grip
  * frame aligned with the target's approach and wrapped axis, tilted about the
@@ -100,6 +92,14 @@ export namespace HumanGraspHand {
     };
   }
 }
+
+/** The record of `ITurnsPrevious`'s site. */
+type ITurnsPrevious = {
+  turn: number;
+  alignment: IAutoMovieQuaternion;
+  tilt: ReturnType<typeof Quaternion.prepareAxisAngle>;
+  point: IAutoMovieVector3;
+};
 
 /** A hand's body-local grasp geometry. */
 interface IHand {

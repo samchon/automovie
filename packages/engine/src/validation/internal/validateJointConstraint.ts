@@ -7,12 +7,6 @@ import {
 
 import { swingConeAngle } from "../../rom/internal/swingConeAngle";
 
-const CONSTRAINT_AXES: readonly ["flexion", "abduction", "twist"] = [
-  "flexion",
-  "abduction",
-  "twist",
-] as const;
-
 /**
  * Check finite ordered degree intervals and whether the admitted
  * flexion/abduction box reaches the declared swing cone.
@@ -96,6 +90,12 @@ export function validateJointConstraint(
     }
   }
 }
+
+const CONSTRAINT_AXES: readonly ["flexion", "abduction", "twist"] = [
+  "flexion",
+  "abduction",
+  "twist",
+] as const;
 
 /**
  * A continuous half-angle cosine reaches its extrema at endpoints or angles

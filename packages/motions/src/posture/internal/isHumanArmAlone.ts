@@ -4,9 +4,6 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-/** The alternatives of `IsHumanArmAloneOther`'s site. */
-type IsHumanArmAloneOther = "leftArm" | "rightArm";
-
 /**
  * Whether an arm is the last limb a posture's solve fits and fits alone: the
  * other arm has no goal and no leg's goal rides a bone of this arm.
@@ -39,3 +36,6 @@ export function isHumanArmAlone(
   }
   return true;
 }
+
+/** The alternatives of `IsHumanArmAloneOther`'s site. */
+type IsHumanArmAloneOther = "leftArm" | "rightArm";

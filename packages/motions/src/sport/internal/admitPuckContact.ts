@@ -17,12 +17,6 @@ import { HumanPropHold } from "../../perform/internal/HumanPropHold";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/** A puck blade's world up before its fitted rotation. */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/** Ball-strike contact allowance reused from the 15 mm instep verification. */
-const PUCK_CONTACT_ALLOWANCE: number = 0.015;
-
 /**
  * Reconstruct the finite ice blade face from the fitted grip sockets at closure
  * and impact. The nominal shaft frame can remain inside both arm lengths even
@@ -127,3 +121,9 @@ export function admitPuckContact(
       fix: "place the performer and stick so the blade's working face points along the pass",
     });
 }
+
+/** A puck blade's world up before its fitted rotation. */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/** Ball-strike contact allowance reused from the 15 mm instep verification. */
+const PUCK_CONTACT_ALLOWANCE: number = 0.015;

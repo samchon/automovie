@@ -6,15 +6,6 @@ import {
 
 import { gaitMotion } from "./gaitMotion";
 
-function assertUniqueProfileGaitNames(gaits: readonly IAutoMovieGait[]): void {
-  const seen: Set<string> = new Set<string>();
-  for (const gait of gaits) {
-    if (seen.has(gait.name))
-      throw new Error(`duplicate profile gait name ${gait.name}`);
-    seen.add(gait.name);
-  }
-}
-
 /**
  * Synthesize each uniquely named profile gait into a clip targeting the
  * supplied skeleton id, keyed by the exact gait name; absent gaits yield an
@@ -37,4 +28,13 @@ export function bindProfileGaits(
       configurable: true,
     });
   return clips;
+}
+
+function assertUniqueProfileGaitNames(gaits: readonly IAutoMovieGait[]): void {
+  const seen: Set<string> = new Set<string>();
+  for (const gait of gaits) {
+    if (seen.has(gait.name))
+      throw new Error(`duplicate profile gait name ${gait.name}`);
+    seen.add(gait.name);
+  }
 }

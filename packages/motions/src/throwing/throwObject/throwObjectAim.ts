@@ -24,57 +24,6 @@ import { throwObjectForm } from "./throwObjectForm";
 import { throwObjectLever } from "./throwObjectLever";
 import { throwObjectRelease } from "./throwObjectRelease";
 
-/** The throw's world-space places, stance and solved release. */
-interface IThrowObjectAim {
-  /** The entry probe frame from which the throw's places are measured. */
-  frame: IAutoMovieMotionHumanFrame;
-
-  /** The chamber grip point, in world metres. */
-  chamber: IAutoMovieVector3;
-
-  /** The follow-through grip point, in world metres. */
-  finish: IAutoMovieVector3;
-
-  /** The resolved target, in world metres. */
-  target: IAutoMovieVector3;
-
-  /** The unit direction toward the target across the floor. */
-  toward: IAutoMovieVector3;
-
-  /** World up, used to orient the grip. */
-  up: IAutoMovieVector3;
-
-  /** The optional style-specific stance, also used by the trunk primitive. */
-  stance: ReturnType<typeof precisionThrow.stance>;
-
-  /** The grip point at release, in world metres. */
-  release: IAutoMovieVector3;
-
-  /**
-   * The optional authored implement used to transfer the grip's motion to the
-   * projectile.
-   */
-  implement: IAutoMovieMotionHumanThrowObjectLever.IImplement | undefined;
-
-  /** The released point, its velocity and the grip's share of the launch. */
-  lever: throwObjectLever.ILever;
-
-  /** The hand velocity carried through release, in world metres per second. */
-  velocity: IAutoMovieVector3;
-
-  /**
-   * The acceleration phase duration, in seconds, including the carry to
-   * release.
-   */
-  accelerate: number;
-
-  /** The grip point immediately before the release carry, in world metres. */
-  before: IAutoMovieVector3;
-
-  /** The grip point immediately after the release carry, in world metres. */
-  after: IAutoMovieVector3;
-}
-
 /**
  * Resolve the throw's chamber, finish, grip release and launch.
  *
@@ -222,4 +171,55 @@ export function throwObjectAim(
     before,
     after,
   };
+}
+
+/** The throw's world-space places, stance and solved release. */
+interface IThrowObjectAim {
+  /** The entry probe frame from which the throw's places are measured. */
+  frame: IAutoMovieMotionHumanFrame;
+
+  /** The chamber grip point, in world metres. */
+  chamber: IAutoMovieVector3;
+
+  /** The follow-through grip point, in world metres. */
+  finish: IAutoMovieVector3;
+
+  /** The resolved target, in world metres. */
+  target: IAutoMovieVector3;
+
+  /** The unit direction toward the target across the floor. */
+  toward: IAutoMovieVector3;
+
+  /** World up, used to orient the grip. */
+  up: IAutoMovieVector3;
+
+  /** The optional style-specific stance, also used by the trunk primitive. */
+  stance: ReturnType<typeof precisionThrow.stance>;
+
+  /** The grip point at release, in world metres. */
+  release: IAutoMovieVector3;
+
+  /**
+   * The optional authored implement used to transfer the grip's motion to the
+   * projectile.
+   */
+  implement: IAutoMovieMotionHumanThrowObjectLever.IImplement | undefined;
+
+  /** The released point, its velocity and the grip's share of the launch. */
+  lever: throwObjectLever.ILever;
+
+  /** The hand velocity carried through release, in world metres per second. */
+  velocity: IAutoMovieVector3;
+
+  /**
+   * The acceleration phase duration, in seconds, including the carry to
+   * release.
+   */
+  accelerate: number;
+
+  /** The grip point immediately before the release carry, in world metres. */
+  before: IAutoMovieVector3;
+
+  /** The grip point immediately after the release carry, in world metres. */
+  after: IAutoMovieVector3;
 }

@@ -10,12 +10,6 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { ProjectileDragFlightImplementation } from "./ProjectileDragFlightImplementation";
 
-/** A projectile model faces +Z; a velocity attitude turns that onto the flight. */
-const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
-
-/** The identity rotation, a launch rotation left unstated. */
-const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-
 /**
  * Evaluate a {@link IAutoMovieProjectile} at time `t` seconds. Without drag, the
  * closed form with no integration error: `p = origin + v·t + ½·g·t²`, `v(t) =
@@ -65,3 +59,9 @@ export function projectileAt(
       return { ...state, rotation: p.attitude.rotation ?? IDENTITY };
   }
 }
+
+/** A projectile model faces +Z; a velocity attitude turns that onto the flight. */
+const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
+
+/** The identity rotation, a launch rotation left unstated. */
+const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };

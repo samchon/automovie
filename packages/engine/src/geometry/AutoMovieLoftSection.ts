@@ -16,24 +16,6 @@ import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
 import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
 
-/**
- * Both primal weights survive rounding independently; the last two are
- * native-weight derivatives.
- */
-type Weight = readonly [number, number, number, number];
-
-/** An actual complete endpoint family, already expressed in the receiver. */
-type Family = IAutoMovieLoftSectionSource.IEndpoint["field"];
-
-/** One admitted explicit station owner or genuine legacy absence. */
-type Owner =
-  | { kind: "family"; field: Family }
-  | { kind: "source"; data: IAutoMovieLoftSectionSource.ISource["data"] }
-  | {
-      kind: "span";
-      span: Exclude<IAutoMovieLoftSectionConnect.ISpan, { kind: "basis" }>;
-    };
-
 /** Local station plans of explicit source and continuation generating fields. */
 export namespace AutoMovieLoftSection {
   /**
@@ -167,6 +149,24 @@ export namespace AutoMovieLoftSection {
       product(native(phi), AutoMovieLoftSectionLegacy.jet(basis, phi), w);
   }
 }
+
+/**
+ * Both primal weights survive rounding independently; the last two are
+ * native-weight derivatives.
+ */
+type Weight = readonly [number, number, number, number];
+
+/** An actual complete endpoint family, already expressed in the receiver. */
+type Family = IAutoMovieLoftSectionSource.IEndpoint["field"];
+
+/** One admitted explicit station owner or genuine legacy absence. */
+type Owner =
+  | { kind: "family"; field: Family }
+  | { kind: "source"; data: IAutoMovieLoftSectionSource.ISource["data"] }
+  | {
+      kind: "span";
+      span: Exclude<IAutoMovieLoftSectionConnect.ISpan, { kind: "basis" }>;
+    };
 
 /**
  * Validate explicit original ownership before choosing its actual changed-span

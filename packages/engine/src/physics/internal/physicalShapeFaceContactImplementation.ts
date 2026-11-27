@@ -164,16 +164,6 @@ function partition(
 /** Face-space upward normal and height axis. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** One boundary in the face plane and its inward normal. */
-interface ISide {
-  /** The edge start in the face plane. */
-  a: IAutoMovieVector3;
-  /** The edge end in the face plane. */
-  b: IAutoMovieVector3;
-  /** The edge's unit inward direction. */
-  inward: IAutoMovieVector3;
-}
-
 /** Read nonzero polygon edges and orient them toward the interior. */
 function polygon(outline: readonly IAutoMovieVector3[]): ISide[] {
   let twice: number = 0;
@@ -426,6 +416,7 @@ function roundPrism(
   }
   return { point: project(found.point), clearance: hi };
 }
+
 /** Internal implementations shared by the one-function entry modules. */
 /** Internal typed runtime implementations shared by the query entry modules. */
 export const physicalShapeFaceContactImplementation: {
@@ -435,3 +426,12 @@ export const physicalShapeFaceContactImplementation: {
   physicalShapeFaceContact,
   physicalShapeFaceContactPrepare,
 };
+/** One boundary in the face plane and its inward normal. */
+interface ISide {
+  /** The edge start in the face plane. */
+  a: IAutoMovieVector3;
+  /** The edge end in the face plane. */
+  b: IAutoMovieVector3;
+  /** The edge's unit inward direction. */
+  inward: IAutoMovieVector3;
+}

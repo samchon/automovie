@@ -15,14 +15,6 @@ import { AutoMovieMotionMeeting } from "../../compose/internal/AutoMovieMotionMe
 import { poseBones } from "../../posture/internal/poseBones";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
-/** The record of `IReaderContext`'s site. */
-type IReaderContext = { start: number };
-
-/** The alternatives of `ReaderPartner`'s site. */
-type ReaderPartner =
-  | IAutoMovieMotionHumanActionContext.IPartner
-  | readonly IAutoMovieMotionHumanActionContext.IPartner[];
-
 /**
  * The action context's meeting reader (`IHumanActionContext.meeting`): one
  * record per meeting, computed by the role planned first from where every role
@@ -162,3 +154,11 @@ export namespace HumanPerformanceMeeting {
     );
   }
 }
+
+/** The record of `IReaderContext`'s site. */
+type IReaderContext = { start: number };
+
+/** The alternatives of `ReaderPartner`'s site. */
+type ReaderPartner =
+  | IAutoMovieMotionHumanActionContext.IPartner
+  | readonly IAutoMovieMotionHumanActionContext.IPartner[];

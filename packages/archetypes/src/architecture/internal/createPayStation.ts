@@ -5,17 +5,6 @@ import { type AutoMovieArchetype } from "../../core/index";
 import { ServiceCabinet } from "./ServiceCabinet";
 
 /**
- * A pay station's head on its body, metres: the StradaPAL's 90 mm spacer and
- * its 475 x 226 x 379 mm top.
- */
-const HEAD: Readonly<{
-  spacer: number;
-  width: number;
-  height: number;
-  depth: number;
-}> = { spacer: 0.09, width: 0.475, height: 0.226, depth: 0.379 };
-
-/**
  * A parking pay station with a raised control head, a front contact and a side
  * contact.
  *
@@ -58,3 +47,14 @@ export function createPayStation(
   ServiceCabinet.faces(cabinet);
   return cabinet.builder.build(cabinet.mass);
 }
+
+/**
+ * A pay station's head on its body, metres: the StradaPAL's 90 mm spacer and
+ * its 475 x 226 x 379 mm top.
+ */
+const HEAD: Readonly<{
+  spacer: number;
+  width: number;
+  height: number;
+  depth: number;
+}> = { spacer: 0.09, width: 0.475, height: 0.226, depth: 0.379 };

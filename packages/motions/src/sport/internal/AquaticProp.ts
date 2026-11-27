@@ -17,9 +17,6 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 
-/** The alternatives of `ContactWorld`'s site. */
-type ContactWorld = "translation" | "rotation";
-
 /**
  * Live small-craft contacts for grips which ride a prop or its articulated
  * parts.
@@ -184,3 +181,6 @@ export namespace AquaticProp {
     };
   }
 }
+
+/** The alternatives of `ContactWorld`'s site. */
+type ContactWorld = "translation" | "rotation";

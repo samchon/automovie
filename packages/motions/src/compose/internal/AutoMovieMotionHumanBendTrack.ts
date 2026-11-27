@@ -13,11 +13,6 @@ import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanBendWalk } from "./AutoMovieMotionHumanBendWalk";
 
-/** The alternatives of `PropsFallback`'s site. */
-type PropsFallback =
-  | IAutoMovieMotionHumanBend.Arm
-  | IAutoMovieMotionHumanBend.IShares;
-
 /**
  * Make a primitive's elbow track.
  *
@@ -205,13 +200,18 @@ export namespace AutoMovieMotionHumanBendTrack {
 }
 
 /**
- * A search's candidate with the seed it was chosen at
- * (`AutoMovieMotionHumanBendSearch.continued`'s result when there is one).
- */
-type ISolved = AutoMovieMotionHumanBendWalk.ISolved;
-
-/**
  * The knots' spacing, seconds: the frame grid the planner's holds are sampled
  * on (`AutoMovieMotionHumanArmCourse.STEP`).
  */
 const STEP: number = AutoMovieMotionHumanArmCourse.STEP;
+
+/** The alternatives of `PropsFallback`'s site. */
+type PropsFallback =
+  | IAutoMovieMotionHumanBend.Arm
+  | IAutoMovieMotionHumanBend.IShares;
+
+/**
+ * A search's candidate with the seed it was chosen at
+ * (`AutoMovieMotionHumanBendSearch.continued`'s result when there is one).
+ */
+type ISolved = AutoMovieMotionHumanBendWalk.ISolved;

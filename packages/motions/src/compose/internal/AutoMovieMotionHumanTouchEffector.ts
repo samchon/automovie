@@ -15,12 +15,6 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/** The alternatives of `PointBonesEntry`'s site. */
-type PointBonesEntry = "worldPosition" | "worldRotation";
-
-/** The alternatives of `LocalItem`'s site. */
-type LocalItem = "fingers" | "palm" | "thumb";
-
 /**
  * What touches in a touch: a hand surface, or the tip of a tool the hand holds,
  * stated in the hand's anatomical axes (where the fingers point, where the palm
@@ -335,6 +329,12 @@ export namespace AutoMovieMotionHumanTouchEffector {
     };
   }
 }
+
+/** The alternatives of `PointBonesEntry`'s site. */
+type PointBonesEntry = "worldPosition" | "worldRotation";
+
+/** The alternatives of `LocalItem`'s site. */
+type LocalItem = "fingers" | "palm" | "thumb";
 
 /**
  * How far a held cylinder's axis leans from the thumb's toward the fingers,

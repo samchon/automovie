@@ -11,9 +11,6 @@ import { getUp } from "../../floor/internal/getUp";
 import { treeClimbRouteForms } from "./treeClimbRouteForms";
 import { treeLimbs } from "./treeLimbs";
 
-/** The alternatives of `HoldKind`'s site. */
-type HoldKind = "bear" | "grip";
-
 /**
  * A tree climb's stances on staged points of the tree, one hand or foot moving
  * at a time: the route up grips the lowest branch from the ground, walks the
@@ -429,3 +426,6 @@ export namespace treeClimbRoute {
     ];
   }
 }
+
+/** The alternatives of `HoldKind`'s site. */
+type HoldKind = "bear" | "grip";

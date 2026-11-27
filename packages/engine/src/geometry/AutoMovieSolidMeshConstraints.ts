@@ -5,18 +5,6 @@ import type {
 
 import { orientAutoMovieSolidChart } from "./construction/internal/orientAutoMovieSolidChart";
 
-/** One indexed point in the universal cover of a periodic chart. */
-interface Cut {
-  /** Original shared vertex identity. */
-  id: number;
-
-  /** Integer period added to that vertex's stored phase. */
-  turn: number;
-
-  /** Representable lifted coordinates for predicates and ordering only. */
-  point: Readonly<AutoMovieVector2Tuple>;
-}
-
 /**
  * Partition existing indexed chart constraints without inventing or welding a
  * point.
@@ -259,6 +247,18 @@ export namespace AutoMovieSolidMeshConstraints {
       }
     return edges;
   }
+}
+
+/** One indexed point in the universal cover of a periodic chart. */
+interface Cut {
+  /** Original shared vertex identity. */
+  id: number;
+
+  /** Integer period added to that vertex's stored phase. */
+  turn: number;
+
+  /** Representable lifted coordinates for predicates and ordering only. */
+  point: Readonly<AutoMovieVector2Tuple>;
 }
 
 /**

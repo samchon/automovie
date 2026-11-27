@@ -59,19 +59,6 @@ export namespace EquineFootwork {
     advance: number;
   }
 
-  /**
-   * An admitted slide interval with its terminal stop already fixed by the
-   * route.
-   */
-  interface ISlide {
-    /** Slide entry begins at this film second, on the original route. */
-    from: number;
-    /** Both hind feet reach their authored slide targets at this film second. */
-    contact: number;
-    /** Model-space offset of the two hind footprints, metres. */
-    advance: number;
-  }
-
   /** Admit a reusable individual film-footwork plan and its authored timed cues. */
   export interface IPlan {
     /**
@@ -447,5 +434,18 @@ export namespace EquineFootwork {
           placement,
           footing,
         );
+  }
+
+  /**
+   * An admitted slide interval with its terminal stop already fixed by the
+   * route.
+   */
+  interface ISlide {
+    /** Slide entry begins at this film second, on the original route. */
+    from: number;
+    /** Both hind feet reach their authored slide targets at this film second. */
+    contact: number;
+    /** Model-space offset of the two hind footprints, metres. */
+    advance: number;
   }
 }

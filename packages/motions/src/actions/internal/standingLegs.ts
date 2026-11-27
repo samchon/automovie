@@ -9,21 +9,6 @@ import type {
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/** The record of `IFixedEntryItem`'s site. */
-type IFixedEntryItem = {
-  /** The fixed toe-out heading in degrees. */
-  yaw: number;
-
-  /** The heading quaternion prepared from the same yaw and toe-out. */
-  rotation: IAutoMovieQuaternion;
-
-  /** The unchanged body's local metatarsophalangeal offset, metres. */
-  contact: IAutoMovieVector3;
-
-  /** Original nested knee-frame transforms with only the root varying. */
-  knee: (root: IAutoMovieVector3) => IAutoMovieVector3;
-};
-
 /**
  * Write the standing law's planted leg goals, either directly for one query or
  * with its fixed-yaw foot metadata supplied by prepareStandingLegs.
@@ -78,3 +63,18 @@ export function standingLegs(
   }
   return limbs;
 }
+
+/** The record of `IFixedEntryItem`'s site. */
+type IFixedEntryItem = {
+  /** The fixed toe-out heading in degrees. */
+  yaw: number;
+
+  /** The heading quaternion prepared from the same yaw and toe-out. */
+  rotation: IAutoMovieQuaternion;
+
+  /** The unchanged body's local metatarsophalangeal offset, metres. */
+  contact: IAutoMovieVector3;
+
+  /** Original nested knee-frame transforms with only the root varying. */
+  knee: (root: IAutoMovieVector3) => IAutoMovieVector3;
+};

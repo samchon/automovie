@@ -7,35 +7,6 @@ import type {
 import { unionSubjectBoxes } from "../../film/internal/unionSubjectBoxes";
 import { physicalShapeBoundsImplementation } from "../../physics/internal/physicalShapeBoundsImplementation";
 
-/** A finite world box prepared once for this part. */
-interface IPreparedPart {
-  /** Borrowed evaluated geometry and stable path. */
-  source: Collision.IPart;
-  /** Conservative box used only to reject candidate pairs. */
-  bounds: IAutoMovieSubjectBox;
-  /** Native-query precision margin in metres at this coordinate scale. */
-  margin: number;
-}
-
-/** Candidate refinement over parts that share a world envelope. */
-interface IRegion {
-  /** Stable key used to order deterministic refinement. */
-  id: string;
-  /** Union of all conservative part bounds. */
-  bounds: IAutoMovieSubjectBox;
-  /** Prepared members in stable path order. */
-  parts: IPreparedPart[];
-}
-
-/** One independent part or an explicitly managed group. */
-interface IGroup extends IRegion {
-  /**
-   * Narrower envelopes inside this group: null without refinement, undefined
-   * until an external overlap needs them.
-   */
-  regions: IRegion[] | null | undefined;
-}
-
 /**
  * Measure external interpenetration from the film owner's evaluated parts.
  *
@@ -209,6 +180,35 @@ export function measureAutoMovieSceneCollision(
     budgetExhausted,
     compared,
   };
+}
+
+/** A finite world box prepared once for this part. */
+interface IPreparedPart {
+  /** Borrowed evaluated geometry and stable path. */
+  source: Collision.IPart;
+  /** Conservative box used only to reject candidate pairs. */
+  bounds: IAutoMovieSubjectBox;
+  /** Native-query precision margin in metres at this coordinate scale. */
+  margin: number;
+}
+
+/** Candidate refinement over parts that share a world envelope. */
+interface IRegion {
+  /** Stable key used to order deterministic refinement. */
+  id: string;
+  /** Union of all conservative part bounds. */
+  bounds: IAutoMovieSubjectBox;
+  /** Prepared members in stable path order. */
+  parts: IPreparedPart[];
+}
+
+/** One independent part or an explicitly managed group. */
+interface IGroup extends IRegion {
+  /**
+   * Narrower envelopes inside this group: null without refinement, undefined
+   * until an external overlap needs them.
+   */
+  regions: IRegion[] | null | undefined;
 }
 
 /** Prepare one reusable envelope per admitted leaf and group. */

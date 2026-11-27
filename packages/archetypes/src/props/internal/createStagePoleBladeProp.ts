@@ -12,72 +12,6 @@ import { StageShaftConstruction } from "./StageShaftConstruction";
 import type { AutoMovieArchetypeStageWeaponProp } from "../AutoMovieArchetypeStageWeaponProp";
 
 /**
- * A section of the padded outline in the XY plane, normalized by display
- * height.
- */
-type Section = readonly [y: number, left: number, right: number];
-
-/** Adjacent sections and the index of the lower section of the marked edge. */
-interface IBlade {
-  /** Cross sections from shaft to tip. */
-  sections: readonly Section[];
-  /** First of the two sections defining the main edge mark. */
-  edge: number;
-}
-
-/**
- * Digital silhouettes based on the Palace Museum's Qing yanyuedao, Royal
- * Armouries XXVIL.50, and Met 49.120.13. The serpent outline is a screen
- * interpretation of the literary name in Romance of the Three Kingdoms, ch. 1.
- */
-const BLADES: Readonly<Record<AutoMovieArchetypeStagePoleBladeProp.Kind, IBlade>> = {
-  longBlade: {
-    sections: [
-      [0.62, -0.018, 0.018],
-      [0.72, -0.032, 0.032],
-      [0.9, -0.027, 0.027],
-      [1, -0.007, 0.007],
-    ],
-    edge: 1,
-  },
-  crescentBlade: {
-    sections: [
-      [0.62, -0.02, 0.021],
-      [0.75, -0.035, 0.057],
-      [0.88, -0.015, 0.083],
-      [0.96, 0.031, 0.082],
-      [1, 0.062, 0.075],
-    ],
-    edge: 1,
-  },
-  sideBlade: {
-    sections: [
-      [0.69, -0.02, 0.02],
-      [0.855, -0.021, 0.021],
-      [1, -0.007, 0.007],
-    ],
-    edge: 0,
-  },
-  serpentBlade: {
-    sections: [
-      [0.62, -0.016, 0.016],
-      [0.72, -0.042, -0.007],
-      [0.82, -0.014, 0.019],
-      [0.91, 0.007, 0.039],
-      [1, -0.005, 0.008],
-    ],
-    edge: 2,
-  },
-};
-
-/** Side ornament sharing a narrow overlap with the axial blade. */
-const SIDE_BLADE: readonly Section[] = [
-  [0.69, 0.01, 0.09],
-  [0.76, 0.005, 0.102],
-  [0.855, 0.01, 0.075],
-];
-
-/**
  * Padded pole-blade silhouette.
  *
  * Independent stage profiles share a shaft, two actor grip marks and visible
@@ -175,6 +109,72 @@ export function createStagePoleBladeProp(
     },
   );
 }
+
+/**
+ * A section of the padded outline in the XY plane, normalized by display
+ * height.
+ */
+type Section = readonly [y: number, left: number, right: number];
+
+/** Adjacent sections and the index of the lower section of the marked edge. */
+interface IBlade {
+  /** Cross sections from shaft to tip. */
+  sections: readonly Section[];
+  /** First of the two sections defining the main edge mark. */
+  edge: number;
+}
+
+/**
+ * Digital silhouettes based on the Palace Museum's Qing yanyuedao, Royal
+ * Armouries XXVIL.50, and Met 49.120.13. The serpent outline is a screen
+ * interpretation of the literary name in Romance of the Three Kingdoms, ch. 1.
+ */
+const BLADES: Readonly<Record<AutoMovieArchetypeStagePoleBladeProp.Kind, IBlade>> = {
+  longBlade: {
+    sections: [
+      [0.62, -0.018, 0.018],
+      [0.72, -0.032, 0.032],
+      [0.9, -0.027, 0.027],
+      [1, -0.007, 0.007],
+    ],
+    edge: 1,
+  },
+  crescentBlade: {
+    sections: [
+      [0.62, -0.02, 0.021],
+      [0.75, -0.035, 0.057],
+      [0.88, -0.015, 0.083],
+      [0.96, 0.031, 0.082],
+      [1, 0.062, 0.075],
+    ],
+    edge: 1,
+  },
+  sideBlade: {
+    sections: [
+      [0.69, -0.02, 0.02],
+      [0.855, -0.021, 0.021],
+      [1, -0.007, 0.007],
+    ],
+    edge: 0,
+  },
+  serpentBlade: {
+    sections: [
+      [0.62, -0.016, 0.016],
+      [0.72, -0.042, -0.007],
+      [0.82, -0.014, 0.019],
+      [0.91, 0.007, 0.039],
+      [1, -0.005, 0.008],
+    ],
+    edge: 2,
+  },
+};
+
+/** Side ornament sharing a narrow overlap with the axial blade. */
+const SIDE_BLADE: readonly Section[] = [
+  [0.69, 0.01, 0.09],
+  [0.76, 0.005, 0.102],
+  [0.855, 0.01, 0.075],
+];
 
 
 

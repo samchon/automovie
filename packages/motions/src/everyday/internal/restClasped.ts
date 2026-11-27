@@ -16,18 +16,6 @@ import { placeHumanHandSurface } from "../../posture/internal/placeHumanHandSurf
 import { HumanTrunk } from "./HumanTrunk";
 import { restForearm } from "./restForearm";
 
-/** The record of `IFrontGoalsPlace`'s site. */
-type IFrontGoalsPlace = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
-
-/** The record of `IFrontAtResult`'s site. */
-type IFrontAtResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
-
-/** The record of `IFrontAt`'s site. */
-type IFrontAt = {
-  point: IAutoMovieVector3;
-  normal: IAutoMovieVector3;
-};
-
 /**
  * The rest goals of two hands laid one on the other against the trunk: in front
  * of the pelvis or behind it.
@@ -252,6 +240,18 @@ export namespace restClasped {
     };
   }
 }
+
+/** The record of `IFrontGoalsPlace`'s site. */
+type IFrontGoalsPlace = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
+/** The record of `IFrontAtResult`'s site. */
+type IFrontAtResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
+/** The record of `IFrontAt`'s site. */
+type IFrontAt = {
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+};
 
 /** The unit direction a posture faces, world frame. */
 function heading(posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 {

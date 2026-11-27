@@ -14,15 +14,6 @@ import { HUMAN_GRAPPLE_JUDO_GRIP } from "../../next/presets/HUMAN_GRAPPLE_JUDO_G
 import { HUMAN_TOUCH_PARTNER_DANCE_HOLD } from "../../next/presets/HUMAN_TOUCH_PARTNER_DANCE_HOLD";
 import { touch } from "../../touch/internal/touch";
 
-/** The alternatives of `CastEntryItem`'s site. */
-type CastEntryItem = "tori" | "uke";
-
-/** The alternatives of `JudoThrowRole`'s site. */
-type JudoThrowRole = "tori" | "uke";
-
-/** The alternatives of `JudoThrow`'s site. */
-type JudoThrow = "tori" | "uke";
-
 /**
  * Things two people do as partners in sport and dance, each a row of a law
  * whose roles share a stated instant or a meeting. Register the rows a film
@@ -146,3 +137,12 @@ export namespace HumanPartner {
         : { name: "judoBroken", params: { partner: cast.tori } },
   };
 }
+
+/** The alternatives of `CastEntryItem`'s site. */
+type CastEntryItem = "tori" | "uke";
+
+/** The alternatives of `JudoThrowRole`'s site. */
+type JudoThrowRole = "tori" | "uke";
+
+/** The alternatives of `JudoThrow`'s site. */
+type JudoThrow = "tori" | "uke";

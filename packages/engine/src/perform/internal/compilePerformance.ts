@@ -24,6 +24,141 @@ import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinem
 import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 import { bodyRegionBones } from "./bodyRegionBones";
 
+/**
+ * Compile admitted actions through an injected synthesizer into exact
+ * actor-keyed timelines and deterministic region-loss reports. Null synthesis
+ * is skipped; repeat expands one returned cycle, same-region nonoverlapping
+ * actions arrange into lanes, and concurrent lanes layer sampled poses.
+ */
+export function compilePerformance(
+  actions: IAutoMovieActionCall[],
+  synthesize: IAutoMovieActionSynthesizer,
+): IAutoMovieCompiledPerformance {
+  // 1. fan each action to every actor that performs it, grouped by body region
+  const byActor: Map<
+    string,
+    Map<AutoMovieBodyRegion, IAutoMovieRegionPlacement[]>
+  > = new Map<string, Map<AutoMovieBodyRegion, IAutoMovieRegionPlacement[]>>();
+  actions.forEach((action: IAutoMovieActionCall, index: number): void => {
+    const actors: string[] =
+      typeof action.actor === "string" ? [action.actor] : action.actor;
+    for (const actor of actors) {
+      const base: IAutoMovieMotion | null = synthesize(action, actor);
+      if (base === null) continue; // no motion for this actor, skip
+
+      // 2. repeat: concatenate the base cycle N times within the action's span
+      const cycles: number =
+        action.repeat !== undefined && action.repeat > 1 ? action.repeat : 1;
+      const motion: IAutoMovieMotion =
+        cycles > 1
+          ? sequenceMotion(
+              `${base.id}:x${cycles}`,
+              Array.from({ length: cycles }, (): IAutoMovieMotion => base),
+            )
+          : base;
+
+      const region: AutoMovieBodyRegion = AutoMovieEngineKinematics.actionRegion(action);
+      const regions: Map<AutoMovieBodyRegion, IAutoMovieRegionPlacement[]> =
+        byActor.get(actor) ??
+        new Map<AutoMovieBodyRegion, IAutoMovieRegionPlacement[]>();
+      const placements: IAutoMovieRegionPlacement[] = regions.get(region) ?? [];
+      placements.push({ start: action.start, motion, action: index });
+      regions.set(region, placements);
+      byActor.set(actor, regions);
+    }
+  });
+
+  // 3. Per actor, arrange non-overlapping placements into region lanes, then
+  // layer every lane. Most regions need one lane. Content-disjoint actions may
+  // overlap under the same broad region, though, and a second lane preserves
+  // both instead of making arrangeMotion truncate one by timestamp.
+  const performances: Record<string, IAutoMovieMotion> = {};
+  const masked: IAutoMovieMaskedContent[] = [];
+  for (const [actor, regions] of byActor) {
+    const layered: boolean = regions.size > 1;
+    const regionClips: IAutoMovieMotion[] = [...regions.entries()].flatMap(
+      ([region, placements]: [
+        AutoMovieBodyRegion,
+        IAutoMovieRegionPlacement[],
+      ]): IAutoMovieMotion[] => {
+        const keepRoot: boolean = !layered || ROOT_REGIONS.has(region);
+        const lanes: Array<{
+          end: number;
+          placements: IAutoMoviePlacement[];
+        }> = [];
+        for (const placement of [...placements].sort(
+          (
+            a: IAutoMovieRegionPlacement,
+            b: IAutoMovieRegionPlacement,
+          ): number => a.start - b.start || a.action - b.action,
+        )) {
+          const trimmed: IAutoMovieMaskedChannels & {
+            motion: IAutoMovieMotion;
+          } = maskMotionToRegion(placement.motion, region, keepRoot);
+          if (maskedAnything(trimmed))
+            masked.push({
+              action: placement.action,
+              actor,
+              region,
+              bones: trimmed.bones,
+              root: trimmed.root,
+              expression: trimmed.expression,
+            });
+          const item: { start: number; motion: IAutoMovieMotion } = {
+            start: placement.start,
+            motion: trimmed.motion,
+          };
+          const lane:
+            | { end: number; placements: IAutoMoviePlacement[] }
+            | undefined = lanes.find(
+            (candidate: {
+              end: number;
+              placements: IAutoMoviePlacement[];
+            }): boolean => candidate.end <= item.start + 1e-9,
+          );
+          if (lane === undefined)
+            lanes.push({
+              end: item.start + item.motion.duration,
+              placements: [item],
+            });
+          else {
+            lane.placements.push(item);
+            lane.end = item.start + item.motion.duration;
+          }
+        }
+        return lanes.map(
+          (
+            lane: { end: number; placements: IAutoMoviePlacement[] },
+            index: number,
+          ): IAutoMovieMotion =>
+            arrangeMotion(
+              `perform:${actor}:${region}:${index}`,
+              lane.placements,
+            ),
+        );
+      },
+    );
+    Object.defineProperty(performances, actor, {
+      value: padRestLeadIn(
+        regionClips.length === 1
+          ? { ...regionClips[0]!, id: `perform:${actor}` }
+          : layerClips(`perform:${actor}`, regionClips),
+      ),
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    });
+  }
+  // Action order first, then actor, so the report reads in the order the author
+  // wrote the shot rather than in Map-insertion order.
+  masked.sort(
+    (a: IAutoMovieMaskedContent, b: IAutoMovieMaskedContent): number =>
+      a.action - b.action ||
+      AutoMovieEngineText.compareCodeUnits(a.actor, b.actor),
+  );
+  return { performances, masked };
+}
+
 const ROOT_REGIONS: Set<AutoMovieBodyRegion> = new Set<AutoMovieBodyRegion>([
   "lowerBody",
   "fullBody",
@@ -276,139 +411,4 @@ function padRestLeadIn(motion: IAutoMovieMotion): IAutoMovieMotion {
       ...motion.keyframes,
     ],
   };
-}
-
-/**
- * Compile admitted actions through an injected synthesizer into exact
- * actor-keyed timelines and deterministic region-loss reports. Null synthesis
- * is skipped; repeat expands one returned cycle, same-region nonoverlapping
- * actions arrange into lanes, and concurrent lanes layer sampled poses.
- */
-export function compilePerformance(
-  actions: IAutoMovieActionCall[],
-  synthesize: IAutoMovieActionSynthesizer,
-): IAutoMovieCompiledPerformance {
-  // 1. fan each action to every actor that performs it, grouped by body region
-  const byActor: Map<
-    string,
-    Map<AutoMovieBodyRegion, IAutoMovieRegionPlacement[]>
-  > = new Map<string, Map<AutoMovieBodyRegion, IAutoMovieRegionPlacement[]>>();
-  actions.forEach((action: IAutoMovieActionCall, index: number): void => {
-    const actors: string[] =
-      typeof action.actor === "string" ? [action.actor] : action.actor;
-    for (const actor of actors) {
-      const base: IAutoMovieMotion | null = synthesize(action, actor);
-      if (base === null) continue; // no motion for this actor, skip
-
-      // 2. repeat: concatenate the base cycle N times within the action's span
-      const cycles: number =
-        action.repeat !== undefined && action.repeat > 1 ? action.repeat : 1;
-      const motion: IAutoMovieMotion =
-        cycles > 1
-          ? sequenceMotion(
-              `${base.id}:x${cycles}`,
-              Array.from({ length: cycles }, (): IAutoMovieMotion => base),
-            )
-          : base;
-
-      const region: AutoMovieBodyRegion = AutoMovieEngineKinematics.actionRegion(action);
-      const regions: Map<AutoMovieBodyRegion, IAutoMovieRegionPlacement[]> =
-        byActor.get(actor) ??
-        new Map<AutoMovieBodyRegion, IAutoMovieRegionPlacement[]>();
-      const placements: IAutoMovieRegionPlacement[] = regions.get(region) ?? [];
-      placements.push({ start: action.start, motion, action: index });
-      regions.set(region, placements);
-      byActor.set(actor, regions);
-    }
-  });
-
-  // 3. Per actor, arrange non-overlapping placements into region lanes, then
-  // layer every lane. Most regions need one lane. Content-disjoint actions may
-  // overlap under the same broad region, though, and a second lane preserves
-  // both instead of making arrangeMotion truncate one by timestamp.
-  const performances: Record<string, IAutoMovieMotion> = {};
-  const masked: IAutoMovieMaskedContent[] = [];
-  for (const [actor, regions] of byActor) {
-    const layered: boolean = regions.size > 1;
-    const regionClips: IAutoMovieMotion[] = [...regions.entries()].flatMap(
-      ([region, placements]: [
-        AutoMovieBodyRegion,
-        IAutoMovieRegionPlacement[],
-      ]): IAutoMovieMotion[] => {
-        const keepRoot: boolean = !layered || ROOT_REGIONS.has(region);
-        const lanes: Array<{
-          end: number;
-          placements: IAutoMoviePlacement[];
-        }> = [];
-        for (const placement of [...placements].sort(
-          (
-            a: IAutoMovieRegionPlacement,
-            b: IAutoMovieRegionPlacement,
-          ): number => a.start - b.start || a.action - b.action,
-        )) {
-          const trimmed: IAutoMovieMaskedChannels & {
-            motion: IAutoMovieMotion;
-          } = maskMotionToRegion(placement.motion, region, keepRoot);
-          if (maskedAnything(trimmed))
-            masked.push({
-              action: placement.action,
-              actor,
-              region,
-              bones: trimmed.bones,
-              root: trimmed.root,
-              expression: trimmed.expression,
-            });
-          const item: { start: number; motion: IAutoMovieMotion } = {
-            start: placement.start,
-            motion: trimmed.motion,
-          };
-          const lane:
-            | { end: number; placements: IAutoMoviePlacement[] }
-            | undefined = lanes.find(
-            (candidate: {
-              end: number;
-              placements: IAutoMoviePlacement[];
-            }): boolean => candidate.end <= item.start + 1e-9,
-          );
-          if (lane === undefined)
-            lanes.push({
-              end: item.start + item.motion.duration,
-              placements: [item],
-            });
-          else {
-            lane.placements.push(item);
-            lane.end = item.start + item.motion.duration;
-          }
-        }
-        return lanes.map(
-          (
-            lane: { end: number; placements: IAutoMoviePlacement[] },
-            index: number,
-          ): IAutoMovieMotion =>
-            arrangeMotion(
-              `perform:${actor}:${region}:${index}`,
-              lane.placements,
-            ),
-        );
-      },
-    );
-    Object.defineProperty(performances, actor, {
-      value: padRestLeadIn(
-        regionClips.length === 1
-          ? { ...regionClips[0]!, id: `perform:${actor}` }
-          : layerClips(`perform:${actor}`, regionClips),
-      ),
-      enumerable: true,
-      writable: true,
-      configurable: true,
-    });
-  }
-  // Action order first, then actor, so the report reads in the order the author
-  // wrote the shot rather than in Map-insertion order.
-  masked.sort(
-    (a: IAutoMovieMaskedContent, b: IAutoMovieMaskedContent): number =>
-      a.action - b.action ||
-      AutoMovieEngineText.compareCodeUnits(a.actor, b.actor),
-  );
-  return { performances, masked };
 }

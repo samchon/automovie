@@ -13,15 +13,6 @@ import type {
  * admitted at each leaf.
  */
 export namespace AutoMovieConstructionAdmission {
-  /** Structurally produced part leaves and all faces in one admitted subtree. */
-  interface Names {
-    /** Declared or source-supplied part names. */
-    views: Set<string>;
-
-    /** Part and blend face names. */
-    faces: Set<string>;
-  }
-
   /**
    * Admit a tree.
    *
@@ -410,6 +401,15 @@ export namespace AutoMovieConstructionAdmission {
       }
     }
     check(root);
+  }
+
+  /** Structurally produced part leaves and all faces in one admitted subtree. */
+  interface Names {
+    /** Declared or source-supplied part names. */
+    views: Set<string>;
+
+    /** Part and blend face names. */
+    faces: Set<string>;
   }
 
   /** The union of two name sets. */

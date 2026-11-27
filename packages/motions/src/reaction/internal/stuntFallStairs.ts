@@ -26,36 +26,6 @@ import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShape
 import { stuntFallPose } from "./stuntFallPose";
 
 /**
- * Kinetic friction of a body sliding on stair treads, dimensionless
- * (provisional).
- */
-const TUMBLE: number = 0.3;
-
-/**
- * Kinetic friction of a seat sliding down treads, dimensionless (provisional: a
- * controlled slide).
- */
-const SLIDE: number = 0.55;
-
-/**
- * The least speed between contacts, metres per second (provisional: the body
- * keeps going over each nosing).
- */
-const CRAWL: number = 0.4;
-
-/** How far past the last nosing the body comes to rest, metres (provisional). */
-const RUNOUT: number = 0.5;
-
-/**
- * Seconds the body takes to go down from standing onto the flight (provisional:
- * a backward fall's half second and more).
- */
-const FALL: number = 0.6;
-
-/** Seconds the body settles after its last contact (provisional). */
-const SETTLE: number = 0.6;
-
-/**
  * Fall down a staircase from the tread the performer stands on: a tumble on the
  * back and the sides, or a controlled slide on the seat. The body rests on each
  * lower tread's nosing in turn, its lowest part on it, sliding along the flight
@@ -296,6 +266,36 @@ export function stuntFallStairs(
     yields: [],
   };
 }
+
+/**
+ * Kinetic friction of a body sliding on stair treads, dimensionless
+ * (provisional).
+ */
+const TUMBLE: number = 0.3;
+
+/**
+ * Kinetic friction of a seat sliding down treads, dimensionless (provisional: a
+ * controlled slide).
+ */
+const SLIDE: number = 0.55;
+
+/**
+ * The least speed between contacts, metres per second (provisional: the body
+ * keeps going over each nosing).
+ */
+const CRAWL: number = 0.4;
+
+/** How far past the last nosing the body comes to rest, metres (provisional). */
+const RUNOUT: number = 0.5;
+
+/**
+ * Seconds the body takes to go down from standing onto the flight (provisional:
+ * a backward fall's half second and more).
+ */
+const FALL: number = 0.6;
+
+/** Seconds the body settles after its last contact (provisional). */
+const SETTLE: number = 0.6;
 
 /** A stair tread in world metres. */
 interface ITread {

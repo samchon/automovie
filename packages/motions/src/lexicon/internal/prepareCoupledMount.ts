@@ -283,13 +283,6 @@ function admittedFit(
   );
 }
 
-/** A chosen material anchor and the ankle it holds at the seed rotation. */
-interface IAnchor {
-  side: AutoMovieHumanSide;
-  frame: IAutoMovieRigidTransform;
-  ankle: IAutoMovieRigidTransform;
-}
-
 /** Recover the ankle from the real witness, which can belong to the toes. */
 function prepareAnkle(
   tread: ITread,
@@ -492,14 +485,6 @@ function legOverlap(
   );
 }
 
-interface ITread {
-  side: AutoMovieHumanSide;
-  frame: IAutoMovieRigidTransform;
-  plate: prepareMountTread.IPlate;
-  iron: Parameters<typeof prepareMountTread>[0]["iron"];
-  candidate: prepareMountTread.ICandidate;
-}
-
 /** Prefer the placement with the greatest margin to both ends of its interval. */
 function footprint(
   body: IAutoMovieMotionHumanBody,
@@ -644,4 +629,19 @@ export namespace prepareCoupledMount {
     posture: IAutoMovieMotionHumanPosture;
     feet: Readonly<Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal>>;
   }
+}
+
+/** A chosen material anchor and the ankle it holds at the seed rotation. */
+interface IAnchor {
+  side: AutoMovieHumanSide;
+  frame: IAutoMovieRigidTransform;
+  ankle: IAutoMovieRigidTransform;
+}
+
+interface ITread {
+  side: AutoMovieHumanSide;
+  frame: IAutoMovieRigidTransform;
+  plate: prepareMountTread.IPlate;
+  iron: Parameters<typeof prepareMountTread>[0]["iron"];
+  candidate: prepareMountTread.ICandidate;
 }

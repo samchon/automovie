@@ -10,6 +10,34 @@ import {
 import { ServiceCabinet } from "./ServiceCabinet";
 import type { AutoMovieArchetypeMachine } from "../AutoMovieArchetypeMachine";
 
+/**
+ * A cash machine with a shelf, keypad button, card, cash and receipt sockets
+ * and an exposed touchscreen.
+ *
+ * The shelf and fascia controls retain their measured NCR installation
+ * locations. The cabinet rests on the floor at the origin and faces +Z. The
+ * touchscreen keeps its read height and lies on the cabinet's front face, read
+ * with model `+Y` up: the real screen sits recessed behind the fascia, and the
+ * coarse cabinet box has no recess, so the recess is dropped.
+ *
+ * @param params The scene identifier and any dimensions to fix inside their
+ *   bands.
+ * @param seed The seed for the draws the author leaves open.
+ * @returns The fixed model with its typed contacts.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the
+ *   selected profile.
+ */
+export function createAtm(
+  params: AutoMovieArchetypeAtm.IParams = {},
+  seed?: number,
+): AutoMovieArchetype<AutoMovieArchetypeAtm.Affordance, AutoMovieArchetypeAtm.Dimension> {
+  const cabinet: ServiceCabinet.ICabinet<AutoMovieArchetypeAtm.Affordance> =
+    ServiceCabinet.begin("atm", "cash machine", "#b3202a", params, seed);
+  fascia(cabinet.builder, cabinet.width, cabinet.depth);
+  ServiceCabinet.faces(cabinet);
+  return cabinet.builder.build(cabinet.mass);
+}
+
 /** The shape of {@link SHELF}. */
 interface IShelf {
   /** The `height` entry. */
@@ -100,34 +128,6 @@ interface IEstimates {
  * since NCR's guide gives the diagonal and no aspect.
  */
 const ESTIMATES: Readonly<IEstimates> = { shelf: 0.03, aspect: 4 / 3 };
-
-/**
- * A cash machine with a shelf, keypad button, card, cash and receipt sockets
- * and an exposed touchscreen.
- *
- * The shelf and fascia controls retain their measured NCR installation
- * locations. The cabinet rests on the floor at the origin and faces +Z. The
- * touchscreen keeps its read height and lies on the cabinet's front face, read
- * with model `+Y` up: the real screen sits recessed behind the fascia, and the
- * coarse cabinet box has no recess, so the recess is dropped.
- *
- * @param params The scene identifier and any dimensions to fix inside their
- *   bands.
- * @param seed The seed for the draws the author leaves open.
- * @returns The fixed model with its typed contacts.
- * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the
- *   selected profile.
- */
-export function createAtm(
-  params: AutoMovieArchetypeAtm.IParams = {},
-  seed?: number,
-): AutoMovieArchetype<AutoMovieArchetypeAtm.Affordance, AutoMovieArchetypeAtm.Dimension> {
-  const cabinet: ServiceCabinet.ICabinet<AutoMovieArchetypeAtm.Affordance> =
-    ServiceCabinet.begin("atm", "cash machine", "#b3202a", params, seed);
-  fascia(cabinet.builder, cabinet.width, cabinet.depth);
-  ServiceCabinet.faces(cabinet);
-  return cabinet.builder.build(cabinet.mass);
-}
 
 /**
  * Build an ATM's shelf and its fascia items' contacts: the shelf across the

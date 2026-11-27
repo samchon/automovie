@@ -20,9 +20,6 @@ export namespace AutoMovieArchetypeDiscus {
   /** The categories. */
   export type Kind = "men" | "women";
 
-  /** Every category, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["men", "women"];
-
   /**
    * The affordance ids:
    *
@@ -40,15 +37,6 @@ export namespace AutoMovieArchetypeDiscus {
    */
   export type Dimension = "diameter" | "thickness" | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<
-    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
-  > = {
-    diameter: "m",
-    thickness: "m",
-    mass: "kg",
-  };
-
   /**
    * The parameters: the category, and any free dimension fixed to a value
    * inside its band.
@@ -60,6 +48,18 @@ export namespace AutoMovieArchetypeDiscus {
     /** The model's id, unique in a scene; `discus` when absent. */
     id?: string;
   }
+
+  /** Every category, for a caller that reads one at run time. */
+  export const KINDS: readonly Kind[] = ["men", "women"];
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
+    diameter: "m",
+    thickness: "m",
+    mass: "kg",
+  };
 
   /** A band of the rule. */
   const band = (

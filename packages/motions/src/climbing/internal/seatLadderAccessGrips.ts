@@ -26,12 +26,6 @@ import type { ILadderAccessGrip } from "./ILadderAccessGrip";
 import { climbLadderHands } from "./climbLadderHands";
 
 /**
- * The longest easing onto or off a grip outside its window, seconds
- * (provisional).
- */
-const SEAT: number = 0.12;
-
-/**
  * Seat each ladder grip of the access route on its staged point throughout its
  * window, including while another limb moves, and ease the hand onto and off it
  * over up to `SEAT` seconds outside the window, never past half the gap to that
@@ -249,6 +243,12 @@ export function seatLadderAccessGrips(
     return { ...posture, limbs };
   };
 }
+
+/**
+ * The longest easing onto or off a grip outside its window, seconds
+ * (provisional).
+ */
+const SEAT: number = 0.12;
 
 /** The posture reader's arguments after the time. */
 type SampleRest =

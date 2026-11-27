@@ -17,10 +17,6 @@ import type { IAutoMoviePlacedObligation } from "../IAutoMoviePlacedObligation.j
 import { isAutoMovieAffineMatrix } from "./isAutoMovieAffineMatrix.js";
 import { readAutoMovieNativeRigidFrame } from "./readAutoMovieNativeRigidFrame.js";
 
-type IWitness = IAutoMovieInspectionDiagnostics.IWitness;
-type IMeasurement = IAutoMovieInspectionDiagnostics.IMeasurement;
-type IInput = IObserveAutoMoviePlacedSceneCheck["input"];
-
 /**
  * Measure one placed obligation with Engine's canonical predicates.
  *
@@ -55,6 +51,10 @@ export function measureAutoMoviePlacedObligation(
     return measureContact(input);
   return measureContinuity(input);
 }
+type IWitness = IAutoMovieInspectionDiagnostics.IWitness;
+type IMeasurement = IAutoMovieInspectionDiagnostics.IMeasurement;
+
+type IInput = IObserveAutoMoviePlacedSceneCheck["input"];
 
 /** A checked outcome without a witness. */
 function checked(

@@ -12,19 +12,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 
-/** The alternatives of `ReaderContext`'s site. */
-type ReaderContext = "subject" | "body" | "skill" | "prop" | "start";
-
-/** An authored parameter payload after defaulting a missing value. */
-type ParametersValue = NonNullable<unknown>;
-
-/** The methods selected by an authored action's vocabulary key. */
-interface ILookAheadLaw
-  extends Pick<IAutoMovieMotionHumanActionLaw<ParametersValue>, "demands" | "plants"> {
-  /** Resolve the composition's payload according to the selected law. */
-  resolve?(given: ParametersValue): object;
-}
-
 /**
  * What a performer's next action on a prop demands of a grip an earlier action
  * of theirs is still choosing (`IHumanActionContext.demands`): the goal poses
@@ -180,4 +167,17 @@ export namespace HumanPerformanceAhead {
     return null;
   }
 
+}
+
+/** The alternatives of `ReaderContext`'s site. */
+type ReaderContext = "subject" | "body" | "skill" | "prop" | "start";
+
+/** An authored parameter payload after defaulting a missing value. */
+type ParametersValue = NonNullable<unknown>;
+
+/** The methods selected by an authored action's vocabulary key. */
+interface ILookAheadLaw
+  extends Pick<IAutoMovieMotionHumanActionLaw<ParametersValue>, "demands" | "plants"> {
+  /** Resolve the composition's payload according to the selected law. */
+  resolve?(given: ParametersValue): object;
 }

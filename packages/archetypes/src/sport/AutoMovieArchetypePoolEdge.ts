@@ -17,7 +17,66 @@ const FR: string =
 
 /** Constructs the pool edge archetype from its recipe. */
 export namespace AutoMovieArchetypePoolEdge {
-/**
+/** The kinds: the bare end wall, and the end wall with a starting platform. */
+  export type Kind = "deckEdge" | "startingPlatform";
+
+  /**
+   * The affordance ids:
+   *
+   * - `deck`, `deckFace`, `wall`, `edge`, `water`, `restLedge`: every kind's, as
+   *   {@link createPoolEdge} describes them.
+   * - `platform`, `front`, `backstrokeGrip`: a starting platform's.
+   */
+  export type Affordance =
+    | "deck"
+    | "deckFace"
+    | "wall"
+    | "edge"
+    | "water"
+    | "restLedge"
+    | "platform"
+    | "front"
+    | "backstrokeGrip";
+
+  /**
+   * The free dimensions, metres unless stated:
+   *
+   * - `width`: the segment along `X`, one lane.
+   * - `freeboard`: the deck above the water.
+   * - `poolDepth`: the water's depth at the wall.
+   * - `ledgeDepth`, `ledgeWidth`: the rest ledge's top below the water and its
+   *   width out from the wall.
+   * - `platformHeight`: the platform's top above the water, at its middle.
+   * - `platformSize`: its top, square.
+   * - `slope`: its top's fall toward the water, degrees.
+   * - `gripHeight`: the backstroke grip above the water.
+   * - `mass`: kilograms.
+   */
+  export type Dimension =
+    | "width"
+    | "freeboard"
+    | "poolDepth"
+    | "ledgeDepth"
+    | "ledgeWidth"
+    | "platformHeight"
+    | "platformSize"
+    | "gripHeight"
+    | "slope"
+    | "mass";
+
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Which segment. */
+    kind: Kind;
+
+    /** The model's id, unique in a scene; `poolEdge` when absent. */
+    id?: string;
+  }
+
+  /**
  * One lane's width of a competition pool's end wall: the deck, the wall down
  * into the water with its rest ledge, and on the `startingPlatform` kind the
  * starting platform on the deck.
@@ -226,55 +285,8 @@ export function create(
   return builder.build(d.mass!);
 }
 
-  /** The kinds: the bare end wall, and the end wall with a starting platform. */
-  export type Kind = "deckEdge" | "startingPlatform";
-
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["deckEdge", "startingPlatform"];
-
-  /**
-   * The affordance ids:
-   *
-   * - `deck`, `deckFace`, `wall`, `edge`, `water`, `restLedge`: every kind's, as
-   *   {@link createPoolEdge} describes them.
-   * - `platform`, `front`, `backstrokeGrip`: a starting platform's.
-   */
-  export type Affordance =
-    | "deck"
-    | "deckFace"
-    | "wall"
-    | "edge"
-    | "water"
-    | "restLedge"
-    | "platform"
-    | "front"
-    | "backstrokeGrip";
-
-  /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `width`: the segment along `X`, one lane.
-   * - `freeboard`: the deck above the water.
-   * - `poolDepth`: the water's depth at the wall.
-   * - `ledgeDepth`, `ledgeWidth`: the rest ledge's top below the water and its
-   *   width out from the wall.
-   * - `platformHeight`: the platform's top above the water, at its middle.
-   * - `platformSize`: its top, square.
-   * - `slope`: its top's fall toward the water, degrees.
-   * - `gripHeight`: the backstroke grip above the water.
-   * - `mass`: kilograms.
-   */
-  export type Dimension =
-    | "width"
-    | "freeboard"
-    | "poolDepth"
-    | "ledgeDepth"
-    | "ledgeWidth"
-    | "platformHeight"
-    | "platformSize"
-    | "gripHeight"
-    | "slope"
-    | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: Readonly<
@@ -291,18 +303,6 @@ export function create(
     slope: "degrees",
     mass: "kg",
   };
-
-  /**
-   * The parameters: the kind, and any free dimension fixed to a value inside
-   * its band.
-   */
-  export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which segment. */
-    kind: Kind;
-
-    /** The model's id, unique in a scene; `poolEdge` when absent. */
-    id?: string;
-  }
 
   /**
    * The construction sizes: `deck`, the deck's run behind the edge, and

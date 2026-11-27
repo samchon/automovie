@@ -20,9 +20,6 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { walkFoot } from "./walkFoot";
 import { walkPoleFrame } from "./walkPoleFrame";
 
-/** The alternatives of `PrepareContext`'s site. */
-type PrepareContext = "body" | "entry" | "prop" | "cut";
-
 /**
  * A long held prop carried along a walk or a run: a prop held in one hand or
  * two whose end lies farther from the carrying grip than the hand hangs above
@@ -206,22 +203,6 @@ export namespace walkPoleCarriage {
   }
 
   /**
-   * The walk's second of a cut at its own event or share, or undefined when the
-   * event is not the walk's.
-   */
-  function cutAt(
-    cut: IAutoMovieMotionHumanActionContext.ICut,
-    events: readonly IAutoMovieMotionEvent[],
-    duration: number,
-  ): number | undefined {
-    if (cut.share !== undefined) return cut.share * duration;
-    const found: IAutoMovieMotionEvent | undefined = events.find(
-      (e: IAutoMovieMotionEvent): boolean => e.name === cut.event,
-    );
-    return found === undefined ? undefined : found.share * duration;
-  }
-
-  /**
    * The grip windows by which the walk takes each carried prop over for the
    * whole action, the carrying hand's first so it carries and the other
    * steadies (`HumanPerformanceHold`): a hand the action drives is not carried
@@ -352,6 +333,22 @@ export namespace walkPoleCarriage {
   }
 
   /**
+   * The walk's second of a cut at its own event or share, or undefined when the
+   * event is not the walk's.
+   */
+  function cutAt(
+    cut: IAutoMovieMotionHumanActionContext.ICut,
+    events: readonly IAutoMovieMotionEvent[],
+    duration: number,
+  ): number | undefined {
+    if (cut.share !== undefined) return cut.share * duration;
+    const found: IAutoMovieMotionEvent | undefined = events.find(
+      (e: IAutoMovieMotionEvent): boolean => e.name === cut.event,
+    );
+    return found === undefined ? undefined : found.share * duration;
+  }
+
+  /**
    * The unit line at an elevation, leaning `across` degrees from ahead toward
    * the trunk's middle from the carrying side, in the heading's frame.
    */
@@ -380,6 +377,9 @@ export namespace walkPoleCarriage {
     return (angle * 180) / Math.PI;
   }
 }
+
+/** The alternatives of `PrepareContext`'s site. */
+type PrepareContext = "body" | "entry" | "prop" | "cut";
 
 /** A right angle, degrees: the carrying elbow's flexion, the forearm forward. */
 const RIGHT: number = 90;

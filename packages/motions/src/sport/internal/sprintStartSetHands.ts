@@ -10,9 +10,6 @@ import type {
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/** The record of `IFrameFeetEntry`'s site. */
-type IFrameFeetEntry = { ankle: IAutoMovieVector3 };
-
 /**
  * A hand's bridge at the line.
  *
@@ -135,3 +132,6 @@ export namespace sprintStartSetHands {
     wrist: IAutoMovieVector3;
   }
 }
+
+/** The record of `IFrameFeetEntry`'s site. */
+type IFrameFeetEntry = { ankle: IAutoMovieVector3 };

@@ -9,23 +9,6 @@ import {
 } from "../../core/index";
 
 /**
- * A charged 1 3/4 in (44 mm) attack line with a fog nozzle, the hand line a
- * two-member team advances. The hose's bore is its trade size; its outer
- * diameter, the nozzle's proportions, the members' spacing, the bail's swing
- * and the charged segment's mass are provisional estimates.
- */
-const SIZE: Readonly<AutoMovieArchetypeHoseLine.ISize> = {
-  bore: 0.0445,
-  outer: 0.055,
-  length: 3,
-  nozzle: 0.25,
-  spacing: 1,
-  bail: 90,
-  flex: 45,
-  mass: 9,
-};
-
-/**
  * A straight run of charged hose ending in a nozzle.
  *
  * The line runs along `+Z` from its tail at the origin to the nozzle's tip at
@@ -169,3 +152,20 @@ export function createHoseLine(
   });
   return builder.build(SIZE.mass);
 }
+
+/**
+ * A charged 1 3/4 in (44 mm) attack line with a fog nozzle, the hand line a
+ * two-member team advances. The hose's bore is its trade size; its outer
+ * diameter, the nozzle's proportions, the members' spacing, the bail's swing
+ * and the charged segment's mass are provisional estimates.
+ */
+const SIZE: Readonly<AutoMovieArchetypeHoseLine.ISize> = {
+  bore: 0.0445,
+  outer: 0.055,
+  length: 3,
+  nozzle: 0.25,
+  spacing: 1,
+  bail: 90,
+  flex: 45,
+  mass: 9,
+};

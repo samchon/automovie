@@ -5,10 +5,6 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-/** Film-clock readers of an explicitly authored rigid carrier. */
-type Motion = (seconds: number) => IAutoMovieRigidTransform;
-type Point = (part: string, seconds: number) => IAutoMovieTransform;
-
 /**
  * Identity of an owned carrier clock and its stationary intervals. This
  * registry transports authored interval metadata and a same-time reader across
@@ -163,3 +159,7 @@ export namespace RigidCarrierSample {
       : undefined;
   }
 }
+/** Film-clock readers of an explicitly authored rigid carrier. */
+type Motion = (seconds: number) => IAutoMovieRigidTransform;
+
+type Point = (part: string, seconds: number) => IAutoMovieTransform;

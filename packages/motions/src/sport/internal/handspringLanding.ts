@@ -19,48 +19,6 @@ import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { StrikingBody } from "../../striking/internal/StrikingBody";
 
 /**
- * The observed entry, flight and planted recovery inputs for a floor handspring
- * or vault.
- */
-interface IHandspringLanding {
-  /** The performer. */
-  body: IAutoMovieMotionHumanBody;
-
-  /** The entry stand used to restore the standing root. */
-  standing: IAutoMovieMotionHumanPosture;
-
-  /** Entry ankle positions in world metres. */
-  entered: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-
-  /** The same two foot bones demanded by the entry observation. */
-  footBones: ReadonlySet<AutoMovieHumanoidBone>;
-
-  /** An optional landing surface whose extents both feet must satisfy. */
-  landingSurface: IAutoMovieMotionHumanHandspring.ISurface | undefined;
-
-  /** Landing elevation relative to the entry ground, metres. */
-  riseOfMat: number;
-
-  /** The landing heading, degrees. */
-  yaw: number;
-
-  /** The flight posture at seconds since hand release. */
-  flying: (seconds: number) => IAutoMovieMotionHumanPosture;
-
-  /** The flight duration from hand release to touchdown, seconds. */
-  flight: number;
-
-  /** The arch-to-stand articulation at eased recovery share. */
-  rising: ReturnType<typeof ExerciseKey.prepareBlend>;
-
-  /** The minimum-jerk recovery progress function. */
-  ease: (share: number) => number;
-
-  /** The unwrapped touchdown pitch, degrees. */
-  land: number;
-}
-
-/**
  * Prepare the planted recovery from a handspring's touchdown posture.
  *
  * @param input The displayed flight, entry feet and landing surface.
@@ -173,4 +131,46 @@ export function handspringLanding(
       resolution,
     );
   };
+}
+
+/**
+ * The observed entry, flight and planted recovery inputs for a floor handspring
+ * or vault.
+ */
+interface IHandspringLanding {
+  /** The performer. */
+  body: IAutoMovieMotionHumanBody;
+
+  /** The entry stand used to restore the standing root. */
+  standing: IAutoMovieMotionHumanPosture;
+
+  /** Entry ankle positions in world metres. */
+  entered: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+
+  /** The same two foot bones demanded by the entry observation. */
+  footBones: ReadonlySet<AutoMovieHumanoidBone>;
+
+  /** An optional landing surface whose extents both feet must satisfy. */
+  landingSurface: IAutoMovieMotionHumanHandspring.ISurface | undefined;
+
+  /** Landing elevation relative to the entry ground, metres. */
+  riseOfMat: number;
+
+  /** The landing heading, degrees. */
+  yaw: number;
+
+  /** The flight posture at seconds since hand release. */
+  flying: (seconds: number) => IAutoMovieMotionHumanPosture;
+
+  /** The flight duration from hand release to touchdown, seconds. */
+  flight: number;
+
+  /** The arch-to-stand articulation at eased recovery share. */
+  rising: ReturnType<typeof ExerciseKey.prepareBlend>;
+
+  /** The minimum-jerk recovery progress function. */
+  ease: (share: number) => number;
+
+  /** The unwrapped touchdown pitch, degrees. */
+  land: number;
 }

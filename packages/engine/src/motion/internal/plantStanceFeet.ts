@@ -24,22 +24,6 @@ import { resolveBoneMap } from "./resolveBoneMap";
 import { AutoMovieEngineMotionSampling } from "../AutoMovieEngineMotionSampling";
 import { sampleStanceTimes } from "./sampleStanceTimes";
 
-const DEFAULT_GROUND_Y: number = 0;
-
-const DEFAULT_TOLERANCE: number = 0.02;
-
-/**
- * The humanoid legs, named from the shared chain table so the ground-IK pass
- * and the retarget contact pass cannot disagree about which bones a leg is.
- */
-const DEFAULT_LEGS: readonly IAutoMovieFootLeg[] = HUMANOID_LEG_CHAINS.map(
-  (chain: (typeof HUMANOID_LEG_CHAINS)[number]): IAutoMovieFootLeg => ({
-    foot: chain.effector,
-    upper: chain.upper,
-    lower: chain.lower,
-  }),
-);
-
 /**
  * Sample admitted motion on a fixed clock plus any authored support boundaries.
  * Detect finite model-frame stance contacts, pin each run and fit targeted leg
@@ -147,3 +131,19 @@ export function plantStanceFeet(
 
   return assemblePlantedFeet(props.motion, keyframes, plants);
 }
+
+const DEFAULT_GROUND_Y: number = 0;
+
+const DEFAULT_TOLERANCE: number = 0.02;
+
+/**
+ * The humanoid legs, named from the shared chain table so the ground-IK pass
+ * and the retarget contact pass cannot disagree about which bones a leg is.
+ */
+const DEFAULT_LEGS: readonly IAutoMovieFootLeg[] = HUMANOID_LEG_CHAINS.map(
+  (chain: (typeof HUMANOID_LEG_CHAINS)[number]): IAutoMovieFootLeg => ({
+    foot: chain.effector,
+    upper: chain.upper,
+    lower: chain.lower,
+  }),
+);

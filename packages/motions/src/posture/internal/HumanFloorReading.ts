@@ -13,36 +13,6 @@ import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
-/** The record of `ICandidatesShape`'s site. */
-type ICandidatesShape = { kind: "hull" };
-
-/** The record of `IOfTarget2`'s site. */
-type IOfTarget2 = { bone: AutoMovieHumanoidBone };
-
-/** The record of `IOfTarget`'s site. */
-type IOfTarget = {
-  bone: AutoMovieHumanoidBone;
-  point?: IAutoMovieVector3;
-};
-
-/** The record of `IOfBox`'s site. */
-type IOfBox = { min: IAutoMovieVector3; max: IAutoMovieVector3 };
-
-/** The record of `IOfTargetsItem`'s site. */
-type IOfTargetsItem = {
-  bone: AutoMovieHumanoidBone;
-  point?: IAutoMovieVector3;
-};
-
-/** A smooth support point and the downward radius extending beneath it. */
-interface ICandidate {
-  /** Actual world point on the shape's rigid frame. */
-  point: IAutoMovieVector3;
-
-  /** Metres below that point; zero for a corner or hull vertex. */
-  lift: number;
-}
-
 /**
  * Append a placed collider's support candidates: the points its lowest point is
  * the least of, each with how far below it the collider reaches. A collider's
@@ -249,4 +219,34 @@ export namespace HumanFloorReading {
     /** The posed bones read. */
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   }
+}
+
+/** The record of `ICandidatesShape`'s site. */
+type ICandidatesShape = { kind: "hull" };
+
+/** The record of `IOfTarget2`'s site. */
+type IOfTarget2 = { bone: AutoMovieHumanoidBone };
+
+/** The record of `IOfTarget`'s site. */
+type IOfTarget = {
+  bone: AutoMovieHumanoidBone;
+  point?: IAutoMovieVector3;
+};
+
+/** The record of `IOfBox`'s site. */
+type IOfBox = { min: IAutoMovieVector3; max: IAutoMovieVector3 };
+
+/** The record of `IOfTargetsItem`'s site. */
+type IOfTargetsItem = {
+  bone: AutoMovieHumanoidBone;
+  point?: IAutoMovieVector3;
+};
+
+/** A smooth support point and the downward radius extending beneath it. */
+interface ICandidate {
+  /** Actual world point on the shape's rigid frame. */
+  point: IAutoMovieVector3;
+
+  /** Metres below that point; zero for a corner or hull vertex. */
+  lift: number;
 }

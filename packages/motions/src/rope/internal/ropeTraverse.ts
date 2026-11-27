@@ -18,34 +18,6 @@ import { ropeLine } from "./ropeLine";
 import { ropeSupport } from "./ropeSupport";
 
 /**
- * How far behind the rear hand a monkey crawl hooks its feet over a level rope,
- * hip heights (provisional: the shoulders to the hooked ankles with the knees
- * bent).
- */
-const HOOKED: number = 1.2;
-
-/**
- * The hanging tuck of a traverse: the hips and knees drawn up clear of what the
- * body stood on, the arms up on the line with the elbows bent (provisional
- * angles, degrees).
- */
-const TUCK: IAutoMovieMotionHumanLieDown.IPose = {
-  pitch: 0,
-  roll: 0,
-  joints: {
-    ...HumanHand.shape("left", "fist"),
-    ...HumanHand.shape("right", "fist"),
-    leftUpperLeg: [70, 5, 0],
-    rightUpperLeg: [70, 5, 0],
-    leftLowerLeg: [100, 0, 0],
-    rightLowerLeg: [100, 0, 0],
-    leftUpperArm: [160, 20, 0],
-    rightUpperArm: [160, 20, 0],
-    leftLowerArm: [30, 0, 0],
-    rightLowerArm: [30, 0, 0],
-  },
-};
-/**
  * Traverse a level rope hand over hand.
  *
  * @param context The action's context, standing under the rope.
@@ -207,3 +179,31 @@ export function ropeTraverse(
     aim: ropeLine.aim(context, p.rope, staged, line),
   });
 }
+
+/**
+ * How far behind the rear hand a monkey crawl hooks its feet over a level rope,
+ * hip heights (provisional: the shoulders to the hooked ankles with the knees
+ * bent).
+ */
+const HOOKED: number = 1.2;
+/**
+ * The hanging tuck of a traverse: the hips and knees drawn up clear of what the
+ * body stood on, the arms up on the line with the elbows bent (provisional
+ * angles, degrees).
+ */
+const TUCK: IAutoMovieMotionHumanLieDown.IPose = {
+  pitch: 0,
+  roll: 0,
+  joints: {
+    ...HumanHand.shape("left", "fist"),
+    ...HumanHand.shape("right", "fist"),
+    leftUpperLeg: [70, 5, 0],
+    rightUpperLeg: [70, 5, 0],
+    leftLowerLeg: [100, 0, 0],
+    rightLowerLeg: [100, 0, 0],
+    leftUpperArm: [160, 20, 0],
+    rightUpperArm: [160, 20, 0],
+    leftLowerArm: [30, 0, 0],
+    rightLowerArm: [30, 0, 0],
+  },
+};

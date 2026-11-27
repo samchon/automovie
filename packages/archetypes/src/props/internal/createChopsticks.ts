@@ -9,22 +9,6 @@ import {
 } from "../../core/index";
 
 /**
- * An adult's pair of chopsticks: 0.24 m long, the length Hsu and Wu found best
- * for adults, and 6 mm across, the diameter Chan (1999, Int J Ind Ergon) found
- * best for food-pinching efficiency, both as the 2017 MATEC Web of Conferences
- * study of chopstick operation summarizes them
- * (https://www.matec-conferences.org/10.1051/matecconf/201711901017, read
- * through its search summary). The spread and the mass are provisional
- * construction estimates.
- */
-const SIZE: Readonly<AutoMovieArchetypeChopsticks.ISize> = {
-  length: 0.24,
-  diameter: 0.006,
-  spread: 12,
-  mass: 0.02,
-};
-
-/**
  * A pair of chopsticks held in the conventional hold: the lower stick fixed
  * against the thumb's base and the ring finger, the upper stick moved by the
  * index and middle fingers.
@@ -106,3 +90,19 @@ export function createChopsticks(
   });
   return builder.build(SIZE.mass);
 }
+
+/**
+ * An adult's pair of chopsticks: 0.24 m long, the length Hsu and Wu found best
+ * for adults, and 6 mm across, the diameter Chan (1999, Int J Ind Ergon) found
+ * best for food-pinching efficiency, both as the 2017 MATEC Web of Conferences
+ * study of chopstick operation summarizes them
+ * (https://www.matec-conferences.org/10.1051/matecconf/201711901017, read
+ * through its search summary). The spread and the mass are provisional
+ * construction estimates.
+ */
+const SIZE: Readonly<AutoMovieArchetypeChopsticks.ISize> = {
+  length: 0.24,
+  diameter: 0.006,
+  spread: 12,
+  mass: 0.02,
+};

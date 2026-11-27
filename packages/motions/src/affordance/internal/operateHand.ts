@@ -17,42 +17,6 @@ import { HumanHandTarget } from "../../posture/internal/HumanHandTarget";
 import { operateInsert } from "./operateInsert";
 import { operateState } from "./operateState";
 
-/** The record of `IOperateHandFrame`'s site. */
-type IOperateHandFrame = {
-  place: IOperateHandFramePlace;
-  forward: IAutoMovieVector3;
-};
-
-/** The record of `IOperateHandFramePlace`'s site. */
-type IOperateHandFramePlace = {
-  point: IAutoMovieVector3;
-  normal: IAutoMovieVector3;
-};
-
-/** The record of `IOperateHandResult`'s site. */
-type IOperateHandResult = {
-  target: (
-    posture: IAutoMovieMotionHumanPosture,
-    progress: number,
-    seconds?: number,
-  ) => IAutoMovieMotionHumanArmTarget.ITarget;
-  wrist: (
-    posture: IAutoMovieMotionHumanPosture,
-    progress: number,
-    seconds?: number,
-  ) => IAutoMovieVector3;
-};
-
-/** The record of `IOperateHandProps`'s site. */
-type IOperateHandProps = {
-  clock: IAutoMovieMotionClock;
-  place: ReturnType<IAutoMovieMotionHumanActionContext["aim"]>;
-  part: IAutoMovieMotionHumanOperateDrive.IPart | undefined;
-  hinge: IAutoMovieMotionHumanOperateDrive.IHinge | undefined;
-  inserted: IAutoMovieMotionHumanStrikingHeld.ITool | undefined;
-  upright: number;
-};
-
 /**
  * Prepare an operation's original hand geometry for its actual arm targets and
  * the lean's wrist-only reach observations.
@@ -219,3 +183,39 @@ export function operateHand(
     },
   };
 }
+
+/** The record of `IOperateHandFrame`'s site. */
+type IOperateHandFrame = {
+  place: IOperateHandFramePlace;
+  forward: IAutoMovieVector3;
+};
+
+/** The record of `IOperateHandFramePlace`'s site. */
+type IOperateHandFramePlace = {
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+};
+
+/** The record of `IOperateHandResult`'s site. */
+type IOperateHandResult = {
+  target: (
+    posture: IAutoMovieMotionHumanPosture,
+    progress: number,
+    seconds?: number,
+  ) => IAutoMovieMotionHumanArmTarget.ITarget;
+  wrist: (
+    posture: IAutoMovieMotionHumanPosture,
+    progress: number,
+    seconds?: number,
+  ) => IAutoMovieVector3;
+};
+
+/** The record of `IOperateHandProps`'s site. */
+type IOperateHandProps = {
+  clock: IAutoMovieMotionClock;
+  place: ReturnType<IAutoMovieMotionHumanActionContext["aim"]>;
+  part: IAutoMovieMotionHumanOperateDrive.IPart | undefined;
+  hinge: IAutoMovieMotionHumanOperateDrive.IHinge | undefined;
+  inserted: IAutoMovieMotionHumanStrikingHeld.ITool | undefined;
+  upright: number;
+};

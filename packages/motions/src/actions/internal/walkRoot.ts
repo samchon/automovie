@@ -9,68 +9,6 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { WalkPace } from "./WalkPace";
 
-/** The record of `IPropsBob`'s site. */
-type IPropsBob = { mean: number; amplitude: number };
-
-/** Fixed body, path and timing inputs of a stepping take's unconstrained root. */
-interface IProps {
-  /**
-   * The body whose hip height scales the sway and the bob, and whose leg
-   * settles the root.
-   */
-  body: IAutoMovieMotionHumanBody;
-
-  /** The exact entry root, world metres. */
-  start: IAutoMovieVector3;
-
-  /** Step period, seconds. */
-  period: number;
-
-  /** Mean cruising speed for a self-paced walking path in metres per second. */
-  walkingSpeed?: number;
-
-  /** Cruising distance between consecutive footprints, metres. */
-  step: number;
-
-  /** Opening-turn delay, seconds. */
-  lag: number;
-
-  /** Gait initiation span, seconds. */
-  first: number;
-
-  /** Last footfall, seconds. */
-  last: number;
-
-  /** Contact lead, in step periods. */
-  front: number;
-
-  /** Swing duration, seconds. */
-  swing: number;
-
-  /** Contact before the closing foot, seconds. */
-  stop: number;
-
-  /** First left heel strike, seconds. */
-  firstLeft: number;
-
-  /** Running root drop and oscillation, in hip heights; walking's when absent. */
-  bob: IPropsBob | undefined;
-
-  /** Distance along the fixed path at each action second, metres. */
-  progress: (seconds: number) => number;
-
-  /** Pelvis heading at each second, degrees. */
-  yaw: (seconds: number) => number;
-
-  /** Path point at an arc length, world metres. */
-  at: (distance: number) => IAutoMovieVector3;
-
-  /** Travel/facing heading at that distance and point, degrees. */
-  heading: (distance: number, point: IAutoMovieVector3) => number;
-}
-/** The alternatives of `WalkRootResult`'s site. */
-type WalkRootResult = "root" | "amount";
-
 /**
  * Prepare the fixed body/phase terms of a stepping take's root and gait amount.
  *
@@ -291,3 +229,65 @@ export namespace walkRoot {
    */
   export const FADE: number = WalkPace.FIRST;
 }
+/** The record of `IPropsBob`'s site. */
+type IPropsBob = { mean: number; amplitude: number };
+
+/** Fixed body, path and timing inputs of a stepping take's unconstrained root. */
+interface IProps {
+  /**
+   * The body whose hip height scales the sway and the bob, and whose leg
+   * settles the root.
+   */
+  body: IAutoMovieMotionHumanBody;
+
+  /** The exact entry root, world metres. */
+  start: IAutoMovieVector3;
+
+  /** Step period, seconds. */
+  period: number;
+
+  /** Mean cruising speed for a self-paced walking path in metres per second. */
+  walkingSpeed?: number;
+
+  /** Cruising distance between consecutive footprints, metres. */
+  step: number;
+
+  /** Opening-turn delay, seconds. */
+  lag: number;
+
+  /** Gait initiation span, seconds. */
+  first: number;
+
+  /** Last footfall, seconds. */
+  last: number;
+
+  /** Contact lead, in step periods. */
+  front: number;
+
+  /** Swing duration, seconds. */
+  swing: number;
+
+  /** Contact before the closing foot, seconds. */
+  stop: number;
+
+  /** First left heel strike, seconds. */
+  firstLeft: number;
+
+  /** Running root drop and oscillation, in hip heights; walking's when absent. */
+  bob: IPropsBob | undefined;
+
+  /** Distance along the fixed path at each action second, metres. */
+  progress: (seconds: number) => number;
+
+  /** Pelvis heading at each second, degrees. */
+  yaw: (seconds: number) => number;
+
+  /** Path point at an arc length, world metres. */
+  at: (distance: number) => IAutoMovieVector3;
+
+  /** Travel/facing heading at that distance and point, degrees. */
+  heading: (distance: number, point: IAutoMovieVector3) => number;
+}
+
+/** The alternatives of `WalkRootResult`'s site. */
+type WalkRootResult = "root" | "amount";

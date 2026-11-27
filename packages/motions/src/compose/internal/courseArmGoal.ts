@@ -281,16 +281,6 @@ export namespace courseArmGoal {
   ): IAutoMovieMotionHumanActionPlan {
     return plan.goals ?? plan;
   }
-  /** The alternatives of `CourseArmGoalArm`'s site. */
-  type CourseArmGoalArm =
-    | "disc"
-    | "skinDistance"
-    | "grasp"
-    | "perceived"
-    | "tracked"
-    | "on"
-    | "hold";
-
   /**
    * One arm a course lays: its side, its rest, its span and the carry's own
    * per-arm members.
@@ -319,8 +309,6 @@ export namespace courseArmGoal {
      */
     span?: IAutoMovieMotionHumanArmPlanned.ISpan;
   }
-  /** The alternatives of `CourseArmGoalProps`'s site. */
-  type CourseArmGoalProps = "together" | "beside" | "pace";
 
   /** A plan whose arm goals are to be planned as one course. */
   export interface IProps
@@ -372,7 +360,6 @@ export namespace courseArmGoal {
      */
     after?: After;
   }
-
   /**
    * A span with the plan's events inside its hold as its knots
    * (`IAutoMovieMotionHumanArmPlanned.ISpan.knots`): each event carries the
@@ -410,8 +397,6 @@ export namespace courseArmGoal {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
   }
-  /** The alternatives of `CourseArmGoalRestArm`'s site. */
-  type CourseArmGoalRestArm = "side" | "rest";
 
   /**
    * An arm's rest: the one its law states, else the arm as the action is
@@ -431,7 +416,6 @@ export namespace courseArmGoal {
 
   /** The arm limb a side names. */
   export type Limb = "leftArm" | "rightArm";
-
   /** The bones of an arm whose angles the course writes. */
   export type Bone = `${AutoMovieHumanSide}${"UpperArm" | "LowerArm" | "Hand"}`;
 
@@ -460,4 +444,20 @@ export namespace courseArmGoal {
 
   /** What a coursed arm does after its span (`IProps.after`). */
   export type After = "goal" | "angles";
+
+  /** The alternatives of `CourseArmGoalArm`'s site. */
+  type CourseArmGoalArm =
+    | "disc"
+    | "skinDistance"
+    | "grasp"
+    | "perceived"
+    | "tracked"
+    | "on"
+    | "hold";
+
+  /** The alternatives of `CourseArmGoalProps`'s site. */
+  type CourseArmGoalProps = "together" | "beside" | "pace";
+
+  /** The alternatives of `CourseArmGoalRestArm`'s site. */
+  type CourseArmGoalRestArm = "side" | "rest";
 }

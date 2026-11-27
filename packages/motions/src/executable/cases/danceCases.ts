@@ -16,9 +16,6 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/** The alternatives of `DanceCasesExtremesSign`'s site. */
-type DanceCasesExtremesSign = 1 | -1;
-
 /**
  * Capture cases of the solo dance steps, eight beats at 120 bpm from quiet
  * standing.
@@ -202,3 +199,6 @@ export function danceCases(
   }
   return out;
 }
+
+/** The alternatives of `DanceCasesExtremesSign`'s site. */
+type DanceCasesExtremesSign = 1 | -1;

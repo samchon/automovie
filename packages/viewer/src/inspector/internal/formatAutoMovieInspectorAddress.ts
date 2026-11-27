@@ -2,19 +2,6 @@ import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
 import { AutoMovieRenderCapture } from "@automovie/render";
 
 /**
- * Characters the grammar writes that a query keeps readable: list, view, path,
- * focus, colour pair and cut separators.
- */
-const READABLE: ReadonlyMap<string, string> = new Map<string, string>([
-  ["%2C", ","],
-  ["%3A", ":"],
-  ["%3B", ";"],
-  ["%2F", "/"],
-  ["%40", "@"],
-  ["%3D", "="],
-]);
-
-/**
  * Write a request as the query text of an address, without the leading `?`, so
  * the address repeats the request and `AutoMovieViewerInspector.readAddress` reads it
  * back equal.
@@ -37,6 +24,19 @@ export function formatAutoMovieInspectorAddress(
     )
     .join("&");
 }
+
+/**
+ * Characters the grammar writes that a query keeps readable: list, view, path,
+ * focus, colour pair and cut separators.
+ */
+const READABLE: ReadonlyMap<string, string> = new Map<string, string>([
+  ["%2C", ","],
+  ["%3A", ":"],
+  ["%3B", ";"],
+  ["%2F", "/"],
+  ["%40", "@"],
+  ["%3D", "="],
+]);
 
 /** `encodeURIComponent` with the readable separators put back. */
 function escape(text: string): string {

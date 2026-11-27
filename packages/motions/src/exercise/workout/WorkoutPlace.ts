@@ -19,15 +19,6 @@ import { knockdown } from "../../reaction/internal/knockdown";
 import { GymnasticsWheel } from "../../sport/internal/GymnasticsWheel";
 import { ExerciseKey } from "../internal/ExerciseKey";
 
-/** The alternatives of `OfContext`'s site. */
-type OfContext = "body" | "entry";
-
-/** The hip joints, by which a body on a raised support is placed. */
-const HIPS: readonly AutoMovieHumanoidBone[] = [
-  "leftUpperLeg",
-  "rightUpperLeg",
-];
-
 /**
  * The place the bearing bones keep.
  *
@@ -196,3 +187,12 @@ export function WorkoutPlace(
   const floor: number | null = grounded();
   return floor === null ? rested : { ...rested, y: floor };
 }
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "entry";
+
+/** The hip joints, by which a body on a raised support is placed. */
+const HIPS: readonly AutoMovieHumanoidBone[] = [
+  "leftUpperLeg",
+  "rightUpperLeg",
+];

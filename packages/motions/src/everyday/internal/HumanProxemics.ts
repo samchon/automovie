@@ -7,23 +7,6 @@ import type {
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** The alternatives of `GapRequest`'s site. */
-type GapRequest = IAutoMovieMotionHumanProxemics.Band | number;
-
-/** The measures a handing reach reads. */
-type ReachMeasure =
-  | "upperArm"
-  | "forearm"
-  | "hand"
-  | "shoulderHeight"
-  | "chestDepth";
-
-/** The measures a handing gap reads: a reach's and the handover heights. */
-type GapMeasure = ReachMeasure | "waistHeight" | "chestHeight";
-
-/** The alternatives of `ZONESEntryItem`'s site. */
-type ZONESEntryItem = "intimate" | "personal" | "social";
-
 /**
  * Interpersonal distance: the gaps people keep, by relationship and purpose, as
  * the chest-to-target gap an approach stops at.
@@ -186,3 +169,20 @@ export namespace HumanProxemics {
     };
   }
 }
+
+/** The alternatives of `GapRequest`'s site. */
+type GapRequest = IAutoMovieMotionHumanProxemics.Band | number;
+
+/** The measures a handing reach reads. */
+type ReachMeasure =
+  | "upperArm"
+  | "forearm"
+  | "hand"
+  | "shoulderHeight"
+  | "chestDepth";
+
+/** The measures a handing gap reads: a reach's and the handover heights. */
+type GapMeasure = ReachMeasure | "waistHeight" | "chestHeight";
+
+/** The alternatives of `ZONESEntryItem`'s site. */
+type ZONESEntryItem = "intimate" | "personal" | "social";

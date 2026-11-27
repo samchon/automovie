@@ -12,12 +12,6 @@ import type {
 
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 
-/** The alternatives of `ContactSlopeK`'s site. */
-type ContactSlopeK = 0 | 1 | 2;
-
-/** The alternatives of `ContactAxisK`'s site. */
-type ContactAxisK = 0 | 1 | 2;
-
 /**
  * A stopped weapon riding the body it met: after a strike's limb has stopped on
  * another person, that person keeps moving (a cover still closing, a trunk
@@ -47,12 +41,6 @@ type ContactAxisK = 0 | 1 | 2;
  * second, until one falls before its stop and reads nothing back.
  */
 export namespace StrikingRide {
-  /**
-   * Half the lag behind the shown second, seconds: half the 1/120 s step of the
-   * performance's contact resolution, so the lag is one resolution step.
-   */
-  export const STEP: number = 1 / 240;
-
   /** What a ride is built from. */
   export interface IProps {
     /**
@@ -119,6 +107,12 @@ export namespace StrikingRide {
     /** Its world rotation. */
     rotation: IAutoMovieQuaternion;
   }
+
+  /**
+   * Half the lag behind the shown second, seconds: half the 1/120 s step of the
+   * performance's contact resolution, so the lag is one resolution step.
+   */
+  export const STEP: number = 1 / 240;
 
   /**
    * The step of the central differences that read the met surface's normal,
@@ -284,3 +278,9 @@ export namespace StrikingRide {
     return posture;
   }
 }
+
+/** The alternatives of `ContactSlopeK`'s site. */
+type ContactSlopeK = 0 | 1 | 2;
+
+/** The alternatives of `ContactAxisK`'s site. */
+type ContactAxisK = 0 | 1 | 2;

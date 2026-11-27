@@ -6,19 +6,6 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** The opposing tab and its free-standing brace, by site names. */
-type SiteNames = "pouch" | "thumb" | "index" | "brace";
-
-/** The staged pouch fields that determine its suitability for the closure. */
-type FixedPouch =
-  | "affordances"
-  | "fixed"
-  | "worn"
-  | "motion"
-  | "mounted"
-  | "soft"
-  | "articulate";
-
 /**
  * Read the independent slider and its opposing working and supporting sites
  * from a fixed pouch with coupled geometry.
@@ -100,3 +87,16 @@ export namespace zipSites {
     });
   }
 }
+
+/** The opposing tab and its free-standing brace, by site names. */
+type SiteNames = "pouch" | "thumb" | "index" | "brace";
+
+/** The staged pouch fields that determine its suitability for the closure. */
+type FixedPouch =
+  | "affordances"
+  | "fixed"
+  | "worn"
+  | "motion"
+  | "mounted"
+  | "soft"
+  | "articulate";

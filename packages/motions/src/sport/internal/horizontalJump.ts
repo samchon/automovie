@@ -67,9 +67,6 @@ export namespace horizontalJump {
    */
   export const ANGLE: number = 21;
 
-  /** The pit's two surfaces the law reads: the take-off board and the sand. */
-  type Surface = "board" | "sand";
-
   /**
    * Plan a long jump.
    *
@@ -204,4 +201,7 @@ export namespace horizontalJump {
       approach.foot,
     );
   }
+
+  /** The pit's two surfaces the law reads: the take-off board and the sand. */
+  type Surface = "board" | "sand";
 }

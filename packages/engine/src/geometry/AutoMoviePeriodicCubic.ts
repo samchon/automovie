@@ -2,9 +2,6 @@ import type { IAutoMoviePeriodicCubic } from "@automovie/interface";
 
 import { adjacentAutoMovieFloat64 as adjacent } from "../math/internal/adjacentAutoMovieFloat64";
 
-/** One finite closed enclosure in the scalar source's units. */
-type Interval = readonly [number, number];
-
 /**
  * The existing periodic cubic's value reader and a local outward range.
  * Preparation and reading retain the original 64 Jacobi sweeps and literal
@@ -84,6 +81,9 @@ export namespace AutoMoviePeriodicCubic {
     return { at, range };
   }
 }
+
+/** One finite closed enclosure in the scalar source's units. */
+type Interval = readonly [number, number];
 
 /** Refuse an unrepresentable enclosure instead of returning an infinity. */
 function finite(low: number, high: number): Interval {

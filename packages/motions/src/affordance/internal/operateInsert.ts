@@ -16,24 +16,6 @@ import { placeHumanHandSurface } from "../../posture/internal/placeHumanHandSurf
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 import { StrikingRollHand } from "../../striking/internal/StrikingRollHand";
 
-/** The record of `IPrepareMovingPlaced`'s site. */
-type IPrepareMovingPlaced = {
-  hand: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
-  wrist: IAutoMovieMotionHumanHand.IWrist;
-};
-
-/** The record of `IPrepareMovingResult`'s site. */
-type IPrepareMovingResult = {
-  target: (
-    posture: IAutoMovieMotionHumanPosture,
-    progress: number,
-  ) => IAutoMovieMotionHumanArmTarget.ITarget;
-  wrist: (
-    posture: IAutoMovieMotionHumanPosture,
-    progress: number,
-  ) => IAutoMovieMotionHumanHand.IWrist;
-};
-
 /**
  * Inserting a held prop along a socket's axis: a rammer down a bore, a sword
  * into its scabbard, a magazine into its well, an arrow back into a quiver, a
@@ -228,3 +210,21 @@ export namespace operateInsert {
     };
   }
 }
+
+/** The record of `IPrepareMovingPlaced`'s site. */
+type IPrepareMovingPlaced = {
+  hand: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
+  wrist: IAutoMovieMotionHumanHand.IWrist;
+};
+
+/** The record of `IPrepareMovingResult`'s site. */
+type IPrepareMovingResult = {
+  target: (
+    posture: IAutoMovieMotionHumanPosture,
+    progress: number,
+  ) => IAutoMovieMotionHumanArmTarget.ITarget;
+  wrist: (
+    posture: IAutoMovieMotionHumanPosture,
+    progress: number,
+  ) => IAutoMovieMotionHumanHand.IWrist;
+};

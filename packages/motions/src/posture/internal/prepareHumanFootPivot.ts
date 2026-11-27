@@ -9,9 +9,6 @@ import type {
 import { HumanFootRotation } from "./HumanFootRotation";
 import { humanFootOffset } from "./humanFootOffset";
 
-/** The alternatives of `PrepareHumanFootPivotPivot`'s site. */
-type PrepareHumanFootPivotPivot = "heel" | "ball" | "toe" | "sole" | "mtp";
-
 /**
  * Prepare rigid sole geometry for repeated pitch trials under one fixed
  * heading, toe flexion, roll and default contact. An explicit contact changes
@@ -54,3 +51,6 @@ export function prepareHumanFootPivot(
     };
   };
 }
+
+/** The alternatives of `PrepareHumanFootPivotPivot`'s site. */
+type PrepareHumanFootPivotPivot = "heel" | "ball" | "toe" | "sole" | "mtp";

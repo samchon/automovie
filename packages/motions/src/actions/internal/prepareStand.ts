@@ -24,9 +24,6 @@ import { standClearArms } from "./standClearArms";
 import { standFeet } from "./standFeet";
 import { standUpright } from "./standUpright";
 
-/** The alternatives of `PrepareStandPart`'s site. */
-type PrepareStandPart = "leftFoot" | "rightFoot";
-
 /**
  * Prepare a quiet standing entry once when its owning action discovers its
  * final duration after a probe. Body, entry, skill, side, sway and support
@@ -219,6 +216,9 @@ export function prepareStand(
     };
   };
 }
+
+/** The alternatives of `PrepareStandPart`'s site. */
+type PrepareStandPart = "leftFoot" | "rightFoot";
 
 /** Both arms, which a settling stand keeps clear of its moving thighs. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];

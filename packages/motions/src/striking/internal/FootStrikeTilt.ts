@@ -13,19 +13,6 @@ import { FootStrikeForms } from "./FootStrikeForms";
 import { KickForm } from "./KickForm";
 
 /**
- * How far a leg's thigh lies past the comfortable share of the hip's reach at
- * its azimuth, and the leg's horizontal direction and chord elevation.
- */
-interface IExcess {
-  /** Degrees past the comfortable reach; negative inside it. */
-  degrees: number;
-  /** The hip-to-ankle line's elevation from straight down, degrees. */
-  elevation: number;
-  /** The leg's horizontal direction, a unit vector. */
-  across: IAutoMovieVector3;
-}
-
-/**
  * The thigh's excess over the comfortable share of the hip's range for a leg
  * from a hip to an ankle: the hip-to-ankle line's elevation from straight down
  * plus the thigh's rise above that line, which the knee's bend over the line's
@@ -397,4 +384,17 @@ export namespace FootStrikeTilt {
       ),
     );
   }
+}
+
+/**
+ * How far a leg's thigh lies past the comfortable share of the hip's reach at
+ * its azimuth, and the leg's horizontal direction and chord elevation.
+ */
+interface IExcess {
+  /** Degrees past the comfortable reach; negative inside it. */
+  degrees: number;
+  /** The hip-to-ankle line's elevation from straight down, degrees. */
+  elevation: number;
+  /** The leg's horizontal direction, a unit vector. */
+  across: IAutoMovieVector3;
 }

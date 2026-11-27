@@ -85,21 +85,6 @@ export namespace HumanHeld {
   export const SIDES: readonly number[] = [0, 45, -45, 90, -90, 135, -135, 180];
 
   /**
-   * The rim's sides in the order a hand tries them: `SIDES` for the right hand
-   * and their mirror for the left. A turn is measured in the hand's own frame
-   * from its facing toward `normal x facing`, and a left hand's frame is the
-   * right's mirrored, where that cross product points the other way: one list
-   * for both hands had the left hand try the mirror of -45 where the right
-   * tries 45, so of two sides that hold the vessel alike the two hands took
-   * sides that are not each other's mirror.
-   */
-  function turns(side: AutoMovieHumanSide): readonly number[] {
-    return side === "right"
-      ? SIDES
-      : SIDES.map((turn: number): number => (turn === 0 ? 0 : -turn));
-  }
-
-  /**
    * The effectors of an upright vessel at every side of its rim the search
    * tries (`SIDES`, the act's own side first), for an act that searches the
    * side with its own admission, as a drink does (`handToFaceVessel`).
@@ -278,6 +263,21 @@ export namespace HumanHeld {
       contacts: [...plan.contacts, AutoMovieMotionHumanHeld.grip(held)],
       holds: [AutoMovieMotionHumanHeld.hold(context, held)],
     };
+  }
+
+  /**
+   * The rim's sides in the order a hand tries them: `SIDES` for the right hand
+   * and their mirror for the left. A turn is measured in the hand's own frame
+   * from its facing toward `normal x facing`, and a left hand's frame is the
+   * right's mirrored, where that cross product points the other way: one list
+   * for both hands had the left hand try the mirror of -45 where the right
+   * tries 45, so of two sides that hold the vessel alike the two hands took
+   * sides that are not each other's mirror.
+   */
+  function turns(side: AutoMovieHumanSide): readonly number[] {
+    return side === "right"
+      ? SIDES
+      : SIDES.map((turn: number): number => (turn === 0 ? 0 : -turn));
   }
 }
 

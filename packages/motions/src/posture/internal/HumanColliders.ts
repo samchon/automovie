@@ -13,20 +13,6 @@ import { HumanColliderBound } from "./HumanColliderBound";
 import { HumanColliderDistance } from "./HumanColliderDistance";
 import { HumanColliderPlacement } from "./HumanColliderPlacement";
 
-/** The record of `IReadingResult`'s site. */
-type IReadingResult = {
-  segment: (
-    a: IAutoMovieVector3,
-    b: IAutoMovieVector3,
-    taper?: readonly [number, number],
-  ) => IAutoMovieMotionHumanColliders.IDistance;
-  cast: (
-    from: IAutoMovieVector3,
-    direction: IAutoMovieVector3,
-    reach: number,
-  ) => IAutoMovieMotionHumanColliders.IHit | undefined;
-};
-
 /**
  * A posed body's colliders as signed distances: how far a point, or a segment
  * (a capsule weapon's axis), lies outside the body's profile shapes (negative
@@ -184,54 +170,6 @@ export namespace HumanColliders {
   }
 
   /**
-   * Trace each actual ray against a caller-owned, unchanged segment geometry
-   * reader.
-   */
-  function castOn(
-    segment: ReturnType<typeof reading>["segment"],
-    from: IAutoMovieVector3,
-    direction: IAutoMovieVector3,
-    reach: number,
-  ): IAutoMovieMotionHumanColliders.IHit | undefined {
-    const along: IAutoMovieVector3 = Vector3.normalize(direction);
-    const atPoint: (
-      point: IAutoMovieVector3,
-    ) => IAutoMovieMotionHumanColliders.IDistance = (
-      point: IAutoMovieVector3,
-    ): IAutoMovieMotionHumanColliders.IDistance => {
-      return segment(point, point);
-    };
-    let travelled: number = 0;
-    for (let i: number = 0; i < CAST_STEPS; i++) {
-      const point: IAutoMovieVector3 = Vector3.addScaled(
-        from,
-        along,
-        travelled,
-      );
-      const near: IAutoMovieMotionHumanColliders.IDistance = atPoint(point);
-      if (near.distance <= CAST_TOLERANCE) {
-        const slope: (axis: IAutoMovieVector3) => number = (
-          axis: IAutoMovieVector3,
-        ): number =>
-          atPoint(Vector3.add(point, axis)).distance -
-          atPoint(Vector3.subtract(point, axis)).distance;
-        return {
-          point,
-          normal: Vector3.normalize({
-            x: slope(CAST_X),
-            y: slope(CAST_Y),
-            z: slope(CAST_Z),
-          }),
-          bone: near.bone,
-        };
-      }
-      travelled += near.distance;
-      if (travelled > reach) return undefined;
-    }
-    return undefined;
-  }
-
-  /**
    * The lowest world height any of a posed body's colliders reaches, metres:
    * the least over the placed shapes of their exact world axis bounds
    * (`physicalShapeBounds`). This is what a body lying or falling rests on, and
@@ -340,7 +278,69 @@ export namespace HumanColliders {
   ): IAutoMovieMotionHumanColliders.IBall {
     return HumanColliderBound(shape);
   }
+
+  /**
+   * Trace each actual ray against a caller-owned, unchanged segment geometry
+   * reader.
+   */
+  function castOn(
+    segment: ReturnType<typeof reading>["segment"],
+    from: IAutoMovieVector3,
+    direction: IAutoMovieVector3,
+    reach: number,
+  ): IAutoMovieMotionHumanColliders.IHit | undefined {
+    const along: IAutoMovieVector3 = Vector3.normalize(direction);
+    const atPoint: (
+      point: IAutoMovieVector3,
+    ) => IAutoMovieMotionHumanColliders.IDistance = (
+      point: IAutoMovieVector3,
+    ): IAutoMovieMotionHumanColliders.IDistance => {
+      return segment(point, point);
+    };
+    let travelled: number = 0;
+    for (let i: number = 0; i < CAST_STEPS; i++) {
+      const point: IAutoMovieVector3 = Vector3.addScaled(
+        from,
+        along,
+        travelled,
+      );
+      const near: IAutoMovieMotionHumanColliders.IDistance = atPoint(point);
+      if (near.distance <= CAST_TOLERANCE) {
+        const slope: (axis: IAutoMovieVector3) => number = (
+          axis: IAutoMovieVector3,
+        ): number =>
+          atPoint(Vector3.add(point, axis)).distance -
+          atPoint(Vector3.subtract(point, axis)).distance;
+        return {
+          point,
+          normal: Vector3.normalize({
+            x: slope(CAST_X),
+            y: slope(CAST_Y),
+            z: slope(CAST_Z),
+          }),
+          bone: near.bone,
+        };
+      }
+      travelled += near.distance;
+      if (travelled > reach) return undefined;
+    }
+    return undefined;
+  }
 }
+
+/** The record of `IReadingResult`'s site. */
+type IReadingResult = {
+  segment: (
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+    taper?: readonly [number, number],
+  ) => IAutoMovieMotionHumanColliders.IDistance;
+  cast: (
+    from: IAutoMovieVector3,
+    direction: IAutoMovieVector3,
+    reach: number,
+  ) => IAutoMovieMotionHumanColliders.IHit | undefined;
+};
 
 /** How near a traced ray must come to a surface to have hit it, metres. */
 const CAST_TOLERANCE: number = 1e-5;

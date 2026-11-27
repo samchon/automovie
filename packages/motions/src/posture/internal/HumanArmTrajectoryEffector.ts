@@ -199,6 +199,23 @@ export function HumanArmTrajectoryEffector(
   };
 }
 
+/** Endpoint types of the carrier-relative arm course. */
+export namespace HumanArmTrajectoryEffector {
+  /** The endpoint's shoulder frame and the arm placed in it. */
+  export interface IEnd {
+    /** This endpoint's shoulder-parent frame. */
+    frame: IAutoMovieMotionHumanArmGeometry.IFrame;
+
+    /** The trajectory chart's nine coordinates. */
+    coordinates: readonly number[];
+  }
+}
+
+/** Inner product of unit quaternions or their half-angle coefficients. */
+function dot(a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number {
+  return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+}
+
 /** A hinge root that reaches the wrist, read against the reference shoulder. */
 interface IReached {
   /** The root's hinge flexion, radians. */
@@ -219,20 +236,3 @@ interface IReached {
 
 /** The geometry of an arm before placing any collision probes. */
 type Chain = ReturnType<typeof G.chain>;
-
-/** Endpoint types of the carrier-relative arm course. */
-export namespace HumanArmTrajectoryEffector {
-  /** The endpoint's shoulder frame and the arm placed in it. */
-  export interface IEnd {
-    /** This endpoint's shoulder-parent frame. */
-    frame: IAutoMovieMotionHumanArmGeometry.IFrame;
-
-    /** The trajectory chart's nine coordinates. */
-    coordinates: readonly number[];
-  }
-}
-
-/** Inner product of unit quaternions or their half-angle coefficients. */
-function dot(a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number {
-  return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
-}

@@ -20,12 +20,6 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 
-/** The alternatives of `StoodContext`'s site. */
-type StoodContext = "body" | "entry";
-
-/** The alternatives of `BasePlantPart`'s site. */
-type BasePlantPart = "leftFoot" | "rightFoot";
-
 /**
  * The advance of a stroke: how the body goes with a held tool's cut, thrust or
  * presentation. The leading foot, the one on the tool's side, leaves the floor,
@@ -207,3 +201,9 @@ export namespace StrikingAdvance {
     );
   };
 }
+
+/** The alternatives of `StoodContext`'s site. */
+type StoodContext = "body" | "entry";
+
+/** The alternatives of `BasePlantPart`'s site. */
+type BasePlantPart = "leftFoot" | "rightFoot";

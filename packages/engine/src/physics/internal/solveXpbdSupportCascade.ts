@@ -2,6 +2,164 @@ import type { solveXpbdArticulationContacts as Contacts } from "./solveXpbdArtic
 import type { AutoMovieEnginePhysics } from "../AutoMovieEnginePhysics";
 import { solveXpbdSupportLevels as Levels } from "./solveXpbdSupportLevels";
 
+/** The input and the warm store of solveXpbdSupportCascade. */
+export namespace solveXpbdSupportCascade {
+  /**
+   * The strict cascade of hierarchical inverse dynamics (Herzog, Rotella, Mason,
+   * Grimminger, Schaal and Righetti 2016, eq. 5) over one tree's support rows and
+   * actuated axes, each level one quadratic program over the same feasible set:
+   * the support rows bring their contacts to rest, the row's velocity after the
+   * step zero as in sticking contact (Mirtich 1996), through the independent
+   * ones, a normal row's impulse stays at or above its Signorini bound, each
+   * patch's whole friction, the contact passes' plus the rows', stays inside the
+   * inscribed pyramid `|t1| + |t2| <= mu (N + sum lambda_n)` the wrench
+   * allocation uses, a patch's torsional moment within its points' friction on
+   * their levers, every joint impulse within its motor's cap on its own direction
+   * (Herzog et al. 2016, Section 2.1), and each bounded group's summed normal
+   * impulse within its bound, the ramp a leaving contact's force follows to zero
+   * (Section 5.3).
+   *
+   * - Level one minimizes the task's residual `e = G x - g`, regularized by
+   *   `sqrt(eps)` as the allocation is, each row by its weight when the task is
+   *   IHMC's weighted objective: develop
+   *   `InverseDynamicsOptimizationControlModule` adds the centre-of-pressure
+   *   inputs (l.422-424) and the momentum rate command (l.620-625) to one program
+   *   as weighted objectives.
+   * - Level two fixes that residual at its optimum and minimizes the motion rows'
+   *   residual `m = W x - w`: the posture's joint rates and the root's spin after
+   *   the step against what their servos ask, a task in motion, as whole-body
+   *   controllers rank posture (Herzog et al. 2016; TSID's `TaskJointPosture`),
+   *   the joint impulses left free within their caps so the torques the support
+   *   needs come out of the solve. A torque-space posture, the motors' own
+   *   impulses as targets, lets every wrench change bend the stance unopposed.
+   * - When level one has no feasible point, the holds that cannot be met within the
+   *   caps and cones are kept as nearly as they can: a level zero minimizes their
+   *   velocity residual, fixed below the wrench and the motion, so every level
+   *   stays feasible (hierarchical least squares; Escande, Mansard and Wieber
+   *   2014) and the support never falls back to a solve without its task.
+   *
+   * Every objective is diagonal and positive, a fixed residual's weight changing
+   * nothing. Each level is solved by the dual active-set method (Goldfarb and
+   * Idnani 1983, `solveXpbdDualActiveSet`), warm-started from the active set the
+   * same level ended with on the previous substep, as whole-body controllers
+   * solve their per-cycle programs; the engine's interior-point solver is the
+   * cold fallback when the active-set solve reports no solution.
+   *
+   * @param input The rows, the task, the actuators, the motion rows, the bounds
+   *   and the warm start.
+   * @returns The rows' and joint impulses, or null when even the relaxed holds
+   *   leave no feasible point.
+   */
+  export function run(
+    input: Parameters<typeof solveXpbdSupportCascadeImplementation>[0],
+  ): ReturnType<typeof solveXpbdSupportCascadeImplementation> {
+    return solveXpbdSupportCascadeImplementation(input);
+  }
+
+  /** What the cascade reads of one support row. */
+  export type IRow = Pick<
+    Contacts.IRow,
+    "state" | "point" | "direction" | "velocity" | "lower" | "moment"
+  >;
+
+  /** What the cascade reads of the support set. */
+  export interface ISet {
+    /** Every row. */
+    rows: readonly IRow[];
+
+    /** Every patch. */
+    patches: readonly Contacts.IPatch[];
+  }
+
+  /** One tree's program. */
+  export interface IInput {
+    /**
+     * Each support row's velocity change per unit impulse of every unknown,
+     * rows then actuators.
+     */
+    k: readonly number[][];
+
+    /** Each support row's velocity change under the motors without the unknowns. */
+    u: readonly number[];
+
+    /**
+     * Each unknown's ground-reaction wrench per unit impulse, force then moment
+     * over the lever, or the rows of IHMC's whole-body objective
+     * (`solveXpbdArticulationContacts.objectiveRow`).
+     */
+    columns: readonly number[][];
+
+    /** The ground-reaction wrench the rows should add, over the substep. */
+    target: readonly number[];
+
+    /**
+     * Each wrench row's weight in level one, IHMC's command weights; one each
+     * when absent.
+     */
+    weights?: readonly number[];
+
+    /** The support rows and patches. */
+    set: ISet;
+
+    /** The actuated axes, in the unknowns' order after the rows. */
+    actuators: readonly Contacts.IActuator[];
+
+    /**
+     * Level two's motion rows: what the posture's rates and the root's spin
+     * should be after the step.
+     */
+    motion: readonly IMotion[];
+
+    /** Groups of normal rows whose summed impulse is bounded; none when absent. */
+    bounds?: readonly IBound[];
+
+    /**
+     * The tree's active sets from the previous substep, rewritten with this
+     * one's.
+     */
+    warm: IWarm;
+  }
+
+  /**
+   * One motion row: a velocity after the step, linear in the unknowns, and the
+   * change in it the row asks of them.
+   */
+  export interface IMotion {
+    /**
+     * The velocity's change per unit impulse of every unknown, rows then
+     * actuators.
+     */
+    weights: readonly number[];
+
+    /**
+     * The change asked: the servo's velocity less the velocity without the
+     * unknowns, per second.
+     */
+    value: number;
+  }
+
+  /** A group of normal rows whose summed added impulse is bounded. */
+  export interface IBound {
+    /** The rows' indices. */
+    rows: readonly number[];
+
+    /**
+     * The largest summed impulse they may add, newton seconds; negative takes
+     * back part of the contact passes'.
+     */
+    impulse: number;
+  }
+
+  /** The keys of the inequalities each level ended active on. */
+  export interface IWarm {
+    /** Level one's. */
+    first: string[];
+
+    /** Level two's. */
+    second: string[];
+  }
+}
+
 function solveXpbdSupportCascadeImplementation(
   input: solveXpbdSupportCascade.IInput,
 ): number[] | null {
@@ -234,162 +392,4 @@ function cascade(
     warm.second,
   );
   return (second ?? first).slice(0, size);
-}
-
-/** The input and the warm store of solveXpbdSupportCascade. */
-export namespace solveXpbdSupportCascade {
-  /**
-   * The strict cascade of hierarchical inverse dynamics (Herzog, Rotella, Mason,
-   * Grimminger, Schaal and Righetti 2016, eq. 5) over one tree's support rows and
-   * actuated axes, each level one quadratic program over the same feasible set:
-   * the support rows bring their contacts to rest, the row's velocity after the
-   * step zero as in sticking contact (Mirtich 1996), through the independent
-   * ones, a normal row's impulse stays at or above its Signorini bound, each
-   * patch's whole friction, the contact passes' plus the rows', stays inside the
-   * inscribed pyramid `|t1| + |t2| <= mu (N + sum lambda_n)` the wrench
-   * allocation uses, a patch's torsional moment within its points' friction on
-   * their levers, every joint impulse within its motor's cap on its own direction
-   * (Herzog et al. 2016, Section 2.1), and each bounded group's summed normal
-   * impulse within its bound, the ramp a leaving contact's force follows to zero
-   * (Section 5.3).
-   *
-   * - Level one minimizes the task's residual `e = G x - g`, regularized by
-   *   `sqrt(eps)` as the allocation is, each row by its weight when the task is
-   *   IHMC's weighted objective: develop
-   *   `InverseDynamicsOptimizationControlModule` adds the centre-of-pressure
-   *   inputs (l.422-424) and the momentum rate command (l.620-625) to one program
-   *   as weighted objectives.
-   * - Level two fixes that residual at its optimum and minimizes the motion rows'
-   *   residual `m = W x - w`: the posture's joint rates and the root's spin after
-   *   the step against what their servos ask, a task in motion, as whole-body
-   *   controllers rank posture (Herzog et al. 2016; TSID's `TaskJointPosture`),
-   *   the joint impulses left free within their caps so the torques the support
-   *   needs come out of the solve. A torque-space posture, the motors' own
-   *   impulses as targets, lets every wrench change bend the stance unopposed.
-   * - When level one has no feasible point, the holds that cannot be met within the
-   *   caps and cones are kept as nearly as they can: a level zero minimizes their
-   *   velocity residual, fixed below the wrench and the motion, so every level
-   *   stays feasible (hierarchical least squares; Escande, Mansard and Wieber
-   *   2014) and the support never falls back to a solve without its task.
-   *
-   * Every objective is diagonal and positive, a fixed residual's weight changing
-   * nothing. Each level is solved by the dual active-set method (Goldfarb and
-   * Idnani 1983, `solveXpbdDualActiveSet`), warm-started from the active set the
-   * same level ended with on the previous substep, as whole-body controllers
-   * solve their per-cycle programs; the engine's interior-point solver is the
-   * cold fallback when the active-set solve reports no solution.
-   *
-   * @param input The rows, the task, the actuators, the motion rows, the bounds
-   *   and the warm start.
-   * @returns The rows' and joint impulses, or null when even the relaxed holds
-   *   leave no feasible point.
-   */
-  export function run(
-    input: Parameters<typeof solveXpbdSupportCascadeImplementation>[0],
-  ): ReturnType<typeof solveXpbdSupportCascadeImplementation> {
-    return solveXpbdSupportCascadeImplementation(input);
-  }
-
-  /** What the cascade reads of one support row. */
-  export type IRow = Pick<
-    Contacts.IRow,
-    "state" | "point" | "direction" | "velocity" | "lower" | "moment"
-  >;
-
-  /** What the cascade reads of the support set. */
-  export interface ISet {
-    /** Every row. */
-    rows: readonly IRow[];
-
-    /** Every patch. */
-    patches: readonly Contacts.IPatch[];
-  }
-
-  /** One tree's program. */
-  export interface IInput {
-    /**
-     * Each support row's velocity change per unit impulse of every unknown,
-     * rows then actuators.
-     */
-    k: readonly number[][];
-
-    /** Each support row's velocity change under the motors without the unknowns. */
-    u: readonly number[];
-
-    /**
-     * Each unknown's ground-reaction wrench per unit impulse, force then moment
-     * over the lever, or the rows of IHMC's whole-body objective
-     * (`solveXpbdArticulationContacts.objectiveRow`).
-     */
-    columns: readonly number[][];
-
-    /** The ground-reaction wrench the rows should add, over the substep. */
-    target: readonly number[];
-
-    /**
-     * Each wrench row's weight in level one, IHMC's command weights; one each
-     * when absent.
-     */
-    weights?: readonly number[];
-
-    /** The support rows and patches. */
-    set: ISet;
-
-    /** The actuated axes, in the unknowns' order after the rows. */
-    actuators: readonly Contacts.IActuator[];
-
-    /**
-     * Level two's motion rows: what the posture's rates and the root's spin
-     * should be after the step.
-     */
-    motion: readonly IMotion[];
-
-    /** Groups of normal rows whose summed impulse is bounded; none when absent. */
-    bounds?: readonly IBound[];
-
-    /**
-     * The tree's active sets from the previous substep, rewritten with this
-     * one's.
-     */
-    warm: IWarm;
-  }
-
-  /**
-   * One motion row: a velocity after the step, linear in the unknowns, and the
-   * change in it the row asks of them.
-   */
-  export interface IMotion {
-    /**
-     * The velocity's change per unit impulse of every unknown, rows then
-     * actuators.
-     */
-    weights: readonly number[];
-
-    /**
-     * The change asked: the servo's velocity less the velocity without the
-     * unknowns, per second.
-     */
-    value: number;
-  }
-
-  /** A group of normal rows whose summed added impulse is bounded. */
-  export interface IBound {
-    /** The rows' indices. */
-    rows: readonly number[];
-
-    /**
-     * The largest summed impulse they may add, newton seconds; negative takes
-     * back part of the contact passes'.
-     */
-    impulse: number;
-  }
-
-  /** The keys of the inequalities each level ended active on. */
-  export interface IWarm {
-    /** Level one's. */
-    first: string[];
-
-    /** Level two's. */
-    second: string[];
-  }
 }

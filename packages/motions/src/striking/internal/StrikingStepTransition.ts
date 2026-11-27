@@ -21,56 +21,15 @@ import { StrikingTarget } from "./StrikingTarget";
 import { StrikingTwist } from "./StrikingTwist";
 import type { strikingStepSupport } from "./strikingStepSupport";
 
-/** A single stance side. */
-type Side = AutoMovieHumanSide;
-
-/** Both feet in world metres with their actual rotations. */
-type Feet = Record<Side, IAutoMovieMotionHumanFoot.IPlacement>;
-
-/** A foot's normalized motion interval within one beat. */
-type Window = readonly [from: number, to: number];
-
-/** The inherited support only present at a cut with at least one airborne foot. */
-type IStrikingStepSupport = strikingStepSupport.ISupport;
-
-/** The original planted sole point and pitch of the lead foot. */
-interface IPivot {
-  side: Side;
-  ball: IAutoMovieVector3;
-  pitch: number;
-}
-
-/** Fixed geometry and support schedule of one beat. */
-interface IBeat {
-  from: Feet;
-  to: Feet;
-  root: IAutoMovieVector3;
-  destination: IAutoMovieVector3;
-  line: number;
-  delta: number;
-  lead: Side;
-  nextLead: Side;
-  windows: Record<Side, Window | undefined>;
-  pivot: IPivot | undefined;
-  airborne: IStrikingStepSupport["landings"] | undefined;
-}
-
-/** Resolved controls from the step law, in seconds, degrees and metres. */
-interface IProps {
-  count: number;
-  stride: number;
-  length: number;
-  turn: number;
-  lead: Side;
-  support: IStrikingStepSupport | undefined;
-}
-
 /** Each moving foot gets its own support interval, with both down between lifts. */
 const FIRST: Window = [0, 0.45];
+
 /** The following foot has planted before the action cut. */
 const SECOND: Window = [0.5, 0.95];
+
 /** The lead ball stays in place while the other foot takes one swing. */
 const PIVOT: Window = [0, 0.95];
+
 /** Axis of a positive turn in the world frame. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
@@ -436,4 +395,45 @@ function placement(
     lift,
     share,
   );
+}
+
+/** A single stance side. */
+type Side = AutoMovieHumanSide;
+
+/** Both feet in world metres with their actual rotations. */
+type Feet = Record<Side, IAutoMovieMotionHumanFoot.IPlacement>;
+/** A foot's normalized motion interval within one beat. */
+type Window = readonly [from: number, to: number];
+/** The inherited support only present at a cut with at least one airborne foot. */
+type IStrikingStepSupport = strikingStepSupport.ISupport;
+/** The original planted sole point and pitch of the lead foot. */
+interface IPivot {
+  side: Side;
+  ball: IAutoMovieVector3;
+  pitch: number;
+}
+
+/** Fixed geometry and support schedule of one beat. */
+interface IBeat {
+  from: Feet;
+  to: Feet;
+  root: IAutoMovieVector3;
+  destination: IAutoMovieVector3;
+  line: number;
+  delta: number;
+  lead: Side;
+  nextLead: Side;
+  windows: Record<Side, Window | undefined>;
+  pivot: IPivot | undefined;
+  airborne: IStrikingStepSupport["landings"] | undefined;
+}
+
+/** Resolved controls from the step law, in seconds, degrees and metres. */
+interface IProps {
+  count: number;
+  stride: number;
+  length: number;
+  turn: number;
+  lead: Side;
+  support: IStrikingStepSupport | undefined;
 }

@@ -21,9 +21,6 @@ import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBo
 import { EquineBodyPose } from "./equine/EquineBodyPose";
 import { EquineStanceRows } from "./equine/EquineStanceRows";
 
-/** A named instant of a ride. */
-type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
-
 /**
  * An equid's standing performance after its ride halts: authored whole-body
  * responses played one after another over the halted stance.
@@ -334,3 +331,6 @@ export namespace AutoMovieArchetypeEquineStance {
       : NaN;
   }
 }
+
+/** A named instant of a ride. */
+type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];

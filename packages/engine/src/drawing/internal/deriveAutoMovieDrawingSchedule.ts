@@ -39,17 +39,6 @@ import { indexAutoMovieDrawingDesign } from "./indexAutoMovieDrawingDesign";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 import { roundAutoMovieDrawingVector } from "./roundAutoMovieDrawingVector";
 
-/** One scheduled thing, reduced to what decides its row. */
-interface IOccurrence {
-  id: string;
-  kind: string;
-  model: string | null;
-  width: number | null;
-  height: number | null;
-  basis: IAutoMovieDrawingScheduleRow["basis"];
-  place: IAutoMovieDrawingSchedulePlace;
-}
-
 /**
  * Schedule every declared space, opening or connector of one design.
  *
@@ -176,6 +165,17 @@ export function deriveAutoMovieDrawingSchedule(
       AutoMovieEngineCanonicalJson.canonicalize(schedule),
     ),
   };
+}
+
+/** One scheduled thing, reduced to what decides its row. */
+interface IOccurrence {
+  id: string;
+  kind: string;
+  model: string | null;
+  width: number | null;
+  height: number | null;
+  basis: IAutoMovieDrawingScheduleRow["basis"];
+  place: IAutoMovieDrawingSchedulePlace;
 }
 
 /**

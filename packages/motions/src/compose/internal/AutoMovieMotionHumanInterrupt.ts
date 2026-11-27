@@ -4,18 +4,6 @@ import type {
   IAutoMovieMotionHumanInterruptRow,
 } from "@automovie/interface";
 
-/** The alternatives of `TableItem`'s site. */
-type TableItem = AutoMovieMotionHumanActionKey | "any";
-
-/** The alternatives of `OutEntryItem`'s site. */
-type OutEntryItem = AutoMovieMotionHumanActionKey | "any";
-
-/** The alternatives of `TableEntryItemResult`'s site. */
-type TableEntryItemResult = AutoMovieMotionHumanActionKey | "any";
-
-/** The alternatives of `RowsEntryItem`'s site. */
-type RowsEntryItem = AutoMovieMotionHumanActionKey | "any";
-
 /**
  * Cancel rows by name: when an action may be cancelled, as a window of its
  * phrase, and how fast the next action blends in.
@@ -125,3 +113,15 @@ export namespace AutoMovieMotionHumanInterrupt {
     return out;
   }
 }
+
+/** The alternatives of `TableItem`'s site. */
+type TableItem = AutoMovieMotionHumanActionKey | "any";
+
+/** The alternatives of `OutEntryItem`'s site. */
+type OutEntryItem = AutoMovieMotionHumanActionKey | "any";
+
+/** The alternatives of `TableEntryItemResult`'s site. */
+type TableEntryItemResult = AutoMovieMotionHumanActionKey | "any";
+
+/** The alternatives of `RowsEntryItem`'s site. */
+type RowsEntryItem = AutoMovieMotionHumanActionKey | "any";

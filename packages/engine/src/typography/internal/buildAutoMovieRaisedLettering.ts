@@ -11,12 +11,6 @@ import { layoutAutoMovieText } from "./layoutAutoMovieText";
 import { regionsOfAutoMovieGlyph } from "./regionsOfAutoMovieGlyph";
 
 /**
- * Default chord tolerance, metres: 0.05 mm, below a pixel of any sign a frame
- * shows.
- */
-const TOLERANCE: number = 0.00005;
-
-/**
  * Extrude a laid-out text run into one closed mesh of raised lettering, such as
  * channel letters over a storefront or a plaque's relief.
  *
@@ -100,3 +94,9 @@ export function buildAutoMovieRaisedLettering(
   }
   return { positions, normals, uvs, indices, skin: null };
 }
+
+/**
+ * Default chord tolerance, metres: 0.05 mm, below a pixel of any sign a frame
+ * shows.
+ */
+const TOLERANCE: number = 0.00005;

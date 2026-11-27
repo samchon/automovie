@@ -19,16 +19,6 @@ import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { HumanTrunk } from "./HumanTrunk";
 
-/** The body proportions fixed by the selected lowering strategy. */
-interface IStrategyGeometry {
-  readonly drop: number;
-  readonly retreat: number;
-  readonly deepest: number;
-}
-
-/** A current-pose root adjustment with the caller's synchronous FK source. */
-type Lower = ReturnType<typeof lowerHumanPosture.prepare>;
-
 /**
  * A standing body lowered toward a low target by a strategy, and the trunk
  * pitch that brings the shoulder within reach: the posture transforms the bend
@@ -41,9 +31,6 @@ export namespace bendLower {
     posture: IAutoMovieMotionHumanPosture,
     read: ReturnType<typeof prepareHumanPoseResolution>,
   ) => IAutoMovieVector3;
-
-  /** A named bend strategy after resolving the automatic choice. */
-  type Strategy = IAutoMovieMotionHumanBendLower.ISolved["strategy"];
 
   /**
    * The knee flexion each strategy lifts at, degrees: a semi-squat's 90 and a
@@ -193,6 +180,60 @@ export namespace bendLower {
         lowerPlanted,
       );
   }
+
+  /**
+   * Heel lift by strategy at full depth, degrees (provisional: only the squat
+   * outruns the ankle's dorsiflexion).
+   */
+  export const HEEL: Readonly<Record<Strategy, number>> = {
+    stoop: 0,
+    semiSquat: 0,
+    squat: 30,
+  };
+
+  /**
+   * The frontal inclination that directs the upper trunk toward a target beside
+   * the body: the target's lateral displacement from the hips over the
+   * pelvis-to-shoulder lever, as the lowering's `lateral` takes it.
+   *
+   * @param body The body.
+   * @param upright The standing posture the target is read from.
+   * @param target The target, world metres.
+   * @param side The reaching hand.
+   * @returns Degrees, toward the target's side.
+   */
+  export function lateralTilt(
+    body: IAutoMovieMotionHumanBody,
+    upright: IAutoMovieMotionHumanPosture,
+    target: IAutoMovieVector3,
+    side: AutoMovieHumanSide,
+  ): number {
+    const hips: IAutoMovieVector3 = body.rest.get("hips")!;
+    const shoulder: IAutoMovieVector3 = body.rest.get(`${side}UpperArm`)!;
+    const local: IAutoMovieVector3 = HumanFrame.local(
+      { origin: upright.root, yaw: upright.yaw },
+      target,
+    );
+    return (Math.atan2(hips.x - local.x, shoulder.y - hips.y) * 180) / Math.PI;
+  }
+
+  /**
+   * The share of the arm (upper arm and forearm) a lowered or leaned body
+   * brings the shoulder within of its target, so the arm reaches near, not at,
+   * full extension: where people reaching as they like stop reaching with the
+   * arm alone and lean the trunk in, the preferred critical boundary, 0.89 of
+   * full-arm extension, the centre of the measured 0.83 to 0.95 (Petrovic 2012,
+   * Miami University dissertation, Experiment 1, Table 1 and Fig. 3, 10 seated
+   * adults: 0.92, 0.88 and 0.83 holding 300, 650 and 1000 g, SD 0.06 to 0.07;
+   * Mark et al. 1997, J Exp Psychol Hum Percept Perform 23:1365, and Stasik and
+   * Mark 2005: 0.95, as Petrovic reports them). The studies reach seated; no
+   * standing measure was found. `pitch` reads it, and a pick up's lift closes
+   * on it too.
+   */
+  export const REACH: number = 0.89;
+
+  /** A named bend strategy after resolving the automatic choice. */
+  type Strategy = IAutoMovieMotionHumanBendLower.ISolved["strategy"];
 
   /** Vertical movement at full depth, metres. */
   function hipDrop(
@@ -389,55 +430,14 @@ export namespace bendLower {
       ? lowerHumanPosture(body, placed, undefined, resolution)
       : lowerPlanted(placed, resolution);
   }
-
-  /**
-   * Heel lift by strategy at full depth, degrees (provisional: only the squat
-   * outruns the ankle's dorsiflexion).
-   */
-  export const HEEL: Readonly<Record<Strategy, number>> = {
-    stoop: 0,
-    semiSquat: 0,
-    squat: 30,
-  };
-
-  /**
-   * The frontal inclination that directs the upper trunk toward a target beside
-   * the body: the target's lateral displacement from the hips over the
-   * pelvis-to-shoulder lever, as the lowering's `lateral` takes it.
-   *
-   * @param body The body.
-   * @param upright The standing posture the target is read from.
-   * @param target The target, world metres.
-   * @param side The reaching hand.
-   * @returns Degrees, toward the target's side.
-   */
-  export function lateralTilt(
-    body: IAutoMovieMotionHumanBody,
-    upright: IAutoMovieMotionHumanPosture,
-    target: IAutoMovieVector3,
-    side: AutoMovieHumanSide,
-  ): number {
-    const hips: IAutoMovieVector3 = body.rest.get("hips")!;
-    const shoulder: IAutoMovieVector3 = body.rest.get(`${side}UpperArm`)!;
-    const local: IAutoMovieVector3 = HumanFrame.local(
-      { origin: upright.root, yaw: upright.yaw },
-      target,
-    );
-    return (Math.atan2(hips.x - local.x, shoulder.y - hips.y) * 180) / Math.PI;
-  }
-
-  /**
-   * The share of the arm (upper arm and forearm) a lowered or leaned body
-   * brings the shoulder within of its target, so the arm reaches near, not at,
-   * full extension: where people reaching as they like stop reaching with the
-   * arm alone and lean the trunk in, the preferred critical boundary, 0.89 of
-   * full-arm extension, the centre of the measured 0.83 to 0.95 (Petrovic 2012,
-   * Miami University dissertation, Experiment 1, Table 1 and Fig. 3, 10 seated
-   * adults: 0.92, 0.88 and 0.83 holding 300, 650 and 1000 g, SD 0.06 to 0.07;
-   * Mark et al. 1997, J Exp Psychol Hum Percept Perform 23:1365, and Stasik and
-   * Mark 2005: 0.95, as Petrovic reports them). The studies reach seated; no
-   * standing measure was found. `pitch` reads it, and a pick up's lift closes
-   * on it too.
-   */
-  export const REACH: number = 0.89;
 }
+
+/** The body proportions fixed by the selected lowering strategy. */
+interface IStrategyGeometry {
+  readonly drop: number;
+  readonly retreat: number;
+  readonly deepest: number;
+}
+
+/** A current-pose root adjustment with the caller's synchronous FK source. */
+type Lower = ReturnType<typeof lowerHumanPosture.prepare>;

@@ -4,20 +4,6 @@ import { HumanQuadraticRow } from "./HumanQuadraticRow";
 import { HumanQuadraticSubstitute } from "./HumanQuadraticSubstitute";
 import { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace";
 
-/** The record of `IHumanQuadraticPolishSelection`'s site. */
-type IHumanQuadraticPolishSelection = { rows: number[]; bounds: number[] };
-
-/** The record of `IHumanQuadraticPolishResult`'s site. */
-type IHumanQuadraticPolishResult = {
-  x: Float64Array;
-  z: Float64Array;
-  y: Float64Array;
-  products: Pick<Work.IWork, HumanQuadraticPolishProductsResult>;
-};
-
-/** The alternatives of `HumanQuadraticPolishProductsResult`'s site. */
-type HumanQuadraticPolishProductsResult = "rows" | "transpose";
-
 /**
  * The solution polished on its active set (section 4): the rows held on a bound
  * (a hard row whose value and multiplier say so, a soft row resting on its
@@ -206,3 +192,17 @@ export function HumanQuadraticPolish(
   }
   return { x: xs, z: zs, y: fixed, products: work };
 }
+
+/** The record of `IHumanQuadraticPolishSelection`'s site. */
+type IHumanQuadraticPolishSelection = { rows: number[]; bounds: number[] };
+
+/** The record of `IHumanQuadraticPolishResult`'s site. */
+type IHumanQuadraticPolishResult = {
+  x: Float64Array;
+  z: Float64Array;
+  y: Float64Array;
+  products: Pick<Work.IWork, HumanQuadraticPolishProductsResult>;
+};
+
+/** The alternatives of `HumanQuadraticPolishProductsResult`'s site. */
+type HumanQuadraticPolishProductsResult = "rows" | "transpose";

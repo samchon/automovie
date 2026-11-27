@@ -12,9 +12,6 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { crawlFrame } from "./crawlFrame";
 
-/** The record of `ICrawlPitchResult`'s site. */
-type ICrawlPitchResult = { pitch: number; bones: ReturnType<typeof poseBones> };
-
 /**
  * Solve the crawl's trunk pitch with the hip joints at a fixed world point and
  * the shoulders at the body's required arm height above its palms.
@@ -83,6 +80,9 @@ export function crawlPitch(
   });
   return { pitch, bones: at(pitch) };
 }
+
+/** The record of `ICrawlPitchResult`'s site. */
+type ICrawlPitchResult = { pitch: number; bones: ReturnType<typeof poseBones> };
 
 /** The residual's shoulders and the downstream nominal hip places. */
 const MEASURED: ReadonlySet<AutoMovieHumanoidBone> = new Set([

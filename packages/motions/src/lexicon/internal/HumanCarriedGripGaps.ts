@@ -7,18 +7,6 @@ import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 import { HumanCarriedStraddle } from "./HumanCarriedStraddle";
 import { HumanCarriedWristCircle } from "./HumanCarriedWristCircle";
 
-type Bones = ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-type HeldRegion = AutoMovieHumanoidRegion | null;
-type Grip = readonly [HeldRegion, HeldRegion];
-type IRead = HumanCarriedCouplingFit.IRead;
-type Gaps = (reading: IRead) => number[];
-
-/** The current gap for one bearing arm at a known surface. */
-type Gap = (
-  bones: Bones,
-  place: IAutoMovieMotionHumanCarriedCouplingPose.IHold,
-) => number;
-
 /**
  * Measure the current occupied wrists and, for a straddle, the knees against
  * their actual support.
@@ -146,3 +134,15 @@ export namespace HumanCarriedGripGaps {
     };
   }
 }
+type Bones = ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+type HeldRegion = AutoMovieHumanoidRegion | null;
+type Grip = readonly [HeldRegion, HeldRegion];
+type IRead = HumanCarriedCouplingFit.IRead;
+
+type Gaps = (reading: IRead) => number[];
+
+/** The current gap for one bearing arm at a known surface. */
+type Gap = (
+  bones: Bones,
+  place: IAutoMovieMotionHumanCarriedCouplingPose.IHold,
+) => number;

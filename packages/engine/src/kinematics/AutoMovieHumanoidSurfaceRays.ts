@@ -30,6 +30,192 @@ import { resolvePose } from "./internal/resolvePose";
  * colliders with the colliders' outward normal there.
  */
 export namespace AutoMovieHumanoidSurfaceRays {
+  /**
+   * Rest-pose readers for one unchanged body's surface resolution: bones,
+   * segments, bounds, bone-local frames, stations and actual ray exits. Release
+   * this bundle after the resolution, and create another after any rig/profile
+   * edit. Returned bounds own their vectors independently.
+   */
+  export function tools(
+    skeleton: IAutoMovieSkeleton,
+    profile: IAutoMoviePhysicalProfile,
+    neutral?: AutoMovieHumanoidNeutralBounds.IPrepared,
+  ): ITools {
+    const segments: Map<string, IAutoMoviePhysicalSegment> = new Map();
+    for (const part of profile.segments)
+      if (!segments.has(part.bone)) segments.set(part.bone, part);
+    const extents: Map<
+      IAutoMoviePhysicalSegment,
+      ReturnType<typeof physicalShapeBoundsImplementation.physicalShapeBounds>
+    > = new Map();
+    const exits: Map<IAutoMoviePhysicalSegment, IShapeReading[]> = new Map();
+    for (const s of segments.values()) {
+      extents.set(s, AutoMovieHumanoidNeutralBounds.read(profile, s, neutral));
+      exits.set(
+        s,
+        s.shapes.map(
+          (shape: IAutoMoviePhysicalShape): IShapeReading => ({
+            shape,
+            exit: prepareExit(s.neutral, shape),
+            normal: AutoMovieEnginePhysics.physicalShapeNormalPrepare(
+              s.neutral,
+              shape,
+            ),
+          }),
+        ),
+      );
+    }
+    const rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
+    for (const resolved of resolvePose(
+      { skeleton: skeleton.id, root: null, joints: [] },
+      skeleton,
+    ))
+      rest.set(resolved.bone, resolved);
+    const at = (bone: AutoMovieHumanoidBone): IAutoMovieResolvedBone => {
+      const r: IAutoMovieResolvedBone | undefined = rest.get(bone);
+      if (r === undefined)
+        throw new Error(`Surfaces need the rig bone ${bone}`);
+      return r;
+    };
+    const segment: (
+      bone: AutoMovieHumanoidBone,
+    ) => IAutoMoviePhysicalSegment = (
+      bone: AutoMovieHumanoidBone,
+    ): IAutoMoviePhysicalSegment => {
+      const s: IAutoMoviePhysicalSegment | undefined = segments.get(bone);
+      if (s === undefined)
+        throw new Error(`Surfaces need the profile segment ${bone}`);
+      return s;
+    };
+    const bounds = (
+      bone: AutoMovieHumanoidBone,
+    ): { min: IAutoMovieVector3; max: IAutoMovieVector3 } => {
+      const s: IAutoMoviePhysicalSegment = segment(bone);
+      const known: ReturnType<
+        typeof physicalShapeBoundsImplementation.physicalShapeBounds
+      > = extents.get(s)!;
+      return { min: { ...known.min }, max: { ...known.max } };
+    };
+    const local = (
+      bone: AutoMovieHumanoidBone,
+      world: IAutoMovieVector3,
+      direction: IAutoMovieVector3,
+      forward?: IAutoMovieVector3,
+    ): IAutoMovieHumanoidSurfaces.IFrame => {
+      const r: IAutoMovieResolvedBone = at(bone);
+      const inverse: IAutoMovieQuaternion = Quaternion.inverse(r.worldRotation);
+      return {
+        bone,
+        point: Quaternion.rotateVector(
+          inverse,
+          Vector3.subtract(world, r.worldPosition),
+        ),
+        normal: Quaternion.rotateVector(inverse, Vector3.normalize(direction)),
+        ...(forward === undefined
+          ? {}
+          : {
+              forward: Quaternion.rotateVector(
+                inverse,
+                Vector3.normalize(forward),
+              ),
+            }),
+      };
+    };
+    // The body's stature, the top of its colliders at rest above the floor
+    // at zero, as `measureAutoMovieHumanoidBody` reads it; read by the first
+    // station placed by a level.
+    let stature: number = -Infinity;
+    for (const part of profile.segments)
+      stature = Math.max(
+        stature,
+        AutoMovieHumanoidNeutralBounds.read(profile, part, neutral).max.y,
+      );
+    const station = (
+      s:
+        | IAutoMovieHumanoidSurfaceRegions.IStation
+        | AutoMovieHumanoidSurfaceRegions.ILevel,
+    ): IAutoMovieVector3 => {
+      if ("level" in s) {
+        const from: IAutoMovieVector3 = at(s.bone).worldPosition;
+        const to: IAutoMovieVector3 = at(s.toward).worldPosition;
+        const share: number = (s.level * stature - from.y) / (to.y - from.y);
+        if (!(share >= 0 && share <= 1))
+          throw new Error(
+            `Surfaces place a level of ${s.level} of the stature on the segment from ${s.bone} to ${s.toward}, which spans ${from.y} to ${to.y} m`,
+          );
+        return Vector3.lerp(from, to, share);
+      }
+      if (s.toward === "centre") {
+        const b: ReturnType<typeof bounds> = bounds(s.bone);
+        const middle: IAutoMovieVector3 = Vector3.add(b.min, b.max);
+        middle.x *= 0.5;
+        middle.y *= 0.5;
+        middle.z *= 0.5;
+        return middle;
+      }
+      return Vector3.lerp(
+        at(s.bone).worldPosition,
+        at(s.toward).worldPosition,
+        s.share,
+      );
+    };
+    /**
+     * The demand is private; every entry still tests all original colliders and
+     * the same miss gate.
+     */
+    function trace(
+      bone: AutoMovieHumanoidBone,
+      origin: IAutoMovieVector3,
+      direction: IAutoMovieVector3,
+      readNormal: false,
+    ): IAutoMovieVector3;
+    function trace(
+      bone: AutoMovieHumanoidBone,
+      origin: IAutoMovieVector3,
+      direction: IAutoMovieVector3,
+      readNormal: true,
+    ): IAutoMovieHumanoidSurfaceRays.ISurfacePoint;
+    function trace(
+      bone: AutoMovieHumanoidBone,
+      origin: IAutoMovieVector3,
+      direction: IAutoMovieVector3,
+      readNormal: boolean,
+    ): IAutoMovieVector3 | IAutoMovieHumanoidSurfaceRays.ISurfacePoint {
+      const d: IAutoMovieVector3 = Vector3.normalize(direction);
+      const s: IAutoMoviePhysicalSegment = segment(bone);
+      const readings: IShapeReading[] = exits.get(s)!;
+      let far: number = -Infinity;
+      let left: IShapeReading | undefined;
+      for (let i: number = 0; i < s.shapes.length; i++) {
+        const t: number = readings[i]!.exit(origin, d);
+        if (t > far) {
+          far = t;
+          left = readings[i]!;
+        }
+      }
+      if (!(far > -Infinity) || left === undefined)
+        throw new Error(`A surface ray from ${bone} misses its colliders`);
+      const point: IAutoMovieVector3 = Vector3.scale(d, far);
+      point.x = origin.x + point.x;
+      point.y = origin.y + point.y;
+      point.z = origin.z + point.z;
+      if (!readNormal) return point;
+      return { point, normal: left.normal(point, d) };
+    }
+    const surface = (
+      bone: AutoMovieHumanoidBone,
+      origin: IAutoMovieVector3,
+      direction: IAutoMovieVector3,
+    ): IAutoMovieHumanoidSurfaceRays.ISurfacePoint =>
+      trace(bone, origin, direction, true);
+    const exit = (
+      bone: AutoMovieHumanoidBone,
+      origin: IAutoMovieVector3,
+      direction: IAutoMovieVector3,
+    ): IAutoMovieVector3 => trace(bone, origin, direction, false);
+    return { at, bounds, local, station, exit, surface };
+  }
+
   /** Actual ray queries share only one fixed rest-shape frame. */
   type Exit = (
     origin: IAutoMovieVector3,
@@ -228,192 +414,6 @@ export namespace AutoMovieHumanoidSurfaceRays {
     return disc < -BOUNDARY * radius
       ? -Infinity
       : -b + Math.sqrt(Math.max(0, disc));
-  }
-
-  /**
-   * Rest-pose readers for one unchanged body's surface resolution: bones,
-   * segments, bounds, bone-local frames, stations and actual ray exits. Release
-   * this bundle after the resolution, and create another after any rig/profile
-   * edit. Returned bounds own their vectors independently.
-   */
-  export function tools(
-    skeleton: IAutoMovieSkeleton,
-    profile: IAutoMoviePhysicalProfile,
-    neutral?: AutoMovieHumanoidNeutralBounds.IPrepared,
-  ): ITools {
-    const segments: Map<string, IAutoMoviePhysicalSegment> = new Map();
-    for (const part of profile.segments)
-      if (!segments.has(part.bone)) segments.set(part.bone, part);
-    const extents: Map<
-      IAutoMoviePhysicalSegment,
-      ReturnType<typeof physicalShapeBoundsImplementation.physicalShapeBounds>
-    > = new Map();
-    const exits: Map<IAutoMoviePhysicalSegment, IShapeReading[]> = new Map();
-    for (const s of segments.values()) {
-      extents.set(s, AutoMovieHumanoidNeutralBounds.read(profile, s, neutral));
-      exits.set(
-        s,
-        s.shapes.map(
-          (shape: IAutoMoviePhysicalShape): IShapeReading => ({
-            shape,
-            exit: prepareExit(s.neutral, shape),
-            normal: AutoMovieEnginePhysics.physicalShapeNormalPrepare(
-              s.neutral,
-              shape,
-            ),
-          }),
-        ),
-      );
-    }
-    const rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
-    for (const resolved of resolvePose(
-      { skeleton: skeleton.id, root: null, joints: [] },
-      skeleton,
-    ))
-      rest.set(resolved.bone, resolved);
-    const at = (bone: AutoMovieHumanoidBone): IAutoMovieResolvedBone => {
-      const r: IAutoMovieResolvedBone | undefined = rest.get(bone);
-      if (r === undefined)
-        throw new Error(`Surfaces need the rig bone ${bone}`);
-      return r;
-    };
-    const segment: (
-      bone: AutoMovieHumanoidBone,
-    ) => IAutoMoviePhysicalSegment = (
-      bone: AutoMovieHumanoidBone,
-    ): IAutoMoviePhysicalSegment => {
-      const s: IAutoMoviePhysicalSegment | undefined = segments.get(bone);
-      if (s === undefined)
-        throw new Error(`Surfaces need the profile segment ${bone}`);
-      return s;
-    };
-    const bounds = (
-      bone: AutoMovieHumanoidBone,
-    ): { min: IAutoMovieVector3; max: IAutoMovieVector3 } => {
-      const s: IAutoMoviePhysicalSegment = segment(bone);
-      const known: ReturnType<
-        typeof physicalShapeBoundsImplementation.physicalShapeBounds
-      > = extents.get(s)!;
-      return { min: { ...known.min }, max: { ...known.max } };
-    };
-    const local = (
-      bone: AutoMovieHumanoidBone,
-      world: IAutoMovieVector3,
-      direction: IAutoMovieVector3,
-      forward?: IAutoMovieVector3,
-    ): IAutoMovieHumanoidSurfaces.IFrame => {
-      const r: IAutoMovieResolvedBone = at(bone);
-      const inverse: IAutoMovieQuaternion = Quaternion.inverse(r.worldRotation);
-      return {
-        bone,
-        point: Quaternion.rotateVector(
-          inverse,
-          Vector3.subtract(world, r.worldPosition),
-        ),
-        normal: Quaternion.rotateVector(inverse, Vector3.normalize(direction)),
-        ...(forward === undefined
-          ? {}
-          : {
-              forward: Quaternion.rotateVector(
-                inverse,
-                Vector3.normalize(forward),
-              ),
-            }),
-      };
-    };
-    // The body's stature, the top of its colliders at rest above the floor
-    // at zero, as `measureAutoMovieHumanoidBody` reads it; read by the first
-    // station placed by a level.
-    let stature: number = -Infinity;
-    for (const part of profile.segments)
-      stature = Math.max(
-        stature,
-        AutoMovieHumanoidNeutralBounds.read(profile, part, neutral).max.y,
-      );
-    const station = (
-      s:
-        | IAutoMovieHumanoidSurfaceRegions.IStation
-        | AutoMovieHumanoidSurfaceRegions.ILevel,
-    ): IAutoMovieVector3 => {
-      if ("level" in s) {
-        const from: IAutoMovieVector3 = at(s.bone).worldPosition;
-        const to: IAutoMovieVector3 = at(s.toward).worldPosition;
-        const share: number = (s.level * stature - from.y) / (to.y - from.y);
-        if (!(share >= 0 && share <= 1))
-          throw new Error(
-            `Surfaces place a level of ${s.level} of the stature on the segment from ${s.bone} to ${s.toward}, which spans ${from.y} to ${to.y} m`,
-          );
-        return Vector3.lerp(from, to, share);
-      }
-      if (s.toward === "centre") {
-        const b: ReturnType<typeof bounds> = bounds(s.bone);
-        const middle: IAutoMovieVector3 = Vector3.add(b.min, b.max);
-        middle.x *= 0.5;
-        middle.y *= 0.5;
-        middle.z *= 0.5;
-        return middle;
-      }
-      return Vector3.lerp(
-        at(s.bone).worldPosition,
-        at(s.toward).worldPosition,
-        s.share,
-      );
-    };
-    /**
-     * The demand is private; every entry still tests all original colliders and
-     * the same miss gate.
-     */
-    function trace(
-      bone: AutoMovieHumanoidBone,
-      origin: IAutoMovieVector3,
-      direction: IAutoMovieVector3,
-      readNormal: false,
-    ): IAutoMovieVector3;
-    function trace(
-      bone: AutoMovieHumanoidBone,
-      origin: IAutoMovieVector3,
-      direction: IAutoMovieVector3,
-      readNormal: true,
-    ): IAutoMovieHumanoidSurfaceRays.ISurfacePoint;
-    function trace(
-      bone: AutoMovieHumanoidBone,
-      origin: IAutoMovieVector3,
-      direction: IAutoMovieVector3,
-      readNormal: boolean,
-    ): IAutoMovieVector3 | IAutoMovieHumanoidSurfaceRays.ISurfacePoint {
-      const d: IAutoMovieVector3 = Vector3.normalize(direction);
-      const s: IAutoMoviePhysicalSegment = segment(bone);
-      const readings: IShapeReading[] = exits.get(s)!;
-      let far: number = -Infinity;
-      let left: IShapeReading | undefined;
-      for (let i: number = 0; i < s.shapes.length; i++) {
-        const t: number = readings[i]!.exit(origin, d);
-        if (t > far) {
-          far = t;
-          left = readings[i]!;
-        }
-      }
-      if (!(far > -Infinity) || left === undefined)
-        throw new Error(`A surface ray from ${bone} misses its colliders`);
-      const point: IAutoMovieVector3 = Vector3.scale(d, far);
-      point.x = origin.x + point.x;
-      point.y = origin.y + point.y;
-      point.z = origin.z + point.z;
-      if (!readNormal) return point;
-      return { point, normal: left.normal(point, d) };
-    }
-    const surface = (
-      bone: AutoMovieHumanoidBone,
-      origin: IAutoMovieVector3,
-      direction: IAutoMovieVector3,
-    ): IAutoMovieHumanoidSurfaceRays.ISurfacePoint =>
-      trace(bone, origin, direction, true);
-    const exit = (
-      bone: AutoMovieHumanoidBone,
-      origin: IAutoMovieVector3,
-      direction: IAutoMovieVector3,
-    ): IAutoMovieVector3 => trace(bone, origin, direction, false);
-    return { at, bounds, local, station, exit, surface };
   }
 }
 

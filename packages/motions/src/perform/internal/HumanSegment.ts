@@ -18,9 +18,6 @@ import { HumanSegmentEntry } from "./HumanSegmentEntry";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
-/** The alternatives of `ShareAt`'s site. */
-type ShareAt = number | string;
-
 /**
  * One placed action of one person, and how a person's displayed pose is
  * evaluated from their placed actions.
@@ -184,3 +181,6 @@ export namespace HumanSegment {
     return HumanSegmentPose.displayed(person, seconds, requested, prepared);
   }
 }
+
+/** The alternatives of `ShareAt`'s site. */
+type ShareAt = number | string;

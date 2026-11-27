@@ -44,30 +44,6 @@ const DEPTH: number = 0.75;
  * `footDown` to the end, so a run can leave from it.
  */
 export namespace AquaticExit {
-  /** A foot's plant on the bottom and where it settles from. */
-  interface IResolvedFoot {
-    /** The crouch's ankle, world metres. */
-    from: IAutoMovieVector3;
-
-    /** The plant's ankle on the ground, world metres. */
-    ankle: IAutoMovieVector3;
-
-    /** The standing foot's rotation. */
-    rotation: IAutoMovieQuaternion;
-  }
-
-  /** Under the crouched foot at the standing ankle's height. */
-  function plant(
-    crouched: IAutoMovieResolvedBone,
-    standing: IAutoMovieResolvedBone,
-  ): IResolvedFoot {
-    return {
-      from: crouched.worldPosition,
-      ankle: { ...crouched.worldPosition, y: standing.worldPosition.y },
-      rotation: standing.worldRotation,
-    };
-  }
-
   /** Plan the exit from the entered swim to standing in shallow water. */
   export function plan(
     context: AquaticPosture.Context,
@@ -177,6 +153,30 @@ export namespace AquaticExit {
           );
         return posture;
       },
+    };
+  }
+
+  /** A foot's plant on the bottom and where it settles from. */
+  interface IResolvedFoot {
+    /** The crouch's ankle, world metres. */
+    from: IAutoMovieVector3;
+
+    /** The plant's ankle on the ground, world metres. */
+    ankle: IAutoMovieVector3;
+
+    /** The standing foot's rotation. */
+    rotation: IAutoMovieQuaternion;
+  }
+
+  /** Under the crouched foot at the standing ankle's height. */
+  function plant(
+    crouched: IAutoMovieResolvedBone,
+    standing: IAutoMovieResolvedBone,
+  ): IResolvedFoot {
+    return {
+      from: crouched.worldPosition,
+      ankle: { ...crouched.worldPosition, y: standing.worldPosition.y },
+      rotation: standing.worldRotation,
     };
   }
 }

@@ -10,64 +10,6 @@ import { CareBedConstruction } from "./CareBedConstruction";
 import { MATTRESS_SIZES } from "../constants/MATTRESS_SIZES";
 import { AutoMovieArchetypeBed } from "../AutoMovieArchetypeBed";
 
-/** The model-space construction for the selected contact IDs. */
-type Builder<Id extends AutoMovieArchetypeBed.Affordance> = AutoMovieArchetypeBuilder<
-  Id,
-  AutoMovieArchetypeBed.Dimension
->;
-
-/** Model dimensions in the legacy family's recorded units. */
-type Dimensions = Partial<Record<AutoMovieArchetypeBed.Dimension, number>>;
-
-/** A started construction: its builder and its drawn dimensions. */
-interface IDrawn<Id extends AutoMovieArchetypeBed.Affordance> {
-  /** The model-space builder for the selected contact ids. */
-  builder: Builder<Id>;
-
-  /** The drawn and fixed dimensions in the family's recorded units. */
-  d: Dimensions;
-}
-
-/**
- * Select the existing size, then draw the remaining dimensions in the saved
- * stream.
- */
-function draw<Id extends AutoMovieArchetypeBed.Affordance>(
-  kind: AutoMovieArchetypeBed.Kind,
-  params: Omit<AutoMovieArchetypeBed.IParams, "kind">,
-  seed?: number,
-): IDrawn<Id> {
-  const session: AutoMovieArchetypeDrawSession<AutoMovieArchetypeBed.Dimension> =
-    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeBed.Dimension>(
-      "bed",
-      AutoMovieArchetypeBed.UNITS,
-      seed,
-      params,
-    );
-  const size: Readonly<Partial<Record<AutoMovieArchetypeBed.Dimension, number>>> =
-    session.model<AutoMovieArchetypeBed.Mattress>(
-      "size",
-      params.size,
-      MATTRESS_SIZES[kind],
-    ).figures;
-  const d: Partial<Record<AutoMovieArchetypeBed.Dimension, number>> = {
-    ...session.dimensions(AutoMovieArchetypeBed.BANDS[kind], AutoMovieArchetypeBed.BANDS),
-    ...size,
-  };
-  const builder: Builder<Id> = new AutoMovieArchetypeBuilder({
-    material: "composite",
-    id: params.id,
-    name:
-      kind === "mattress"
-        ? "mattress"
-        : kind === "gurney"
-          ? "stretcher"
-          : `${kind} bed`,
-    draw: session,
-  });
-  return { builder, d };
-}
-
 /** Bed and stretcher constructions sharing measured sizing and rest dimensions. */
 export namespace BedConstruction {
   /** The values {@link platform} accepts at this place in its signature. */
@@ -203,4 +145,62 @@ export namespace BedConstruction {
     CareBedConstruction.bunk(builder, d);
     return builder.build(d.mass!, { rests: "wood" });
   }
+}
+
+/** The model-space construction for the selected contact IDs. */
+type Builder<Id extends AutoMovieArchetypeBed.Affordance> = AutoMovieArchetypeBuilder<
+  Id,
+  AutoMovieArchetypeBed.Dimension
+>;
+
+/** Model dimensions in the legacy family's recorded units. */
+type Dimensions = Partial<Record<AutoMovieArchetypeBed.Dimension, number>>;
+
+/** A started construction: its builder and its drawn dimensions. */
+interface IDrawn<Id extends AutoMovieArchetypeBed.Affordance> {
+  /** The model-space builder for the selected contact ids. */
+  builder: Builder<Id>;
+
+  /** The drawn and fixed dimensions in the family's recorded units. */
+  d: Dimensions;
+}
+
+/**
+ * Select the existing size, then draw the remaining dimensions in the saved
+ * stream.
+ */
+function draw<Id extends AutoMovieArchetypeBed.Affordance>(
+  kind: AutoMovieArchetypeBed.Kind,
+  params: Omit<AutoMovieArchetypeBed.IParams, "kind">,
+  seed?: number,
+): IDrawn<Id> {
+  const session: AutoMovieArchetypeDrawSession<AutoMovieArchetypeBed.Dimension> =
+    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeBed.Dimension>(
+      "bed",
+      AutoMovieArchetypeBed.UNITS,
+      seed,
+      params,
+    );
+  const size: Readonly<Partial<Record<AutoMovieArchetypeBed.Dimension, number>>> =
+    session.model<AutoMovieArchetypeBed.Mattress>(
+      "size",
+      params.size,
+      MATTRESS_SIZES[kind],
+    ).figures;
+  const d: Partial<Record<AutoMovieArchetypeBed.Dimension, number>> = {
+    ...session.dimensions(AutoMovieArchetypeBed.BANDS[kind], AutoMovieArchetypeBed.BANDS),
+    ...size,
+  };
+  const builder: Builder<Id> = new AutoMovieArchetypeBuilder({
+    material: "composite",
+    id: params.id,
+    name:
+      kind === "mattress"
+        ? "mattress"
+        : kind === "gurney"
+          ? "stretcher"
+          : `${kind} bed`,
+    draw: session,
+  });
+  return { builder, d };
 }

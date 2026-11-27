@@ -3,15 +3,6 @@ import type {
   IAutoMovieScheduleCue,
 } from "@automovie/interface";
 
-/** The record of `IInstantsI2`'s site. */
-type IInstantsI2 = { label: string; seconds: number };
-
-/** The record of `IInstantsI`'s site. */
-type IInstantsI = { label: string };
-
-/** The record of `IOrdersTrackItem`'s site. */
-type IOrdersTrackItem = { cue: IAutoMovieScheduleCue; order: number };
-
 /**
  * Cue tracks: the named instants for speech, music and staged actions, to sync
  * to and cut on (`HumanPerformance.IInput.cues`).
@@ -249,3 +240,12 @@ export namespace HumanCue {
       .map((each) => each.cue);
   }
 }
+
+/** The record of `IInstantsI2`'s site. */
+type IInstantsI2 = { label: string; seconds: number };
+
+/** The record of `IInstantsI`'s site. */
+type IInstantsI = { label: string };
+
+/** The record of `IOrdersTrackItem`'s site. */
+type IOrdersTrackItem = { cue: IAutoMovieScheduleCue; order: number };

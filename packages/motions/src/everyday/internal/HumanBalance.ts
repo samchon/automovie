@@ -11,15 +11,6 @@ import { HumanBalanceExtrapolated } from "./HumanBalanceExtrapolated";
 import { HumanBalanceReading } from "./HumanBalanceReading";
 import { prepareHumanBalanceCentre } from "./prepareHumanBalanceCentre";
 
-/** The record of `IShiftDown`'s site. */
-type IShiftDown = { found: boolean; back: number };
-
-/** The record of `IShiftFirstResult`'s site. */
-type IShiftFirstResult = { found: boolean; back: number };
-
-/** The record of `IShiftFirst`'s site. */
-type IShiftFirst = { found: boolean; back: number };
-
 /**
  * Backward hip travel to support the body's segmental centre (Winter, ch. 4).
  * The closest boundary suffices (Hof et al. 2005). The planted legs may move
@@ -407,3 +398,12 @@ export namespace HumanBalance {
     );
   }
 }
+
+/** The record of `IShiftDown`'s site. */
+type IShiftDown = { found: boolean; back: number };
+
+/** The record of `IShiftFirstResult`'s site. */
+type IShiftFirstResult = { found: boolean; back: number };
+
+/** The record of `IShiftFirst`'s site. */
+type IShiftFirst = { found: boolean; back: number };

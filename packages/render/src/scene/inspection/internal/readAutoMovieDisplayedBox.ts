@@ -197,31 +197,6 @@ export namespace readAutoMovieDisplayedBox {
   }
 
   /**
-   * A skinned surface must use the same admitted method in its draw path and
-   * pose owner.
-   */
-  function matchesStockShader(
-    mesh: THREE.Mesh,
-    material: THREE.Material,
-  ): boolean {
-    if (
-      !AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh) ||
-      mesh.method === "linear"
-    )
-      return (
-        material.onBeforeCompile === THREE.Material.prototype.onBeforeCompile
-      );
-    // The skinned material's own shader patches, each named by its key.
-    const patches: readonly IMaterialShaderPatch[] =
-      readMaterialShaderPatches(material);
-    return (
-      patches.length === 1 &&
-      patches[0]!.key === DUAL_QUATERNION_KEY &&
-      material.customProgramCacheKey() === DUAL_QUATERNION_KEY
-    );
-  }
-
-  /**
    * Project the stock skin's owned conservative sphere by each world affine
    * row.
    */
@@ -246,5 +221,30 @@ export namespace readAutoMovieDisplayedBox {
     } catch (_error) {
       return null;
     }
+  }
+
+  /**
+   * A skinned surface must use the same admitted method in its draw path and
+   * pose owner.
+   */
+  function matchesStockShader(
+    mesh: THREE.Mesh,
+    material: THREE.Material,
+  ): boolean {
+    if (
+      !AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh) ||
+      mesh.method === "linear"
+    )
+      return (
+        material.onBeforeCompile === THREE.Material.prototype.onBeforeCompile
+      );
+    // The skinned material's own shader patches, each named by its key.
+    const patches: readonly IMaterialShaderPatch[] =
+      readMaterialShaderPatches(material);
+    return (
+      patches.length === 1 &&
+      patches[0]!.key === DUAL_QUATERNION_KEY &&
+      material.customProgramCacheKey() === DUAL_QUATERNION_KEY
+    );
   }
 }

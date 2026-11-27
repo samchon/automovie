@@ -8,9 +8,6 @@ import { Vector3 } from "../../math/Vector3";
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 import { builtSpaceShellVolume } from "./builtSpaceShellVolume";
 
-/** A facet whose doubled area is this small or smaller bounds nothing. */
-const FACET_AREA_EPSILON: number = 1e-12;
-
 /**
  * Check shell indices, finite facet areas, paired edges and positive signed
  * volume.
@@ -113,3 +110,6 @@ export function validateBuiltSpaceShell(
       volume,
     );
 }
+
+/** A facet whose doubled area is this small or smaller bounds nothing. */
+const FACET_AREA_EPSILON: number = 1e-12;

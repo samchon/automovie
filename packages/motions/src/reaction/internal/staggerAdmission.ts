@@ -27,25 +27,6 @@ import { staggerKnots } from "./staggerKnots";
 import { staggerLean } from "./staggerLean";
 import type { staggerRecover } from "./staggerRecover";
 
-/** The record of `IPartsItemEntry`'s site. */
-type IPartsItemEntry = {
-  from: IAutoMovieVector3;
-  to: IAutoMovieVector3;
-  radius: number;
-};
-
-/** The alternatives of `StaggerAdmissionBendEntry`'s site. */
-type StaggerAdmissionBendEntry = "pitch" | "roll";
-
-/** The record of `IStaggerAdmissionWalk`'s site. */
-type IStaggerAdmissionWalk = {
-  steps: readonly staggerRecover.IStep[];
-  course: (seconds: number) => IAutoMovieVector3;
-  pressure: (seconds: number) => IAutoMovieVector3;
-  extrapolated: (seconds: number) => IAutoMovieVector3;
-  centre: IAutoMovieVector3;
-};
-
 /**
  * Whether a stagger's legs hold its recovery at the given instants
  * (`staggerRecover`): at each, the pelvis carried by the centre of mass's
@@ -362,3 +343,22 @@ export function staggerAdmission(
   }
   return true;
 }
+
+/** The record of `IPartsItemEntry`'s site. */
+type IPartsItemEntry = {
+  from: IAutoMovieVector3;
+  to: IAutoMovieVector3;
+  radius: number;
+};
+
+/** The alternatives of `StaggerAdmissionBendEntry`'s site. */
+type StaggerAdmissionBendEntry = "pitch" | "roll";
+
+/** The record of `IStaggerAdmissionWalk`'s site. */
+type IStaggerAdmissionWalk = {
+  steps: readonly staggerRecover.IStep[];
+  course: (seconds: number) => IAutoMovieVector3;
+  pressure: (seconds: number) => IAutoMovieVector3;
+  extrapolated: (seconds: number) => IAutoMovieVector3;
+  centre: IAutoMovieVector3;
+};

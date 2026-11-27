@@ -28,9 +28,6 @@ import { stageScene } from "./stageScene";
 import { validateShotPhysicsAdvice } from "./validateShotPhysicsAdvice";
 import { validateShotProgramContract } from "./validateShotProgramContract";
 
-/** Prior beat state per actor node, read once for every resume step. */
-type IPriorActors = ReadonlyMap<string, IAutoMovieBeatEndActorState>;
-
 /**
  * Compile one {@link defineShot} registration into shot source, continuity and a
  * contract realization, or into the diagnostics of the first phase that
@@ -294,6 +291,9 @@ export function compileDefinedShot<Context>(
     };
   }
 }
+
+/** Prior beat state per actor node, read once for every resume step. */
+type IPriorActors = ReadonlyMap<string, IAutoMovieBeatEndActorState>;
 
 /**
  * Carry the prior facts at the opening, except static pins released by an

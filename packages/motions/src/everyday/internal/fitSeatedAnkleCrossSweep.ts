@@ -6,14 +6,6 @@ import type {
 
 import { fitSeatedAnkleCrossShape } from "./fitSeatedAnkleCrossShape";
 
-const RAD = Math.PI / 180;
-
-interface ISweepPlane {
-  rotation: fitSeatedAnkleCrossShape.IShape["pose"]["rotation"];
-  fixedMaximum: number;
-  fixedScale: number;
-}
-
 /**
  * An axis from a real material witness certifies a pair only when the actual
  * projected solids are farther apart than the same swept displacement bound.
@@ -70,6 +62,14 @@ export function fitSeatedAnkleCrossSweep(
     }
     return fitSeatedAnkleCrossShape.distance(fixed, moving);
   };
+}
+
+const RAD = Math.PI / 180;
+
+interface ISweepPlane {
+  rotation: fitSeatedAnkleCrossShape.IShape["pose"]["rotation"];
+  fixedMaximum: number;
+  fixedScale: number;
 }
 
 function sweepPlane(

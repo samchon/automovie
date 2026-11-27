@@ -6,9 +6,6 @@ import type {
 
 import { KneeForm } from "./KneeForm";
 
-/** The record of `IFootResult`'s site. */
-type IFootResult = { toes: IAutoMovieVector3; instep: IAutoMovieVector3 };
-
 /**
  * The knee strike's reach: the thigh carries the knee on a circle about the
  * hip, whose front lies one thigh plus one patella depth from the hip along the
@@ -181,3 +178,6 @@ export namespace KneeReach {
     };
   }
 }
+
+/** The record of `IFootResult`'s site. */
+type IFootResult = { toes: IAutoMovieVector3; instep: IAutoMovieVector3 };

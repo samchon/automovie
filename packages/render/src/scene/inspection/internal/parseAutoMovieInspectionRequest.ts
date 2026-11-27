@@ -10,47 +10,6 @@ import { readInspectionNumber } from "./readInspectionNumber.js";
 import { readInspectionVector } from "./readInspectionVector.js";
 
 /**
- * Stroke width in output pixels when none is asked: three, which stays visible
- * when a still is reduced into a contact-sheet cell.
- */
-const STROKE: number = 3;
-
-/**
- * Seconds a trail reaches before and after the drawn second when none is asked:
- * one, which shows where a movement comes from and goes within a typical
- * action.
- */
-const REACH: number = 1;
-
-/**
- * Trail samples per second when none is asked: five, the lower end of the five
- * to ten stills per second the capture skill reads a movement at.
- */
-const TICKS: number = 5;
-
-/** Whether a text names a shade, narrowing it to the shade it names. */
-const isShade: (text: string) => text is AutoMovieInspectionShade = (
-  text: string,
-): text is AutoMovieInspectionShade => SHADE_NAMES.has(text);
-
-/** Every shade, keyed so the compiler refuses a list that misses one. */
-const SHADES: Record<AutoMovieInspectionShade, true> = {
-  beauty: true,
-  depth: true,
-  mask: true,
-  normal: true,
-  outline: true,
-  pose: true,
-  albedo: true,
-  graphics: true,
-  clay: true,
-  faces: true,
-};
-
-/** The shade names, for membership checks. */
-const SHADE_NAMES: ReadonlySet<string> = new Set(Object.keys(SHADES));
-
-/**
  * Read an inspection request from named text values, the form both a page
  * address and a command line supply.
  *
@@ -113,6 +72,47 @@ export function parseAutoMovieInspectionRequest(
     ticks: positive("ticks", read("ticks")) ?? TICKS,
   };
 }
+
+/**
+ * Stroke width in output pixels when none is asked: three, which stays visible
+ * when a still is reduced into a contact-sheet cell.
+ */
+const STROKE: number = 3;
+
+/**
+ * Seconds a trail reaches before and after the drawn second when none is asked:
+ * one, which shows where a movement comes from and goes within a typical
+ * action.
+ */
+const REACH: number = 1;
+
+/**
+ * Trail samples per second when none is asked: five, the lower end of the five
+ * to ten stills per second the capture skill reads a movement at.
+ */
+const TICKS: number = 5;
+
+/** Whether a text names a shade, narrowing it to the shade it names. */
+const isShade: (text: string) => text is AutoMovieInspectionShade = (
+  text: string,
+): text is AutoMovieInspectionShade => SHADE_NAMES.has(text);
+
+/** Every shade, keyed so the compiler refuses a list that misses one. */
+const SHADES: Record<AutoMovieInspectionShade, true> = {
+  beauty: true,
+  depth: true,
+  mask: true,
+  normal: true,
+  outline: true,
+  pose: true,
+  albedo: true,
+  graphics: true,
+  clay: true,
+  faces: true,
+};
+
+/** The shade names, for membership checks. */
+const SHADE_NAMES: ReadonlySet<string> = new Set(Object.keys(SHADES));
 
 /** The non-empty items of a comma-separated text. */
 function list(text: string | null | undefined): string[] {

@@ -6,30 +6,6 @@ import {
 } from "@automovie/interface";
 
 /**
- * Own-slot order: base color, metallic-roughness, normal, detail normal,
- * occlusion, emissive, then thickness.
- */
-const OWN_SLOTS: ReadonlyArray<{
-  field:
-    | "baseColorTexture"
-    | "metallicRoughnessTexture"
-    | "normalTexture"
-    | "detailNormalTexture"
-    | "occlusionTexture"
-    | "emissiveTexture"
-    | "thicknessTexture";
-  colorSpace: "srgb" | "linear";
-}> = [
-  { field: "baseColorTexture", colorSpace: "srgb" },
-  { field: "metallicRoughnessTexture", colorSpace: "linear" },
-  { field: "normalTexture", colorSpace: "linear" },
-  { field: "detailNormalTexture", colorSpace: "linear" },
-  { field: "occlusionTexture", colorSpace: "linear" },
-  { field: "emissiveTexture", colorSpace: "srgb" },
-  { field: "thicknessTexture", colorSpace: "linear" },
-];
-
-/**
  * Enumerate present baseColor, metalRough, normal, detailNormal, occlusion,
  * emissive and thickness bindings, the anisotropy direction binding, then
  * overlay color/normal bindings, carrying exact suffixes and decoding intent.
@@ -66,3 +42,27 @@ export function materialTextureSlots(
   );
   return slots;
 }
+
+/**
+ * Own-slot order: base color, metallic-roughness, normal, detail normal,
+ * occlusion, emissive, then thickness.
+ */
+const OWN_SLOTS: ReadonlyArray<{
+  field:
+    | "baseColorTexture"
+    | "metallicRoughnessTexture"
+    | "normalTexture"
+    | "detailNormalTexture"
+    | "occlusionTexture"
+    | "emissiveTexture"
+    | "thicknessTexture";
+  colorSpace: "srgb" | "linear";
+}> = [
+  { field: "baseColorTexture", colorSpace: "srgb" },
+  { field: "metallicRoughnessTexture", colorSpace: "linear" },
+  { field: "normalTexture", colorSpace: "linear" },
+  { field: "detailNormalTexture", colorSpace: "linear" },
+  { field: "occlusionTexture", colorSpace: "linear" },
+  { field: "emissiveTexture", colorSpace: "srgb" },
+  { field: "thicknessTexture", colorSpace: "linear" },
+];

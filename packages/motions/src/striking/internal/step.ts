@@ -21,17 +21,6 @@ import { StrikingStepTransition } from "./StrikingStepTransition";
 import { StrikingTarget } from "./StrikingTarget";
 import { strikingStepSupport } from "./strikingStepSupport";
 
-/** The record of `IPlanProgressResult`'s site. */
-type IPlanProgressResult = {
-  travelled: number;
-  swinging: boolean;
-  share: number;
-  first: boolean;
-};
-
-/** Each foot's swing interval as shares of one step. */
-type SwingWindows = Readonly<Record<AutoMovieHumanSide, readonly [number, number]>>;
-
 /** Both canonical feet, in contact publication order. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
@@ -337,3 +326,14 @@ export namespace step {
     return { windows, opening, contacts };
   }
 }
+
+/** The record of `IPlanProgressResult`'s site. */
+type IPlanProgressResult = {
+  travelled: number;
+  swinging: boolean;
+  share: number;
+  first: boolean;
+};
+
+/** Each foot's swing interval as shares of one step. */
+type SwingWindows = Readonly<Record<AutoMovieHumanSide, readonly [number, number]>>;

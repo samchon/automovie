@@ -31,9 +31,6 @@ import { HumanClaspClearance } from "./HumanClaspClearance";
 import { HumanGraspSearch } from "./HumanGraspSearch";
 import { HumanGrip } from "./HumanGrip";
 
-/** The record of `IChooseBest`'s site. */
-type IChooseBest = { i: number; j: number; clear: number; cost: number };
-
 /**
  * Two people's hands clasping each other, palm on palm: the open hand each
  * offers, the turn each hand takes in its palm's plane, chosen for both
@@ -478,6 +475,9 @@ export namespace HumanClasp {
       );
   }
 }
+
+/** The record of `IChooseBest`'s site. */
+type IChooseBest = { i: number; j: number; clear: number; cost: number };
 
 /**
  * An angle in degrees carried as the arc it swings at a length in metres,

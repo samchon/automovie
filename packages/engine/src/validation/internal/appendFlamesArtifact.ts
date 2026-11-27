@@ -10,17 +10,6 @@ import type {
 import { heskestadFlameHeight } from "../../film/flame/internal/heskestadFlameHeight";
 import { validateColor } from "./validateColor";
 
-/** A flame uses its registered model only to find the declared emitter. */
-type FlameEmitterModel = Pick<IAutoMovieModel, "id" | "affordances">;
-
-/**
- * Smallest open-fire diameter, metres: `(1.5 / 7.5)²`, where the puffing
- * frequency `1.5 D^(−1/2)` reaches 7.5 Hz, the most the 1/120 s light key grid
- * resolves at 16 keys per period. Written as the literal 0.04 because the
- * floating-point square of 0.2 lies one unit in the last place above it.
- */
-const MIN_OPEN_DIAMETER: number = 0.04;
-
 /**
  * Check a shot's flame cues, appending findings under `$input.flames`.
  *
@@ -155,6 +144,17 @@ export function appendFlamesArtifact(
     }
   });
 }
+
+/** A flame uses its registered model only to find the declared emitter. */
+type FlameEmitterModel = Pick<IAutoMovieModel, "id" | "affordances">;
+
+/**
+ * Smallest open-fire diameter, metres: `(1.5 / 7.5)²`, where the puffing
+ * frequency `1.5 D^(−1/2)` reaches 7.5 Hz, the most the 1/120 s light key grid
+ * resolves at 16 keys per period. Written as the literal 0.04 because the
+ * floating-point square of 0.2 lies one unit in the last place above it.
+ */
+const MIN_OPEN_DIAMETER: number = 0.04;
 
 /**
  * Check a cue's node and emitter: a staged node, and with the registry a

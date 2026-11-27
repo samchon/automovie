@@ -13,16 +13,6 @@ import type {
 import { HumanMutual } from "../actions/HumanMutual";
 import { HumanChainSport } from "./HumanChainSport";
 
-/** The record of `IPairResult`'s site. */
-type IPairResult = {
-  handshake(
-    params?: Omit<IAutoMovieMotionHumanHandshake.IParams, "partner">,
-  ): IAutoMovieChain;
-  handOver(
-    params: Omit<IAutoMovieMotionHumanHandoverAction.IParams, "to">,
-  ): IAutoMovieChain;
-};
-
 /**
  * The fluent authoring surface of one person's actions: one typed method per
  * action of the vocabulary, `act` for the same action by its name, `registered`
@@ -230,3 +220,13 @@ export class HumanChain extends HumanChainSport {
     };
   }
 }
+
+/** The record of `IPairResult`'s site. */
+type IPairResult = {
+  handshake(
+    params?: Omit<IAutoMovieMotionHumanHandshake.IParams, "partner">,
+  ): IAutoMovieChain;
+  handOver(
+    params: Omit<IAutoMovieMotionHumanHandoverAction.IParams, "to">,
+  ): IAutoMovieChain;
+};

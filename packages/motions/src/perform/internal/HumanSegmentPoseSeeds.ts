@@ -78,9 +78,6 @@ export namespace HumanSegmentPoseSeeds {
     return out;
   }
 
-  /** The name prefix of a leaf fit, `leaf:<ordinals>:<limb>`. */
-  const LEAF: string = "leaf:";
-
   /** Each named limb fit's chosen seed; null where that fit has none. */
   export type IFits = Map<string, IAutoMovieSwivelSeed | null>;
 
@@ -120,4 +117,7 @@ export namespace HumanSegmentPoseSeeds {
      */
     samples: readonly [IAutoMoviePose, IAutoMoviePose, IAutoMoviePose];
   }
+
+  /** The name prefix of a leaf fit, `leaf:<ordinals>:<limb>`. */
+  const LEAF: string = "leaf:";
 }

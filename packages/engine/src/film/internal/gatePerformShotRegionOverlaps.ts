@@ -14,21 +14,6 @@ import { performShotActionSpan } from "./performShotActionSpan";
 import { performShotActors } from "./performShotActors";
 
 /**
- * What one action's clip carries after its region mask, cached by action only
- * while that actor's overlap pairs are compared.
- */
-interface ICarriedContent {
-  /** Bones authored by at least one key and retained by the action's region. */
-  bones: Set<AutoMovieHumanoidBone>;
-
-  /** Whether a face-region key authors an expression. */
-  expression: boolean;
-
-  /** Whether the action's key and layering policy retain a pose root. */
-  root: boolean;
-}
-
-/**
  * Refuse two overlapping actions of one actor whose clips, after their region
  * masks, author the same channel.
  *
@@ -134,6 +119,21 @@ export function gatePerformShotRegionOverlaps(
       }
     }
   }
+}
+
+/**
+ * What one action's clip carries after its region mask, cached by action only
+ * while that actor's overlap pairs are compared.
+ */
+interface ICarriedContent {
+  /** Bones authored by at least one key and retained by the action's region. */
+  bones: Set<AutoMovieHumanoidBone>;
+
+  /** Whether a face-region key authors an expression. */
+  expression: boolean;
+
+  /** Whether the action's key and layering policy retain a pose root. */
+  root: boolean;
 }
 
 /** The channels one clip carries after its region mask. */

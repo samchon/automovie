@@ -10,35 +10,6 @@ import {
 } from "../../core/index";
 
 /**
- * FIDE's Standards of Chess Equipment, section 2.3: "King – 9.5 cm", "Queen –
- * 8.5 cm", "Bishop – 7 cm", "Knight – 6 cm", "Rook – 5.5 cm", "Pawn – 5 cm";
- * section 2.4: "The diameter of a piece's base should measure 40-50% of its
- * height" (handbook.fide.com, version effective until 28 February 2026, read
- * 2026-11-21). The base is taken at 45 percent. The profile's proportions and
- * the weighted mass are provisional estimates.
- */
-const HEIGHTS: Readonly<Record<AutoMovieArchetypeChessPiece.Kind, number>> = {
-  king: 0.095,
-  queen: 0.085,
-  bishop: 0.07,
-  knight: 0.06,
-  rook: 0.055,
-  pawn: 0.05,
-};
-
-/**
- * A piece's base diameter as a share of its height, within FIDE's 40 to 50
- * percent.
- */
-const BASE: number = 0.45;
-
-/**
- * A weighted piece's mass per metre of height, kilograms: a provisional
- * estimate.
- */
-const MASS_PER_HEIGHT: number = 0.5;
-
-/**
  * One chess piece standing on its base.
  *
  * The piece stands along `+Y` from the centre of its base at the origin. Its
@@ -114,3 +85,32 @@ export function createChessPiece(
   });
   return builder.build(MASS_PER_HEIGHT * height);
 }
+
+/**
+ * FIDE's Standards of Chess Equipment, section 2.3: "King – 9.5 cm", "Queen –
+ * 8.5 cm", "Bishop – 7 cm", "Knight – 6 cm", "Rook – 5.5 cm", "Pawn – 5 cm";
+ * section 2.4: "The diameter of a piece's base should measure 40-50% of its
+ * height" (handbook.fide.com, version effective until 28 February 2026, read
+ * 2026-11-21). The base is taken at 45 percent. The profile's proportions and
+ * the weighted mass are provisional estimates.
+ */
+const HEIGHTS: Readonly<Record<AutoMovieArchetypeChessPiece.Kind, number>> = {
+  king: 0.095,
+  queen: 0.085,
+  bishop: 0.07,
+  knight: 0.06,
+  rook: 0.055,
+  pawn: 0.05,
+};
+
+/**
+ * A piece's base diameter as a share of its height, within FIDE's 40 to 50
+ * percent.
+ */
+const BASE: number = 0.45;
+
+/**
+ * A weighted piece's mass per metre of height, kilograms: a provisional
+ * estimate.
+ */
+const MASS_PER_HEIGHT: number = 0.5;

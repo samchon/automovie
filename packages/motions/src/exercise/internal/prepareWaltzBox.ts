@@ -7,16 +7,6 @@ import type {
 
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/** The record of `IPrepareWaltzBoxResult`'s site. */
-type IPrepareWaltzBoxResult = {
-  yaw: (seconds: number) => number;
-  depth: (seconds: number) => number;
-  rotate: (
-    placement: IAutoMovieMotionHumanFoot.IPlacement,
-    seconds: number,
-  ) => IAutoMovieMotionHumanFoot.IPlacement;
-};
-
 /**
  * Prepare the optional waltz box's common clock, turning placements and
  * vertical excursion. Yoshida et al. (2022, DOI 10.3389/fspor.2022.941042)
@@ -87,3 +77,13 @@ export function prepareWaltzBox(
     },
   };
 }
+
+/** The record of `IPrepareWaltzBoxResult`'s site. */
+type IPrepareWaltzBoxResult = {
+  yaw: (seconds: number) => number;
+  depth: (seconds: number) => number;
+  rotate: (
+    placement: IAutoMovieMotionHumanFoot.IPlacement,
+    seconds: number,
+  ) => IAutoMovieMotionHumanFoot.IPlacement;
+};

@@ -13,20 +13,6 @@ import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmMove } from "./AutoMovieMotionHumanArmMove";
 import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
 
-/** The alternatives of `SwingLimb`'s site. */
-type SwingLimb = "leftArm" | "rightArm";
-
-/** The record of `IPreparedStrokeProps`'s site. */
-type IPreparedStrokeProps = {
-  contact: NonNullable<IAutoMovieMotionHumanArmPhrase.IStrokeProps["contact"]>;
-};
-
-/** The alternatives of `BearingProps`'s site. */
-type BearingProps = "clock" | "side" | "contact";
-
-/** The alternatives of `ExtendedProps`'s site. */
-type ExtendedProps = "contact" | "manner";
-
 /**
  * The arm's phrases on a clock's standard instants: a visit, a stroke, a strike
  * and an oscillation of the hand, the contact window a phrase bears, and the
@@ -373,3 +359,17 @@ export namespace AutoMovieMotionHumanArmPhrase {
     };
   }
 }
+
+/** The alternatives of `SwingLimb`'s site. */
+type SwingLimb = "leftArm" | "rightArm";
+
+/** The record of `IPreparedStrokeProps`'s site. */
+type IPreparedStrokeProps = {
+  contact: NonNullable<IAutoMovieMotionHumanArmPhrase.IStrokeProps["contact"]>;
+};
+
+/** The alternatives of `BearingProps`'s site. */
+type BearingProps = "clock" | "side" | "contact";
+
+/** The alternatives of `ExtendedProps`'s site. */
+type ExtendedProps = "contact" | "manner";

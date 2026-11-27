@@ -11,36 +11,27 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/** The serving vessels' dimensions, in metres and kilograms. */
-type Dimension = "height" | "diameter" | "mass";
-
-/** The contact sites shared by the serving vessels. */
-type Affordance = "mouth" | "lip" | "handle";
-
-/** One wall outline at each side of the ceramic thickness. */
-interface ISection {
-  inner: IAutoMovieVector3[];
-  outer: IAutoMovieVector3[];
-}
-
 /**
  * A dishware-scale porcelain cup and a larger stoneware jug, without their
  * decoration or proprietary profiles.
  */
 const CUP: string =
   "BHS tabletop SMART stackable 0.19 L (82 mm, 55 mm, 165 g, https://www.bhs-tabletop.com/en-en/product/smart-cup-stackable-000675511811000000/) and SMART coffee cup 0.18 L (90 mm, 55 mm, 180 g, https://www.bhs-tabletop.com/de-int/produkt/smart-obertasse-000675528511000000-sku-000675526811000000/)";
+
 /**
  * Two tabletop serving jugs of comparable capacity bracket empty mass and
  * height.
  */
 const JUG: string =
   "La Poterie de Taizé Cruche 08 (170 mm, 110 mm, 680 g, https://www.lapoteriedetaize.com/en/products/wasserkrug-cruche-08-1-l) and Form & Refine Alcoa Pitcher (210 mm, 110 mm, 900 g, https://formandrefine.com/product/alcoa-pitcher-1l/)";
+
 /** The units written into each archetype's provenance. */
 const UNITS: Readonly<Record<Dimension, AutoMovieArchetypeDrawSession.Unit>> = {
   height: "m",
   diameter: "m",
   mass: "kg",
 };
+
 /** The size and empty mass of each vessel, bracketed by the cited makers. */
 const BANDS: Readonly<
   Record<
@@ -59,13 +50,11 @@ const BANDS: Readonly<
     mass: AutoMovieArchetypeBand.of("kg", 0.68, 0.9, JUG),
   },
 };
-
 /**
  * Sixteen facets preserve a readable round rim and provide vertices on the
  * contact axes.
  */
 const SIDES: number = 16;
-
 /** Constructs the pour vessel archetype from its recipe. */
 export namespace AutoMovieArchetypePourVessel {
 /**
@@ -245,7 +234,6 @@ export function create(
     mass?: number;
   }
 }
-
 /**
  * Generate a horizontal ceramic annulus with an optional projecting tip and two
  * spout shoulders at its front.
@@ -269,4 +257,16 @@ function section(
     outer.push(Vector3.create(x * reach, y, z * reach));
   }
   return { inner, outer };
+}
+
+/** The serving vessels' dimensions, in metres and kilograms. */
+type Dimension = "height" | "diameter" | "mass";
+
+/** The contact sites shared by the serving vessels. */
+type Affordance = "mouth" | "lip" | "handle";
+
+/** One wall outline at each side of the ceramic thickness. */
+interface ISection {
+  inner: IAutoMovieVector3[];
+  outer: IAutoMovieVector3[];
 }

@@ -11,48 +11,6 @@ import type { HumanCarriedGripGaps } from "./HumanCarriedGripGaps";
 import { HumanCarriedNeckClear } from "./HumanCarriedNeckClear";
 import { HumanCarriedPitch } from "./HumanCarriedPitch";
 
-/** The borne regions held by the bearer's left and right hands. */
-type Grip = Parameters<typeof HumanCarriedCouplingFit.read>[3];
-
-/** A borne region a hand holds, or no grip for that hand. */
-type HeldRegion = Grip[number];
-
-/** A reachable placement and the grip its reach was checked against. */
-interface IGripFit {
-  read: HumanCarriedCouplingFit.IRead;
-  held: Grip;
-}
-
-/** The contacts contributed by one bearer. */
-interface IBearingSide {
-  role: string;
-  row: IAutoMovieMotionHumanCarried.IRow;
-  held: Grip;
-}
-
-/** A borne region and the surface it bears on. */
-interface IBearingContact {
-  role: string;
-  region: AutoMovieHumanoidRegion;
-  on: AutoMovieHumanoidRegion;
-}
-
-/**
- * A borne hand that clings to a bearer: the bearer's role, the hand and the
- * bearer's region it holds.
- */
-interface IClingContact {
-  role: string;
-  hand: AutoMovieHumanSide;
-  cling: AutoMovieHumanoidRegion;
-}
-
-/** A second bearer's anchor in the first bearer's anchor frame. */
-type Bearer = NonNullable<IAutoMovieMotionCoupling["bearers"]>[string];
-
-/** The key stance's actual resolved bearing frames. */
-type Bones = HumanCarriedCouplingFit.IRead["theirs"];
-
 /** Bearer and borne region pairs follow the row's left-to-right order. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
@@ -462,3 +420,45 @@ export namespace HumanCarriedCouplingCouple {
     return limb ?? (bone === "hips" ? "seat" : "back");
   };
 }
+
+/** The borne regions held by the bearer's left and right hands. */
+type Grip = Parameters<typeof HumanCarriedCouplingFit.read>[3];
+
+/** A borne region a hand holds, or no grip for that hand. */
+type HeldRegion = Grip[number];
+
+/** A reachable placement and the grip its reach was checked against. */
+interface IGripFit {
+  read: HumanCarriedCouplingFit.IRead;
+  held: Grip;
+}
+
+/** The contacts contributed by one bearer. */
+interface IBearingSide {
+  role: string;
+  row: IAutoMovieMotionHumanCarried.IRow;
+  held: Grip;
+}
+
+/** A borne region and the surface it bears on. */
+interface IBearingContact {
+  role: string;
+  region: AutoMovieHumanoidRegion;
+  on: AutoMovieHumanoidRegion;
+}
+
+/**
+ * A borne hand that clings to a bearer: the bearer's role, the hand and the
+ * bearer's region it holds.
+ */
+interface IClingContact {
+  role: string;
+  hand: AutoMovieHumanSide;
+  cling: AutoMovieHumanoidRegion;
+}
+
+/** A second bearer's anchor in the first bearer's anchor frame. */
+type Bearer = NonNullable<IAutoMovieMotionCoupling["bearers"]>[string];
+
+/** The key stance's actual resolved bearing frames. */
+type Bones = HumanCarriedCouplingFit.IRead["theirs"];

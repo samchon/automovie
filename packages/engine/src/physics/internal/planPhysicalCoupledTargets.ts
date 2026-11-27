@@ -24,55 +24,6 @@ import { physicalCoupledTargetDependencies } from "./physicalCoupledTargetDepend
 import { preparePhysicalContactTargetRows } from "./preparePhysicalContactTargetRows";
 import { solvePhysicalTargetForest } from "./solvePhysicalTargetForest";
 
-type Body = IAutoMoviePhysicalSimulationInput.IBody;
-type Target = IAutoMoviePhysicalSimulationInput.ITarget;
-type Plan = IAutoMoviePlanPhysicalContactTargets.IInput;
-type Rows = IAutoMovieLinearizePhysicalTargetRows.IRows;
-
-type Member = {
-  readonly body: string;
-  /** The active admitted interval goal. */
-  readonly target: Target;
-  /** Actual support rows selected for that same interval. */
-  readonly supports?: Plan["supports"];
-};
-
-type IInput = {
-  /** Admitted body profiles and relationship budgets. */
-  readonly scene: IAutoMoviePhysicalSimulationInput.IInput;
-  /** One mutually dependent group, in any order. */
-  readonly members: readonly Member[];
-  /** World transforms from a single simultaneous snapshot. */
-  readonly actual: Plan["actual"];
-  readonly geometry: IAutoMoviePreparePhysicalGeometry.IQueries;
-  /** Existing world floor lower bound, metres. */
-  readonly floor: number;
-};
-
-type Witness = IAutoMoviePhysicalCoupledTargetFit.IWitness;
-type Report = IAutoMoviePhysicalCoupledTargetFit.IReport;
-type Refusal = Omit<
-  IAutoMoviePhysicalCoupledTargetFit.IRefused,
-  keyof IAutoMoviePhysicalCoupledTargetFit.IInterval
->;
-
-type IResult =
-  | (Report & {
-      readonly kind: "converged";
-      readonly targets: Readonly<Record<string, IAutoMoviePoses>>;
-    })
-  | (Report & {
-      readonly kind: "unconverged";
-      readonly reason: "iteration-budget" | "stalled";
-    })
-  | Refusal;
-
-type PreparedMember = {
-  readonly body: string;
-  readonly plan: Plan;
-  readonly bones: readonly string[];
-};
-
 /**
  * Fit a mutually adjustable group against one candidate scene. Participating
  * roots and outside receivers borrow the simultaneous placement. All admitted
@@ -367,6 +318,55 @@ export function planPhysicalCoupledTargets(input: IInput): IResult {
     };
   }
 }
+type Body = IAutoMoviePhysicalSimulationInput.IBody;
+type Target = IAutoMoviePhysicalSimulationInput.ITarget;
+type Plan = IAutoMoviePlanPhysicalContactTargets.IInput;
+
+type Rows = IAutoMovieLinearizePhysicalTargetRows.IRows;
+
+type Member = {
+  readonly body: string;
+  /** The active admitted interval goal. */
+  readonly target: Target;
+  /** Actual support rows selected for that same interval. */
+  readonly supports?: Plan["supports"];
+};
+
+type IInput = {
+  /** Admitted body profiles and relationship budgets. */
+  readonly scene: IAutoMoviePhysicalSimulationInput.IInput;
+  /** One mutually dependent group, in any order. */
+  readonly members: readonly Member[];
+  /** World transforms from a single simultaneous snapshot. */
+  readonly actual: Plan["actual"];
+  readonly geometry: IAutoMoviePreparePhysicalGeometry.IQueries;
+  /** Existing world floor lower bound, metres. */
+  readonly floor: number;
+};
+type Witness = IAutoMoviePhysicalCoupledTargetFit.IWitness;
+type Report = IAutoMoviePhysicalCoupledTargetFit.IReport;
+
+type Refusal = Omit<
+  IAutoMoviePhysicalCoupledTargetFit.IRefused,
+  keyof IAutoMoviePhysicalCoupledTargetFit.IInterval
+>;
+
+type IResult =
+  | (Report & {
+      readonly kind: "converged";
+      readonly targets: Readonly<Record<string, IAutoMoviePoses>>;
+    })
+  | (Report & {
+      readonly kind: "unconverged";
+      readonly reason: "iteration-budget" | "stalled";
+    })
+  | Refusal;
+
+type PreparedMember = {
+  readonly body: string;
+  readonly plan: Plan;
+  readonly bones: readonly string[];
+};
 
 /** Read one body's local bone view of the qualified world poses. */
 function localView(

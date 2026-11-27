@@ -12,9 +12,6 @@ import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { exactPlaybackHardCut } from "./exactPlaybackHardCut";
 import { preparePlaybackTimeline } from "./preparePlaybackTimeline";
 
-/** Original clock tolerance for ordinary numeric plays away from exact seams. */
-const TIME_EPSILON: number = 1e-9;
-
 /**
  * Place every shot interaction event onto the sequence output clock, once per
  * play.
@@ -167,6 +164,9 @@ export function sequenceEventTimeline(
     );
   }
 }
+
+/** Original clock tolerance for ordinary numeric plays away from exact seams. */
+const TIME_EPSILON: number = 1e-9;
 
 /** One play of `event` by `entry`, stamped with its projected `globalTime`. */
 function placed(

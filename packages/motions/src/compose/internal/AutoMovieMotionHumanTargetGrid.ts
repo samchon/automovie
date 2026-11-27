@@ -11,12 +11,6 @@ import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 
-/** The alternatives of `NearestResult`'s site. */
-type NearestResult = "height" | "lateral" | "distance";
-
-/** The alternatives of `NearestPosture`'s site. */
-type NearestPosture = "root" | "yaw";
-
 /**
  * The places of the air around a performer by name: the heights, lateral
  * offsets and distances a law states a hand's place with, the three rungs of a
@@ -255,6 +249,12 @@ export namespace AutoMovieMotionHumanTargetGrid {
     };
   }
 }
+
+/** The alternatives of `NearestResult`'s site. */
+type NearestResult = "height" | "lateral" | "distance";
+
+/** The alternatives of `NearestPosture`'s site. */
+type NearestPosture = "root" | "yaw";
 /** The alternatives of `NamedBase`'s site. */
 type NamedBase =
   | IAutoMovieMotionHumanTarget.Name

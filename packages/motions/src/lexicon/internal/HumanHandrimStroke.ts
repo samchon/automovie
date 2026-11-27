@@ -69,48 +69,6 @@ export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
     plan: planHumanHandrimStroke,
   };
 
-/** The point and directions a rider uses to take the rim. */
-type Grip = Parameters<typeof HumanMountRider.hold>[3];
-
-/** The phase endpoints and live reader for one of the riding hands. */
-interface IHand {
-  /** The hand controlled by this rim. */
-  side: AutoMovieHumanSide;
-  /** Read the rim's material point at an action second. */
-  gripAt: (at: number, frame: IAutoMovieRigidTransform) => Grip;
-  /** The catch grip in the chair's catch placement, solved with the plan. */
-  caught: Grip;
-  /** The release grip in the chair's release placement, solved with the plan. */
-  released: Grip;
-  /** The radius of the declared rim in metres. */
-  radius: number;
-  /** Material rotation rates in radians per second at the window boundaries. */
-  rates: IRimRates;
-  /** Finger joint angles fitted to the chair's coarse collider. */
-  closed: IAutoMovieMotionHumanPosture["joints"];
-}
-
-/**
- * A rim's material rotation rates at the grip window's ends, radians per
- * second.
- */
-interface IRimRates {
-  /** The rate at the catch. */
-  catch: number;
-  /** The rate at the release. */
-  release: number;
-}
-
-/** One hand's declared wheel geometry before building its contact reader. */
-interface IRim {
-  /** The side of the named wheel. */
-  side: AutoMovieHumanSide;
-  /** The wheel's affordance id. */
-  rim: string;
-  /** Its declared axle frame and radius. */
-  geometry: IAutoMovieAffordance;
-}
-
 /**
  * One single-handed or bilateral handrim engagement over a seated ride.
  * Register the law and give the chair a circumferential contact reader, such as
@@ -435,4 +393,46 @@ function planHumanHandrimStroke(
     contacts: [...base.contacts, ...windows],
     posture,
   };
+}
+
+/** The point and directions a rider uses to take the rim. */
+type Grip = Parameters<typeof HumanMountRider.hold>[3];
+
+/** The phase endpoints and live reader for one of the riding hands. */
+interface IHand {
+  /** The hand controlled by this rim. */
+  side: AutoMovieHumanSide;
+  /** Read the rim's material point at an action second. */
+  gripAt: (at: number, frame: IAutoMovieRigidTransform) => Grip;
+  /** The catch grip in the chair's catch placement, solved with the plan. */
+  caught: Grip;
+  /** The release grip in the chair's release placement, solved with the plan. */
+  released: Grip;
+  /** The radius of the declared rim in metres. */
+  radius: number;
+  /** Material rotation rates in radians per second at the window boundaries. */
+  rates: IRimRates;
+  /** Finger joint angles fitted to the chair's coarse collider. */
+  closed: IAutoMovieMotionHumanPosture["joints"];
+}
+
+/**
+ * A rim's material rotation rates at the grip window's ends, radians per
+ * second.
+ */
+interface IRimRates {
+  /** The rate at the catch. */
+  catch: number;
+  /** The rate at the release. */
+  release: number;
+}
+
+/** One hand's declared wheel geometry before building its contact reader. */
+interface IRim {
+  /** The side of the named wheel. */
+  side: AutoMovieHumanSide;
+  /** The wheel's affordance id. */
+  rim: string;
+  /** Its declared axle frame and radius. */
+  geometry: IAutoMovieAffordance;
 }

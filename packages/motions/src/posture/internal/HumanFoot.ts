@@ -13,15 +13,6 @@ import { prepareHumanFootPoint } from "./prepareHumanFootPoint";
 import { prepareHumanFootSole } from "./prepareHumanFootSole";
 import { readHumanFoot } from "./readHumanFoot";
 
-/** The alternatives of `PointPoint`'s site. */
-type PointPoint = "heel" | "ball" | "toe" | "sole" | "mtp";
-
-/** The record of `IHeadingPitchResult`'s site. */
-type IHeadingPitchResult = {
-  heading: number;
-  pitch: number;
-};
-
 /**
  * A foot on the floor as a rigid rocker: where its ankle and its sole points
  * are when it pivots about its heel or its ball by a pitch, at a heading.
@@ -310,16 +301,6 @@ export namespace HumanFoot {
     return { heading: angle, pitch: pitchAt(toes, angle) };
   }
 
-  /** Pitch projected along the same lateral-axis heading, in clinical degrees. */
-  function pitchAt(toes: IAutoMovieVector3, angle: number): number {
-    const yaw: number = (angle * Math.PI) / 180;
-    return (
-      (Math.atan2(toes.y, toes.x * Math.sin(yaw) + toes.z * Math.cos(yaw)) *
-        180) /
-      Math.PI
-    );
-  }
-
   /**
    * A sole point's offset from the ankle in the foot's rest frame, the toes
    * flexed by an angle.
@@ -478,7 +459,26 @@ export namespace HumanFoot {
    */
   export const preparePoint: typeof prepareHumanFootPoint =
     prepareHumanFootPoint;
+
+  /** Pitch projected along the same lateral-axis heading, in clinical degrees. */
+  function pitchAt(toes: IAutoMovieVector3, angle: number): number {
+    const yaw: number = (angle * Math.PI) / 180;
+    return (
+      (Math.atan2(toes.y, toes.x * Math.sin(yaw) + toes.z * Math.cos(yaw)) *
+        180) /
+      Math.PI
+    );
+  }
 }
+
+/** The alternatives of `PointPoint`'s site. */
+type PointPoint = "heel" | "ball" | "toe" | "sole" | "mtp";
+
+/** The record of `IHeadingPitchResult`'s site. */
+type IHeadingPitchResult = {
+  heading: number;
+  pitch: number;
+};
 
 /** The unchanged world-up axis shared only as axis-angle scalar preparation. */
 const YAW: ReturnType<typeof Quaternion.prepareAxisAngle> =

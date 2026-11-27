@@ -5,32 +5,6 @@ import type { IAutoMovieInspectorScene } from "../IAutoMovieInspectorScene.js";
 /** Maximum recent ranges retained for replay deduplication per mounted subject. */
 const HISTORY_LIMIT: number = 128;
 
-/** A run of observations while its last and worst witness can still advance. */
-interface IOpen {
-  scope: string;
-  basis: IAutoMovieInspectorScene.EpisodeBasis;
-  first: Diagnostics.IObservation;
-  firstSample: Diagnostics.ITime;
-  worst: Diagnostics.IObservation;
-  last: Diagnostics.ITime;
-  samples: number;
-  checked: boolean;
-  fresh: boolean;
-}
-
-/** The previous painted sample and how the playhead reached it. */
-interface IPrevious {
-  scope: string;
-  time: Diagnostics.ITime;
-  playing: boolean;
-  jump: number;
-}
-
-/** Previously seen sample coordinates used only to deduplicate reporting. */
-type ISeen =
-  | { key: string; kind: "frames"; first: number; last: number }
-  | { key: string; kind: "second"; seconds: number };
-
 /**
  * Report confirmed problems when first seen and summarize observed multi-sample
  * spans.
@@ -233,3 +207,29 @@ function linkOf(
 function checkKey(value: Pick<Diagnostics.IFinding, "check" | "key">): string {
   return JSON.stringify([value.check, value.key]);
 }
+
+/** A run of observations while its last and worst witness can still advance. */
+interface IOpen {
+  scope: string;
+  basis: IAutoMovieInspectorScene.EpisodeBasis;
+  first: Diagnostics.IObservation;
+  firstSample: Diagnostics.ITime;
+  worst: Diagnostics.IObservation;
+  last: Diagnostics.ITime;
+  samples: number;
+  checked: boolean;
+  fresh: boolean;
+}
+
+/** The previous painted sample and how the playhead reached it. */
+interface IPrevious {
+  scope: string;
+  time: Diagnostics.ITime;
+  playing: boolean;
+  jump: number;
+}
+
+/** Previously seen sample coordinates used only to deduplicate reporting. */
+type ISeen =
+  | { key: string; kind: "frames"; first: number; last: number }
+  | { key: string; kind: "second"; seconds: number };

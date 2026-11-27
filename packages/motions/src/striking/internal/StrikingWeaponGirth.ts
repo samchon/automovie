@@ -3,12 +3,6 @@ import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 import { KickForm } from "./KickForm";
 
 /**
- * A capsule's radii at its two axis ends, metres: equal for a capsule of one
- * radius.
- */
-type GirthRadii = readonly [number, number];
-
-/**
  * The girths of a striking limb's capsules: the radii a shown leg's and a shown
  * arm's tapered capsules carry at their joints, and a capsule's radius at a
  * share of its axis.
@@ -74,3 +68,9 @@ export namespace StrikingWeaponGirth {
     return radii[0] + (radii[1] - radii[0]) * share;
   }
 }
+
+/**
+ * A capsule's radii at its two axis ends, metres: equal for a capsule of one
+ * radius.
+ */
+type GirthRadii = readonly [number, number];

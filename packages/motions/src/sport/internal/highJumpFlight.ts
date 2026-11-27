@@ -14,58 +14,6 @@ import { GymnasticsFlight } from "./GymnasticsFlight";
 import type { IPreparedGymnasticsFrame } from "./IPreparedGymnasticsFrame";
 import type { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
 
-/** The takeoff, key poses and world-space inputs for a high jump's flight. */
-interface IHighJumpFlight {
-  /** The performer. */
-  body: IAutoMovieMotionHumanBody;
-
-  /** The frozen takeoff posture that supplies the departure joints and heading. */
-  from: IAutoMovieMotionHumanPosture;
-
-  /** The arched pose at the apex. */
-  arch: IAutoMovieMotionHumanExerciseKey.IKey;
-
-  /** The pike target after the apex. */
-  pike: IAutoMovieMotionHumanExerciseKey.IKey;
-
-  /** The reader for canonical placement and floor observations. */
-  prepareFrame: ReturnType<typeof prepareGymnasticsFrame>;
-
-  /** The reader for ordinary flight samples, which need only COM placement. */
-  placeMass: ReturnType<typeof prepareGymnasticsFrame.mass>;
-
-  /** The takeoff centre of mass, in world metres. */
-  c0: IAutoMovieVector3;
-
-  /** The takeoff velocity, in world metres per second. */
-  v: IAutoMovieVector3;
-
-  /** The time from takeoff to the apex, in seconds. */
-  rising: number;
-
-  /** The landing surface height, in world metres. */
-  surface: number;
-
-  /** The crossbar height, in world metres, for the refusal message. */
-  bar: number;
-}
-
-/** The flight reader and its touchdown instant. */
-interface IHighJumpAirborne {
-  /**
-   * Sample the posture at seconds since takeoff with optional synchronous FK
-   * and projection loans.
-   */
-  flying: (
-    seconds: number,
-    resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-    projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-  ) => IAutoMovieMotionHumanPosture;
-
-  /** Touchdown, in seconds since takeoff. */
-  down: number;
-}
-
 /**
  * Prepare the keyed Fosbury flight and solve for touchdown on the back.
  *
@@ -165,4 +113,56 @@ export function highJumpFlight(input: IHighJumpFlight): IHighJumpAirborne {
   })();
 
   return { flying, down };
+}
+
+/** The takeoff, key poses and world-space inputs for a high jump's flight. */
+interface IHighJumpFlight {
+  /** The performer. */
+  body: IAutoMovieMotionHumanBody;
+
+  /** The frozen takeoff posture that supplies the departure joints and heading. */
+  from: IAutoMovieMotionHumanPosture;
+
+  /** The arched pose at the apex. */
+  arch: IAutoMovieMotionHumanExerciseKey.IKey;
+
+  /** The pike target after the apex. */
+  pike: IAutoMovieMotionHumanExerciseKey.IKey;
+
+  /** The reader for canonical placement and floor observations. */
+  prepareFrame: ReturnType<typeof prepareGymnasticsFrame>;
+
+  /** The reader for ordinary flight samples, which need only COM placement. */
+  placeMass: ReturnType<typeof prepareGymnasticsFrame.mass>;
+
+  /** The takeoff centre of mass, in world metres. */
+  c0: IAutoMovieVector3;
+
+  /** The takeoff velocity, in world metres per second. */
+  v: IAutoMovieVector3;
+
+  /** The time from takeoff to the apex, in seconds. */
+  rising: number;
+
+  /** The landing surface height, in world metres. */
+  surface: number;
+
+  /** The crossbar height, in world metres, for the refusal message. */
+  bar: number;
+}
+
+/** The flight reader and its touchdown instant. */
+interface IHighJumpAirborne {
+  /**
+   * Sample the posture at seconds since takeoff with optional synchronous FK
+   * and projection loans.
+   */
+  flying: (
+    seconds: number,
+    resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+    projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+  ) => IAutoMovieMotionHumanPosture;
+
+  /** Touchdown, in seconds since takeoff. */
+  down: number;
 }

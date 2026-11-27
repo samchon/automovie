@@ -27,9 +27,6 @@ import { AutoMovieMotionHumanJoints } from "./AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanRoot } from "./AutoMovieMotionHumanRoot";
 
-/** The alternatives of `CrouchResult`'s site. */
-type CrouchResult = "leftLeg" | "rightLeg";
-
 /**
  * Trunk phrases: the trunk turned on the pelvis, the body sunk into its knees,
  * and the hips moved back under a limb held out.
@@ -451,3 +448,6 @@ export namespace AutoMovieMotionHumanTrunk {
     });
   }
 }
+
+/** The alternatives of `CrouchResult`'s site. */
+type CrouchResult = "leftLeg" | "rightLeg";

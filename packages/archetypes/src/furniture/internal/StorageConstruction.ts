@@ -8,15 +8,6 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeStorage } from "../AutoMovieArchetypeStorage";
 
-/** The builder every construction fills. */
-type Builder = AutoMovieArchetypeBuilder<
-  AutoMovieArchetypeStorage.Affordance,
-  AutoMovieArchetypeStorage.Dimension
->;
-
-/** The drawn dimensions. */
-type Drawn = Partial<Record<AutoMovieArchetypeStorage.Dimension, number>>;
-
 /** The shorthand every construction uses. */
 const v: typeof Vector3.create = Vector3.create;
 
@@ -429,3 +420,12 @@ export namespace StorageConstruction {
     faces(builder, width, height, depth);
   }
 }
+
+/** The builder every construction fills. */
+type Builder = AutoMovieArchetypeBuilder<
+  AutoMovieArchetypeStorage.Affordance,
+  AutoMovieArchetypeStorage.Dimension
+>;
+
+/** The drawn dimensions. */
+type Drawn = Partial<Record<AutoMovieArchetypeStorage.Dimension, number>>;

@@ -15,12 +15,6 @@ import { HumanBodyFitMerit } from "../../posture/internal/HumanBodyFitMerit";
 import { HumanFitVariables } from "../../posture/internal/HumanFitVariables";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-type Target = IAutoMovieMotionHumanBodyFitTypes.ITarget;
-type Contact = IAutoMovieMotionHumanSupport.IContact;
-type Variable = IAutoMovieMotionHumanJacobian.IVariable;
-type Candidate = IAutoMovieMotionHumanPosture | undefined;
-type Angles = NonNullable<IAutoMovieMotionHumanPosture["joints"]["hips"]>;
-
 /**
  * Solve one side of a bilaterally specified hands-on-surface, feet-on-floor
  * stance and reflect the clinical joint configuration across its sagittal
@@ -146,3 +140,9 @@ export function preparePairedFloorSupport(
     ? pose
     : undefined;
 }
+type Target = IAutoMovieMotionHumanBodyFitTypes.ITarget;
+type Contact = IAutoMovieMotionHumanSupport.IContact;
+type Variable = IAutoMovieMotionHumanJacobian.IVariable;
+type Candidate = IAutoMovieMotionHumanPosture | undefined;
+
+type Angles = NonNullable<IAutoMovieMotionHumanPosture["joints"]["hips"]>;

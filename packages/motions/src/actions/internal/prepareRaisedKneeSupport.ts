@@ -11,11 +11,6 @@ import { HumanBodyFit } from "../../posture/internal/HumanBodyFit";
 import { HumanBodyFitMerit } from "../../posture/internal/HumanBodyFitMerit";
 import { HumanFitVariables } from "../../posture/internal/HumanFitVariables";
 
-type Contact = IAutoMovieMotionHumanSupport.IContact;
-type Target = IAutoMovieMotionHumanBodyFitTypes.ITarget;
-type Variable = IAutoMovieMotionHumanJacobian.IVariable;
-type Candidate = IAutoMovieMotionHumanPosture | undefined;
-
 /**
  * Construct a diagonal support tripod before closing the remaining hand. The
  * intermediate poses only initialize the static solver. The original posed
@@ -100,6 +95,11 @@ export function prepareRaisedKneeSupport(
   }).posture;
   return supportHeight(complete, holding, merit);
 }
+type Contact = IAutoMovieMotionHumanSupport.IContact;
+type Target = IAutoMovieMotionHumanBodyFitTypes.ITarget;
+type Variable = IAutoMovieMotionHumanJacobian.IVariable;
+
+type Candidate = IAutoMovieMotionHumanPosture | undefined;
 
 /**
  * Every world-height row changes by the same signed rigid translation. A common

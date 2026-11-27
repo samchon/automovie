@@ -15,12 +15,6 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 import { motionCaseSocket } from "./internal/motionCaseSocket";
 
-/** The record of `IAffordanceCasesWorst`'s site. */
-type IAffordanceCasesWorst = { value: number; at: number };
-
-/** The record of `IAffordanceCasesMechanismsItem`'s site. */
-type IAffordanceCasesMechanismsItem = { kind: "insert" };
-
 /**
  * Capture cases of the articulated affordances family, each from quiet standing
  * with the right hand, every part within the 2010 ADA hardware band (865 to
@@ -221,3 +215,9 @@ export function affordanceCases(
   }
   return out;
 }
+
+/** The record of `IAffordanceCasesWorst`'s site. */
+type IAffordanceCasesWorst = { value: number; at: number };
+
+/** The record of `IAffordanceCasesMechanismsItem`'s site. */
+type IAffordanceCasesMechanismsItem = { kind: "insert" };

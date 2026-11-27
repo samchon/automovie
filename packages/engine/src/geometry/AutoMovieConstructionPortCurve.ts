@@ -11,12 +11,7 @@ import { AutoMovieConstructionPortField as Field } from "./AutoMovieConstruction
 import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-/** Physical point/vector, mm. */
-type Vec3 = AutoMovieVector3Tuple;
-/** Existing rail-side definition; no new source or surface ownership. */
-type ISide = IAutoMovieConstructionSplitBand.ISide;
 const { add, cross, dot, norm, scale, sub, unit } = AutoMovieSolidVector;
-
 /** The existing radial port chart and angle/length clock correspondence. */
 export namespace AutoMovieConstructionPortCurve {
   /**
@@ -391,3 +386,8 @@ export namespace AutoMovieConstructionPortCurve {
     return out;
   }
 }
+/** Physical point/vector, mm. */
+type Vec3 = AutoMovieVector3Tuple;
+
+/** Existing rail-side definition; no new source or surface ownership. */
+type ISide = IAutoMovieConstructionSplitBand.ISide;

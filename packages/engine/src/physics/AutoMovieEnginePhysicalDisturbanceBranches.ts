@@ -10,9 +10,6 @@ import type { AutoMovieEnginePhysicalIcpPlannerTools as Tools } from "./AutoMovi
 import { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "./AutoMovieEnginePhysicalPlanarPolygon";
 import { AutoMovieEnginePhysicalPushRecovery as Recovery } from "./AutoMovieEnginePhysicalPushRecovery";
 
-/** A planted foot. */
-type Foot = AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanFoot;
-
 /** The closed forms the branch points lay. */
 const {
   ZULU,
@@ -349,3 +346,6 @@ export namespace AutoMovieEnginePhysicalDisturbanceBranches {
     Response.test(scope);
   }
 }
+
+/** A planted foot. */
+type Foot = AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanFoot;

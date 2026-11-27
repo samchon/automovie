@@ -21,36 +21,6 @@ import { HumanColliderCorners } from "./HumanColliderCorners";
 import { HumanColliders } from "./HumanColliders";
 import { poseBones } from "./poseBones";
 
-/** The record of `IBuiltOfResult`'s site. */
-type IBuiltOfResult = { centre: IAutoMovieVector3; radius: number };
-
-/** The alternatives of `BuiltOfOwner2`'s site. */
-type BuiltOfOwner2 = "upper" | "lower" | "hand";
-
-/** The record of `IBuiltOf`'s site. */
-type IBuiltOf = {
-  centre: IAutoMovieVector3;
-  radius: number;
-};
-
-/** The alternatives of `BuiltOfOwner`'s site. */
-type BuiltOfOwner = "upper" | "lower" | "hand";
-
-/** The alternatives of `BuiltOwner`'s site. */
-type BuiltOwner = "upper" | "lower" | "hand" | null;
-
-/** The alternatives of `InversesEntryItem`'s site. */
-type InversesEntryItem = "upper" | "lower" | "hand";
-
-/** The alternatives of `BuiltFramesEntry`'s site. */
-type BuiltFramesEntry = "upper" | "lower" | "hand";
-
-/** The alternatives of `BuiltOwnersItem`'s site. */
-type BuiltOwnersItem = "upper" | "lower" | "hand";
-
-/** The alternatives of `BuiltByOwnerEntry`'s site. */
-type BuiltByOwnerEntry = "upper" | "lower" | "hand";
-
 /**
  * The frame of a base: what an arm is read against at one instant
  * (`HumanArmGeometry.IFrame`), built from a base: the shoulder's parent, the
@@ -438,6 +408,36 @@ export function HumanArmFrame(
     body: near,
   };
 }
+
+/** The record of `IBuiltOfResult`'s site. */
+type IBuiltOfResult = { centre: IAutoMovieVector3; radius: number };
+
+/** The alternatives of `BuiltOfOwner2`'s site. */
+type BuiltOfOwner2 = "upper" | "lower" | "hand";
+
+/** The record of `IBuiltOf`'s site. */
+type IBuiltOf = {
+  centre: IAutoMovieVector3;
+  radius: number;
+};
+
+/** The alternatives of `BuiltOfOwner`'s site. */
+type BuiltOfOwner = "upper" | "lower" | "hand";
+
+/** The alternatives of `BuiltOwner`'s site. */
+type BuiltOwner = "upper" | "lower" | "hand" | null;
+
+/** The alternatives of `InversesEntryItem`'s site. */
+type InversesEntryItem = "upper" | "lower" | "hand";
+
+/** The alternatives of `BuiltFramesEntry`'s site. */
+type BuiltFramesEntry = "upper" | "lower" | "hand";
+
+/** The alternatives of `BuiltOwnersItem`'s site. */
+type BuiltOwnersItem = "upper" | "lower" | "hand";
+
+/** The alternatives of `BuiltByOwnerEntry`'s site. */
+type BuiltByOwnerEntry = "upper" | "lower" | "hand";
 
 /**
  * How near a body's corner must come to a segment of the arm to be read against

@@ -6,9 +6,6 @@ import {
 
 import { autoMovieSectionPlaneDistance } from "./autoMovieSectionPlaneDistance";
 
-/** The three axes a box corner is chosen on. */
-const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
-
 /**
  * Classify a world-space axis-aligned box, in metres, against a set of section
  * planes: `kept` when every plane keeps all of it, `cut` when some plane
@@ -59,3 +56,6 @@ export function classifyAutoMovieSectionPlaneBox(
   }
   return crossed ? "crossed" : "kept";
 }
+
+/** The three axes a box corner is chosen on. */
+const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];

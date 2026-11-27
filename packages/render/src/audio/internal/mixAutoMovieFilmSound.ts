@@ -11,9 +11,6 @@ import type {
 import { admitAutoMovieFilmDialogue } from "./admitAutoMovieFilmDialogue.js";
 import { encodeAutoMovieWavPcm16 } from "./encodeAutoMovieWavPcm16.js";
 
-/** The mixer's fixed rate; every adopted file is decoded to it. */
-const SAMPLE_RATE: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;
-
 /**
  * Mix a film's sound list into the soundtrack its delivery encodes.
  *
@@ -175,6 +172,9 @@ export async function mixAutoMovieFilmSound(
     lines,
   };
 }
+
+/** The mixer's fixed rate; every adopted file is decoded to it. */
+const SAMPLE_RATE: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;
 
 /** Refuse an id that repeats, because the report and ducking key on it. */
 const assertUnique: (kind: string, ids: readonly string[]) => void = (

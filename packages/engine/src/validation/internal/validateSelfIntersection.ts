@@ -21,8 +21,6 @@ import { fkReachableBones } from "./fkReachableBones";
 import { admitMotionSampleRate } from "./admitMotionSampleRate";
 import { validateCapsule } from "./validateCapsule";
 
-const DEFAULT_SAMPLE_RATE: number = 24;
-
 /**
  * Sample valid capsule pairs through FK and warn when segment distance is less
  * than summed radii. A nonfinite or nonpositive rate yields a range finding
@@ -117,6 +115,8 @@ export function validateSelfIntersection(
 
   return collector.toValidation();
 }
+
+const DEFAULT_SAMPLE_RATE: number = 24;
 
 /**
  * Read admitted endpoint world positions from the sampled resolved map.

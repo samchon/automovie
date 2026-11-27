@@ -5,15 +5,6 @@ import type { IMotionCaptureCase } from "./IMotionCaptureCase";
 import type { IMotionCaptureProps } from "./IMotionCaptureProps";
 
 /**
- * Frames per second of a case's grid: 32, a power of two, so every frame second
- * `k / 32` and the clock `N / 32` are exact binary fractions, which a video's
- * whole-frame check needs and a seek's match of seconds relies on.
- */
-const FPS: number = 32;
-/** The record of `IPlanMotionCapturePropsRaster`'s site. */
-type IPlanMotionCapturePropsRaster = { width: number; height: number };
-
-/**
  * Turn a built motion case into the data its draw page receives: every
  * performer and ghost posed at each of the case's instants and at every frame
  * of a 32 fps grid up to the last instant, so stills draw the case's beats and
@@ -74,3 +65,12 @@ export function planMotionCaptureProps(
     boxes: capture.boxes ?? [],
   };
 }
+/**
+ * Frames per second of a case's grid: 32, a power of two, so every frame second
+ * `k / 32` and the clock `N / 32` are exact binary fractions, which a video's
+ * whole-frame check needs and a seek's match of seconds relies on.
+ */
+const FPS: number = 32;
+
+/** The record of `IPlanMotionCapturePropsRaster`'s site. */
+type IPlanMotionCapturePropsRaster = { width: number; height: number };

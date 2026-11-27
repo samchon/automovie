@@ -13,9 +13,6 @@ import { DEFAULT_KEYPOINT_BONES } from "../DEFAULT_KEYPOINT_BONES";
 import { projectToNdc } from "./projectToNdc";
 import { resolveCameraAt } from "./resolveCameraAt";
 
-/** Assumed render aspect (width / height); the scene camera carries none. */
-const DEFAULT_ASPECT: number = 16 / 9;
-
 /**
  * Project one posed actor's joints to normalized 2D frame keypoints, the
  * OpenPose-style conditioning automovie can emit exactly because it knows every
@@ -99,3 +96,6 @@ export function resolvePoseKeypoints(
   }
   return keypoints;
 }
+
+/** Assumed render aspect (width / height); the scene camera carries none. */
+const DEFAULT_ASPECT: number = 16 / 9;

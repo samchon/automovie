@@ -1,14 +1,3 @@
-interface IHeading {
-  line: number;
-  level: number;
-  title: string;
-}
-
-interface IFence {
-  character: "`" | "~";
-  length: number;
-}
-
 /**
  * Transclude a same-path root skill section into authored scaffold Markdown.
  */
@@ -79,6 +68,17 @@ export const transcludeMarkdownSection = {
     return lines.join("");
   },
 };
+
+interface IHeading {
+  line: number;
+  level: number;
+  title: string;
+}
+
+interface IFence {
+  character: "`" | "~";
+  length: number;
+}
 
 function markerLines(markdown: string): number[] {
   const lines: string[] = splitLines(markdown);

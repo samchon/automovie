@@ -23,20 +23,14 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { shankTilt } from "./shankTilt";
 import { unloadedFoot } from "./unloadedFoot";
 
-type Params = IAutoMovieMotionHumanMedium.IWalkParams;
-type Plan = IAutoMovieMotionHumanActionPlan;
-type Posture = IAutoMovieMotionHumanPosture;
-
 /** World vertical. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
 /**
  * The wading measurement: walking speed in water 1.2 m deep, as a share of the
  * land speed (Fantozzi et al. 2015,
  * https://pmc.ncbi.nlm.nih.gov/articles/PMC4569370/: 40 % slower).
  */
 const WADE_SHARE: number = 0.6;
-
 /** The water depth of that measurement, metres. */
 const WADE_DEPTH: number = 1.2;
 
@@ -60,8 +54,6 @@ const EASE: number = 0.1;
 
 /** The trunk's forward lean while wading, degrees (provisional staging). */
 const WADE_LEAN: number = 10;
-/** The alternatives of `TERRAINEntryItem`'s site. */
-type TERRAINEntryItem = "sand" | "mud";
 
 /**
  * Terrain factors of the walking-energy equation (Pandolf, Givoni and Goldman
@@ -371,7 +363,6 @@ export function HumanMediumWalk(
     },
   };
 }
-
 /** Depth admission for a medium that the walk can still cross on foot. */
 export namespace HumanMediumWalk {
   /** The two anatomical depths that limit the admitted media. */
@@ -446,3 +437,12 @@ function swingShare(
   }
   return 0;
 }
+
+type Params = IAutoMovieMotionHumanMedium.IWalkParams;
+
+type Plan = IAutoMovieMotionHumanActionPlan;
+
+type Posture = IAutoMovieMotionHumanPosture;
+
+/** The alternatives of `TERRAINEntryItem`'s site. */
+type TERRAINEntryItem = "sand" | "mud";

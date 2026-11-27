@@ -17,9 +17,6 @@ import { StrikingTarget } from "../../striking/internal/StrikingTarget";
 import { step } from "../../striking/internal/step";
 import { HumanLungePivot } from "./HumanLungePivot";
 
-/** The lunge's context. */
-type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLunge>;
-
 /** Up. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
@@ -179,3 +176,6 @@ export namespace HumanLungeStance {
     at: (time: number) => IAutoMovieMotionHumanPosture;
   }
 }
+
+/** The lunge's context. */
+type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLunge>;

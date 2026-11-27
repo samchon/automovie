@@ -5,45 +5,6 @@ import { HumanFitBalanceBase } from "./HumanFitBalanceBase";
 import { HumanFoot } from "./HumanFoot";
 import { HumanJacobian } from "./HumanJacobian";
 
-/** The record of `ISideResult`'s site. */
-type ISideResult = { x: number; z: number };
-
-/** The record of `ISlopesT`'s site. */
-type ISlopesT = { x: number; z: number };
-
-/** The record of `ISlopesN`'s site. */
-type ISlopesN = { x: number; z: number };
-
-/** The record of `ISlopes`'s site. */
-type ISlopes = { x: number; z: number };
-
-/** The record of `IDistanceA`'s site. */
-type IDistanceA = { x: number; z: number };
-
-/** The record of `IDistanceNormal`'s site. */
-type IDistanceNormal = { x: number; z: number };
-
-/** The record of `IDistanceAnchorsItem`'s site. */
-type IDistanceAnchorsItem = { x: number; z: number };
-
-/** The record of `IAtWas`'s site. */
-type IAtWas = { x: number; z: number };
-
-/** The record of `IAtT`'s site. */
-type IAtT = { x: number; z: number };
-
-/** The record of `IAtN`'s site. */
-type IAtN = { x: number; z: number };
-
-/** The record of `IOf`'s site. */
-type IOf = { x: number; z: number };
-
-/** The record of `IReadingNormalsItem`'s site. */
-type IReadingNormalsItem = { x: number; z: number };
-
-/** The record of `IReadingAnchorsItem`'s site. */
-type IReadingAnchorsItem = { x: number; z: number };
-
 /**
  * The balance of a posed body.
  *
@@ -405,4 +366,43 @@ export namespace HumanFitBalance {
     return { x: (q.x - p.x) / length, z: (q.z - p.z) / length };
   }
 }
+
+/** The record of `ISideResult`'s site. */
+type ISideResult = { x: number; z: number };
+
+/** The record of `ISlopesT`'s site. */
+type ISlopesT = { x: number; z: number };
+
+/** The record of `ISlopesN`'s site. */
+type ISlopesN = { x: number; z: number };
+
+/** The record of `ISlopes`'s site. */
+type ISlopes = { x: number; z: number };
+
+/** The record of `IDistanceA`'s site. */
+type IDistanceA = { x: number; z: number };
+
+/** The record of `IDistanceNormal`'s site. */
+type IDistanceNormal = { x: number; z: number };
+
+/** The record of `IDistanceAnchorsItem`'s site. */
+type IDistanceAnchorsItem = { x: number; z: number };
+
+/** The record of `IAtWas`'s site. */
+type IAtWas = { x: number; z: number };
+
+/** The record of `IAtT`'s site. */
+type IAtT = { x: number; z: number };
+
+/** The record of `IAtN`'s site. */
+type IAtN = { x: number; z: number };
+
+/** The record of `IOf`'s site. */
+type IOf = { x: number; z: number };
+
+/** The record of `IReadingNormalsItem`'s site. */
+type IReadingNormalsItem = { x: number; z: number };
+
+/** The record of `IReadingAnchorsItem`'s site. */
+type IReadingAnchorsItem = { x: number; z: number };
 

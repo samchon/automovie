@@ -11,42 +11,6 @@ import { AquaticPosture } from "./AquaticPosture";
 import { AquaticRescueBounds } from "./AquaticRescueBounds";
 
 /**
- * The rescue's shared geometry, read the same way by the rescuer and the
- * victim.
- */
-interface ITow {
-  /** The victim's root at the hold, world metres. */
-  from: IAutoMovieVector3;
-
-  /** Unit horizontal direction toward the edge. */
-  toward: IAutoMovieVector3;
-
-  /** Metres the victim travels. */
-  length: number;
-
-  /** Seconds the tow takes. */
-  seconds: number;
-}
-
-/** The rescuer's hold in the world, read once where the hold is taken. */
-interface IHoldWorld {
-  /** The wrist on the victim's sternum, world metres. */
-  wrist: IAutoMovieVector3;
-
-  /** The hand's world rotation, its palm into the sternum. */
-  rotation: IAutoMovieQuaternion;
-
-  /** The palm's point in the hand's frame, the contact the goal lays. */
-  contact: IAutoMovieVector3;
-
-  /** The victim's colliders where the hold is taken, placed in the world. */
-  rests: readonly IAutoMovieMotionHumanColliders.IPlaced[];
-
-  /** The world point the elbow bends toward. */
-  bend: IAutoMovieVector3;
-}
-
-/**
  * A water rescue as the American Red Cross Lifeguarding manual describes it:
  * the rescuer swims to the victim, takes a cross-chest hold from behind and
  * tows on the side with a scissor kick to a named edge. The victim's root moves
@@ -476,4 +440,40 @@ export namespace AquaticRescue {
       });
     return at;
   }
+}
+
+/**
+ * The rescue's shared geometry, read the same way by the rescuer and the
+ * victim.
+ */
+interface ITow {
+  /** The victim's root at the hold, world metres. */
+  from: IAutoMovieVector3;
+
+  /** Unit horizontal direction toward the edge. */
+  toward: IAutoMovieVector3;
+
+  /** Metres the victim travels. */
+  length: number;
+
+  /** Seconds the tow takes. */
+  seconds: number;
+}
+
+/** The rescuer's hold in the world, read once where the hold is taken. */
+interface IHoldWorld {
+  /** The wrist on the victim's sternum, world metres. */
+  wrist: IAutoMovieVector3;
+
+  /** The hand's world rotation, its palm into the sternum. */
+  rotation: IAutoMovieQuaternion;
+
+  /** The palm's point in the hand's frame, the contact the goal lays. */
+  contact: IAutoMovieVector3;
+
+  /** The victim's colliders where the hold is taken, placed in the world. */
+  rests: readonly IAutoMovieMotionHumanColliders.IPlaced[];
+
+  /** The world point the elbow bends toward. */
+  bend: IAutoMovieVector3;
 }

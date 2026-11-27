@@ -45,11 +45,8 @@ export namespace AutoMovieHumanF1NativeBuild {
         trunk: IAutoMovieHumanConicLoft.IFamily;
         breast: IAutoMovieHumanConicLoft.IFamily;
       };
-  type IFields = IAutoMovieHumanF1NativeLaw.IFields;
-  type ISize = IAutoMovieHumanF1NativeLaw.ISize;
   const { ARM, EXTREMITIES, WALL, profile, ratio, same, translated } =
     Calibration;
-
   /**
    * Build the shared original source definitions and dependent complete
    * assembly without lofting.
@@ -576,4 +573,7 @@ export namespace AutoMovieHumanF1NativeBuild {
       },
     };
   }
+  type IFields = IAutoMovieHumanF1NativeLaw.IFields;
+
+  type ISize = IAutoMovieHumanF1NativeLaw.ISize;
 }

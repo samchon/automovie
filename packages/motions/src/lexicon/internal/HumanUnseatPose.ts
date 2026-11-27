@@ -20,9 +20,6 @@ import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatFlight } from "./HumanUnseatFlight";
 import { heelMountedFoot } from "./heelMountedFoot";
 
-/** The alternatives of `FLEXEntryItem`'s site. */
-type FLEXEntryItem = "spine" | "chest" | "neck";
-
 /**
  * The shapes of a rider leaving a saddle (`HumanUnseat`): the slump over the
  * neck, the flight's blend from the carried seat into the lie or the stand, a
@@ -400,3 +397,6 @@ export namespace HumanUnseatPose {
     return undefined;
   }
 }
+
+/** The alternatives of `FLEXEntryItem`'s site. */
+type FLEXEntryItem = "spine" | "chest" | "neck";

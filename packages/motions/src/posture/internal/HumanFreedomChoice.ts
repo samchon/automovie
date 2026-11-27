@@ -3,27 +3,6 @@ import type {
   IAutoMovieMotionHumanFreedomChoice,
 } from "@automovie/interface";
 
-/** The record of `IChosenFound`'s site. */
-type IChosenFound = { values: number[]; miss: number };
-
-/** The record of `IChosenB`'s site. */
-type IChosenB = { miss: number };
-
-/** The record of `IChosenA`'s site. */
-type IChosenA = { miss: number };
-
-/** The record of `IChosenS`'s site. */
-type IChosenS = { values: number[] };
-
-/** The record of `IChosenFirst`'s site. */
-type IChosenFirst = { values: number[]; miss: number };
-
-/** The record of `IChosenSearchResult`'s site. */
-type IChosenSearchResult = { values: number[]; miss: number };
-
-/** The record of `IChosenSeedsItem`'s site. */
-type IChosenSeedsItem = { values: number[]; miss: number };
-
 /**
  * The values of the freedoms a law leaves a held thing's grasp or pose, chosen
  * by what the fitted body makes of them: the one shared chooser of a held
@@ -229,3 +208,24 @@ export namespace HumanFreedomChoice {
     return { values: best, miss: least };
   }
 }
+
+/** The record of `IChosenFound`'s site. */
+type IChosenFound = { values: number[]; miss: number };
+
+/** The record of `IChosenB`'s site. */
+type IChosenB = { miss: number };
+
+/** The record of `IChosenA`'s site. */
+type IChosenA = { miss: number };
+
+/** The record of `IChosenS`'s site. */
+type IChosenS = { values: number[] };
+
+/** The record of `IChosenFirst`'s site. */
+type IChosenFirst = { values: number[]; miss: number };
+
+/** The record of `IChosenSearchResult`'s site. */
+type IChosenSearchResult = { values: number[]; miss: number };
+
+/** The record of `IChosenSeedsItem`'s site. */
+type IChosenSeedsItem = { values: number[]; miss: number };

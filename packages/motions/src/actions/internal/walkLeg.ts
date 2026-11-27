@@ -17,9 +17,6 @@ import { prepareWalkLegLean } from "./prepareWalkLegLean";
 import { walkLegRise } from "./walkLegRise";
 import { walkRockerReachBoundary } from "./walkRockerReachBoundary";
 
-/** The alternatives of `PLANTARBone`'s site. */
-type PLANTARBone = "leftFoot" | "rightFoot";
-
 /**
  * The two-bone geometry of a stepping leg, read without solving it: where the
  * knee's bend puts the shank and the thigh for a hip and an ankle, by the law
@@ -181,28 +178,6 @@ export namespace walkLeg {
   }
 
   /**
-   * The unloaded ankle's clamp of a foot's pitch against its shank's lean,
-   * under a prepared heading.
-   */
-  function ankleRangeAt(
-    hip: IAutoMovieVector3,
-    ankle: IAutoMovieVector3,
-    rotation: IAutoMovieQuaternion,
-    direction: ReturnType<typeof HumanFoot.headingPitch>,
-    lean: ReturnType<typeof prepareWalkLegLean>,
-  ): IAutoMovieQuaternion {
-    const shank: number = lean(hip, ankle);
-    const pitch: number = direction.pitch;
-    const clamped: number = Math.min(
-      -shank + ANKLE_DORSIFLEXION.unloaded - ANKLE,
-      Math.max(-shank - PLANTAR + ANKLE, pitch),
-    );
-    return clamped === pitch
-      ? rotation
-      : HumanFoot.rotation(direction.heading, clamped);
-  }
-
-  /**
    * The pitch a planted foot takes about its toes' joint once its shank leans
    * past the ankle's dorsal limit: the forefoot rocker begins where the ankle
    * can bend no further (Perry and Burnfield), so the ball never slides.
@@ -317,15 +292,6 @@ export namespace walkLeg {
   }
 
   /**
-   * The room a planted foot's ankle keeps before its dorsal limit (`dorsal`,
-   * less `ANKLE`) at a shank's lean and a pitch, degrees: what `heelRise`
-   * keeps.
-   */
-  function roomValue(lean: number, pitch: number, dorsal: number): number {
-    return -lean + dorsal - ANKLE - pitch;
-  }
-
-  /**
    * The room left to a stance's ankle before its dorsal limit, degrees, under
    * which a stepping foot's heel begins to rise (provisional): the heel is
    * leaving the floor by 10° of dorsiflexion (Perry and Burnfield), a third of
@@ -336,9 +302,43 @@ export namespace walkLeg {
   export const ROCKER: number = 12;
 
   /**
+   * The unloaded ankle's clamp of a foot's pitch against its shank's lean,
+   * under a prepared heading.
+   */
+  function ankleRangeAt(
+    hip: IAutoMovieVector3,
+    ankle: IAutoMovieVector3,
+    rotation: IAutoMovieQuaternion,
+    direction: ReturnType<typeof HumanFoot.headingPitch>,
+    lean: ReturnType<typeof prepareWalkLegLean>,
+  ): IAutoMovieQuaternion {
+    const shank: number = lean(hip, ankle);
+    const pitch: number = direction.pitch;
+    const clamped: number = Math.min(
+      -shank + ANKLE_DORSIFLEXION.unloaded - ANKLE,
+      Math.max(-shank - PLANTAR + ANKLE, pitch),
+    );
+    return clamped === pitch
+      ? rotation
+      : HumanFoot.rotation(direction.heading, clamped);
+  }
+
+  /**
+   * The room a planted foot's ankle keeps before its dorsal limit (`dorsal`,
+   * less `ANKLE`) at a shank's lean and a pitch, degrees: what `heelRise`
+   * keeps.
+   */
+  function roomValue(lean: number, pitch: number, dorsal: number): number {
+    return -lean + dorsal - ANKLE - pitch;
+  }
+
+  /**
    * The least hip-to-ankle distance, metres, a knee angle is divided by: a
    * nanometre, under which hip and ankle coincide to every pose's resolution
    * and the angle is undefined.
    */
   const COINCIDENT: number = 1e-9;
 }
+
+/** The alternatives of `PLANTARBone`'s site. */
+type PLANTARBone = "leftFoot" | "rightFoot";

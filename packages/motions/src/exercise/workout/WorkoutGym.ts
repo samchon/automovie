@@ -107,11 +107,6 @@ export namespace WorkoutGym {
     };
   }
 
-  /** A key of the body's, built once the body is known. */
-  type Keyed = (
-    body: IAutoMovieMotionHumanBody,
-  ) => IAutoMovieMotionHumanExerciseKey.IKey;
-
   /**
    * A key from the whole body's part and the limbs' angles, on the body it is
    * built for (`ExerciseKey.from`).
@@ -499,4 +494,9 @@ export namespace WorkoutGym {
       ),
     ];
   }
+
+  /** A key of the body's, built once the body is known. */
+  type Keyed = (
+    body: IAutoMovieMotionHumanBody,
+  ) => IAutoMovieMotionHumanExerciseKey.IKey;
 }

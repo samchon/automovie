@@ -8,7 +8,20 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/** Internal entry points for the composed physical-shape bounds queries. */
+export const physicalShapeBoundsImplementation: {
+  physicalShapeBounds: typeof physicalShapeBounds;
+  physicalShapeBoundsLowest: typeof physicalShapeBoundsLowest;
+  physicalShapeBoundsLowestFromParent: typeof physicalShapeBoundsLowestFromParent;
+  physicalShapeBoundsFromFrame: typeof physicalShapeBoundsFromFrame;
+} = {
+  physicalShapeBounds,
+  physicalShapeBoundsLowest,
+  physicalShapeBoundsLowestFromParent,
+  physicalShapeBoundsFromFrame,
+};
+
+  /**
  * Exact world axis bounds of the admitted sphere, Y capsule, oriented box or
  * convex hull; a hull's bounds are those of its rotated points.
  *
@@ -89,7 +102,7 @@ function physicalShapeBoundsLowestFromParent(
     );
   }
 
-  /**
+/**
    * Read bounds from an actual composed shape centre and orientation. The
    * centre is in world metres and rotation includes both parent and local shape
    * rotation; shape.transform has already been applied and is not applied
@@ -171,19 +184,6 @@ function physicalShapeBoundsFromFrame(
       max: Vector3.add(center, extent),
     };
   }
-
-/** Internal entry points for the composed physical-shape bounds queries. */
-export const physicalShapeBoundsImplementation: {
-  physicalShapeBounds: typeof physicalShapeBounds;
-  physicalShapeBoundsLowest: typeof physicalShapeBoundsLowest;
-  physicalShapeBoundsLowestFromParent: typeof physicalShapeBoundsLowestFromParent;
-  physicalShapeBoundsFromFrame: typeof physicalShapeBoundsFromFrame;
-} = {
-  physicalShapeBounds,
-  physicalShapeBoundsLowest,
-  physicalShapeBoundsLowestFromParent,
-  physicalShapeBoundsFromFrame,
-};
 
 /**
  * A sphere's six original centre-plus/minus-radius expressions need no

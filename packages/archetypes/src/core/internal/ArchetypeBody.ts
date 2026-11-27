@@ -3,17 +3,6 @@ import type { IAutoMovieBody } from "@automovie/interface";
 import type { AutoMovieArchetypeMass } from "../AutoMovieArchetypeMass";
 import type { IAutoMovieArchetypeProps } from "../IAutoMovieArchetypeProps";
 
-/** The existing scalar body metadata and the mass properties it describes. */
-type Props<Physical extends AutoMovieArchetypeMass.IProperties | null> = Pick<
-  IAutoMovieArchetypeProps<string, string, Physical>,
-  | "properties"
-  | "friction"
-  | "kineticFriction"
-  | "restitution"
-  | "drag"
-  | "contact"
->;
-
 /**
  * Construct the model body from one archetype's declared physical metadata. A
  * visual-only archetype has a null body. An unknown coefficient stays absent;
@@ -26,6 +15,7 @@ type Props<Physical extends AutoMovieArchetypeMass.IProperties | null> = Pick<
 export function ArchetypeBody<
   Physical extends AutoMovieArchetypeMass.IProperties | null,
 >(props: Props<Physical>): Physical extends null ? null : IAutoMovieBody;
+
 export function ArchetypeBody(
   props: Props<AutoMovieArchetypeMass.IProperties | null>,
 ): IAutoMovieBody | null {
@@ -44,3 +34,13 @@ export function ArchetypeBody(
     ...(props.contact === null ? {} : { contact: { ...props.contact } }),
   };
 }
+/** The existing scalar body metadata and the mass properties it describes. */
+type Props<Physical extends AutoMovieArchetypeMass.IProperties | null> = Pick<
+  IAutoMovieArchetypeProps<string, string, Physical>,
+  | "properties"
+  | "friction"
+  | "kineticFriction"
+  | "restitution"
+  | "drag"
+  | "contact"
+>;

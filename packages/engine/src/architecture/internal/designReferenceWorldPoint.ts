@@ -8,9 +8,6 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { designFrameScale } from "./designFrameScale";
 
-/** Axes no longer than this threshold are returned without normalization. */
-const AXIS_EPSILON: number = 1e-12;
-
 /**
  * Map one source-space point onto world metres through its frame.
  *
@@ -60,6 +57,9 @@ export function designReferenceWorldPoint(
   );
   return Vector3.add(rotated, transform.translation);
 }
+
+/** Axes no longer than this threshold are returned without normalization. */
+const AXIS_EPSILON: number = 1e-12;
 
 /** Normalize an axis longer than the threshold; otherwise return it unchanged. */
 const unit: (value: IAutoMovieVector3) => IAutoMovieVector3 = (

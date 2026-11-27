@@ -8,21 +8,6 @@ import { AutoMovieConicArcField } from "./AutoMovieConicArcField";
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 
 /**
- * The unchanged nearest-end inverse and physical normalization, without
- * geometry.
- */
-interface Inverse {
-  /** Selected native clock. */ t: number;
-  /** Selected chart reflection. */ reverse: boolean;
-  /** First physical extent. */ first: number;
-  /** Second physical extent. */ second: number;
-  /** Physical normalization scale. */ scale: number;
-  /** First normalized extent. */ x: number;
-  /** Second normalized extent. */ y: number;
-  /** Positive rational weight. */ w: number;
-}
-
-/**
  * The positive rational quadratic from (a,0) through corner (a,b) to (0,b),
  * with middle weight w=r/(1-r). It is evaluated as that conic, without a polar
  * polynomial approximation.
@@ -100,52 +85,6 @@ export namespace AutoMovieConicArc {
   }
 
   /**
-   * Read the existing polar quotient arithmetic from an already evaluated
-   * normalized interior point.
-   */
-  function interiorGuide(
-    A: number,
-    B: number,
-    w: number,
-    t: number,
-    start: number,
-    scale: number,
-    C: readonly [number, number],
-  ): IAutoMoviePolarSector.IGuide {
-    const s: number = 1 - t;
-    const D: number = s * s + 2 * w * t * s + t * t;
-    const D1: number = -2 * s + 2 * w * (1 - 2 * t) + 2 * t;
-    const D2: number = 4 - 4 * w;
-    const N1: [number, number] = [
-      -2 * s * A + 2 * w * (1 - 2 * t) * A,
-      2 * w * (1 - 2 * t) * B + 2 * t * B,
-    ];
-    const N2: [number, number] = [2 * A - 4 * w * A, 2 * B - 4 * w * B];
-    const C1: [number, number] = [
-      (N1[0] - C[0] * D1) / D,
-      (N1[1] - C[1] * D1) / D,
-    ];
-    const C2: [number, number] = [
-      (N2[0] - 2 * C1[0] * D1 - C[0] * D2) / D,
-      (N2[1] - 2 * C1[1] * D1 - C[1] * D2) / D,
-    ];
-    const rho: number = Math.hypot(...C);
-    const rt: number = (C[0] * C1[0] + C[1] * C1[1]) / rho;
-    const pt: number = (C[0] * C1[1] - C[1] * C1[0]) / (rho * rho);
-    const rtt: number =
-      (C1[0] * C1[0] + C1[1] * C1[1] + C[0] * C2[0] + C[1] * C2[1] - rt * rt) /
-      rho;
-    const ptt: number =
-      (C[0] * C2[1] - C[1] * C2[0]) / (rho * rho) - (2 * pt * rt) / rho;
-    return {
-      angle: start + Math.atan2(C[1], C[0]),
-      value: rho * scale,
-      slope: (rt / pt) * scale,
-      curvature: ((rtt * pt - rt * ptt) / (pt * pt * pt)) * scale,
-    };
-  }
-
-  /**
    * Exact-conic polar radius and two derivatives on one quarter, with reflected
    * native evaluation near its second endpoint.
    */
@@ -214,16 +153,6 @@ export namespace AutoMovieConicArc {
       t,
     );
     return Math.hypot(...velocity);
-  }
-
-  /**
-   * Stable positive quadratic root in a ratio no greater than one; the result
-   * is the first-half native parameter.
-   */
-  function half(ratio: number, w: number): number {
-    const q: number = w * (1 - ratio);
-    const u: number = ratio / (q + Math.hypot(q, Math.sqrt(ratio)));
-    return u / (1 + u);
   }
 
   /** Locate a rational-quadratic ray once for numeric and source readers. */
@@ -321,6 +250,62 @@ export namespace AutoMovieConicArc {
     return value > 0 ? value : NaN;
   }
 
+  /**
+   * Read the existing polar quotient arithmetic from an already evaluated
+   * normalized interior point.
+   */
+  function interiorGuide(
+    A: number,
+    B: number,
+    w: number,
+    t: number,
+    start: number,
+    scale: number,
+    C: readonly [number, number],
+  ): IAutoMoviePolarSector.IGuide {
+    const s: number = 1 - t;
+    const D: number = s * s + 2 * w * t * s + t * t;
+    const D1: number = -2 * s + 2 * w * (1 - 2 * t) + 2 * t;
+    const D2: number = 4 - 4 * w;
+    const N1: [number, number] = [
+      -2 * s * A + 2 * w * (1 - 2 * t) * A,
+      2 * w * (1 - 2 * t) * B + 2 * t * B,
+    ];
+    const N2: [number, number] = [2 * A - 4 * w * A, 2 * B - 4 * w * B];
+    const C1: [number, number] = [
+      (N1[0] - C[0] * D1) / D,
+      (N1[1] - C[1] * D1) / D,
+    ];
+    const C2: [number, number] = [
+      (N2[0] - 2 * C1[0] * D1 - C[0] * D2) / D,
+      (N2[1] - 2 * C1[1] * D1 - C[1] * D2) / D,
+    ];
+    const rho: number = Math.hypot(...C);
+    const rt: number = (C[0] * C1[0] + C[1] * C1[1]) / rho;
+    const pt: number = (C[0] * C1[1] - C[1] * C1[0]) / (rho * rho);
+    const rtt: number =
+      (C1[0] * C1[0] + C1[1] * C1[1] + C[0] * C2[0] + C[1] * C2[1] - rt * rt) /
+      rho;
+    const ptt: number =
+      (C[0] * C2[1] - C[1] * C2[0]) / (rho * rho) - (2 * pt * rt) / rho;
+    return {
+      angle: start + Math.atan2(C[1], C[0]),
+      value: rho * scale,
+      slope: (rt / pt) * scale,
+      curvature: ((rtt * pt - rt * ptt) / (pt * pt * pt)) * scale,
+    };
+  }
+
+  /**
+   * Stable positive quadratic root in a ratio no greater than one; the result
+   * is the first-half native parameter.
+   */
+  function half(ratio: number, w: number): number {
+    const q: number = w * (1 - ratio);
+    const u: number = ratio / (q + Math.hypot(q, Math.sqrt(ratio)));
+    return u / (1 + u);
+  }
+
   /** Preserve every inverse and normalization operation used by locate. */
   function inverse(
     a: number,
@@ -346,4 +331,19 @@ export namespace AutoMovieConicArc {
     const y: number = second / scale;
     return { t, reverse, first, second, scale, x, y, w };
   }
+}
+
+/**
+ * The unchanged nearest-end inverse and physical normalization, without
+ * geometry.
+ */
+interface Inverse {
+  /** Selected native clock. */ t: number;
+  /** Selected chart reflection. */ reverse: boolean;
+  /** First physical extent. */ first: number;
+  /** Second physical extent. */ second: number;
+  /** Physical normalization scale. */ scale: number;
+  /** First normalized extent. */ x: number;
+  /** Second normalized extent. */ y: number;
+  /** Positive rational weight. */ w: number;
 }

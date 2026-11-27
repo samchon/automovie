@@ -6,29 +6,6 @@ import type {
 
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/** Joint angles of one symmetric floor posture, in clinical degrees. */
-interface IShape {
-  /** Hip flexion. */
-  hip: number;
-  /** Knee flexion. */
-  knee: number;
-  /** Shoulder flexion. */
-  shoulder: number;
-  /** Elbow flexion. */
-  elbow: number;
-  /** Neck flexion, defaulting to clinical zero. */
-  neck?: number;
-  /** Ankle flexion, defaulting to clinical zero. */
-  ankle?: number;
-}
-
-/** The intermediate and terminal keys in a floor route. */
-type Key =
-  | "sit"
-  | "kneel"
-  | "quadruped"
-  | IAutoMovieMotionHumanLieDown.Position;
-
 /** The standing-to-floor law's authored posture keys, in clinical degrees. */
 export namespace lieDownPoses {
   /** Relative hip adduction of parallel legs in side lying, degrees. */
@@ -150,3 +127,26 @@ export namespace lieDownPoses {
     return { pitch, roll, joints };
   }
 }
+
+/** Joint angles of one symmetric floor posture, in clinical degrees. */
+interface IShape {
+  /** Hip flexion. */
+  hip: number;
+  /** Knee flexion. */
+  knee: number;
+  /** Shoulder flexion. */
+  shoulder: number;
+  /** Elbow flexion. */
+  elbow: number;
+  /** Neck flexion, defaulting to clinical zero. */
+  neck?: number;
+  /** Ankle flexion, defaulting to clinical zero. */
+  ankle?: number;
+}
+
+/** The intermediate and terminal keys in a floor route. */
+type Key =
+  | "sit"
+  | "kneel"
+  | "quadruped"
+  | IAutoMovieMotionHumanLieDown.Position;

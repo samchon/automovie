@@ -22,17 +22,6 @@ const STOCK: Readonly<{ deck: number; gripRadius: number; gripHalf: number; grip
   gripRise: 0.03,
 };
 
-/** A transverse tree section, at its own longitudinal plane. */
-interface ISection {
-  /** Longitudinal station in model metres. */
-  z: number;
-  /** Half the section's transverse width, metres. */
-  half: number;
-  /** Section bounds from the model floor, metres. */
-  bottom: number;
-  top: number;
-}
-
 /**
  * Lay one coarse connected riding saddle on the actual trunk capsule. The
  * bearing deck spans a flat sit-bone region and meets a narrowing forward
@@ -193,4 +182,15 @@ export namespace EquineSaddleTree {
     /** Vertical coordinate of the mounting bar. */
     y: number;
   }
+}
+
+/** A transverse tree section, at its own longitudinal plane. */
+interface ISection {
+  /** Longitudinal station in model metres. */
+  z: number;
+  /** Half the section's transverse width, metres. */
+  half: number;
+  /** Section bounds from the model floor, metres. */
+  bottom: number;
+  top: number;
 }

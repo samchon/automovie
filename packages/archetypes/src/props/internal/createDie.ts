@@ -9,13 +9,6 @@ import {
 import { TabletopStack } from "./TabletopStack";
 
 /**
- * A six-sided die: "Common dice are small cubes, most often 1.6 cm (0.63 in)
- * across" (English Wikipedia, Dice, read 2026-11-21). The mass is not read, so
- * it is a provisional estimate.
- */
-const DIE: Readonly<AutoMovieArchetypeDie.IDie> = { side: 0.016, mass: 0.005 };
-
-/**
  * One six-sided die resting on a face.
  *
  * The die is a cube, its origin the centre of the face it rests on, `+Y` up. It
@@ -54,3 +47,10 @@ export function createDie(
   TabletopStack.contacts(builder, DIE.side, DIE.side);
   return builder.build(DIE.mass);
 }
+
+/**
+ * A six-sided die: "Common dice are small cubes, most often 1.6 cm (0.63 in)
+ * across" (English Wikipedia, Dice, read 2026-11-21). The mass is not read, so
+ * it is a provisional estimate.
+ */
+const DIE: Readonly<AutoMovieArchetypeDie.IDie> = { side: 0.016, mass: 0.005 };

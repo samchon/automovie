@@ -15,15 +15,6 @@ import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEng
 import { builtPointBounds } from "./builtPointBounds";
 import { validateBuiltPopulation } from "./validateBuiltPopulation";
 
-/** The world up axis every population heading turns about. */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/** A grid or lattice layout, the two kinds bounded by their hull slots. */
-type IGridLayout = Extract<
-  IAutoMovieInstanceSetDesign["layout"],
-  { kind: "grid" } | { kind: "lattice" }
->;
-
 /**
  * The world box one compact population and its prototype geometry occupy.
  *
@@ -124,6 +115,15 @@ export function builtInstanceSetPlacementBounds(
     max: Vector3.add(placement.max, offset.max),
   };
 }
+
+/** The world up axis every population heading turns about. */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/** A grid or lattice layout, the two kinds bounded by their hull slots. */
+type IGridLayout = Extract<
+  IAutoMovieInstanceSetDesign["layout"],
+  { kind: "grid" } | { kind: "lattice" }
+>;
 
 /** Place one layout-local point under the set's anchor and base heading. */
 const placeInstancePoint: (

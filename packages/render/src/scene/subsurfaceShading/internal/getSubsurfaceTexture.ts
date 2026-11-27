@@ -3,6 +3,17 @@ import * as THREE from "three";
 import { SUBSURFACE_TEXTURE_SIZE } from "../SUBSURFACE_TEXTURE_SIZE.js";
 import { subsurfaceTable } from "./subsurfaceTable.js";
 
+/**
+ * Return the module-shared 64-by-32 red half-float subsurface lookup wrapper.
+ * Consumers borrow its immutable sampling/content state; module retention has
+ * no explicit final disposal boundary.
+ *
+ * @returns The shared texture.
+ */
+export function getSubsurfaceTexture(): THREE.DataTexture {
+  return SHARED;
+}
+
 const { cosines: COSINES, blurs: BLURS }: typeof SUBSURFACE_TEXTURE_SIZE =
   SUBSURFACE_TEXTURE_SIZE;
 
@@ -29,14 +40,3 @@ const SHARED: THREE.DataTexture = ((): THREE.DataTexture => {
   texture.needsUpdate = true;
   return texture;
 })();
-
-/**
- * Return the module-shared 64-by-32 red half-float subsurface lookup wrapper.
- * Consumers borrow its immutable sampling/content state; module retention has
- * no explicit final disposal boundary.
- *
- * @returns The shared texture.
- */
-export function getSubsurfaceTexture(): THREE.DataTexture {
-  return SHARED;
-}

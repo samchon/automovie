@@ -9,17 +9,6 @@ import type {
 import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/** A limb's joints by bone, clinical degrees `[flexion, abduction, twist]`. */
-type Joints = IAutoMovieMotionHumanPosture["joints"];
-
-/** The four limbs a key may move by a goal. */
-const LIMBS: readonly AutoMovieHumanLimb[] = [
-  "leftArm",
-  "rightArm",
-  "leftLeg",
-  "rightLeg",
-];
-
 /**
  * Each transfer's limb hand-offs: a limb a goal moves at one end of a transfer
  * and its joints at the other has the goal's end fitted once
@@ -82,3 +71,14 @@ export function HumanMountedHandoffs(
     ): Partial<Record<AutoMovieHumanLimb, Joints>> => handoff(i),
   );
 }
+
+/** A limb's joints by bone, clinical degrees `[flexion, abduction, twist]`. */
+type Joints = IAutoMovieMotionHumanPosture["joints"];
+
+/** The four limbs a key may move by a goal. */
+const LIMBS: readonly AutoMovieHumanLimb[] = [
+  "leftArm",
+  "rightArm",
+  "leftLeg",
+  "rightLeg",
+];

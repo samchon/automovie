@@ -10,15 +10,6 @@ import {
 } from "../../core/index";
 
 /**
- * A Full Vision showcase's depth and height, metres, the same for both models:
- * the sheet's "20" deep x 38" high".
- */
-const CASE: Readonly<{ depth: number; height: number }> = {
-  depth: 20 * AutoMovieArchetypeUnits.INCH,
-  height: 38 * AutoMovieArchetypeUnits.INCH,
-};
-
-/**
  * A glass showcase counter: a case with a glass top and front, shown to the
  * customer at `+Z` and served from the clerk's side at `-Z`.
  *
@@ -88,3 +79,12 @@ export function createShowcase(
   });
   return builder.build(model.figures.mass!);
 }
+
+/**
+ * A Full Vision showcase's depth and height, metres, the same for both models:
+ * the sheet's "20" deep x 38" high".
+ */
+const CASE: Readonly<{ depth: number; height: number }> = {
+  depth: 20 * AutoMovieArchetypeUnits.INCH,
+  height: 38 * AutoMovieArchetypeUnits.INCH,
+};

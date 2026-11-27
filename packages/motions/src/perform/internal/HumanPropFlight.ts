@@ -20,13 +20,6 @@ import { HumanPropOutcome } from "./HumanPropOutcome";
 import { HumanPropSweep } from "./HumanPropSweep";
 import { launchPropProjectile } from "./launchPropProjectile";
 
-/** The record of `IFlightsLaunchesItem`'s site. */
-type IFlightsLaunchesItem = {
-  seconds: number;
-  source: IAutoMovieMotionHumanPropFlight.IFlight["source"];
-  launch: IAutoMovieMotionPropLaunch;
-};
-
 /**
  * Props that fly: every launch an action publishes
  * (`IHumanActionPlan.launches`) turns its prop into the engine's flight
@@ -457,3 +450,10 @@ export namespace HumanPropFlight {
     };
   }
 }
+
+/** The record of `IFlightsLaunchesItem`'s site. */
+type IFlightsLaunchesItem = {
+  seconds: number;
+  source: IAutoMovieMotionHumanPropFlight.IFlight["source"];
+  launch: IAutoMovieMotionPropLaunch;
+};

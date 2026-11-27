@@ -7,12 +7,6 @@ import type {
 
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/** The record of `ITypeTextPressesKeysItem`'s site. */
-type ITypeTextPressesKeysItem = {
-  at: IAutoMovieVector3;
-  side: AutoMovieHumanSide;
-};
-
 /**
  * Prepare each typing hand's ordered key presses and evaluate the first
  * unfinished press by binary search. A press reaches its key over the `REACH`
@@ -107,6 +101,12 @@ export function typeTextPresses(
     return world(active.at.x, active.at.z, -travel + (hover + travel) * share);
   };
 }
+
+/** The record of `ITypeTextPressesKeysItem`'s site. */
+type ITypeTextPressesKeysItem = {
+  at: IAutoMovieVector3;
+  side: AutoMovieHumanSide;
+};
 
 /** One key's press and the previous key state on the same hand. */
 interface IPress {

@@ -1,16 +1,4 @@
 /**
- * Magnus coefficients for saturation vapour pressure over water, as published
- * by Sonntag: `a` is dimensionless and `b` is in degrees Celsius.
- *
- * These coefficients select the engine's fitted water-vapour-pressure
- * approximation, rather than an authored material or weather record; other
- * dew-point approximations use different coefficients.
- */
-const MAGNUS_A: number = 17.62;
-
-const MAGNUS_B: number = 243.12;
-
-/**
  * Dew point of moist air by the Magnus form, in degrees Celsius.
  *
  * `gamma = ln(RH) + a*T/(b+T)`, `Td = b*gamma/(a - gamma)`, with `T` in degrees
@@ -41,3 +29,15 @@ export function autoMovieDewPoint(
     (MAGNUS_A * temperature) / (MAGNUS_B + temperature);
   return (MAGNUS_B * gamma) / (MAGNUS_A - gamma);
 }
+
+/**
+ * Magnus coefficients for saturation vapour pressure over water, as published
+ * by Sonntag: `a` is dimensionless and `b` is in degrees Celsius.
+ *
+ * These coefficients select the engine's fitted water-vapour-pressure
+ * approximation, rather than an authored material or weather record; other
+ * dew-point approximations use different coefficients.
+ */
+const MAGNUS_A: number = 17.62;
+
+const MAGNUS_B: number = 243.12;

@@ -22,38 +22,6 @@ import { staggerLean } from "./staggerLean";
 import type { staggerRecover } from "./staggerRecover";
 import { staggerSwingBow } from "./staggerSwingBow";
 
-/** The record of `ISwingOfResult`'s site. */
-type ISwingOfResult = {
-  from: walkFoot.IEnd;
-  normal: IAutoMovieVector3 | undefined;
-  at: (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot;
-};
-
-/** The record of `ISolveTrunk`'s site. */
-type ISolveTrunk = { pitch: number; roll: number };
-
-/** The record of `ISolveResult`'s site. */
-type ISolveResult = {
-  feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanWalkFoot.IScheduled>;
-  settled: walkReach.IGround;
-  reached: Record<AutoMovieHumanSide, walkFoot.IEnd>;
-  trunk: ISolveTrunkResult;
-  ease: number;
-};
-
-/** The record of `ISolveTrunkResult`'s site. */
-type ISolveTrunkResult = { pitch: number; roll: number };
-
-/** The alternatives of `StaggerFeetBendEntry`'s site. */
-type StaggerFeetBendEntry = "pitch" | "roll";
-
-/** The record of `IStaggerFeetSwingsEntry`'s site. */
-type IStaggerFeetSwingsEntry = {
-  from: walkFoot.IEnd;
-  normal: IAutoMovieVector3 | undefined;
-  at: (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot;
-};
-
 /**
  * A stagger's feet and pelvis at every second of its plan (`stagger`): the
  * pelvis carried by the recovery's centre of mass course, the feet standing
@@ -470,3 +438,35 @@ export class StaggerFeet {
     return this.bows.get(step)!;
   }
 }
+
+/** The record of `ISwingOfResult`'s site. */
+type ISwingOfResult = {
+  from: walkFoot.IEnd;
+  normal: IAutoMovieVector3 | undefined;
+  at: (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot;
+};
+
+/** The record of `ISolveTrunk`'s site. */
+type ISolveTrunk = { pitch: number; roll: number };
+
+/** The record of `ISolveResult`'s site. */
+type ISolveResult = {
+  feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanWalkFoot.IScheduled>;
+  settled: walkReach.IGround;
+  reached: Record<AutoMovieHumanSide, walkFoot.IEnd>;
+  trunk: ISolveTrunkResult;
+  ease: number;
+};
+
+/** The record of `ISolveTrunkResult`'s site. */
+type ISolveTrunkResult = { pitch: number; roll: number };
+
+/** The alternatives of `StaggerFeetBendEntry`'s site. */
+type StaggerFeetBendEntry = "pitch" | "roll";
+
+/** The record of `IStaggerFeetSwingsEntry`'s site. */
+type IStaggerFeetSwingsEntry = {
+  from: walkFoot.IEnd;
+  normal: IAutoMovieVector3 | undefined;
+  at: (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot;
+};

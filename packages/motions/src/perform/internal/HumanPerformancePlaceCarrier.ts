@@ -9,11 +9,6 @@ import type {
 
 import type { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 
-/** The record of `IPlaceDraftedResult`'s site. */
-type IPlaceDraftedResult = {
-  support?: IAutoMovieMotionHumanContactWindow.Support;
-};
-
 /**
  * The carrier an overlay rides (`HumanPerformancePlace.place`): the action that
  * carries the body at the overlay's start, its posture read at the carrier's
@@ -74,3 +69,8 @@ export namespace HumanPerformancePlaceCarrier {
     >;
   };
 }
+
+/** The record of `IPlaceDraftedResult`'s site. */
+type IPlaceDraftedResult = {
+  support?: IAutoMovieMotionHumanContactWindow.Support;
+};

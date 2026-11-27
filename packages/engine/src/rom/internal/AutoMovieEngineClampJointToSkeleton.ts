@@ -16,12 +16,6 @@ import { clampJointRom } from "./clampJointRom";
 import { clampJointRomValues } from "./clampJointRomValues";
 import { getConstraint } from "./getConstraint";
 
-type IClamp = {
-  (joint: IAutoMovieJointPose): IAutoMovieJointPose;
-  /** Set only by this owner's factories; carries the source constraint. */
-  owned?: { constraint: IAutoMovieJointConstraint | null | undefined };
-};
-
 /** Own one-joint skeleton ROM projection and its prepared clamps. */
 export namespace AutoMovieEngineClampJointToSkeleton {
   /**
@@ -262,6 +256,12 @@ export namespace AutoMovieEngineClampJointToSkeleton {
      */
     export type IClampJointToSkeletonPrepared = IAutoMovieClampPose.IJoints;
 }
+
+type IClamp = {
+  (joint: IAutoMovieJointPose): IAutoMovieJointPose;
+  /** Set only by this owner's factories; carries the source constraint. */
+  owned?: { constraint: IAutoMovieJointConstraint | null | undefined };
+};
 
 /**
  * Shared constraint gate and closure delegating every projection to

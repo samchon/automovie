@@ -15,21 +15,6 @@ import type { HumanFloorReading } from "./HumanFloorReading";
 import { HumanFoot } from "./HumanFoot";
 import { HumanJacobian } from "./HumanJacobian";
 
-/** The alternatives of `Of`'s site. */
-type Of = "at" | "motions";
-
-/** The record of `IReading2`'s site. */
-type IReading2 = {
-  /**
-   * Exact source clinical posture used for this reading's resolution/FK; kept
-   * unchanged while current Jacobian and final result consume it.
-   */
-  written: IAutoMovieMotionHumanPosture;
-
-  /** Requested base-of-support reading on these same bones. */
-  balance?: HumanFitBalance.IReading;
-};
-
 /**
  * A slope in millimetres per solved unit from a reading's rate per a variable's
  * own unit.
@@ -340,3 +325,18 @@ export namespace HumanBodyFitRows {
   export const residual: typeof HumanFitTargets.residual =
     HumanFitTargets.residual;
 }
+
+/** The alternatives of `Of`'s site. */
+type Of = "at" | "motions";
+
+/** The record of `IReading2`'s site. */
+type IReading2 = {
+  /**
+   * Exact source clinical posture used for this reading's resolution/FK; kept
+   * unchanged while current Jacobian and final result consume it.
+   */
+  written: IAutoMovieMotionHumanPosture;
+
+  /** Requested base-of-support reading on these same bones. */
+  balance?: HumanFitBalance.IReading;
+};

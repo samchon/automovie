@@ -10,12 +10,6 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { throwObjectLaunch } from "../../throwing/internal/throwObjectLaunch";
 
-/** The record of `IThrowInReleaseResult`'s site. */
-type IThrowInReleaseResult = {
-  contacts: IAutoMovieMotionHumanContactWindow[];
-  launches: IAutoMovieMotionPropLaunch[];
-};
-
 /**
  * Publish the prop held in both hands until a football throw-in releases it. An
  * implied ball needs neither grips nor a launch.
@@ -78,3 +72,9 @@ export function throwInRelease(
     }),
   };
 }
+
+/** The record of `IThrowInReleaseResult`'s site. */
+type IThrowInReleaseResult = {
+  contacts: IAutoMovieMotionHumanContactWindow[];
+  launches: IAutoMovieMotionPropLaunch[];
+};

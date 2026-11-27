@@ -35,16 +35,6 @@ import { nodeSubjectExtent } from "./nodeSubjectExtent";
 import { resolvedPerformShotPoint } from "./resolvedPerformShotPoint";
 import { unionSubjectBoxes } from "./unionSubjectBoxes";
 
-/** A resolved group node's fixed extent and current placement reader. */
-interface IGroupNodeFraming {
-  /** The placed node id. */
-  node: string;
-  /** Its model-space rest, rig or stand-in extent. */
-  extent: IAutoMovieSubjectBox;
-  /** Its staged or actor-driven base. */
-  at: (seconds: number) => IAutoMovieVector3;
-}
-
 /**
  * Build the function that turns a gated camera subject into the framed subject
  * the camera grammar solves from.
@@ -268,6 +258,16 @@ export function createPerformShotSubjectFramer(
       at,
     };
   };
+}
+
+/** A resolved group node's fixed extent and current placement reader. */
+interface IGroupNodeFraming {
+  /** The placed node id. */
+  node: string;
+  /** Its model-space rest, rig or stand-in extent. */
+  extent: IAutoMovieSubjectBox;
+  /** Its staged or actor-driven base. */
+  at: (seconds: number) => IAutoMovieVector3;
 }
 
 /**

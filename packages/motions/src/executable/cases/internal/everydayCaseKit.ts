@@ -15,23 +15,6 @@ import { poseBones } from "../../../posture/internal/poseBones";
 import type { IMotionCaptureCase } from "../../internal/IMotionCaptureCase";
 import type { humanPolygonMan } from "../../internal/humanPolygonMan";
 
-/** The part of a segment its events are read from. */
-interface IEventSegment {
-  /** Its name, for a refusal. */
-  name: IAutoMovieMotionHumanSegment["name"];
-
-  /** Film seconds it starts. */
-  start: IAutoMovieMotionHumanSegment["start"];
-
-  /** Its plan's events and duration. */
-  plan: Pick<IAutoMovieMotionHumanSegment["plan"], "events" | "duration">;
-}
-
-/** A performance's segments, all an event reader reads. */
-interface IEventPerformance {
-  /** A subject's segments in order. */
-  segments(subject: string): readonly IEventSegment[];
-}
 /**
  * The shared readers of the everyday capture cases (`everydayCases`): a
  * performance of polygon men, a performer's figure, a segment's event, the
@@ -159,4 +142,21 @@ export namespace everydayCaseKit {
         poseBones(body, { skeleton: body.skeleton.id, root: null, joints: [] }),
     };
   }
+}
+
+/** The part of a segment its events are read from. */
+interface IEventSegment {
+  /** Its name, for a refusal. */
+  name: IAutoMovieMotionHumanSegment["name"];
+
+  /** Film seconds it starts. */
+  start: IAutoMovieMotionHumanSegment["start"];
+
+  /** Its plan's events and duration. */
+  plan: Pick<IAutoMovieMotionHumanSegment["plan"], "events" | "duration">;
+}
+/** A performance's segments, all an event reader reads. */
+interface IEventPerformance {
+  /** A subject's segments in order. */
+  segments(subject: string): readonly IEventSegment[];
 }

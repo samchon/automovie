@@ -1,24 +1,3 @@
-/** The record of `IBAND`'s site. */
-type IBAND = { readonly low: number; readonly middle: number };
-
-/** The record of `ITRAVEL`'s site. */
-type ITRAVEL = {
-  readonly across: number;
-  readonly along: number;
-  readonly vertical: Readonly<Record<VerticalEntryItem, number>>;
-};
-
-/** The alternatives of `VerticalEntryItem`'s site. */
-type VerticalEntryItem = "low" | "middle" | "high";
-
-/** The record of `IPIVOT`'s site. */
-type IPIVOT = { readonly raise: number; readonly turn: number };
-
-/** The alternatives of `AZIMUTHEntryItem`'s site. */
-type AZIMUTHEntryItem = "low" | "middle" | "high";
-
-/** The alternatives of `FLEXIONEntryItem`'s site. */
-type FLEXIONEntryItem = "round" | "push";
 /**
  * The kick's form: every coefficient of its contact solve, its carriage of the
  * body and its chamber, each with its source or marked provisional where no
@@ -230,3 +209,24 @@ export namespace KickForm {
    */
   export const RECHAMBER_SHARE: number = 0.45;
 }
+
+/** The record of `IBAND`'s site. */
+type IBAND = { readonly low: number; readonly middle: number };
+
+/** The record of `ITRAVEL`'s site. */
+type ITRAVEL = {
+  readonly across: number;
+  readonly along: number;
+  readonly vertical: Readonly<Record<VerticalEntryItem, number>>;
+};
+
+/** The alternatives of `VerticalEntryItem`'s site. */
+type VerticalEntryItem = "low" | "middle" | "high";
+
+/** The record of `IPIVOT`'s site. */
+type IPIVOT = { readonly raise: number; readonly turn: number };
+
+/** The alternatives of `AZIMUTHEntryItem`'s site. */
+type AZIMUTHEntryItem = "low" | "middle" | "high";
+/** The alternatives of `FLEXIONEntryItem`'s site. */
+type FLEXIONEntryItem = "round" | "push";

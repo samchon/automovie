@@ -62,14 +62,6 @@ const CLIMB: IAutoMovieMotionHumanLieDown.IPose = {
  * between the feet).
  */
 const SPLIT: number = 0.04;
-/** The alternatives of `OneFootAtATimeFootPart`'s site. */
-type OneFootAtATimeFootPart = "leftFoot" | "rightFoot";
-
-/** The alternatives of `UprightP`'s site. */
-type UprightP =
-  | IAutoMovieMotionHumanRope.IClimb
-  | IAutoMovieMotionHumanRope.IDescend;
-
 /**
  * Climbs and descents of an upright rope fitted by the shared support law: a
  * climb moves one hand up a step at a time and re-sets the foot lock below the
@@ -426,3 +418,11 @@ export namespace ropeSupport {
     return out;
   }
 }
+
+/** The alternatives of `OneFootAtATimeFootPart`'s site. */
+type OneFootAtATimeFootPart = "leftFoot" | "rightFoot";
+
+/** The alternatives of `UprightP`'s site. */
+type UprightP =
+  | IAutoMovieMotionHumanRope.IClimb
+  | IAutoMovieMotionHumanRope.IDescend;

@@ -19,18 +19,6 @@ import { staggerKnots } from "./staggerKnots";
 import type { staggerRecover } from "./staggerRecover";
 
 /**
- * The settled recovery and the exact root and phase its legs use for this
- * query.
- */
-interface IFrame {
-  posture: IAutoMovieMotionHumanPosture;
-  solved: ReturnType<StaggerFeet["solve"]>;
-  root: IAutoMovieVector3;
-  seconds: number;
-  reacting: number;
-}
-
-/**
  * Write the recovery's feet, knee poles and trunk on the pose that follows the
  * pendulum. During the reaction the feet turn off the exact entry rocker
  * without lifting its bearing point. An incoming ankle uses the same contact
@@ -167,4 +155,16 @@ export function staggerRocking(
       trunk,
     );
   };
+}
+
+/**
+ * The settled recovery and the exact root and phase its legs use for this
+ * query.
+ */
+interface IFrame {
+  posture: IAutoMovieMotionHumanPosture;
+  solved: ReturnType<StaggerFeet["solve"]>;
+  root: IAutoMovieVector3;
+  seconds: number;
+  reacting: number;
 }

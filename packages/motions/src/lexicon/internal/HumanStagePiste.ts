@@ -143,9 +143,6 @@ export namespace HumanStagePiste {
     announced: (schedule: IAutoMovieSchedule) => IAnnouncement | undefined;
   }
 
-  /** A performer's part in the bout. */
-  type Role = "first" | "second";
-
   /** Explicit weapon names admitted at the SDK boundary. */
   const KINDS: readonly Kind[] = ["foil", "epee", "sabre", "kendo"];
 
@@ -191,18 +188,6 @@ export namespace HumanStagePiste {
    * longest mark shift for every canonical body.
    */
   export const ADVANCE: number = 0.3;
-
-  /** One advance of the approach: the take, its index and the advances' count. */
-  interface IAdvance {
-    /** The bout. */
-    take: ITake;
-
-    /** This advance's index from 0. */
-    index: number;
-
-    /** How many advances cover each performer's approach. */
-    count: number;
-  }
 
   /**
    * Each advance shifts both performers on one clock, each its share of its
@@ -314,15 +299,6 @@ export namespace HumanStagePiste {
     };
   }
 
-  /** The anchors whose decisive instants decide the result. */
-  interface IAnchors {
-    /** The action that scores or closes the exchange. */
-    decides: string;
-
-    /** The second touch of a double touch. */
-    with?: string;
-  }
-
   /** The anchors of the deciding actions of a take. */
   function deciding(take: ITake): IAnchors {
     switch (take.result) {
@@ -412,5 +388,29 @@ export namespace HumanStagePiste {
       at <= entry.end + 1e-9
       ? at
       : undefined;
+  }
+
+  /** A performer's part in the bout. */
+  type Role = "first" | "second";
+
+  /** One advance of the approach: the take, its index and the advances' count. */
+  interface IAdvance {
+    /** The bout. */
+    take: ITake;
+
+    /** This advance's index from 0. */
+    index: number;
+
+    /** How many advances cover each performer's approach. */
+    count: number;
+  }
+
+  /** The anchors whose decisive instants decide the result. */
+  interface IAnchors {
+    /** The action that scores or closes the exchange. */
+    decides: string;
+
+    /** The second touch of a double touch. */
+    with?: string;
   }
 }

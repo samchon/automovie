@@ -12,15 +12,6 @@ import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayb
 import { stretchHoldInputs } from "./stretchHoldInputs";
 
 /**
- * The original plan's own reader and the exact location wrapper placement gave
- * it.
- */
-type Plan = IAutoMovieMotionHumanActionPlan;
-type Reader = Plan["posture"];
-type Build = (clock: IAutoMovieMotionClock, prepared: boolean) => Plan;
-type Context =
-  IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStretch.IParams>;
-/**
  * A standing stretch holds one material pose between the two movement phases.
  * Preserve the original grid cells straddling arrival and release. Only
  * complete grid intervals inside the hold collapse onto a single contact
@@ -148,3 +139,12 @@ export namespace stretchHoldClock {
     return original;
   }
 }
+/**
+ * The original plan's own reader and the exact location wrapper placement gave
+ * it.
+ */
+type Plan = IAutoMovieMotionHumanActionPlan;
+type Reader = Plan["posture"];
+type Build = (clock: IAutoMovieMotionClock, prepared: boolean) => Plan;
+type Context =
+  IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStretch.IParams>;

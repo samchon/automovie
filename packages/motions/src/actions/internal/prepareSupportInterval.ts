@@ -23,100 +23,8 @@ import { prepareSupportPinFloor } from "./prepareSupportPinFloor";
 import { supportContact } from "./supportContact";
 import { supportKey } from "./supportKey";
 
-/** A support key's immutable authored posture and contact order. */
-interface IKey {
-  /** The key's joint-space posture, world metres and clinical degrees. */
-  posture: IAutoMovieMotionHumanPosture;
-
-  /** The ordered contacts that choose the interval's first common pin. */
-  contacts: readonly IAutoMovieMotionHumanSupport.IContact[];
-
-  /** When the key is reached, seconds since the action's start. */
-  seconds: number;
-}
-
-/** One interval's writer and standard scheduling invalidation boundary. */
-interface IInterval {
-  /** Read the interior progress and the material at the action's actual second. */
-  write(
-    w: number,
-    seconds: number,
-    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-    projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): IAutoMovieMotionHumanPosture;
-
-  /** Prepare the target-dependent constants again from the placed observations. */
-  prepare(): void;
-}
-
-/** A contact the root can keep through an interval. */
-type Pin = IAutoMovieMotionHumanSupport.IContact | undefined;
-
-/** What a share's bounded posture reads of its interval. */
-interface IPosed {
-  /** The unchanged body. */
-  body: IAutoMovieMotionHumanBody;
-
-  /** The joint blend between the two keys. */
-  blend: ReturnType<typeof supportKey.prepareBlended>;
-
-  /** The floor bound. */
-  floor: ReturnType<typeof knockdown.prepareRest>;
-}
-
-/** The pin's prepared points and the held limbs' frames. */
-interface IPinned {
-  /** The pin's achieved points at the two keys and its readers. */
-  fixed: IPrepareSupportIntervalFixed;
-
-  /** The held hands' and feet's prepared goal writers. */
-  goals: readonly (readonly [prepareSupportHeldFrames.IHeld["limb"], IGoal])[];
-
-  /** Each distinct retained material frame, in its prepared slot. */
-  sites: readonly prepareSupportInterval.Site[];
-
-  /** Whether a held foot stands raised above the floor. */
-  elevatedFoot: boolean;
-}
-
-/** An interval's target-dependent constants, prepared with its observations. */
-interface IPrepared {
-  /** The pin's points and held frames; none without a pin. */
-  pinned?: IPinned;
-
-  /** The held legs' lift course; none without a held leg. */
-  lifts?: prepareSupportLiftCourse.ICourse;
-}
-/** The record of `IPrepareSupportIntervalFixed`'s site. */
-type IPrepareSupportIntervalFixed = {
-  point: IPoint;
-  originalPoint: ReturnType<typeof supportContact.preparePoints>;
-  pinFloor: ReturnType<typeof prepareSupportPinFloor>;
-};
-
 /** The world-mode interval needs no material frame observations. */
 const NO_SITES: readonly IAutoMovieRigidTransform[] = [];
-
-/** The site slot and its world frames at the solved keys. */
-interface IMaterial {
-  /** The index of the material frame in one interval evaluation. */
-  index: number;
-
-  /** The material's frame at the departing and arriving keys. */
-  endpoints: readonly [IAutoMovieRigidTransform, IAutoMovieRigidTransform];
-}
-
-/** Read a prepared contact point from the current interval frames and share. */
-type IPoint = (
-  share: number,
-  sites: readonly IAutoMovieRigidTransform[],
-) => IAutoMovieVector3;
-
-/** Read a prepared held-limb goal from the same interval frames and share. */
-type IGoal = (
-  share: number,
-  sites: readonly IAutoMovieRigidTransform[],
-) => IAutoMovieHumanLimbGoal;
 
 /**
  * Prepare one support interval: the joint blend between its two keys, the root
@@ -454,6 +362,7 @@ function placed(
     root: { ...reachable.root, y: Math.max(reachable.root.y, low) },
   };
 }
+
 /**
  * The hands and feet among the contacts both keys hold, one per limb in contact
  * order.
@@ -550,7 +459,6 @@ function heldGoal(
     };
   };
 }
-
 /** The material used by the support interval and its exact local placement. */
 export namespace prepareSupportInterval {
   /** The full named frame at an action second. */
@@ -620,3 +528,95 @@ const LIFTS: number = 4;
  * metres: a micrometre, far under the floor audit's 5 mm (provisional).
  */
 const SINK: number = 1e-6;
+
+/** A support key's immutable authored posture and contact order. */
+interface IKey {
+  /** The key's joint-space posture, world metres and clinical degrees. */
+  posture: IAutoMovieMotionHumanPosture;
+
+  /** The ordered contacts that choose the interval's first common pin. */
+  contacts: readonly IAutoMovieMotionHumanSupport.IContact[];
+
+  /** When the key is reached, seconds since the action's start. */
+  seconds: number;
+}
+
+/** One interval's writer and standard scheduling invalidation boundary. */
+interface IInterval {
+  /** Read the interior progress and the material at the action's actual second. */
+  write(
+    w: number,
+    seconds: number,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
+  ): IAutoMovieMotionHumanPosture;
+
+  /** Prepare the target-dependent constants again from the placed observations. */
+  prepare(): void;
+}
+
+/** A contact the root can keep through an interval. */
+type Pin = IAutoMovieMotionHumanSupport.IContact | undefined;
+/** What a share's bounded posture reads of its interval. */
+interface IPosed {
+  /** The unchanged body. */
+  body: IAutoMovieMotionHumanBody;
+
+  /** The joint blend between the two keys. */
+  blend: ReturnType<typeof supportKey.prepareBlended>;
+
+  /** The floor bound. */
+  floor: ReturnType<typeof knockdown.prepareRest>;
+}
+
+/** The pin's prepared points and the held limbs' frames. */
+interface IPinned {
+  /** The pin's achieved points at the two keys and its readers. */
+  fixed: IPrepareSupportIntervalFixed;
+
+  /** The held hands' and feet's prepared goal writers. */
+  goals: readonly (readonly [prepareSupportHeldFrames.IHeld["limb"], IGoal])[];
+
+  /** Each distinct retained material frame, in its prepared slot. */
+  sites: readonly prepareSupportInterval.Site[];
+
+  /** Whether a held foot stands raised above the floor. */
+  elevatedFoot: boolean;
+}
+
+/** An interval's target-dependent constants, prepared with its observations. */
+interface IPrepared {
+  /** The pin's points and held frames; none without a pin. */
+  pinned?: IPinned;
+
+  /** The held legs' lift course; none without a held leg. */
+  lifts?: prepareSupportLiftCourse.ICourse;
+}
+
+/** The record of `IPrepareSupportIntervalFixed`'s site. */
+type IPrepareSupportIntervalFixed = {
+  point: IPoint;
+  originalPoint: ReturnType<typeof supportContact.preparePoints>;
+  pinFloor: ReturnType<typeof prepareSupportPinFloor>;
+};
+
+/** The site slot and its world frames at the solved keys. */
+interface IMaterial {
+  /** The index of the material frame in one interval evaluation. */
+  index: number;
+
+  /** The material's frame at the departing and arriving keys. */
+  endpoints: readonly [IAutoMovieRigidTransform, IAutoMovieRigidTransform];
+}
+
+/** Read a prepared contact point from the current interval frames and share. */
+type IPoint = (
+  share: number,
+  sites: readonly IAutoMovieRigidTransform[],
+) => IAutoMovieVector3;
+
+/** Read a prepared held-limb goal from the same interval frames and share. */
+type IGoal = (
+  share: number,
+  sites: readonly IAutoMovieRigidTransform[],
+) => IAutoMovieHumanLimbGoal;

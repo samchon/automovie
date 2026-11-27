@@ -35,9 +35,6 @@ const DEG: number = swingTwistBasis.DEG;
 /** The twist `swingTwist` gives where the projection vanishes: the identity. */
 const IDENTITY_TWIST: IAutoMovieQuaternion = Quaternion.identity();
 
-/** Original dimensionless disc coordinates and clinical-degree twist. */
-type IChart = ReturnType<typeof swingTwistRange.chart>;
-
 /**
  * The humanoid tables' own frame of every bone whose default constraint gates
  * it by swing and twist, prepared once with its region.
@@ -71,6 +68,7 @@ const HUMANOID_RANGES: ReadonlyMap<string, swingTwistRange.IPrepared> = new Map(
     },
   ),
 );
+
 /**
  * The range of a ball joint read by swing and twist: where the limb's long axis
  * may point, and how far the limb may turn about it.
@@ -404,24 +402,6 @@ export namespace swingTwistRange {
   }
 
   /**
-   * Original chart expressions, shared without a second interpolation
-   * algorithm.
-   */
-  function blendCharts(
-    from: IChart,
-    to: IChart,
-    share: number,
-    joint: IPrepared,
-    read?: (coordinate: IChart) => IAutoMovieQuaternion,
-  ): IAutoMovieQuaternion {
-    const coordinate: IChart = {
-      x: from.x + (to.x - from.x) * share,
-      y: from.y + (to.y - from.y) * share,
-      twist: from.twist + (to.twist - from.twist) * share,
-    };
-    return read === undefined ? placed(coordinate, joint) : read(coordinate);
-  }
-  /**
    * The swing region's radius on one great circle, degrees, read off the cached
    * table by linear interpolation between its two nearest rays.
    *
@@ -439,4 +419,24 @@ export namespace swingTwistRange {
     const share: number = at - Math.floor(at);
     return table[before]! + (table[after]! - table[before]!) * share;
   }
+  /**
+   * Original chart expressions, shared without a second interpolation
+   * algorithm.
+   */
+  function blendCharts(
+    from: IChart,
+    to: IChart,
+    share: number,
+    joint: IPrepared,
+    read?: (coordinate: IChart) => IAutoMovieQuaternion,
+  ): IAutoMovieQuaternion {
+    const coordinate: IChart = {
+      x: from.x + (to.x - from.x) * share,
+      y: from.y + (to.y - from.y) * share,
+      twist: from.twist + (to.twist - from.twist) * share,
+    };
+    return read === undefined ? placed(coordinate, joint) : read(coordinate);
+  }
 }
+/** Original dimensionless disc coordinates and clinical-degree twist. */
+type IChart = ReturnType<typeof swingTwistRange.chart>;

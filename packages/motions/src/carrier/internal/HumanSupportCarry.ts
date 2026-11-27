@@ -378,6 +378,16 @@ export namespace HumanSupportCarry {
   }
 }
 
+/** Read the turn's heading in degrees around world up. */
+function yawOf(turn: IAutoMovieQuaternion): number {
+  const ahead: IAutoMovieVector3 = Quaternion.rotateVector(turn, {
+    x: 0,
+    y: 0,
+    z: 1,
+  });
+  return (Math.atan2(ahead.x, ahead.z) * 180) / Math.PI;
+}
+
 /** The alternatives of `LaunchContext`'s site. */
 type LaunchContext = "entry" | "prop" | "performer" | "start";
 
@@ -389,13 +399,3 @@ type OnContext = "prop" | "start";
 
 /** The alternatives of `EntryContext`'s site. */
 type EntryContext = "entry" | "prop" | "performer" | "start";
-
-/** Read the turn's heading in degrees around world up. */
-function yawOf(turn: IAutoMovieQuaternion): number {
-  const ahead: IAutoMovieVector3 = Quaternion.rotateVector(turn, {
-    x: 0,
-    y: 0,
-    z: 1,
-  });
-  return (Math.atan2(ahead.x, ahead.z) * 180) / Math.PI;
-}

@@ -16,21 +16,6 @@ import {
 const SCENIC: string =
   "Authored set dimensions for one banner shared by two carriers, as described in the Arlington Patriots Day Parade contract (https://www.arlingtonma.gov/home/showpublisheddocument/33593/636227460660770000).";
 
-/**
- * The panel measures and pole diameter use metres. The prop mass uses
- * kilograms.
- */
-type Dimension =
-  | "width"
-  | "panelHeight"
-  | "depth"
-  | "poleHeight"
-  | "poleDiameter"
-  | "mass";
-
-/** Grip names follow model X, from the perspective facing the panel from +Z. */
-type Affordance = "leftGrip" | "rightGrip" | "face";
-
 /** Units paired with the banner's authorable dimensions for draw provenance. */
 const UNITS: Readonly<Record<Dimension, AutoMovieArchetypeDrawSession.Unit>> = {
   width: "m",
@@ -155,3 +140,18 @@ export function create(
     id?: string;
   }
 }
+
+/**
+ * The panel measures and pole diameter use metres. The prop mass uses
+ * kilograms.
+ */
+type Dimension =
+  | "width"
+  | "panelHeight"
+  | "depth"
+  | "poleHeight"
+  | "poleDiameter"
+  | "mass";
+
+/** Grip names follow model X, from the perspective facing the panel from +Z. */
+type Affordance = "leftGrip" | "rightGrip" | "face";

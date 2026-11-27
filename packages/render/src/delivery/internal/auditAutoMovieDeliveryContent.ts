@@ -1,21 +1,5 @@
 import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
 
-type Audit = IAutoMovieDeliveryContentAudit.IProps;
-type Decoded = Extract<
-  IAutoMovieDeliveryContentAudit.Stream,
-  { status: "decoded" }
->;
-type Detector = IAutoMovieDeliveryContentAudit.Detector;
-type Finding = IAutoMovieDeliveryContentAudit.Finding;
-type Media = IAutoMovieDeliveryContentAudit.Media;
-type Outcome = IAutoMovieDeliveryContentAudit.Outcome;
-type Ratio = IAutoMovieDeliveryContentAudit.Ratio;
-type Timestamp = IAutoMovieDeliveryContentAudit.ITimestamp;
-type Interval = { start: Timestamp; end: Timestamp };
-
-const ZERO: Timestamp = { ticks: 0, timeBase: [1, 1] };
-const MEDIA: readonly Media[] = ["video", "audio"];
-
 /**
  * Checks the decoded presentation and classifies each black, frozen and silent
  * interval: inside an authored allowance it is intentional; where the encoder's
@@ -180,6 +164,22 @@ export function auditAutoMovieDeliveryContent(
     passed: findings.every((finding) => !finding.blocking),
   };
 }
+type Audit = IAutoMovieDeliveryContentAudit.IProps;
+type Decoded = Extract<
+  IAutoMovieDeliveryContentAudit.Stream,
+  { status: "decoded" }
+>;
+type Detector = IAutoMovieDeliveryContentAudit.Detector;
+type Finding = IAutoMovieDeliveryContentAudit.Finding;
+type Media = IAutoMovieDeliveryContentAudit.Media;
+type Outcome = IAutoMovieDeliveryContentAudit.Outcome;
+type Ratio = IAutoMovieDeliveryContentAudit.Ratio;
+type Timestamp = IAutoMovieDeliveryContentAudit.ITimestamp;
+
+type Interval = { start: Timestamp; end: Timestamp };
+const ZERO: Timestamp = { ticks: 0, timeBase: [1, 1] };
+
+const MEDIA: readonly Media[] = ["video", "audio"];
 
 /**
  * Checks the decoded audio's measured loudness against the targets: integrated

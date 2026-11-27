@@ -10,51 +10,6 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core/index";
 
-/** The bounds of authored coarse garment dimensions in metres. */
-const BANDS: Readonly<
-  Record<AutoMovieArchetypeStageJacket.Dimension, IAutoMovieArchetypeBand>
-> = {
-  width: AutoMovieArchetypeBand.metres(
-    0.36,
-    0.6,
-    "Coarse wardrobe prop across its torso",
-    true,
-  ),
-  depth: AutoMovieArchetypeBand.metres(
-    0.24,
-    0.42,
-    "Coarse wardrobe prop around its torso",
-    true,
-  ),
-  length: AutoMovieArchetypeBand.metres(
-    0.45,
-    0.69,
-    "Coarse wardrobe prop along its back",
-    true,
-  ),
-  sleeveWidth: AutoMovieArchetypeBand.metres(
-    0.12,
-    0.2,
-    "Clear opening of a loose short sleeve",
-    true,
-  ),
-  sleeveLength: AutoMovieArchetypeBand.metres(
-    0.04,
-    0.08,
-    "Coarse length of a short sleeve",
-    true,
-  ),
-  zipTravel: AutoMovieArchetypeBand.metres(
-    0.13,
-    0.27,
-    "Visible pull distance across the front of the stage garment",
-    true,
-  ),
-};
-
-/** Coarse staging proxy wall thickness, in metres. */
-const WALL: number = 0.012;
-
 /**
  * An open-front short-sleeve stage jacket with two hollow sleeve passages.
  *
@@ -259,3 +214,48 @@ export function createStageJacket(
   });
   return builder.build(0.46);
 }
+
+/** The bounds of authored coarse garment dimensions in metres. */
+const BANDS: Readonly<
+  Record<AutoMovieArchetypeStageJacket.Dimension, IAutoMovieArchetypeBand>
+> = {
+  width: AutoMovieArchetypeBand.metres(
+    0.36,
+    0.6,
+    "Coarse wardrobe prop across its torso",
+    true,
+  ),
+  depth: AutoMovieArchetypeBand.metres(
+    0.24,
+    0.42,
+    "Coarse wardrobe prop around its torso",
+    true,
+  ),
+  length: AutoMovieArchetypeBand.metres(
+    0.45,
+    0.69,
+    "Coarse wardrobe prop along its back",
+    true,
+  ),
+  sleeveWidth: AutoMovieArchetypeBand.metres(
+    0.12,
+    0.2,
+    "Clear opening of a loose short sleeve",
+    true,
+  ),
+  sleeveLength: AutoMovieArchetypeBand.metres(
+    0.04,
+    0.08,
+    "Coarse length of a short sleeve",
+    true,
+  ),
+  zipTravel: AutoMovieArchetypeBand.metres(
+    0.13,
+    0.27,
+    "Visible pull distance across the front of the stage garment",
+    true,
+  ),
+};
+
+/** Coarse staging proxy wall thickness, in metres. */
+const WALL: number = 0.012;

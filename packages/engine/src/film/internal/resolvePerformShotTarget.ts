@@ -11,19 +11,6 @@ import { POSITIONAL_TARGET_SHAPE } from "../../perform/POSITIONAL_TARGET_SHAPE";
 import { positionalTargetFault } from "../../perform/internal/positionalTargetFault";
 import { resolveTargetPoint } from "../../perform/internal/resolveTargetPoint";
 
-/** The staged lookups and collector one positional target reads. */
-type ITargetContext = Pick<
-  IAutoMovieEnginePerformShotGateContext,
-  | "out"
-  | "nodeIds"
-  | "nodePositions"
-  | "formationPoints"
-  | "formationById"
-  | "skeleton"
-  | "hasActorContext"
-  | "targetAt"
->;
-
 /**
  * Gate one positional target of a performance and resolve it to a world point,
  * or report why it cannot be and answer `null`.
@@ -111,6 +98,19 @@ export function resolvePerformShotTarget(
   }
   return point;
 }
+
+/** The staged lookups and collector one positional target reads. */
+type ITargetContext = Pick<
+  IAutoMovieEnginePerformShotGateContext,
+  | "out"
+  | "nodeIds"
+  | "nodePositions"
+  | "formationPoints"
+  | "formationById"
+  | "skeleton"
+  | "hasActorContext"
+  | "targetAt"
+>;
 
 /** Check the ids a target carries, answering whether resolution may read it. */
 function validateTargetIds(

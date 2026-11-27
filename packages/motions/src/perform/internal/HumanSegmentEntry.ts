@@ -21,20 +21,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
-/** The alternatives of `SupportsPart`'s site. */
-type SupportsPart = "leftFoot" | "rightFoot";
-
-/** The alternatives of `EntryResult`'s site. */
-type EntryResult =
-  | [[AutoMovieHumanSide, IAutoMovieMotionHumanGraspUse.IUse]]
-  | [];
-
-/** The alternatives of `EntryPlantedPart2`'s site. */
-type EntryPlantedPart2 = "leftFoot" | "rightFoot";
-
-/** The alternatives of `EntryPlantedPart`'s site. */
-type EntryPlantedPart = "leftFoot" | "rightFoot";
-
 /**
  * The state a person enters an action from: the displayed pose and its rates at
  * the entry second, the feet, the supports, the base and the holds, read from
@@ -424,3 +410,17 @@ export namespace HumanSegmentEntry {
     );
   }
 }
+
+/** The alternatives of `SupportsPart`'s site. */
+type SupportsPart = "leftFoot" | "rightFoot";
+
+/** The alternatives of `EntryResult`'s site. */
+type EntryResult =
+  | [[AutoMovieHumanSide, IAutoMovieMotionHumanGraspUse.IUse]]
+  | [];
+
+/** The alternatives of `EntryPlantedPart2`'s site. */
+type EntryPlantedPart2 = "leftFoot" | "rightFoot";
+
+/** The alternatives of `EntryPlantedPart`'s site. */
+type EntryPlantedPart = "leftFoot" | "rightFoot";

@@ -19,9 +19,6 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { prepareSupportContactForm } from "./prepareSupportContactForm";
 import { supportContactOnFloor } from "./supportContactOnFloor";
 
-/** The alternatives of `IdPlaced`'s site. */
-type IdPlaced = number | string;
-
 /**
  * A support planner's contact (`support`) as the whole-body fit takes it and as
  * the course between keys pivots about it: the bone and point that bear, the
@@ -136,10 +133,6 @@ export namespace supportContact {
   ): boolean {
     return id(a) === id(b);
   }
-  /** A contact, with the stance it was set down in once it is placed. */
-  type IdC = IAutoMovieMotionHumanSupport.IContact &
-    Partial<Pick<IPlaced, "placed">>;
-
   /**
    * A contact's identity: its part, how it touches, its target, its inset and
    * the stance it was set down in (`placements`), empty for a contact not yet
@@ -344,6 +337,10 @@ export namespace supportContact {
     };
   }
 
+  /** A contact, with the stance it was set down in once it is placed. */
+  type IdC = IAutoMovieMotionHumanSupport.IContact &
+    Partial<Pick<IPlaced, "placed">>;
+
   /** One current contact observation, including an unnamed floor target. */
   interface IPoint {
     /** The contact whose actual form supplies its local offset. */
@@ -399,3 +396,6 @@ export namespace supportContact {
     );
   }
 }
+
+/** The alternatives of `IdPlaced`'s site. */
+type IdPlaced = number | string;

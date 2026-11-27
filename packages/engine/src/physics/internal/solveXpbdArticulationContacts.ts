@@ -194,35 +194,6 @@ export namespace solveXpbdArticulationContacts {
   }
 
   /**
-   * The set without the patches of released bodies, its rows renumbered in
-   * order; the set itself when none is released.
-   */
-  function keep(
-    tree: AutoMovieXpbdArticulation.ITree,
-    set: ISet,
-    released: ReadonlySet<AutoMovieXpbdBody> | undefined,
-  ): ISet {
-    if (released === undefined || released.size === 0) return set;
-    const kept: ISet = { rows: [], patches: [] };
-    for (const patch of set.patches) {
-      if (released.has(tree.states[set.rows[patch.normals[0]!]!.state]!.body))
-        continue;
-      const copy = (r: number): number => {
-        kept.rows.push(set.rows[r]!);
-        return kept.rows.length - 1;
-      };
-      const { torsion, ...rest }: IPatch = patch;
-      kept.patches.push({
-        ...rest,
-        normals: patch.normals.map(copy),
-        tangents: patch.tangents.map(copy),
-        ...(torsion !== undefined ? { torsion: copy(torsion) } : {}),
-      });
-    }
-    return kept;
-  }
-
-  /**
    * The base response plus each unknown's response times its impulse, and the
    * support rows' records.
    */
@@ -400,6 +371,35 @@ export namespace solveXpbdArticulationContacts {
 
     /** Along the second tangential row. */
     second: number;
+  }
+
+  /**
+   * The set without the patches of released bodies, its rows renumbered in
+   * order; the set itself when none is released.
+   */
+  function keep(
+    tree: AutoMovieXpbdArticulation.ITree,
+    set: ISet,
+    released: ReadonlySet<AutoMovieXpbdBody> | undefined,
+  ): ISet {
+    if (released === undefined || released.size === 0) return set;
+    const kept: ISet = { rows: [], patches: [] };
+    for (const patch of set.patches) {
+      if (released.has(tree.states[set.rows[patch.normals[0]!]!.state]!.body))
+        continue;
+      const copy = (r: number): number => {
+        kept.rows.push(set.rows[r]!);
+        return kept.rows.length - 1;
+      };
+      const { torsion, ...rest }: IPatch = patch;
+      kept.patches.push({
+        ...rest,
+        normals: patch.normals.map(copy),
+        tangents: patch.tangents.map(copy),
+        ...(torsion !== undefined ? { torsion: copy(torsion) } : {}),
+      });
+    }
+    return kept;
   }
 
   /**

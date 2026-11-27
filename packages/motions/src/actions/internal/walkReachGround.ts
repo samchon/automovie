@@ -13,37 +13,6 @@ import { walkReach } from "./walkReach";
 import { walkReachFeet } from "./walkReachFeet";
 import { walkReachStance } from "./walkReachStance";
 
-/** What a stance's reading returns: its foot as reached and its contact point. */
-type IGroundRead = {
-  end: walkFoot.IEnd;
-  contact: IAutoMovieVector3;
-  pitch: number;
-};
-
-/** The settled members the feet complete. */
-type GroundCompleted = "feet" | "contacts";
-
-/** A pelvis tilted from upright: its world rotation and the hips it carries. */
-type IGroundTilt = {
-  rotation: IAutoMovieQuaternion;
-  hips: Record<AutoMovieHumanSide, IAutoMovieVector3>;
-};
-/**
- * The width, metres, to which the root's lowering is solved: a nanometre, under
- * which its error adds less than a micrometre per second to a rate read over a
- * frame.
- */
-const FINE: number = 1e-9;
-
-/**
- * A cap on the doublings of the root's bracket past the first claim, a guard
- * and not a tolerance: claims that do not rise as the hips lower never enter
- * the loop (see `ground`), and 2⁸ = 256 times the first claim bounds the
- * guard's cost; a claim still over its lowering after them takes the bracket's
- * end as its lowering.
- */
-const DOUBLINGS: number = 8;
-
 /**
  * Settle the pelvis against the stances (`walkReach`): lower the root until
  * every bearing stance's claim on it is met, each stance held by
@@ -292,3 +261,34 @@ export function walkReachGround(
     ...(tilted === undefined ? {} : { pelvis: tilted.rotation }),
   };
 }
+
+/** What a stance's reading returns: its foot as reached and its contact point. */
+type IGroundRead = {
+  end: walkFoot.IEnd;
+  contact: IAutoMovieVector3;
+  pitch: number;
+};
+
+/** The settled members the feet complete. */
+type GroundCompleted = "feet" | "contacts";
+/** A pelvis tilted from upright: its world rotation and the hips it carries. */
+type IGroundTilt = {
+  rotation: IAutoMovieQuaternion;
+  hips: Record<AutoMovieHumanSide, IAutoMovieVector3>;
+};
+
+/**
+ * The width, metres, to which the root's lowering is solved: a nanometre, under
+ * which its error adds less than a micrometre per second to a rate read over a
+ * frame.
+ */
+const FINE: number = 1e-9;
+
+/**
+ * A cap on the doublings of the root's bracket past the first claim, a guard
+ * and not a tolerance: claims that do not rise as the hips lower never enter
+ * the loop (see `ground`), and 2⁸ = 256 times the first claim bounds the
+ * guard's cost; a claim still over its lowering after them takes the bracket's
+ * end as its lowering.
+ */
+const DOUBLINGS: number = 8;

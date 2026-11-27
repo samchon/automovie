@@ -1,12 +1,6 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
 import { AutoMovieRenderCapture } from "@automovie/render";
 
-/** An argument a POSIX shell passes through unquoted. */
-const PLAIN: RegExp = /^[\w%+,./:=@-]+$/u;
-
-/** A bare word that also stays one argument to a PowerShell script. */
-const POWERSHELL_PLAIN: RegExp = /^[\w+./:=-]+$/u;
-
 /**
  * Write a capture request's option tokens and a shell command to copy.
  *
@@ -62,6 +56,12 @@ export function formatAutoMovieInspectorCommand(
     ].join(" "),
   };
 }
+
+/** An argument a POSIX shell passes through unquoted. */
+const PLAIN: RegExp = /^[\w%+,./:=@-]+$/u;
+
+/** A bare word that also stays one argument to a PowerShell script. */
+const POWERSHELL_PLAIN: RegExp = /^[\w+./:=-]+$/u;
 
 /** One argument as a POSIX shell word. */
 function quotePosix(argument: string): string {

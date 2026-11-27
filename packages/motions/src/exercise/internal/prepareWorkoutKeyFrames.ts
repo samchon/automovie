@@ -12,18 +12,6 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { ExerciseKey } from "./ExerciseKey";
 
-/** The record of `IPrepareWorkoutKeyFramesResult2`'s site. */
-type IPrepareWorkoutKeyFramesResult2 = {
-  posture: IAutoMovieMotionHumanPosture;
-  bones: ReturnType<typeof poseBones>;
-};
-
-/** The record of `IPrepareWorkoutKeyFramesResult`'s site. */
-type IPrepareWorkoutKeyFramesResult = {
-  posture: IAutoMovieMotionHumanPosture;
-  bones: ReturnType<typeof poseBones>;
-};
-
 /**
  * Own actual key-to-frame observations within one synchronous workout geometry
  * search. A key's posed representation has no limb/digit/rotation goals, but
@@ -71,3 +59,15 @@ export function prepareWorkoutKeyFrames(
     };
   };
 }
+
+/** The record of `IPrepareWorkoutKeyFramesResult2`'s site. */
+type IPrepareWorkoutKeyFramesResult2 = {
+  posture: IAutoMovieMotionHumanPosture;
+  bones: ReturnType<typeof poseBones>;
+};
+
+/** The record of `IPrepareWorkoutKeyFramesResult`'s site. */
+type IPrepareWorkoutKeyFramesResult = {
+  posture: IAutoMovieMotionHumanPosture;
+  bones: ReturnType<typeof poseBones>;
+};

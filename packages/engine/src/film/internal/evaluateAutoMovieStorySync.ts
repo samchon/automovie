@@ -7,15 +7,6 @@ import {
 
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
-/** One addressed event's measurement, with why it has no story time. */
-interface IStorySyncEntry {
-  /** The event as reported in the outcome. */
-  point: IAutoMovieStorySyncPoint;
-
-  /** Why the event has no story time, or null when it has one. */
-  reason: string | null;
-}
-
 /**
  * Measure one cross-shot simultaneity claim on the production story clock.
  *
@@ -107,6 +98,15 @@ export function evaluateAutoMovieStorySync(
       passed ? "within" : "beyond"
     } the ${props.toleranceSeconds}s tolerance.`,
   };
+}
+
+/** One addressed event's measurement, with why it has no story time. */
+interface IStorySyncEntry {
+  /** The event as reported in the outcome. */
+  point: IAutoMovieStorySyncPoint;
+
+  /** Why the event has no story time, or null when it has one. */
+  reason: string | null;
 }
 
 /**

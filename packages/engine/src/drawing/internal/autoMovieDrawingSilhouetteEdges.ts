@@ -9,13 +9,6 @@ import { Vector3 } from "../../math/Vector3";
 import { AUTOMOVIE_DRAWING_EPSILON } from "../AUTOMOVIE_DRAWING_EPSILON";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 
-/** How many triangles facing toward and away from the viewer share one edge. */
-interface IEdgeOwners {
-  edge: IAutoMovieDrawingEdge;
-  front: number;
-  back: number;
-}
-
 /**
  * Silhouette of a triangle soup under the view's orthographic direction.
  *
@@ -75,3 +68,10 @@ export const autoMovieDrawingSilhouetteEdges = (
       edges.push(entry.edge);
   return edges;
 };
+
+/** How many triangles facing toward and away from the viewer share one edge. */
+interface IEdgeOwners {
+  edge: IAutoMovieDrawingEdge;
+  front: number;
+  back: number;
+}

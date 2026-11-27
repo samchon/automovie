@@ -12,9 +12,6 @@ import { readHumanBone } from "../../body/internal/readHumanBone";
 import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/** The alternatives of `ReferenceLimb`'s site. */
-type ReferenceLimb = "leftArm" | "rightArm";
-
 /** The joint reference for a hand laid on a region, from an actual arm fit. */
 export namespace HumanTouchArmReference {
   /**
@@ -113,3 +110,6 @@ export namespace HumanTouchArmReference {
    */
   export const MARGIN: number = 5;
 }
+
+/** The alternatives of `ReferenceLimb`'s site. */
+type ReferenceLimb = "leftArm" | "rightArm";

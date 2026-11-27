@@ -4,11 +4,6 @@ import {
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
-/** The empty table returned when neither the bones nor the host declare axes. */
-const NO_JOINT_AXES: Partial<
-  Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
-> = {};
-
 /**
  * The per-bone clinical axes a skeleton articulates with: each bone's own
  * declared {@link IAutoMovieBone.axes}, then the host's `jointAxes` table.
@@ -44,3 +39,8 @@ export function skeletonJointAxes(
   }
   return merged ?? jointAxes ?? NO_JOINT_AXES;
 }
+
+/** The empty table returned when neither the bones nor the host declare axes. */
+const NO_JOINT_AXES: Partial<
+  Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
+> = {};

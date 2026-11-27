@@ -11,15 +11,6 @@ import type {
 import { AutoMovieArchetypeFrame } from "../../../core/AutoMovieArchetypeFrame";
 import { AutoMovieArchetypeUnits } from "../../../core/AutoMovieArchetypeUnits";
 
-/** Start with 32 chord and display sections per spline span. */
-const SECTIONS_PER_SPAN: number = 32;
-
-/** The vertical axis used to start an open or closed course upright. */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/** The axis of the bank in the local track frame. */
-const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
-
 /**
  * Prepare a reusable banked course through XYZ waypoints.
  *
@@ -164,3 +155,12 @@ export function createTrackedCourse(
     },
   });
 }
+
+/** Start with 32 chord and display sections per spline span. */
+const SECTIONS_PER_SPAN: number = 32;
+
+/** The vertical axis used to start an open or closed course upright. */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/** The axis of the bank in the local track frame. */
+const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };

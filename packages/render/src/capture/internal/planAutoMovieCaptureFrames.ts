@@ -6,12 +6,6 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Distance in frames within which a written second counts as lying on a frame,
- * for float error in `seconds × fps`.
- */
-const ON_GRID: number = 1e-6;
-
-/**
  * Plan the instants a capture draws, for a drawn scene and for a video file
  * alike: an even sampling or explicit seconds, merged with every frame within
  * `window` frames of each event and each cut.
@@ -122,3 +116,9 @@ export function planAutoMovieCaptureFrames(
     windows,
   };
 }
+
+/**
+ * Distance in frames within which a written second counts as lying on a frame,
+ * for float error in `seconds × fps`.
+ */
+const ON_GRID: number = 1e-6;

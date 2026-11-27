@@ -11,12 +11,6 @@ import {
 import { AutoMovieEngineKinematics } from "../../../kinematics/AutoMovieEngineKinematics";
 import { Transform } from "../../../math/Transform";
 
-/** A light aims its local `-Z`, the glTF camera and light convention. */
-const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
-
-/** A spot's cone half-angle in degrees when the placement leaves it out. */
-const DEFAULT_CONE_ANGLE: number = 45;
-
 /**
  * Lower one accepted light placement into the scene light it describes.
  *
@@ -80,6 +74,12 @@ export function lowerLightPlacement(
     };
   return { ...base, type: "directional" };
 }
+
+/** A light aims its local `-Z`, the glTF camera and light convention. */
+const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
+
+/** A spot's cone half-angle in degrees when the placement leaves it out. */
+const DEFAULT_CONE_ANGLE: number = 45;
 
 /** A fresh identity rotation, so no two lights share one object. */
 function identityRotation(): IAutoMovieQuaternion {

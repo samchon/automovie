@@ -37,28 +37,6 @@ export function rotationBetween(
   return turn(from, to);
 }
 
-/** Exact normalized-direction core, shared by ordinary and fixed-source turns. */
-function turn(
-  from: IAutoMovieVector3,
-  to: IAutoMovieVector3,
-): IAutoMovieQuaternion {
-  const cross: IAutoMovieVector3 = Vector3.cross(from, to);
-  const sin: number = Vector3.length(cross);
-  const cos: number = Vector3.dot(from, to);
-  if (sin === 0) {
-    if (cos >= 0) return Quaternion.identity();
-    const perp: IAutoMovieVector3 =
-      Math.abs(from.x) < 0.9
-        ? Vector3.cross(from, { x: 1, y: 0, z: 0 })
-        : Vector3.cross(from, { x: 0, y: 1, z: 0 });
-    return Quaternion.fromAxisAngle(perp, 180);
-  }
-  return Quaternion.fromAxisAngle(
-    cross,
-    (Math.atan2(sin, cos) * 180) / Math.PI,
-  );
-}
-
 /** Fixed-source shortest-arc preparation for repeated target directions. */
 /**
  * Normalize and own one source direction, then compute every requested
@@ -80,5 +58,27 @@ export function prepareRotationBetween(
   const from: IAutoMovieVector3 = Vector3.normalize(source);
   return (target: IAutoMovieVector3): IAutoMovieQuaternion =>
     turn(from, Vector3.normalize(target));
+}
+
+/** Exact normalized-direction core, shared by ordinary and fixed-source turns. */
+function turn(
+  from: IAutoMovieVector3,
+  to: IAutoMovieVector3,
+): IAutoMovieQuaternion {
+  const cross: IAutoMovieVector3 = Vector3.cross(from, to);
+  const sin: number = Vector3.length(cross);
+  const cos: number = Vector3.dot(from, to);
+  if (sin === 0) {
+    if (cos >= 0) return Quaternion.identity();
+    const perp: IAutoMovieVector3 =
+      Math.abs(from.x) < 0.9
+        ? Vector3.cross(from, { x: 1, y: 0, z: 0 })
+        : Vector3.cross(from, { x: 0, y: 1, z: 0 });
+    return Quaternion.fromAxisAngle(perp, 180);
+  }
+  return Quaternion.fromAxisAngle(
+    cross,
+    (Math.atan2(sin, cos) * 180) / Math.PI,
+  );
 }
 }

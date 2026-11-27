@@ -44,22 +44,6 @@ export namespace KickRedirect {
   }
 
   /**
-   * The redirecting kick's parameters and draws on its source's context and
-   * clock.
-   */
-  function redirected(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
-    source: IAutoMovieMotionHumanKickGeometry.ISource,
-  ): IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams> {
-    return {
-      ...source.context,
-      params: context.params,
-      random: context.random,
-      start: source.start,
-    };
-  }
-
-  /**
    * A redirecting kick's launch: the new target read on the source's clock,
    * keeping the source's line and step (`KickLaunch`).
    *
@@ -167,5 +151,21 @@ export namespace KickRedirect {
       },
       launch.props.recovery,
     );
+  }
+
+  /**
+   * The redirecting kick's parameters and draws on its source's context and
+   * clock.
+   */
+  function redirected(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
+    source: IAutoMovieMotionHumanKickGeometry.ISource,
+  ): IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams> {
+    return {
+      ...source.context,
+      params: context.params,
+      random: context.random,
+      start: source.start,
+    };
   }
 }

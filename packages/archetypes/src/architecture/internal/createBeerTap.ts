@@ -4,57 +4,6 @@ import { Vector3 } from "@automovie/engine";
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeUnits } from "../../core";
 
 /**
- * The tower's sizes, metres, from Perlick's air-cooled tee tower EA2110 sheet:
- * `height`, the counter to the top of the head, 12 15/16 in; `column`, 4 5/8 in
- * across; `base`, 6 in across; `head`, the tee head's depth, 6 7/16 in; and
- * `spacing`, the faucets' centres 5-1/2 in apart on a two-faucet tower
- * (https://api.perlick.com/Data/PDFFiles//EA2110-6Bfba2768c662b1c0d5b52433686318804b7918c83_Z2459_Air_Cooled_Tee_Towers_Spec_Rev_07_12_24.pdf).
- */
-const TOWER: Readonly<{
-  height: number;
-  column: number;
-  base: number;
-  head: number;
-  spacing: number;
-}> = {
-  height: (12 + 15 / 16) * AutoMovieArchetypeUnits.INCH,
-  column: (4 + 5 / 8) * AutoMovieArchetypeUnits.INCH,
-  base: 6 * AutoMovieArchetypeUnits.INCH,
-  head: (6 + 7 / 16) * AutoMovieArchetypeUnits.INCH,
-  spacing: 5.5 * AutoMovieArchetypeUnits.INCH,
-};
-
-/**
- * A faucet's sizes, metres, from Micro Matic's 4933 standard faucet drawing:
- * `length`, 62.67 mm from the shank's face; `spout`, the spout 44.03 mm out
- * from the shank's face; `drop`, the spout's tip 42.15 mm under the shank's
- * centre; and `stud`, the lever stud's top 97.64 mm over the spout's tip
- * (https://res.katom.com/products/711/711-4933BR/711-4933BR.pdf).
- */
-const FAUCET: Readonly<{
-  length: number;
-  spout: number;
-  drop: number;
-  stud: number;
-}> = {
-  length: 62.67 * AutoMovieArchetypeUnits.MILLIMETRE,
-  spout: 44.03 * AutoMovieArchetypeUnits.MILLIMETRE,
-  drop: 42.15 * AutoMovieArchetypeUnits.MILLIMETRE,
-  stud: 97.64 * AutoMovieArchetypeUnits.MILLIMETRE,
-};
-
-/**
- * The construction sizes no source read gives, metres, each an estimate no act
- * reads and no band declares: `plate`, the base plate's thickness; `body`, a
- * faucet body's diameter; `stud`, the lever stud's diameter.
- */
-const ESTIMATES: Readonly<{ plate: number; body: number; stud: number }> = {
-  plate: 0.01,
-  body: 0.025,
-  stud: 0.01,
-};
-
-/**
  * A two-faucet beer tower on a bar counter: a column on a round base under a
  * tee head, a standard faucet out of each side of the head's front.
  *
@@ -170,3 +119,54 @@ export function createBeerTap(
   }
   return builder.build(d.mass);
 }
+
+/**
+ * The tower's sizes, metres, from Perlick's air-cooled tee tower EA2110 sheet:
+ * `height`, the counter to the top of the head, 12 15/16 in; `column`, 4 5/8 in
+ * across; `base`, 6 in across; `head`, the tee head's depth, 6 7/16 in; and
+ * `spacing`, the faucets' centres 5-1/2 in apart on a two-faucet tower
+ * (https://api.perlick.com/Data/PDFFiles//EA2110-6Bfba2768c662b1c0d5b52433686318804b7918c83_Z2459_Air_Cooled_Tee_Towers_Spec_Rev_07_12_24.pdf).
+ */
+const TOWER: Readonly<{
+  height: number;
+  column: number;
+  base: number;
+  head: number;
+  spacing: number;
+}> = {
+  height: (12 + 15 / 16) * AutoMovieArchetypeUnits.INCH,
+  column: (4 + 5 / 8) * AutoMovieArchetypeUnits.INCH,
+  base: 6 * AutoMovieArchetypeUnits.INCH,
+  head: (6 + 7 / 16) * AutoMovieArchetypeUnits.INCH,
+  spacing: 5.5 * AutoMovieArchetypeUnits.INCH,
+};
+
+/**
+ * A faucet's sizes, metres, from Micro Matic's 4933 standard faucet drawing:
+ * `length`, 62.67 mm from the shank's face; `spout`, the spout 44.03 mm out
+ * from the shank's face; `drop`, the spout's tip 42.15 mm under the shank's
+ * centre; and `stud`, the lever stud's top 97.64 mm over the spout's tip
+ * (https://res.katom.com/products/711/711-4933BR/711-4933BR.pdf).
+ */
+const FAUCET: Readonly<{
+  length: number;
+  spout: number;
+  drop: number;
+  stud: number;
+}> = {
+  length: 62.67 * AutoMovieArchetypeUnits.MILLIMETRE,
+  spout: 44.03 * AutoMovieArchetypeUnits.MILLIMETRE,
+  drop: 42.15 * AutoMovieArchetypeUnits.MILLIMETRE,
+  stud: 97.64 * AutoMovieArchetypeUnits.MILLIMETRE,
+};
+
+/**
+ * The construction sizes no source read gives, metres, each an estimate no act
+ * reads and no band declares: `plate`, the base plate's thickness; `body`, a
+ * faucet body's diameter; `stud`, the lever stud's diameter.
+ */
+const ESTIMATES: Readonly<{ plate: number; body: number; stud: number }> = {
+  plate: 0.01,
+  body: 0.025,
+  stud: 0.01,
+};

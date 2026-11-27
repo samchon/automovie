@@ -11,11 +11,6 @@ import { HumanSegmentSelection } from "./HumanSegmentSelection";
 import { HumanSegmentStill } from "./HumanSegmentStill";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
-/** The record of `IBonesBound`'s site. */
-type IBonesBound = {
-  pose: ReturnType<typeof poseBones.prepare>;
-};
-
 /**
  * A person's displayed pose at a film second, evaluated from their placed
  * actions with nothing kept between reads.
@@ -128,3 +123,8 @@ export namespace HumanSegmentShown {
       : bound.pose(pose, prepared.resolution());
   }
 }
+
+/** The record of `IBonesBound`'s site. */
+type IBonesBound = {
+  pose: ReturnType<typeof poseBones.prepare>;
+};

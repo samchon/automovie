@@ -18,24 +18,6 @@ import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 
-/** The record of `IPlanLast`'s site. */
-type IPlanLast = { mid: IAutoMovieVector3; turn: number };
-
-/** The record of `IAskedH`'s site. */
-type IAskedH = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
-
-/** The record of `IAskedResult`'s site. */
-type IAskedResult = { mid: IAutoMovieVector3; turn: number };
-
-/** The record of `IPlanTaken`'s site. */
-type IPlanTaken = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
-
-/** The record of `IPropsHandle`'s site. */
-type IPropsHandle = {
-  point: IAutoMovieVector3;
-  normal: IAutoMovieVector3;
-};
-
 /**
  * The walk a person takes with a door they pull open, the hand on its handle: a
  * walk that keeps the place relative to the leaf the handle was taken from, at
@@ -333,3 +315,21 @@ export namespace HumanTravelLeafWalk {
     };
   }
 }
+
+/** The record of `IPlanLast`'s site. */
+type IPlanLast = { mid: IAutoMovieVector3; turn: number };
+
+/** The record of `IAskedH`'s site. */
+type IAskedH = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
+/** The record of `IAskedResult`'s site. */
+type IAskedResult = { mid: IAutoMovieVector3; turn: number };
+
+/** The record of `IPlanTaken`'s site. */
+type IPlanTaken = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
+/** The record of `IPropsHandle`'s site. */
+type IPropsHandle = {
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+};

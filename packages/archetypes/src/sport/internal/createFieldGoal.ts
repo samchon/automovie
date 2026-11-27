@@ -10,18 +10,6 @@ import {
 import { GoalBuild } from "./GoalBuild";
 import type { AutoMovieArchetypeGoal } from "../AutoMovieArchetypeGoal";
 
-/** The builder for this field or court apparatus. */
-type Builder = AutoMovieArchetypeBuilder<
-  AutoMovieArchetypeFieldGoal.Affordance,
-  AutoMovieArchetypeGoal.Dimension
->;
-
-/** The saved goal dimensions in their local units. */
-type Drawn = Partial<Record<AutoMovieArchetypeGoal.Dimension, number>>;
-
-/** Local points in metres. */
-const v: typeof Vector3.create = Vector3.create;
-
 /**
  * A rectangular field, court or ice goal with a scoring opening.
  *
@@ -59,6 +47,18 @@ export function createFieldGoal(
   );
   return builder.build(d.mass!);
 }
+
+/** The builder for this field or court apparatus. */
+type Builder = AutoMovieArchetypeBuilder<
+  AutoMovieArchetypeFieldGoal.Affordance,
+  AutoMovieArchetypeGoal.Dimension
+>;
+
+/** The saved goal dimensions in their local units. */
+type Drawn = Partial<Record<AutoMovieArchetypeGoal.Dimension, number>>;
+
+/** Local points in metres. */
+const v: typeof Vector3.create = Vector3.create;
 
 /**
  * Build two posts and a crossbar around the scoring opening. Field goals and

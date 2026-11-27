@@ -109,58 +109,6 @@ export namespace HumanPosturePreparation {
     );
   }
 
-  /** Solve the given authoring, a value, with the one source solver. */
-  function prepareCurrent(
-    body: IAutoMovieMotionHumanBody,
-    posture: IAutoMovieMotionHumanPosture,
-    near: IAutoMovieMotionHumanResolveHumanPosture.INear,
-    resolution: Parameters<typeof prepareHumanPoseResolution>[0],
-    projection: ReturnType<typeof prepareHumanPostureProjection> | undefined,
-    solve: typeof coldSource,
-  ): IPrepared {
-    const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = solve(
-      body,
-      posture,
-      near,
-      resolution,
-      projection,
-    );
-    const source: ISource = {
-      body,
-      raw: posture,
-      solved,
-      placeable: Raw.eligible(posture),
-    };
-    let shown: IAutoMoviePose | undefined;
-    return {
-      get pose(): IAutoMoviePose {
-        return shown ?? solved.pose;
-      },
-      set pose(value: IAutoMoviePose) {
-        shown = value;
-      },
-      source,
-    };
-  }
-
-  /** Public cold preparation runs the ordinary owned source solve. */
-  function coldSource(
-    body: IAutoMovieMotionHumanBody,
-    posture: IAutoMovieMotionHumanPosture,
-    near: IAutoMovieMotionHumanResolveHumanPosture.INear,
-    resolution: Parameters<typeof prepareHumanPoseResolution>[0],
-    projection: ReturnType<typeof prepareHumanPostureProjection> | undefined,
-  ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
-    return resolveHumanPostureSource.owned(
-      body,
-      posture,
-      near,
-      resolution,
-      undefined,
-      projection,
-    );
-  }
-
   /** Copy only the per-limb branch/swivel data of a preparation. */
   export function seeds(
     prepared: IPrepared,
@@ -376,6 +324,58 @@ export namespace HumanPosturePreparation {
     raw.pitch = pitch;
     raw.roll = roll;
     return placedAt(source, raw);
+  }
+
+  /** Solve the given authoring, a value, with the one source solver. */
+  function prepareCurrent(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    near: IAutoMovieMotionHumanResolveHumanPosture.INear,
+    resolution: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection: ReturnType<typeof prepareHumanPostureProjection> | undefined,
+    solve: typeof coldSource,
+  ): IPrepared {
+    const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = solve(
+      body,
+      posture,
+      near,
+      resolution,
+      projection,
+    );
+    const source: ISource = {
+      body,
+      raw: posture,
+      solved,
+      placeable: Raw.eligible(posture),
+    };
+    let shown: IAutoMoviePose | undefined;
+    return {
+      get pose(): IAutoMoviePose {
+        return shown ?? solved.pose;
+      },
+      set pose(value: IAutoMoviePose) {
+        shown = value;
+      },
+      source,
+    };
+  }
+
+  /** Public cold preparation runs the ordinary owned source solve. */
+  function coldSource(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    near: IAutoMovieMotionHumanResolveHumanPosture.INear,
+    resolution: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection: ReturnType<typeof prepareHumanPostureProjection> | undefined,
+  ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
+    return resolveHumanPostureSource.owned(
+      body,
+      posture,
+      near,
+      resolution,
+      undefined,
+      projection,
+    );
   }
 }
 

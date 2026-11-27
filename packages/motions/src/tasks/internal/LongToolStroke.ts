@@ -38,36 +38,6 @@ const DEPTH: number = 0.15;
  */
 const PULL: number = 0.25;
 const LIFT: number = 0.1;
-/** The alternatives of `SwingResult`'s site. */
-type SwingResult = "period" | "leadward" | "chest";
-
-/** The alternatives of `OfSwung`'s site. */
-type OfSwung = "period" | "leadward" | "chest";
-
-/** The alternatives of `OfBase`'s site. */
-type OfBase = "period" | "leadward" | "chest";
-
-/**
- * One key of a keyed stroke: the face, the line, the slide and the reach at a
- * share.
- */
-interface IKey {
-  /** Its share. */
-  share: number;
-
-  /** The face, world metres. */
-  face: IAutoMovieVector3;
-
-  /** The line from the grip toward the face. */
-  line: IAutoMovieVector3;
-
-  /** The lead hand's slide, metres. */
-  slide: number;
-
-  /** The reach toward the work. */
-  reach: number;
-}
-
 /**
  * A swung stroke: the line turned in one plane from the top to the contact and
  * back.
@@ -430,4 +400,34 @@ export namespace LongToolStroke {
      */
     pose(share: number): IPose;
   }
+}
+
+/** The alternatives of `SwingResult`'s site. */
+type SwingResult = "period" | "leadward" | "chest";
+
+/** The alternatives of `OfSwung`'s site. */
+type OfSwung = "period" | "leadward" | "chest";
+
+/** The alternatives of `OfBase`'s site. */
+type OfBase = "period" | "leadward" | "chest";
+
+/**
+ * One key of a keyed stroke: the face, the line, the slide and the reach at a
+ * share.
+ */
+interface IKey {
+  /** Its share. */
+  share: number;
+
+  /** The face, world metres. */
+  face: IAutoMovieVector3;
+
+  /** The line from the grip toward the face. */
+  line: IAutoMovieVector3;
+
+  /** The lead hand's slide, metres. */
+  slide: number;
+
+  /** The reach toward the work. */
+  reach: number;
 }

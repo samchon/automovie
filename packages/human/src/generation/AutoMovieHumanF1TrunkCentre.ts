@@ -36,14 +36,6 @@ import type {
  */
 export namespace AutoMovieHumanF1TrunkCentre {
   /**
-   * The centre line's smoothing scale as a share of the family's mean guide reach.
-   *
-   * Half: the least smoothing at which no worst reading of f1's sections is lost to the line passing a narrow stretch by (the namespace's
-   * measurement). A share of the family's own size, so a larger person's line is smoothed over more of her course.
-   */
-  export const SCALE_SHARE: number = 0.5;
-
-  /**
    * A family re-expressed about a centre line.
    *
    * @evidence contracts/development/design.md#principled-representation The origin line, the knot values about it and the course moved onto it are one consistent set: lofting the values on any other course is another surface.
@@ -67,6 +59,14 @@ export namespace AutoMovieHumanF1TrunkCentre {
     /** The base course with its origin on the line, every section plane and chart direction kept. */
     axis: IAutoMovieViewAxis.IAxis;
   }
+
+  /**
+   * The centre line's smoothing scale as a share of the family's mean guide reach.
+   *
+   * Half: the least smoothing at which no worst reading of f1's sections is lost to the line passing a narrow stretch by (the namespace's
+   * measurement). A share of the family's own size, so a larger person's line is smoothed over more of her course.
+   */
+  export const SCALE_SHARE: number = 0.5;
 
   /** Phases a section's area is integrated over. */
   const ROUND: number = 1440;

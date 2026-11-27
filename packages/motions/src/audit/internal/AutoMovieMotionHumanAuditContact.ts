@@ -14,9 +14,6 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { AutoMovieMotionHumanAuditGround } from "./AutoMovieMotionHumanAuditGround";
 import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
-/** The alternatives of `MeasurePart`'s site. */
-type MeasurePart = "leftFoot" | "rightFoot";
-
 /**
  * Whether the feet's contact with the floor, inferred from the displayed motion
  * itself, agrees with the contact the actions declare.
@@ -261,6 +258,9 @@ export namespace AutoMovieMotionHumanAuditContact {
     return out;
   }
 }
+
+/** The alternatives of `MeasurePart`'s site. */
+type MeasurePart = "leftFoot" | "rightFoot";
 
 /** The world floor, the support of a foot that no window has declared one for. */
 const GROUND: IAutoMovieMotionHumanContactWindow.Support = { kind: "ground" };

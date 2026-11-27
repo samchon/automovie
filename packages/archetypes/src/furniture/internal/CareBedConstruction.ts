@@ -7,15 +7,6 @@ import {
 import { BED_BANDS } from "../constants/BED_BANDS";
 import type { AutoMovieArchetypeBed } from "../AutoMovieArchetypeBed";
 
-/** The builder every construction fills. */
-type Builder = AutoMovieArchetypeBuilder<
-  AutoMovieArchetypeBed.Affordance,
-  AutoMovieArchetypeBed.Dimension
->;
-
-/** The drawn dimensions. */
-type Drawn = Partial<Record<AutoMovieArchetypeBed.Dimension, number>>;
-
 /** The shorthand every construction uses. */
 const v: typeof Vector3.create = Vector3.create;
 
@@ -457,3 +448,12 @@ export namespace CareBedConstruction {
     sides(builder, width, length, lower + thick);
   }
 }
+
+/** The builder every construction fills. */
+type Builder = AutoMovieArchetypeBuilder<
+  AutoMovieArchetypeBed.Affordance,
+  AutoMovieArchetypeBed.Dimension
+>;
+
+/** The drawn dimensions. */
+type Drawn = Partial<Record<AutoMovieArchetypeBed.Dimension, number>>;

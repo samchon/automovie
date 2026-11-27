@@ -22,33 +22,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
 /**
- * Seconds a fist takes to come onto its grip before the window and to leave it
- * after (provisional: the workout's setup beat).
- */
-const REACH: number = 0.25;
-/** The alternatives of `FistLimb`'s site. */
-type FistLimb = "leftArm" | "rightArm";
-
-/** One fist laid on its grip over the plan's windows. */
-interface IFist {
-  /** The side. */
-  side: AutoMovieHumanSide;
-
-  /** The arm's limb. */
-  limb: FistLimb;
-
-  /** The hand and forearm bones. */
-  hand: AutoMovieHumanoidBone;
-  lower: AutoMovieHumanoidBone;
-
-  /** The grip's world point. */
-  grip: IAutoMovieVector3;
-
-  /** The share of the goal at an action second. */
-  weight(seconds: number): number;
-}
-
-/**
  * A workout's writer whose fists are hung on two grips, as still rings are hung
  * (rings): the hanging kinds keep the two fists' middle on the support's
  * middle, which leaves each fist off its own grip by however far the arms'
@@ -200,4 +173,31 @@ export function hangRings(
     }
     return limbs === keyed.limbs ? keyed : { ...keyed, limbs };
   };
+}
+/**
+ * Seconds a fist takes to come onto its grip before the window and to leave it
+ * after (provisional: the workout's setup beat).
+ */
+const REACH: number = 0.25;
+
+/** The alternatives of `FistLimb`'s site. */
+type FistLimb = "leftArm" | "rightArm";
+
+/** One fist laid on its grip over the plan's windows. */
+interface IFist {
+  /** The side. */
+  side: AutoMovieHumanSide;
+
+  /** The arm's limb. */
+  limb: FistLimb;
+
+  /** The hand and forearm bones. */
+  hand: AutoMovieHumanoidBone;
+  lower: AutoMovieHumanoidBone;
+
+  /** The grip's world point. */
+  grip: IAutoMovieVector3;
+
+  /** The share of the goal at an action second. */
+  weight(seconds: number): number;
 }

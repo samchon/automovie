@@ -16,6 +16,13 @@ import { decomposeJointRotation } from "./decomposeJointRotation";
 import { jointToQuaternion } from "./jointToQuaternion";
 import { skeletonJointAxes } from "./skeletonJointAxes";
 
+/** Shared pose/joint codec implementation used by the Kinematics owner. */
+export const poseJointCodecImplementation: IPoseJointCodecImplementation = {
+  create: createPoseJointCodec,
+  prepare: preparePoseJointCodec,
+  index: indexPoseJoints,
+};
+
 interface IPoseJointCodecImplementation {
   create(rig?: IAutoMoviePoseRig): IAutoMoviePoseJointCodec.ICodec;
   prepare(rig?: IAutoMoviePoseRig): () => IAutoMoviePoseJointCodec.ICodec;
@@ -23,13 +30,6 @@ interface IPoseJointCodecImplementation {
     pose: IAutoMoviePose,
   ): Map<AutoMovieHumanoidBone, [number, number, number]>;
 }
-
-/** Shared pose/joint codec implementation used by the Kinematics owner. */
-export const poseJointCodecImplementation: IPoseJointCodecImplementation = {
-  create: createPoseJointCodec,
-  prepare: preparePoseJointCodec,
-  index: indexPoseJoints,
-};
 
 /**
  * The two maps between a joint's clinical angles and its bone-local rotation on

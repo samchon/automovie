@@ -26,21 +26,6 @@ const VARIANT_DOMAIN: number = 0x7061_7474;
 /** Smallest square metre area counted as real coverage. */
 const AREA_EPSILON: number = 1e-12;
 
-/** The inclusive span of a face-local outline on both axes, in metres. */
-interface IPatternSpan {
-  /** Least U coordinate. */
-  minU: number;
-
-  /** Greatest U coordinate. */
-  maxU: number;
-
-  /** Least V coordinate. */
-  minV: number;
-
-  /** Greatest V coordinate. */
-  maxV: number;
-}
-
 /**
  * Lay one pattern and measure exactly what was laid.
  *
@@ -509,3 +494,18 @@ const atLeast: (value: number, limit: number, label: string) => void = (
   if (value < limit)
     throw new Error(`${label} must be a finite number >= ${limit}`);
 };
+
+/** The inclusive span of a face-local outline on both axes, in metres. */
+interface IPatternSpan {
+  /** Least U coordinate. */
+  minU: number;
+
+  /** Greatest U coordinate. */
+  maxU: number;
+
+  /** Least V coordinate. */
+  minV: number;
+
+  /** Greatest V coordinate. */
+  maxV: number;
+}

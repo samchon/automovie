@@ -23,19 +23,6 @@ export namespace ArchetypeTowing {
     turn: Id;
   }
 
-  /** A support that pitches freely around one axle. */
-  interface ISingleAxleSupport {
-    kind: "singleAxle";
-    axle: IAutoMovieVector3;
-  }
-
-  interface IFixedGroundSupport<Id extends string> {
-    kind: "fixedGround";
-    axle: IAutoMovieVector3;
-    front: IFront<Id>;
-    pitch?: Id;
-  }
-
   /** Producer-declared support with one pitching axle or two grounded axles. */
   export type Support<Id extends string> =
     | ISingleAxleSupport
@@ -500,5 +487,18 @@ export namespace ArchetypeTowing {
           fix: "lead the trailer on wider turns",
         });
     }
+  }
+
+  /** A support that pitches freely around one axle. */
+  interface ISingleAxleSupport {
+    kind: "singleAxle";
+    axle: IAutoMovieVector3;
+  }
+
+  interface IFixedGroundSupport<Id extends string> {
+    kind: "fixedGround";
+    axle: IAutoMovieVector3;
+    front: IFront<Id>;
+    pitch?: Id;
   }
 }

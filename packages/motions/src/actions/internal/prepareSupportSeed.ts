@@ -17,30 +17,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/** An articulated contact that the body fit must bring to its target. */
-interface IEffector {
-  /** The side's arm or leg, if the contact rides its endpoint. */
-  limb?: AutoMovieHumanLimb;
-
-  /** Its wrist or ankle when there is a limb. */
-  end?: AutoMovieHumanoidBone;
-
-  /** Its elbow or knee when there is a limb. */
-  middle?: AutoMovieHumanoidBone;
-
-  /** The shoulder or hip of the limb. */
-  start?: AutoMovieHumanoidBone;
-
-  /** The point for the static fit, in its declared goal frame. */
-  target: IAutoMovieMotionHumanBodyFitTypes.ITarget;
-
-  /** A floor-bearing foot supplies its own sole height when y is implicit. */
-  floor?: boolean;
-}
-
-/** An optional additional starting pose for a severely displaced support. */
-type Seed = IAutoMovieMotionHumanPosture | undefined;
-
 /**
  * Start a static support solve from its predecessor aligned onto the new keyed
  * contact. Knee and trunk contacts move the root, since those sites have no
@@ -221,6 +197,30 @@ export function prepareSupportSeed(
     ];
   return { ...shifted, joints, limbs: {} };
 }
+
+/** An articulated contact that the body fit must bring to its target. */
+interface IEffector {
+  /** The side's arm or leg, if the contact rides its endpoint. */
+  limb?: AutoMovieHumanLimb;
+
+  /** Its wrist or ankle when there is a limb. */
+  end?: AutoMovieHumanoidBone;
+
+  /** Its elbow or knee when there is a limb. */
+  middle?: AutoMovieHumanoidBone;
+
+  /** The shoulder or hip of the limb. */
+  start?: AutoMovieHumanoidBone;
+
+  /** The point for the static fit, in its declared goal frame. */
+  target: IAutoMovieMotionHumanBodyFitTypes.ITarget;
+
+  /** A floor-bearing foot supplies its own sole height when y is implicit. */
+  floor?: boolean;
+}
+
+/** An optional additional starting pose for a severely displaced support. */
+type Seed = IAutoMovieMotionHumanPosture | undefined;
 
 /** A fully specified Cartesian goal constrains all world coordinates. */
 const AXES: NonNullable<IAutoMovieMotionHumanBodyFitTypes.ITarget["axes"]> = [

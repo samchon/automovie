@@ -17,6 +17,40 @@ import { physicalShapeHull } from "../../physics/internal/physicalShapeHull";
 import { AutoMovieHumanoidNeutralBounds } from "./AutoMovieHumanoidNeutralBounds";
 import { resolveAutoMovieHumanoidSurfaces } from "./resolveAutoMovieHumanoidSurfaces";
 
+/** Sequential measure and surface derivation share only exact neutral bounds. */
+export namespace measureAutoMovieHumanoidBody {
+  /** Execute the operation without merging a callable with this namespace. */
+  export const run = measureAutoMovieHumanoidBodyRun;
+  /**
+   * Derive measure then surfaces with one synchronous unchanged-profile scope.
+   * Bound preparation performs no shape work before its original observation;
+   * source geometry must remain unchanged for the duration of this call. Both
+   * returned records retain their ordinary independent ownership.
+   */
+  export function withSurfaces(
+    skeleton: IAutoMovieSkeleton,
+    profile: IAutoMoviePhysicalProfile,
+  ): {
+    measure: IAutoMovieBodyMeasure;
+    surfaces: IAutoMovieHumanoidSurfaces.ISurfaces;
+  } {
+    const neutral: AutoMovieHumanoidNeutralBounds.IPrepared =
+      AutoMovieHumanoidNeutralBounds.prepare(profile);
+    try {
+      const measure: IAutoMovieBodyMeasure = measureAutoMovieHumanoidBody.run(
+        skeleton,
+        profile,
+        neutral,
+      );
+      const surfaces: IAutoMovieHumanoidSurfaces.ISurfaces =
+        resolveAutoMovieHumanoidSurfaces.run(skeleton, profile, neutral);
+      return { measure, surfaces };
+    } finally {
+      AutoMovieHumanoidNeutralBounds.release(neutral);
+    }
+  }
+}
+
 /**
  * Read the anthropometric measure of a canonical humanoid from its rig and
  * physical profile at rest, whatever produced them: a generated Human, a
@@ -283,38 +317,4 @@ function measureAutoMovieHumanoidBodyRun(
       radius(bone(s, "LowerLeg")),
     ),
   };
-}
-
-/** Sequential measure and surface derivation share only exact neutral bounds. */
-export namespace measureAutoMovieHumanoidBody {
-  /** Execute the operation without merging a callable with this namespace. */
-  export const run = measureAutoMovieHumanoidBodyRun;
-  /**
-   * Derive measure then surfaces with one synchronous unchanged-profile scope.
-   * Bound preparation performs no shape work before its original observation;
-   * source geometry must remain unchanged for the duration of this call. Both
-   * returned records retain their ordinary independent ownership.
-   */
-  export function withSurfaces(
-    skeleton: IAutoMovieSkeleton,
-    profile: IAutoMoviePhysicalProfile,
-  ): {
-    measure: IAutoMovieBodyMeasure;
-    surfaces: IAutoMovieHumanoidSurfaces.ISurfaces;
-  } {
-    const neutral: AutoMovieHumanoidNeutralBounds.IPrepared =
-      AutoMovieHumanoidNeutralBounds.prepare(profile);
-    try {
-      const measure: IAutoMovieBodyMeasure = measureAutoMovieHumanoidBody.run(
-        skeleton,
-        profile,
-        neutral,
-      );
-      const surfaces: IAutoMovieHumanoidSurfaces.ISurfaces =
-        resolveAutoMovieHumanoidSurfaces.run(skeleton, profile, neutral);
-      return { measure, surfaces };
-    } finally {
-      AutoMovieHumanoidNeutralBounds.release(neutral);
-    }
-  }
 }

@@ -12,24 +12,6 @@ import { HumanEffort } from "../../everyday/internal/HumanEffort";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 
-/** The alternatives of `TimeModifiers`'s site. */
-type TimeModifiers = "tempo" | "hold";
-
-/** The alternatives of `OfContext`'s site. */
-type OfContext = "skill" | "random" | "tempo";
-
-/** The alternatives of `BOUNDSEntryItem`'s site. */
-type BOUNDSEntryItem = "tempo" | "extent";
-
-/**
- * The timing and path skills used when a manner leaves consistency to the
- * performer.
- */
-type VariationAxes = Pick<
-  IAutoMovieMotionHumanSkill["axes"],
-  "timing" | "path"
->;
-
 /**
  * The modifiers of an action's manner, drawn from the action's own seeded
  * channel. The performer's timing and path skills govern the temporal and
@@ -276,3 +258,21 @@ export namespace AutoMovieMotionManner {
     "spreading",
   ] as const satisfies readonly IAutoMovieMotionManner.Preset[];
 }
+
+/** The alternatives of `TimeModifiers`'s site. */
+type TimeModifiers = "tempo" | "hold";
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "skill" | "random" | "tempo";
+
+/** The alternatives of `BOUNDSEntryItem`'s site. */
+type BOUNDSEntryItem = "tempo" | "extent";
+
+/**
+ * The timing and path skills used when a manner leaves consistency to the
+ * performer.
+ */
+type VariationAxes = Pick<
+  IAutoMovieMotionHumanSkill["axes"],
+  "timing" | "path"
+>;

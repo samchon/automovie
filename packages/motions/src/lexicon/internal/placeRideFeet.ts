@@ -258,56 +258,6 @@ export namespace placeRideFeet {
     return { pedals, placed, retained };
   }
 
-  /** Resolve an explicitly acquired support to its live pedal or tread surface. */
-  function placedRideFoot(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide.IParams>,
-    support: IAutoMovieMotionHumanPropReader,
-    side: AutoMovieHumanSide,
-    id: string,
-  ): IRideFoot {
-    const contact: IAutoMovieVector3 = HumanFoot.offset(
-      context.body,
-      side,
-      "ball",
-    );
-    const rest: IAutoMovieMotionHumanProp["points"][string] =
-      support.prop.points[id]!;
-    const surface: IAutoMovieAffordance | undefined =
-      support.prop.affordances?.find(
-        (item: IAutoMovieAffordance): boolean => item.id === id,
-      );
-    if (
-      surface === undefined ||
-      !["pedal", "bar", "stirrup", "surface"].includes(surface.kind)
-    )
-      throw new HumanRefusal({
-        kind: "affordance",
-        axis: "feet",
-        value: id,
-        feasible: null,
-        reason: id + " is not a material foot support",
-        fix: "name a pedal, tread, stirrup or bearing surface",
-      });
-    return {
-      side,
-      id,
-      contact,
-      at(film: number): IAutoMovieMotionHumanProp.IPlacedPoint {
-        const point: IAutoMovieMotionHumanProp.IPlacedPoint | undefined =
-          support.prop.point?.(id, film);
-        if (point !== undefined) return point;
-        const frame: IAutoMovieRigidTransform = support.frame(film);
-        return {
-          point: Vector3.add(
-            frame.position,
-            Quaternion.rotateVector(frame.rotation, rest.point),
-          ),
-          normal: Quaternion.rotateVector(frame.rotation, rest.normal),
-        };
-      },
-    };
-  }
-
   /**
    * Move the displayed ball from its carried pose to the surface, level with
    * its forward slope.
@@ -426,5 +376,55 @@ export namespace placeRideFeet {
           });
       }
     }
+  }
+
+  /** Resolve an explicitly acquired support to its live pedal or tread surface. */
+  function placedRideFoot(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide.IParams>,
+    support: IAutoMovieMotionHumanPropReader,
+    side: AutoMovieHumanSide,
+    id: string,
+  ): IRideFoot {
+    const contact: IAutoMovieVector3 = HumanFoot.offset(
+      context.body,
+      side,
+      "ball",
+    );
+    const rest: IAutoMovieMotionHumanProp["points"][string] =
+      support.prop.points[id]!;
+    const surface: IAutoMovieAffordance | undefined =
+      support.prop.affordances?.find(
+        (item: IAutoMovieAffordance): boolean => item.id === id,
+      );
+    if (
+      surface === undefined ||
+      !["pedal", "bar", "stirrup", "surface"].includes(surface.kind)
+    )
+      throw new HumanRefusal({
+        kind: "affordance",
+        axis: "feet",
+        value: id,
+        feasible: null,
+        reason: id + " is not a material foot support",
+        fix: "name a pedal, tread, stirrup or bearing surface",
+      });
+    return {
+      side,
+      id,
+      contact,
+      at(film: number): IAutoMovieMotionHumanProp.IPlacedPoint {
+        const point: IAutoMovieMotionHumanProp.IPlacedPoint | undefined =
+          support.prop.point?.(id, film);
+        if (point !== undefined) return point;
+        const frame: IAutoMovieRigidTransform = support.frame(film);
+        return {
+          point: Vector3.add(
+            frame.position,
+            Quaternion.rotateVector(frame.rotation, rest.point),
+          ),
+          normal: Quaternion.rotateVector(frame.rotation, rest.normal),
+        };
+      },
+    };
   }
 }

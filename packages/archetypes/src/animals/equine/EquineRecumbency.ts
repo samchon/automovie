@@ -20,9 +20,6 @@ import type { AutoMovieArchetypeEquineExpressionCue } from "../AutoMovieArchetyp
 import { EquineBlend } from "./EquineBlend";
 import { QuadrupedRestFloor } from "../quadruped/QuadrupedRestFloor";
 
-/** A named instant of a ride. */
-type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
-
 /**
  * Lateral recumbency with the limbs extended, as a mare lies during the
  * expulsion of a foal (MSD Veterinary Manual, parturition in horses), and the
@@ -177,3 +174,6 @@ export namespace EquineRecumbency {
     };
   }
 }
+
+/** A named instant of a ride. */
+type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];

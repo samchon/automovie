@@ -6,19 +6,6 @@ import {
 } from "../../core/index";
 import type { AutoMovieArchetypeGoal } from "../AutoMovieArchetypeGoal";
 
-/** Point shorthand in the goal's model frame. */
-const v: typeof Vector3.create = Vector3.create;
-
-/**
- * How far the backboard's bottom edge lies below the ring's top, metres: FIBA
- * Basketball Equipment 1.1.5, the rectangle's base level with the ring's top
- * and 150 mm above the backboard's bottom edge.
- */
-const BOARD_BELOW_RING: number = 0.15;
-
-/** How many rods a basketball ring is drawn with. */
-const RING_RODS: number = 16;
-
 /**
  * Build a basketball hoop: the backboard, the ring out from its face on a
  * bracket, the ring's top at the rule's height; `rim` is the ring's front, a
@@ -91,3 +78,16 @@ export function buildBasketballHoop(
     depth: d.board!,
   });
 }
+
+/** Point shorthand in the goal's model frame. */
+const v: typeof Vector3.create = Vector3.create;
+
+/**
+ * How far the backboard's bottom edge lies below the ring's top, metres: FIBA
+ * Basketball Equipment 1.1.5, the rectangle's base level with the ring's top
+ * and 150 mm above the backboard's bottom edge.
+ */
+const BOARD_BELOW_RING: number = 0.15;
+
+/** How many rods a basketball ring is drawn with. */
+const RING_RODS: number = 16;

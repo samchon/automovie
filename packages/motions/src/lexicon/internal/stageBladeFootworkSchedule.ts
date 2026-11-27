@@ -15,12 +15,6 @@ import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionCloc
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/** A stage foot selected in the leading or following path. */
-type Side = AutoMovieHumanSide;
-
-/** A normalized starting and settling window for one moving foot. */
-type Window = readonly [start: number, settle: number];
-
 /** The closed set of authored horizontal stage directions. */
 const DIRECTIONS: Readonly<
   Record<IAutoMovieMotionHumanStageBladeFootwork.Direction, IAutoMovieVector3>
@@ -275,3 +269,9 @@ function plants(
 function opposite(side: Side): Side {
   return side === "left" ? "right" : "left";
 }
+
+/** A stage foot selected in the leading or following path. */
+type Side = AutoMovieHumanSide;
+
+/** A normalized starting and settling window for one moving foot. */
+type Window = readonly [start: number, settle: number];

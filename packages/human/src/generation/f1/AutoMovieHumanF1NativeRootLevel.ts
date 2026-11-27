@@ -14,35 +14,6 @@ import type {
  * chart branch.
  */
 export namespace AutoMovieHumanF1NativeRootLevel {
-  /** Existing physical point and vector representation. */
-  type V = AutoMovieVector3Tuple;
-  /** The explicitly supplied original bare calipers and their material site. */
-  type Metric = NonNullable<IAutoMovieHumanF1NativeRoot.IOriginal["metric"]>;
-
-  /** Current immutable native inputs; no other part or loft is built. */
-  interface IInput {
-    /** Shared original source calibration. */
-    original: IAutoMovieHumanF1NativeRoot.ICalibration;
-    /** Reused original metric/derivative preparation. */
-    prepared: IAutoMovieHumanF1NativeRoot.ILevelOriginal;
-    /** Current actual parent descriptor. */
-    parent: IAutoMovieViewPart;
-    /** Its already prepared full source reader. */
-    reader: IAutoMovieLoftViewFullSource.IReader;
-    /** Current independently generated child descriptor. */
-    candidate: IAutoMovieViewPart;
-    /** Independent positive root-caliper ratios. */
-    scale: readonly [number, number];
-  }
-
-  /** A fixed caliper-frame elliptic-radius field and its exact world gradient. */
-  interface IField {
-    /** Dimensionless level. */
-    value: (point: V) => number;
-    /** World gradient, per mm. */
-    gradient: (point: V) => V;
-  }
-
   /**
    * Prepare original reference levels and actual radial derivatives once per
    * original root.
@@ -84,7 +55,6 @@ export namespace AutoMovieHumanF1NativeRootLevel {
     });
     return { metric, levels, derivatives, unavailable };
   }
-
   /**
    * Solve each original chart ray on the current parent; every emitted point
    * belongs to that source.
@@ -380,6 +350,36 @@ export namespace AutoMovieHumanF1NativeRootLevel {
       Object.is(q, oldLoop.shape?.[k] ?? 1),
     );
     return { loop: same ? oldLoop : { ...oldLoop, shape: shares }, columns };
+  }
+
+  /** Existing physical point and vector representation. */
+  type V = AutoMovieVector3Tuple;
+
+  /** The explicitly supplied original bare calipers and their material site. */
+  type Metric = NonNullable<IAutoMovieHumanF1NativeRoot.IOriginal["metric"]>;
+
+  /** Current immutable native inputs; no other part or loft is built. */
+  interface IInput {
+    /** Shared original source calibration. */
+    original: IAutoMovieHumanF1NativeRoot.ICalibration;
+    /** Reused original metric/derivative preparation. */
+    prepared: IAutoMovieHumanF1NativeRoot.ILevelOriginal;
+    /** Current actual parent descriptor. */
+    parent: IAutoMovieViewPart;
+    /** Its already prepared full source reader. */
+    reader: IAutoMovieLoftViewFullSource.IReader;
+    /** Current independently generated child descriptor. */
+    candidate: IAutoMovieViewPart;
+    /** Independent positive root-caliper ratios. */
+    scale: readonly [number, number];
+  }
+
+  /** A fixed caliper-frame elliptic-radius field and its exact world gradient. */
+  interface IField {
+    /** Dimensionless level. */
+    value: (point: V) => number;
+    /** World gradient, per mm. */
+    gradient: (point: V) => V;
   }
 
   /**

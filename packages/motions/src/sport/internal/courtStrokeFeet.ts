@@ -10,60 +10,6 @@ import type {
 
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 
-/** The record of `ISupportFlight`'s site. */
-type ISupportFlight = {
-  /** Whether the profile calls for flight. */
-  enabled: boolean;
-
-  /** Local second of liftoff. */
-  takeoff: number;
-
-  /** Local second of touchdown. */
-  landing: number;
-
-  /** Whether the given action-local second is strictly inside flight. */
-  airborne: (seconds: number) => boolean;
-
-  /** Current flight height in metres, zero outside flight. */
-  lift: (seconds: number) => number;
-};
-
-/** The actual anchoring and flight phases available to the stroke's feet. */
-interface ISupport {
-  /** Body used to fit both leg goals. */
-  body: IAutoMovieMotionHumanBody;
-
-  /** Both feet's world placements at entry. */
-  stance: Readonly<
-    Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>
-  >;
-
-  /** World placements at plant or jump landing. */
-  landings: Readonly<
-    Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>
-  >;
-
-  /** The traveling foot, when the profile calls for a step. */
-  stepFoot: AutoMovieHumanSide | undefined;
-
-  /** Full local action clock in seconds. */
-  clock: IAutoMovieMotionClock;
-
-  /** Swing clearance in metres. */
-  clearance: number;
-
-  /** Optional jump phase and shared ballistic displacement. */
-  flight: ISupportFlight;
-}
-/** The record of `ICourtStrokeFeetResult`'s site. */
-type ICourtStrokeFeetResult = {
-  /** The two leg placement rows. */
-  primitives: IAutoMovieMotionHumanPrimitive[];
-
-  /** Their ordered plant windows. */
-  contacts: IAutoMovieMotionHumanContactWindow[];
-};
-
 /**
  * Prepare the two court stroke foot placements and the corresponding
  * ground-support windows. Use the vertical flight curve shared with the
@@ -139,3 +85,57 @@ export function courtStrokeFeet({
   }
   return { primitives, contacts };
 }
+
+/** The record of `ISupportFlight`'s site. */
+type ISupportFlight = {
+  /** Whether the profile calls for flight. */
+  enabled: boolean;
+
+  /** Local second of liftoff. */
+  takeoff: number;
+
+  /** Local second of touchdown. */
+  landing: number;
+
+  /** Whether the given action-local second is strictly inside flight. */
+  airborne: (seconds: number) => boolean;
+
+  /** Current flight height in metres, zero outside flight. */
+  lift: (seconds: number) => number;
+};
+/** The actual anchoring and flight phases available to the stroke's feet. */
+interface ISupport {
+  /** Body used to fit both leg goals. */
+  body: IAutoMovieMotionHumanBody;
+
+  /** Both feet's world placements at entry. */
+  stance: Readonly<
+    Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>
+  >;
+
+  /** World placements at plant or jump landing. */
+  landings: Readonly<
+    Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>
+  >;
+
+  /** The traveling foot, when the profile calls for a step. */
+  stepFoot: AutoMovieHumanSide | undefined;
+
+  /** Full local action clock in seconds. */
+  clock: IAutoMovieMotionClock;
+
+  /** Swing clearance in metres. */
+  clearance: number;
+
+  /** Optional jump phase and shared ballistic displacement. */
+  flight: ISupportFlight;
+}
+
+/** The record of `ICourtStrokeFeetResult`'s site. */
+type ICourtStrokeFeetResult = {
+  /** The two leg placement rows. */
+  primitives: IAutoMovieMotionHumanPrimitive[];
+
+  /** Their ordered plant windows. */
+  contacts: IAutoMovieMotionHumanContactWindow[];
+};

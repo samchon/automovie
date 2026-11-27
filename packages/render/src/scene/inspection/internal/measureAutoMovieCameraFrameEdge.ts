@@ -8,17 +8,6 @@ import { isAutoMovieFloat32Point } from "../isAutoMovieFloat32Point.js";
 import { measureAutoMovieCameraFrameEdgeSurface } from "./measureAutoMovieCameraFrameEdgeSurface.js";
 
 /**
- * Three orders the normalized inward planes right, left, bottom, top, far,
- * near.
- */
-const SIDES: readonly AutoMovieRenderInspectionCamera.IAutoMovieRenderInspectionFrameEdgeSide[] = [
-  "right",
-  "left",
-  "bottom",
-  "top",
-];
-
-/**
  * Measure where the sides of the delivered frame cut a required subject.
  *
  * The subject's world box, or its certified envelope, crosses a side plane when
@@ -125,6 +114,17 @@ export function measureAutoMovieCameraFrameEdge(
           }),
   };
 }
+
+/**
+ * Three orders the normalized inward planes right, left, bottom, top, far,
+ * near.
+ */
+const SIDES: readonly AutoMovieRenderInspectionCamera.IAutoMovieRenderInspectionFrameEdgeSide[] = [
+  "right",
+  "left",
+  "bottom",
+  "top",
+];
 
 
 /** Copy and admit a certified envelope, rejecting empty or non-finite boxes. */

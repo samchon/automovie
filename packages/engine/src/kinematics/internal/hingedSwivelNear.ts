@@ -3,9 +3,6 @@ import type { IAutoMovieSwivelNear } from "@automovie/interface";
 import { hingedArmSwivel } from "../hingedArmSwivel";
 import { refineHingedSwivel } from "./refineHingedSwivel";
 
-/** The articulation's swivel step, degrees (`hingedArmSwivel.STEP`). */
-const STEP: number = hingedArmSwivel.STEP;
-
 /**
  * The swivel of a hinged chain continued from the seed of a nearby fit
  * (`IAutoMovieSwivelNear`), on the seed's branch: a closed-form candidate
@@ -112,3 +109,6 @@ export function hingedSwivelNear<T extends { overshoot: number }>(props: {
   const stayed: T = continueFrom(near.swivel);
   return props.better(moved, stayed) ? moved : stayed;
 }
+
+/** The articulation's swivel step, degrees (`hingedArmSwivel.STEP`). */
+const STEP: number = hingedArmSwivel.STEP;

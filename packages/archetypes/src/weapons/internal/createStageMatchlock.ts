@@ -9,29 +9,6 @@ import {
 import { StagePeriodGunConstruction } from "./StagePeriodGunConstruction";
 
 /**
- * Detroit Institute of Arts 53.220, German matchlock gun, late 16th century and
- * later, steel, wood, staghorn and pigment: "Overall: 5 9/16 × 2 13/16 × 44 7/8
- * inches (14.2 × 7.1 × 114 cm) Overall (barrel): 31 15/16 inches (81.1 cm)",
- * photographed in seven gallery views, reproduction credited to the Gift of the
- * William Randolph Hearst Foundation
- * (https://dia.org/collection/matchlock-gun/31695, read 2026-11-21). The record
- * gives no mass, barrel radius or length of pull, so those are provisional
- * estimates.
- */
-const PROFILE: Readonly<StagePeriodGunConstruction.IProfile> = {
-  name: "stage matchlock",
-  record:
-    "DIA 53.220: overall 114 cm, barrel 81.1 cm, depth 14.2 cm and width 7.1 cm read; mass, barrel radius and pull estimated",
-  overall: 1.14,
-  barrel: 0.811,
-  depth: 0.142,
-  width: 0.071,
-  radius: 0.013,
-  pull: 0.34,
-  mass: 4.5,
-};
-
-/**
  * An inert matchlock silhouette for the screen.
  *
  * The gun lies along `+Z` from its butt plate to its muzzle, as
@@ -106,3 +83,26 @@ export function createStageMatchlock(
   });
   return StagePeriodGunConstruction.build(builder, PROFILE);
 }
+
+/**
+ * Detroit Institute of Arts 53.220, German matchlock gun, late 16th century and
+ * later, steel, wood, staghorn and pigment: "Overall: 5 9/16 × 2 13/16 × 44 7/8
+ * inches (14.2 × 7.1 × 114 cm) Overall (barrel): 31 15/16 inches (81.1 cm)",
+ * photographed in seven gallery views, reproduction credited to the Gift of the
+ * William Randolph Hearst Foundation
+ * (https://dia.org/collection/matchlock-gun/31695, read 2026-11-21). The record
+ * gives no mass, barrel radius or length of pull, so those are provisional
+ * estimates.
+ */
+const PROFILE: Readonly<StagePeriodGunConstruction.IProfile> = {
+  name: "stage matchlock",
+  record:
+    "DIA 53.220: overall 114 cm, barrel 81.1 cm, depth 14.2 cm and width 7.1 cm read; mass, barrel radius and pull estimated",
+  overall: 1.14,
+  barrel: 0.811,
+  depth: 0.142,
+  width: 0.071,
+  radius: 0.013,
+  pull: 0.34,
+  mass: 4.5,
+};

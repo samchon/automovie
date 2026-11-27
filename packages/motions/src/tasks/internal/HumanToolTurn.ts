@@ -4,24 +4,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** The record of `IHumanToolTurnResult2`'s site. */
-type IHumanToolTurnResult2 = {
-  grip: IAutoMovieVector3;
-  rotation: IAutoMovieQuaternion;
-};
-
-/** The record of `IHumanToolTurnResult`'s site. */
-type IHumanToolTurnResult = {
-  grip: IAutoMovieVector3;
-  rotation: IAutoMovieQuaternion;
-};
-
-/** The record of `IHumanToolTurnPose`'s site. */
-type IHumanToolTurnPose = {
-  grip: IAutoMovieVector3;
-  rotation: IAutoMovieQuaternion;
-};
-
 /**
  * A held tool's working pose turned about a fixed world axis through a pivot
  * (`useTool`): a hammer's head raised about the grip, a screwdriver turned
@@ -50,3 +32,21 @@ export function HumanToolTurn(
     };
   };
 }
+
+/** The record of `IHumanToolTurnResult2`'s site. */
+type IHumanToolTurnResult2 = {
+  grip: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+};
+
+/** The record of `IHumanToolTurnResult`'s site. */
+type IHumanToolTurnResult = {
+  grip: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+};
+
+/** The record of `IHumanToolTurnPose`'s site. */
+type IHumanToolTurnPose = {
+  grip: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+};

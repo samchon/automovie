@@ -1,10 +1,5 @@
 import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
 
-/** Clinical triples indexed by their written bone names. */
-type JointEntries = Readonly<
-  Record<string, readonly [number, number, number] | undefined>
->;
-
 /**
  * Return the posture the support merit actually read. Preserve a previous key's
  * identity when the same root, joint map and auxiliary goals were read, so a
@@ -54,3 +49,8 @@ export function admittedSupportPosture(
   }
   return candidate;
 }
+
+/** Clinical triples indexed by their written bone names. */
+type JointEntries = Readonly<
+  Record<string, readonly [number, number, number] | undefined>
+>;

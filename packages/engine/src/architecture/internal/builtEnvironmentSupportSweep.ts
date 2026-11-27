@@ -15,24 +15,6 @@ import { builtFootprintsOverlap } from "./builtFootprintsOverlap";
 import { AUTOMOVIE_SUPPORT_TOLERANCE } from "../AUTOMOVIE_SUPPORT_TOLERANCE";
 import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
 
-/** One resolved body of the building, with the locator that names it. */
-interface IResolvedBody {
-  /** Declared identity retained in the report. */
-  locator: IAutoMovieBuiltPlacementBodyLocator;
-
-  /** Resolved CPU bounds and part-box proxies. */
-  body: IAutoMovieBuiltPlacementBody;
-}
-
-/** One solid a body fills, with the body that owns it. */
-interface ICandidateSolid {
-  /** Axis-aligned part box whose top is considered for support. */
-  solid: IAutoMovieSubjectBox;
-
-  /** Body excluded when the subject would otherwise support itself. */
-  owner: IResolvedBody;
-}
-
 /**
  * Find every placed body in a building with clear air under it.
  *
@@ -147,6 +129,24 @@ export function builtEnvironmentSupportSweep(
     floating,
     unresolved,
   };
+}
+
+/** One resolved body of the building, with the locator that names it. */
+interface IResolvedBody {
+  /** Declared identity retained in the report. */
+  locator: IAutoMovieBuiltPlacementBodyLocator;
+
+  /** Resolved CPU bounds and part-box proxies. */
+  body: IAutoMovieBuiltPlacementBody;
+}
+
+/** One solid a body fills, with the body that owns it. */
+interface ICandidateSolid {
+  /** Axis-aligned part box whose top is considered for support. */
+  solid: IAutoMovieSubjectBox;
+
+  /** Body excluded when the subject would otherwise support itself. */
+  owner: IResolvedBody;
 }
 
 /**

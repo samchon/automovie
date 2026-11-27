@@ -8,9 +8,6 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 
-/** The root displacement of a pose that carries none. */
-const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-
 /**
  * A node's animated world position over shot time: its staged `base` plus the
  * node-local root displacement `motion` carries at that instant, rotated into
@@ -41,3 +38,6 @@ export function animatedBaseAt(
       ),
     );
 }
+
+/** The root displacement of a pose that carries none. */
+const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

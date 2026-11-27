@@ -22,9 +22,6 @@ import { crawlFeet } from "./crawlFeet";
 import { crawlFrame } from "./crawlFrame";
 import { prepareCrawlDownResolution } from "./prepareCrawlDownResolution";
 
-/** The record of `IStatesBack`'s site. */
-type IStatesBack = { sat: number; leant: number };
-
 /**
  * Build the way down.
  *
@@ -488,3 +485,6 @@ export namespace crawlDown {
     seconds: number;
   }
 }
+
+/** The record of `IStatesBack`'s site. */
+type IStatesBack = { sat: number; leant: number };

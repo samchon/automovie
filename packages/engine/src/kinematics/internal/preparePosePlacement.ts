@@ -6,18 +6,6 @@ import type {
 
 import { PoseResolutionSnapshot } from "./PoseResolutionSnapshot";
 
-/** Private operation placement; neither this state nor its operands may escape. */
-interface IPlacement {
-  /** Owned quaternion, never mutated after selection. */
-  rootRotation: IAutoMovieQuaternion;
-
-  /** Owned metre translation, never mutated after selection. */
-  rootTranslation: IAutoMovieVector3;
-
-  /** Revision advanced only after an actual exact placement change. */
-  rootRevision: number;
-}
-
 /**
  * Snapshot current root placement into one private prepared-FK operation.
  * Translation and rotation references are read in raw FK order; exact scalar
@@ -54,6 +42,18 @@ export function preparePosePlacement(
   state.rootRotation = nextRotation;
   state.rootTranslation = nextTranslation;
   ++state.rootRevision;
+}
+
+/** Private operation placement; neither this state nor its operands may escape. */
+interface IPlacement {
+  /** Owned quaternion, never mutated after selection. */
+  rootRotation: IAutoMovieQuaternion;
+
+  /** Owned metre translation, never mutated after selection. */
+  rootTranslation: IAutoMovieVector3;
+
+  /** Revision advanced only after an actual exact placement change. */
+  rootRevision: number;
 }
 
 /**

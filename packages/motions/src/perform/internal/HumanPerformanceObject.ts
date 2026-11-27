@@ -10,9 +10,6 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 
-/** The record of `IPointResult`'s site. */
-type IPointResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
-
 /**
  * The state of the props' articulations over the film: what the acts drive
  * (`IHumanActionPlan.drives`) and what the props run themselves
@@ -265,3 +262,6 @@ export namespace HumanPerformanceObject {
     }
   }
 }
+
+/** The record of `IPointResult`'s site. */
+type IPointResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };

@@ -21,15 +21,6 @@ const CHECKS: number = 12;
  */
 const TOUCH: number = 1e-3;
 
-/** A course's least clearance and where it is least. */
-interface IClearance {
-  /** Metres; negative where the course passes into a bar. */
-  gap: number;
-
-  /** The bar, the moving bar and the share. */
-  where: string;
-}
-
 /** The unit quaternion. */
 const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 
@@ -251,4 +242,13 @@ export namespace EquineHeadCourse {
       obstacle.radius
     );
   }
+}
+
+/** A course's least clearance and where it is least. */
+interface IClearance {
+  /** Metres; negative where the course passes into a bar. */
+  gap: number;
+
+  /** The bar, the moving bar and the share. */
+  where: string;
 }

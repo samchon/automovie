@@ -32,15 +32,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { HumanTrunkLean } from "./HumanTrunkLean";
 import { throwPotteryRise } from "./throwPotteryRise";
 
-/** A palm and the wall face it lies on. */
-interface IPair {
-  /** The hand. */
-  side: AutoMovieHumanSide;
-
-  /** The wheel's face. */
-  face: string;
-}
-
 /** The outer palm on the outside face, the inner on the inside. */
 const PAIRS: readonly IPair[] = [
   { side: "right", face: "outside" },
@@ -299,4 +290,13 @@ function plan(
       ),
     ],
   };
+}
+
+/** A palm and the wall face it lies on. */
+interface IPair {
+  /** The hand. */
+  side: AutoMovieHumanSide;
+
+  /** The wheel's face. */
+  face: string;
 }

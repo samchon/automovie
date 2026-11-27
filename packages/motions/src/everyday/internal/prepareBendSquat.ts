@@ -23,43 +23,6 @@ import { bendLower } from "./bendLower";
 import { braceOnThighPoint } from "./braceOnThighPoint";
 import { seatedPairDepth } from "./seatedPairDepth";
 
-type Strategy = Exclude<keyof typeof bendLower.KNEE, "stoop">;
-/**
- * The wrist's place in a posture: fixed, or on a carried surface. A trial
- * offers its same-pose displayed bones.
- */
-type Wrist = (
-  posture: IAutoMovieMotionHumanPosture,
-  bones?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-) => IAutoMovieVector3;
-type Course = (
-  posture: IAutoMovieMotionHumanPosture,
-  share: number,
-  standing: IAutoMovieMotionHumanPosture,
-) => IAutoMovieMotionHumanPosture;
-type Angles = [
-  knee: number,
-  ankle: number,
-  pitch: number,
-  roll: number,
-  spine: number,
-  chest: number,
-  lateral: number,
-  twist: number,
-];
-
-/** A trial's residuals and the lower posture they were read on. */
-interface ITrial {
-  /** The residual rows. */
-  rows: number[];
-
-  /** The lower posture. */
-  legs: IAutoMovieMotionHumanPosture;
-}
-
-const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-const RAD: number = Math.PI / 180;
-
 /**
  * Recover a supported, unilateral squat when the nominal sagittal course folds
  * the lumbar skin into a thigh. Two links locate the hips above the actual
@@ -395,6 +358,43 @@ export function prepareBendSquat(
     });
   };
 }
+type Strategy = Exclude<keyof typeof bendLower.KNEE, "stoop">;
+/**
+ * The wrist's place in a posture: fixed, or on a carried surface. A trial
+ * offers its same-pose displayed bones.
+ */
+type Wrist = (
+  posture: IAutoMovieMotionHumanPosture,
+  bones?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+) => IAutoMovieVector3;
+type Course = (
+  posture: IAutoMovieMotionHumanPosture,
+  share: number,
+  standing: IAutoMovieMotionHumanPosture,
+) => IAutoMovieMotionHumanPosture;
+
+type Angles = [
+  knee: number,
+  ankle: number,
+  pitch: number,
+  roll: number,
+  spine: number,
+  chest: number,
+  lateral: number,
+  twist: number,
+];
+
+/** A trial's residuals and the lower posture they were read on. */
+interface ITrial {
+  /** The residual rows. */
+  rows: number[];
+
+  /** The lower posture. */
+  legs: IAutoMovieMotionHumanPosture;
+}
+const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
+
+const RAD: number = Math.PI / 180;
 
 /** Intersect each two-link knee circle with its foot's sagittal plane. */
 function kneePlanes(

@@ -21,9 +21,6 @@ import { AUTOMOVIE_SABINE_CONSTANT } from "../AUTOMOVIE_SABINE_CONSTANT";
 import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
 import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";
 
-/** Distances this short or shorter are the same point. */
-const EPSILON: number = 1e-12;
-
 /**
  * Solve one room for reverberation, equipment noise and partition performance.
  *
@@ -325,6 +322,9 @@ export function analyzeAutoMovieAcoustics(
     outcome: { status: "solved", metrics, samples, warnings },
   });
 }
+
+/** Distances this short or shorter are the same point. */
+const EPSILON: number = 1e-12;
 
 /**
  * Sum precomputed source power times directivity over 4_pi_r^2 at one receiver,

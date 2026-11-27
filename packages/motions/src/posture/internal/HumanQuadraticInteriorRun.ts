@@ -7,18 +7,6 @@ import { HumanQuadraticRow } from "./HumanQuadraticRow";
 import { HumanQuadraticSubstitute } from "./HumanQuadraticSubstitute";
 import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace";
 
-/** The record of `IRunEndedResult`'s site. */
-type IRunEndedResult = {
-  state: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
-  converged: boolean;
-};
-
-/** The record of `IHumanQuadraticInteriorRunKept`'s site. */
-type IHumanQuadraticInteriorRunKept = {
-  state: IAutoMovieMotionHumanQuadraticProgram.IState;
-  point: Session.IPoint;
-};
-
 /**
  * One interior-point solve from the iterate the scope's arrays hold, cold or
  * warm (`HumanQuadraticInterior`): Mehrotra's predictor and corrector on the
@@ -460,3 +448,15 @@ const ACCURACY: number = 1e-8;
  * accepted answer is never looser than the fallback's own.
  */
 const ACCEPTED: number = 1e-6;
+
+/** The record of `IRunEndedResult`'s site. */
+type IRunEndedResult = {
+  state: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
+  converged: boolean;
+};
+
+/** The record of `IHumanQuadraticInteriorRunKept`'s site. */
+type IHumanQuadraticInteriorRunKept = {
+  state: IAutoMovieMotionHumanQuadraticProgram.IState;
+  point: Session.IPoint;
+};

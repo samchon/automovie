@@ -14,17 +14,8 @@ import type { AutoMovieSolidTraceObservation } from "./construction/AutoMovieSol
 import { AutoMovieSolidTraceSolve } from "./AutoMovieSolidTraceSolve";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-/** Original surface jet used by the closure measurement. */
-type IJet = IAutoMovieSolidSurface.IJet;
-/** The existing public point and its implicit parameter rates. */
-type IPoint = IAutoMovieSolidIntersection.IPoint;
-/** Existing declared parameter kind and angle data. */
-type Parameter = IAutoMovieSolidIntersection.Parameter;
-/** Original public curve with its shared point array and reader. */
-type ICurve = IAutoMovieSolidIntersection.ICurve;
 /** Original world-vector norm used by closure observations. */
 const { norm }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
-
 /**
  * Existing trace orchestration and public host/domain adapters behind the
  * original API.
@@ -389,3 +380,12 @@ export namespace AutoMovieSolidIntersectionTrace {
     };
   }
 }
+/** Original surface jet used by the closure measurement. */
+type IJet = IAutoMovieSolidSurface.IJet;
+/** The existing public point and its implicit parameter rates. */
+type IPoint = IAutoMovieSolidIntersection.IPoint;
+/** Existing declared parameter kind and angle data. */
+type Parameter = IAutoMovieSolidIntersection.Parameter;
+
+/** Original public curve with its shared point array and reader. */
+type ICurve = IAutoMovieSolidIntersection.ICurve;

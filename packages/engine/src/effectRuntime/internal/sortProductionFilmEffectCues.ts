@@ -2,8 +2,6 @@ import { IAutoMovieFilmTimeline } from "@automovie/interface";
 
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 
-type FilmEffectCue = IAutoMovieFilmTimeline["tracks"]["effects"][number];
-
 /**
  * Order film effect cues by start frame, then by code-unit cue id.
  *
@@ -22,3 +20,5 @@ export const sortProductionFilmEffectCues = (
       left.startFrame - right.startFrame ||
       AutoMovieEngineText.compareCodeUnits(left.id, right.id),
   );
+
+type FilmEffectCue = IAutoMovieFilmTimeline["tracks"]["effects"][number];

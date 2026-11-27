@@ -12,18 +12,6 @@ import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { engineDiagnostic } from "./engineDiagnostic";
 
 /**
- * Members one shot may single out of its crowds, in total.
- *
- * The channel's whole promise is that a crowd of a hundred thousand does not
- * pay for the three members something happens to, and a promise nothing
- * enforces is a comment. Past this the answer is the other mechanism: a member
- * that needs a shot's full attention is promoted to a named actor, which exists
- * and is capped for the same reason. This is the cheaper thing and must not
- * become that.
- */
-const FORMATION_SLOT_EXCEPTION_LIMIT: number = 1_024;
-
-/**
  * Validate sparse member cue slots, states, ids, order and participant
  * formation references.
  */
@@ -187,3 +175,15 @@ export function validateAutoMovieFormationSlotMotions(
   }
   return diagnostics;
 }
+
+/**
+ * Members one shot may single out of its crowds, in total.
+ *
+ * The channel's whole promise is that a crowd of a hundred thousand does not
+ * pay for the three members something happens to, and a promise nothing
+ * enforces is a comment. Past this the answer is the other mechanism: a member
+ * that needs a shot's full attention is promoted to a named actor, which exists
+ * and is capped for the same reason. This is the cheaper thing and must not
+ * become that.
+ */
+const FORMATION_SLOT_EXCEPTION_LIMIT: number = 1_024;

@@ -9,10 +9,6 @@ import { affordanceFollowedTravel } from "./affordanceFollowedTravel";
 import { affordanceLeadingTravel } from "./affordanceLeadingTravel";
 import { affordanceTravelRange } from "./affordanceTravelRange";
 
-/** The kinds whose travel moves parts and riding affordances. */
-const ARTICULATIONS: ReadonlySet<IAutoMovieAffordance["kind"]> =
-  AffordanceArticulation.KINDS;
-
 /**
  * Admit a model's articulation references: every `parts` id names a part of the
  * model, sits on an articulation kind and is claimed once; every `rides` and
@@ -126,6 +122,10 @@ export function validateAffordanceArticulation(
     }
   });
 }
+
+/** The kinds whose travel moves parts and riding affordances. */
+const ARTICULATIONS: ReadonlySet<IAutoMovieAffordance["kind"]> =
+  AffordanceArticulation.KINDS;
 
 /**
  * Admit one follower's coupling, its invertibility when requested, and its

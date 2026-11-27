@@ -4,9 +4,6 @@ import type {
   IAutoMovieMotionHumanContactWindow,
 } from "@automovie/interface";
 
-/** The alternatives of `FeetPart`'s site. */
-type FeetPart = "leftFoot" | "rightFoot";
-
 /**
  * Contact-window, floor and sample-grid readers for the canonical motion-audit
  * contract.
@@ -205,6 +202,9 @@ export namespace AutoMovieMotionHumanAuditMotion {
     };
   }
 }
+
+/** The alternatives of `FeetPart`'s site. */
+type FeetPart = "leftFoot" | "rightFoot";
 
 /** The contact kinds that bear the body on their support. */
 const BEARING: readonly IAutoMovieMotionHumanContactWindow["kind"][] = [

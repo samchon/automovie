@@ -16,9 +16,6 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanPropHold } from "./HumanPropHold";
 
-/** The alternatives of `MountResult`'s site. */
-type MountResult = "prop" | "point";
-
 /**
  * A prop's world frame as the grips that hold it carry it: the reader
  * `HumanPerformanceRead.prop` documents and delegates to, split from it so the
@@ -121,6 +118,33 @@ export namespace HumanPerformanceHold {
     path?: HumanPerformanceHoldKit.IMountPath,
   ): IAutoMovieRigidTransform {
     return read(self, subject, seconds, own, path);
+  }
+
+  /**
+   * The offset a span holds its prop at from its carrier, kept from the span's
+   * start: the performance solves it once for every span, in film order, when
+   * it is prepared (`IAutoMovieMotionHumanPerformanceState.IGrip.offset`).
+   *
+   * @param self The performance's state.
+   * @param subject The prop.
+   * @param grips The prop's spans in film order.
+   * @param w The span.
+   * @returns The prop's frame in the carrier's frame.
+   */
+  export function seat(
+    self: IAutoMovieMotionHumanPerformanceState,
+    subject: string,
+    grips: readonly IAutoMovieMotionHumanPerformanceState.IGrip[],
+    w: IAutoMovieMotionHumanPerformanceState.IGrip,
+  ): IAutoMovieRigidTransform {
+    return HumanPerformanceHoldKit(
+      self,
+      subject,
+      w.from,
+      undefined,
+      undefined,
+      grips,
+    ).seat(w);
   }
 
   /** Resolve a frame while keeping the current chain of socket samples. */
@@ -242,31 +266,7 @@ export namespace HumanPerformanceHold {
       ),
     };
   }
-
-  /**
-   * The offset a span holds its prop at from its carrier, kept from the span's
-   * start: the performance solves it once for every span, in film order, when
-   * it is prepared (`IAutoMovieMotionHumanPerformanceState.IGrip.offset`).
-   *
-   * @param self The performance's state.
-   * @param subject The prop.
-   * @param grips The prop's spans in film order.
-   * @param w The span.
-   * @returns The prop's frame in the carrier's frame.
-   */
-  export function seat(
-    self: IAutoMovieMotionHumanPerformanceState,
-    subject: string,
-    grips: readonly IAutoMovieMotionHumanPerformanceState.IGrip[],
-    w: IAutoMovieMotionHumanPerformanceState.IGrip,
-  ): IAutoMovieRigidTransform {
-    return HumanPerformanceHoldKit(
-      self,
-      subject,
-      w.from,
-      undefined,
-      undefined,
-      grips,
-    ).seat(w);
-  }
 }
+
+/** The alternatives of `MountResult`'s site. */
+type MountResult = "prop" | "point";

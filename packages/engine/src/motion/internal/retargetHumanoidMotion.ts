@@ -28,8 +28,6 @@ import { validateTransformScalars } from "../../validation/internal/validateTran
 import { preserveRetargetContacts } from "./preserveRetargetContacts";
 import { validateRetargetContacts } from "./validateRetargetContacts";
 
-const EPSILON: number = 1e-6;
-
 /**
  * Retarget an admitted clinical clip from one normalized rig to another,
  * scaling root translation by positive explicit scale or target/source rest
@@ -242,6 +240,8 @@ export function retargetHumanoidMotion(
     },
   };
 }
+
+const EPSILON: number = 1e-6;
 
 const collectRequiredBones: (
   props: IAutoMovieHumanoidRetargetProps,

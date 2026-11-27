@@ -7,44 +7,6 @@ import { overrideAutoMovieRenderModeMaterials } from "../../internal/overrideAut
 import { AUTO_MOVIE_INSPECTION_PALETTE } from "../../AUTO_MOVIE_INSPECTION_PALETTE.js";
 
 /**
- * Vertex stage of the faces shade: three.js's own deformation, projection and
- * clipping chunks, with no lighting.
- */
-const VERTEX: string = `
-#include <common>
-#include <batching_pars_vertex>
-#include <morphtarget_pars_vertex>
-#include <skinning_pars_vertex>
-#include <clipping_planes_pars_vertex>
-void main() {
-  #include <morphinstance_vertex>
-  #include <batching_vertex>
-  #include <skinbase_vertex>
-  #include <begin_vertex>
-  #include <morphtarget_vertex>
-  #include <skinning_vertex>
-  #include <project_vertex>
-  #include <clipping_planes_vertex>
-}
-`;
-
-/**
- * Fragment stage of the faces shade: one of two colours by the side of the
- * triangle seen.
- */
-const FRAGMENT: string = `
-uniform vec3 frontColor;
-uniform vec3 backColor;
-#include <common>
-#include <clipping_planes_pars_fragment>
-void main() {
-  #include <clipping_planes_fragment>
-  gl_FragColor = vec4( gl_FrontFacing ? frontColor : backColor, 1.0 );
-  #include <colorspace_fragment>
-}
-`;
-
-/**
  * Colour every surface of a scene by an inspection shade, and return the call
  * that brings the shade to the scene's current pose and the call that puts the
  * scene's own materials back.
@@ -111,3 +73,41 @@ export function applyAutoMovieInspectionShadeImplementation(
     restore: pass.restore,
   };
 }
+
+/**
+ * Vertex stage of the faces shade: three.js's own deformation, projection and
+ * clipping chunks, with no lighting.
+ */
+const VERTEX: string = `
+#include <common>
+#include <batching_pars_vertex>
+#include <morphtarget_pars_vertex>
+#include <skinning_pars_vertex>
+#include <clipping_planes_pars_vertex>
+void main() {
+  #include <morphinstance_vertex>
+  #include <batching_vertex>
+  #include <skinbase_vertex>
+  #include <begin_vertex>
+  #include <morphtarget_vertex>
+  #include <skinning_vertex>
+  #include <project_vertex>
+  #include <clipping_planes_vertex>
+}
+`;
+
+/**
+ * Fragment stage of the faces shade: one of two colours by the side of the
+ * triangle seen.
+ */
+const FRAGMENT: string = `
+uniform vec3 frontColor;
+uniform vec3 backColor;
+#include <common>
+#include <clipping_planes_pars_fragment>
+void main() {
+  #include <clipping_planes_fragment>
+  gl_FragColor = vec4( gl_FrontFacing ? frontColor : backColor, 1.0 );
+  #include <colorspace_fragment>
+}
+`;

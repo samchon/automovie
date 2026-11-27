@@ -6,15 +6,6 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeInstrument } from "../AutoMovieArchetypeInstrument";
 
-/** The builder every construction fills. */
-type Builder = AutoMovieArchetypeBuilder<
-  AutoMovieArchetypeInstrument.Affordance,
-  AutoMovieArchetypeInstrument.Dimension
->;
-
-/** The drawn dimensions. */
-type Drawn = Partial<Record<AutoMovieArchetypeInstrument.Dimension, number>>;
-
 /** The shorthand every construction uses. */
 const v: typeof Vector3.create = Vector3.create;
 
@@ -132,3 +123,12 @@ export namespace MarchingConstruction {
     });
   }
 }
+
+/** The builder every construction fills. */
+type Builder = AutoMovieArchetypeBuilder<
+  AutoMovieArchetypeInstrument.Affordance,
+  AutoMovieArchetypeInstrument.Dimension
+>;
+
+/** The drawn dimensions. */
+type Drawn = Partial<Record<AutoMovieArchetypeInstrument.Dimension, number>>;

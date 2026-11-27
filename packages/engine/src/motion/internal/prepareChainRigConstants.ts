@@ -26,39 +26,6 @@ import { AutoMovieEngineJointRomScan } from "../../rom/internal/AutoMovieEngineJ
 import { AutoMovieEngineMotionJointProjection } from "../AutoMovieEngineMotionJointProjection";
 import { AutoMovieEngineMotionDistalTwist } from "../AutoMovieEngineMotionDistalTwist";
 
-/** One chain joint's rig-only members, prepared with the rig. */
-interface IJoint {
-  /** The joint's bone. */
-  bone: AutoMovieHumanoidBone;
-
-  /** The skeleton's record of the bone, when it has one. */
-  record: IAutoMovieBone | undefined;
-
-  /** The bone's domain. */
-  domain: IAutoMovieJointRotationDomain;
-
-  /** The bone's normalized clinical axes. */
-  basis: IAutoMovieJointAxes;
-
-  /** The rest frame its composer was prepared on. */
-  frame: IAutoMovieRestFrame | undefined;
-
-  /** The bone's record composer on that frame. */
-  compose: ReturnType<typeof jointToQuaternionOnBasis.prepare>;
-
-  /** The bone's ROM clamp. */
-  clamp: (joint: IAutoMovieJointPose) => IAutoMovieJointPose;
-
-  /** The bone's ROM overshoot scorer. */
-  overshoot: (
-    joint: IAutoMovieJointPose,
-    rotation?: IAutoMovieQuaternion,
-  ) => number;
-
-  /** The bone's rotation-only overshoot scorer, or null. */
-  rotatedOvershoot: ((rotation: IAutoMovieQuaternion) => number) | null;
-}
-
 /**
  * The part of a chain fit's rig that the rig alone fixes: what
  * `prepareChainFitRig` reads of the skeleton, the merged clinical axes, the
@@ -250,4 +217,37 @@ export function prepareChainRigConstants(
     upperRange,
   };
   return rig;
+}
+
+/** One chain joint's rig-only members, prepared with the rig. */
+interface IJoint {
+  /** The joint's bone. */
+  bone: AutoMovieHumanoidBone;
+
+  /** The skeleton's record of the bone, when it has one. */
+  record: IAutoMovieBone | undefined;
+
+  /** The bone's domain. */
+  domain: IAutoMovieJointRotationDomain;
+
+  /** The bone's normalized clinical axes. */
+  basis: IAutoMovieJointAxes;
+
+  /** The rest frame its composer was prepared on. */
+  frame: IAutoMovieRestFrame | undefined;
+
+  /** The bone's record composer on that frame. */
+  compose: ReturnType<typeof jointToQuaternionOnBasis.prepare>;
+
+  /** The bone's ROM clamp. */
+  clamp: (joint: IAutoMovieJointPose) => IAutoMovieJointPose;
+
+  /** The bone's ROM overshoot scorer. */
+  overshoot: (
+    joint: IAutoMovieJointPose,
+    rotation?: IAutoMovieQuaternion,
+  ) => number;
+
+  /** The bone's rotation-only overshoot scorer, or null. */
+  rotatedOvershoot: ((rotation: IAutoMovieQuaternion) => number) | null;
 }

@@ -48,90 +48,6 @@ export namespace IAutoMovieMotionHumanBodyFitTypes {
   /** One point or orientation goal on a bone in a fixed or carried frame. */
   export type ITarget = ITargetGoal & (ITargetBoneFrame | ITargetFixedFrame);
 
-  /** A world goal or a goal in the current frame of a named bone. */
-  interface ITargetBoneFrame {
-    /** The bone carrying the goal frame. Omission leaves it in world axes. */
-    on?: AutoMovieHumanoidBone;
-
-    /** A bone-frame goal does not carry a fixed frame. */
-    frame?: never;
-  }
-
-  /** A goal in a rigid scene frame held fixed throughout this static fit. */
-  interface ITargetFixedFrame {
-    /**
-     * The world placement of the goal axes and coordinates, held constant
-     * during the fit.
-     */
-    frame: IAutoMovieRigidTransform;
-
-    /** A fixed-frame goal does not follow a moving bone. */
-    on?: never;
-  }
-
-  /** The point, axes and optional turns shared by all target frames. */
-  interface ITargetGoal {
-    /** The bone. */
-    bone: AutoMovieHumanoidBone;
-
-    /** The point in the bone's frame, metres; its origin when absent. */
-    point?: IAutoMovieVector3;
-
-    /** Where it goes, metres in the goal frame. */
-    goal: IAutoMovieVector3;
-
-    /**
-     * The goal-frame axes it is held on; all three when absent, none for a
-     * target that holds only a rotation or a normal.
-     */
-    axes?: readonly ("x" | "y" | "z")[];
-
-    /**
-     * Allowed Euclidean point distance over the selected axes, finite
-     * nonnegative metres; componentwise exact contact when absent.
-     */
-    bound?: number;
-
-    /**
-     * Hold this target in each linearised step and verify it from the final
-     * pose. Start the fit close enough to meet the target within its trust
-     * box.
-     */
-    required?: true;
-
-    /**
-     * The soft goal's price per millimetre or milliradian missed; `PRICE`, the
-     * floor's, when absent.
-     */
-    price?: number;
-
-    /**
-     * The bone's rotation in the goal frame it is brought to as well; none when
-     * absent.
-     */
-    rotation?: IAutoMovieQuaternion;
-
-    /**
-     * A planar contact's normal: the contact frame's normal in the bone's frame
-     * (`local`, the palm socket's for a hand, the plantar side for a foot or
-     * its toes) brought parallel to a goal-frame normal (`world`, away from the
-     * surface it lies on), its turn about that normal left free. None when
-     * absent.
-     */
-    normal?: {
-      /**
-       * Contact normal direction in the constrained bone's local frame;
-       * HumanFitTargets normalises it before angular comparison.
-       */
-      local: IAutoMovieVector3;
-      /**
-       * Required normal direction in the goal's world, fixed or carried frame,
-       * normalised for comparison.
-       */
-      world: IAutoMovieVector3;
-    };
-  }
-
   /** The fitted posture and residuals measured on it. */
   export interface IResult {
     /**
@@ -330,5 +246,89 @@ export namespace IAutoMovieMotionHumanBodyFitTypes {
            */
           parts: readonly RegExp[];
         };
+  }
+
+  /** A world goal or a goal in the current frame of a named bone. */
+  interface ITargetBoneFrame {
+    /** The bone carrying the goal frame. Omission leaves it in world axes. */
+    on?: AutoMovieHumanoidBone;
+
+    /** A bone-frame goal does not carry a fixed frame. */
+    frame?: never;
+  }
+
+  /** A goal in a rigid scene frame held fixed throughout this static fit. */
+  interface ITargetFixedFrame {
+    /**
+     * The world placement of the goal axes and coordinates, held constant
+     * during the fit.
+     */
+    frame: IAutoMovieRigidTransform;
+
+    /** A fixed-frame goal does not follow a moving bone. */
+    on?: never;
+  }
+
+  /** The point, axes and optional turns shared by all target frames. */
+  interface ITargetGoal {
+    /** The bone. */
+    bone: AutoMovieHumanoidBone;
+
+    /** The point in the bone's frame, metres; its origin when absent. */
+    point?: IAutoMovieVector3;
+
+    /** Where it goes, metres in the goal frame. */
+    goal: IAutoMovieVector3;
+
+    /**
+     * The goal-frame axes it is held on; all three when absent, none for a
+     * target that holds only a rotation or a normal.
+     */
+    axes?: readonly ("x" | "y" | "z")[];
+
+    /**
+     * Allowed Euclidean point distance over the selected axes, finite
+     * nonnegative metres; componentwise exact contact when absent.
+     */
+    bound?: number;
+
+    /**
+     * Hold this target in each linearised step and verify it from the final
+     * pose. Start the fit close enough to meet the target within its trust
+     * box.
+     */
+    required?: true;
+
+    /**
+     * The soft goal's price per millimetre or milliradian missed; `PRICE`, the
+     * floor's, when absent.
+     */
+    price?: number;
+
+    /**
+     * The bone's rotation in the goal frame it is brought to as well; none when
+     * absent.
+     */
+    rotation?: IAutoMovieQuaternion;
+
+    /**
+     * A planar contact's normal: the contact frame's normal in the bone's frame
+     * (`local`, the palm socket's for a hand, the plantar side for a foot or
+     * its toes) brought parallel to a goal-frame normal (`world`, away from the
+     * surface it lies on), its turn about that normal left free. None when
+     * absent.
+     */
+    normal?: {
+      /**
+       * Contact normal direction in the constrained bone's local frame;
+       * HumanFitTargets normalises it before angular comparison.
+       */
+      local: IAutoMovieVector3;
+      /**
+       * Required normal direction in the goal's world, fixed or carried frame,
+       * normalised for comparison.
+       */
+      world: IAutoMovieVector3;
+    };
   }
 }

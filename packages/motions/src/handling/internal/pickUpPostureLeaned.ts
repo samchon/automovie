@@ -19,36 +19,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { pickUpPosture } from "./pickUpPosture";
 import { pickUpPostureShoulder } from "./pickUpPostureShoulder";
 
-/** The alternatives of `LeanedLeanBodyHeading`'s site. */
-type LeanedLeanBodyHeading = "yaw" | "pitch" | "roll";
-
-/** The record of `ILeanedLeanBodyTilt`'s site. */
-type ILeanedLeanBodyTilt = {
-  pitch: number;
-  joints: IAutoMovieMotionHumanPosture["joints"];
-};
-
-/**
- * Optional parent-owned exact FK source for this same current person
- * evaluation.
- */
-type IFK = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
-
-/**
- * Genuine current-person ROM projection borrowed only by actual solved
- * observations.
- */
-type IROM = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3];
-
-/** An arm owned by its side of the body. */
-type Arm = `${AutoMovieHumanSide}Arm`;
-
-/** A free arm may have no reachable thigh contact. */
-type FreeGoal = IAutoMovieHumanLimbGoal | undefined;
-
-/** Unset clinical angles hold their neutral coordinates. */
-const ZERO: readonly [number, number, number] = [0, 0, 0];
-
 /**
  * A seated body leaned forward until the arm reaches a grip: the trunk inclines
  * about the seat, the pelvis and the spine sharing the lean
@@ -279,3 +249,33 @@ export function pickUpPostureLeaned(
     lower,
   };
 }
+
+/** The alternatives of `LeanedLeanBodyHeading`'s site. */
+type LeanedLeanBodyHeading = "yaw" | "pitch" | "roll";
+
+/** The record of `ILeanedLeanBodyTilt`'s site. */
+type ILeanedLeanBodyTilt = {
+  pitch: number;
+  joints: IAutoMovieMotionHumanPosture["joints"];
+};
+
+/**
+ * Optional parent-owned exact FK source for this same current person
+ * evaluation.
+ */
+type IFK = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
+
+/**
+ * Genuine current-person ROM projection borrowed only by actual solved
+ * observations.
+ */
+type IROM = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3];
+
+/** An arm owned by its side of the body. */
+type Arm = `${AutoMovieHumanSide}Arm`;
+
+/** A free arm may have no reachable thigh contact. */
+type FreeGoal = IAutoMovieHumanLimbGoal | undefined;
+
+/** Unset clinical angles hold their neutral coordinates. */
+const ZERO: readonly [number, number, number] = [0, 0, 0];

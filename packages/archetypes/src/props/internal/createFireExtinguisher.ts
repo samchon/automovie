@@ -9,23 +9,6 @@ import {
 } from "../../core/index";
 
 /**
- * A 5 lb ABC dry-chemical extinguisher, Buckeye's spec sheet as a search
- * summary quotes it
- * (https://www.webstaurantstore.com/documents/specsheets/4725abc.pdf, read
- * 2026-11-22): 16 3/8 in (0.416 m) tall, a 4 1/4 in (0.108 m) cylinder, 7 1/4
- * in (0.184 m) wide and 9 1/2 lb (4.3 kg) shipped. The valve's proportions, the
- * lever's travel and the pin's pull are provisional construction estimates.
- */
-const SIZE: Readonly<AutoMovieArchetypeFireExtinguisher.ISize> = {
-  height: 0.416,
-  diameter: 0.108,
-  width: 0.184,
-  mass: 4.3,
-  lever: 20,
-  pin: 0.04,
-};
-
-/**
  * A stored-pressure fire extinguisher standing on its base.
  *
  * The cylinder stands along `+Y` from the base's centre at the origin. Its
@@ -173,3 +156,20 @@ export function createFireExtinguisher(
   });
   return builder.build(SIZE.mass);
 }
+
+/**
+ * A 5 lb ABC dry-chemical extinguisher, Buckeye's spec sheet as a search
+ * summary quotes it
+ * (https://www.webstaurantstore.com/documents/specsheets/4725abc.pdf, read
+ * 2026-11-22): 16 3/8 in (0.416 m) tall, a 4 1/4 in (0.108 m) cylinder, 7 1/4
+ * in (0.184 m) wide and 9 1/2 lb (4.3 kg) shipped. The valve's proportions, the
+ * lever's travel and the pin's pull are provisional construction estimates.
+ */
+const SIZE: Readonly<AutoMovieArchetypeFireExtinguisher.ISize> = {
+  height: 0.416,
+  diameter: 0.108,
+  width: 0.184,
+  mass: 4.3,
+  lever: 20,
+  pin: 0.04,
+};

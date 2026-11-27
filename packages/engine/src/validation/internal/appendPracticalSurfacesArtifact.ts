@@ -9,18 +9,6 @@ import type {
 
 import { pushViolation } from "./pushViolation";
 
-/** Model facts needed to resolve a practical track's target and materials. */
-type PracticalSurfaceModel = Pick<
-  IAutoMovieModel,
-  "id" | "origin" | "skeleton"
-> & {
-  /** The model part ids the scene can target. */
-  parts: readonly Pick<IAutoMovieModelPart, "id">[];
-
-  /** The material ids each key can select. */
-  materials: readonly Pick<IAutoMovieMaterial, "id">[];
-};
-
 /**
  * Check shot-local practical surface tracks, appending faults under
  * `$input.practicalSurfaces`. When the model registry is supplied, also resolve
@@ -162,3 +150,15 @@ export function appendPracticalSurfacesArtifact(
     },
   );
 }
+
+/** Model facts needed to resolve a practical track's target and materials. */
+type PracticalSurfaceModel = Pick<
+  IAutoMovieModel,
+  "id" | "origin" | "skeleton"
+> & {
+  /** The model part ids the scene can target. */
+  parts: readonly Pick<IAutoMovieModelPart, "id">[];
+
+  /** The material ids each key can select. */
+  materials: readonly Pick<IAutoMovieMaterial, "id">[];
+};

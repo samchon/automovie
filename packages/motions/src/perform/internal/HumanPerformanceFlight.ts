@@ -10,9 +10,6 @@ import { HumanPerformanceStagedFlightRotation } from "./HumanPerformanceStagedFl
 import { flyPerformanceFlight } from "./flyPerformanceFlight";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
-/** The record of `IACCURACYItem`'s site. */
-type IACCURACYItem = { relative: number; absolute: number };
-
 /**
  * Hand each placed flight its rigid turn after placement and contacts. Authored
  * turn counts use the performance's staged default: exact unwrapped angles
@@ -191,6 +188,9 @@ export namespace HumanPerformanceFlight {
     );
   }
 }
+
+/** The record of `IACCURACYItem`'s site. */
+type IACCURACYItem = { relative: number; absolute: number };
 /** The alternatives of `Playback`'s site. */
 type Playback = "step" | "times" | "table";
 

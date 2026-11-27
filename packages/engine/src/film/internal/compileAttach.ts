@@ -19,9 +19,6 @@ import { Transform } from "../../math/Transform";
 import { Vector3 } from "../../math/Vector3";
 import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 
-/** Default child frame when the author gives no offset. */
-const IDENTITY_OFFSET: IAutoMovieTransform = Transform.identity();
-
 /**
  * Bake the `attachTo` verb into the child object's follow clip, the per-frame
  * realisation of a rigid coupling to a parent's bone (a sword in a hand, a prop
@@ -147,3 +144,6 @@ export function compileAttach(props: AutoMovieEngineFilmTypes.ICompileAttachProp
     ],
   };
 }
+
+/** Default child frame when the author gives no offset. */
+const IDENTITY_OFFSET: IAutoMovieTransform = Transform.identity();

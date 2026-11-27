@@ -16,7 +16,35 @@ const RULES: string =
 
 /** Constructs the throwing circle archetype from its recipe. */
 export namespace AutoMovieArchetypeThrowingCircle {
-/**
+/** The events. */
+  export type Event = "shot" | "discus" | "hammer" | "javelin";
+
+  /**
+   * The affordance ids: `circle`, a circle's top; `arc`, the javelin arc's
+   * middle.
+   */
+  export type Affordance = "circle" | "arc";
+
+  /**
+   * The free dimensions, metres unless stated:
+   *
+   * - `diameter`: a circle's inside diameter.
+   * - `width`: the javelin runway's width.
+   * - `radius`: the javelin arc's radius.
+   * - `mass`: kilograms, of the marking (an estimate).
+   */
+  export type Dimension = "diameter" | "width" | "radius" | "mass";
+
+  /** The parameters: the event and any figure fixed inside its band. */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** The event the place serves. */
+    event: Event;
+
+    /** The model's id, unique in a scene; `throwingCircle` when absent. */
+    id?: string;
+  }
+
+  /**
  * A field event's throwing place: a throwing circle for the shot, the discus or
  * the hammer, or the end of the javelin's runway with its arc.
  *
@@ -111,9 +139,6 @@ export function create(
    */
   export const LINE: number = 0.005;
 
-  /** The events. */
-  export type Event = "shot" | "discus" | "hammer" | "javelin";
-
   /** Every event, for a caller that reads one at run time. */
   export const EVENTS: readonly Event[] = [
     "shot",
@@ -121,22 +146,6 @@ export function create(
     "hammer",
     "javelin",
   ];
-
-  /**
-   * The affordance ids: `circle`, a circle's top; `arc`, the javelin arc's
-   * middle.
-   */
-  export type Affordance = "circle" | "arc";
-
-  /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `diameter`: a circle's inside diameter.
-   * - `width`: the javelin runway's width.
-   * - `radius`: the javelin arc's radius.
-   * - `mass`: kilograms, of the marking (an estimate).
-   */
-  export type Dimension = "diameter" | "width" | "radius" | "mass";
 
   /** Each dimension's unit. */
   export const UNITS: Readonly<
@@ -147,15 +156,6 @@ export function create(
     radius: "m",
     mass: "kg",
   };
-
-  /** The parameters: the event and any figure fixed inside its band. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
-    /** The event the place serves. */
-    event: Event;
-
-    /** The model's id, unique in a scene; `throwingCircle` when absent. */
-    id?: string;
-  }
 
   /**
    * The mass band shared by every event: an estimate of a painted or metal

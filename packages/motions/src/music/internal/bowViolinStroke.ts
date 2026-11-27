@@ -1,8 +1,5 @@
 import type { IAutoMovieMotionClock } from "@automovie/interface";
 
-/** The alternatives of `BowViolinDirection`'s site. */
-type BowViolinDirection = "up" | "down";
-
 /**
  * Prepare a bow stroke's schedule on its clock: the hair on the sounding point
  * slides between 18% and 42% of the playable hair through `contact` to `lift`,
@@ -55,3 +52,6 @@ export namespace bowViolinStroke {
     return direction === "up" ? 0.42 : 0.18;
   }
 }
+
+/** The alternatives of `BowViolinDirection`'s site. */
+type BowViolinDirection = "up" | "down";

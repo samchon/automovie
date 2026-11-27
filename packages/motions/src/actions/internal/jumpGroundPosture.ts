@@ -13,9 +13,6 @@ import { rangeSteppingFoot } from "./rangeSteppingFoot";
 
 /** The rotating push and landing have two direct arms to clear, in this order. */
 const ARMS: readonly AutoMovieHumanSide[] = ["left", "right"];
-/** The alternatives of `JumpGroundPosturePhase`'s site. */
-type JumpGroundPosturePhase = "left" | "right" | "landing";
-
 /**
  * Fit the reaching foot during push-off and clear the arms against the bent
  * legs.
@@ -51,8 +48,6 @@ export function jumpGroundPosture(
     hinted,
   );
 }
-/** The alternatives of `JumpGroundPostureSamplePhase`'s site. */
-type JumpGroundPostureSamplePhase = "left" | "right" | "landing";
 
 /** Native observation of the ground writer and its same-instant leg fit. */
 export namespace jumpGroundPosture {
@@ -130,3 +125,8 @@ export namespace jumpGroundPosture {
     return { posture: cleared };
   }
 }
+/** The alternatives of `JumpGroundPosturePhase`'s site. */
+type JumpGroundPosturePhase = "left" | "right" | "landing";
+
+/** The alternatives of `JumpGroundPostureSamplePhase`'s site. */
+type JumpGroundPostureSamplePhase = "left" | "right" | "landing";

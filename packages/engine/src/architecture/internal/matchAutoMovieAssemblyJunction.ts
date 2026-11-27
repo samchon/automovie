@@ -6,18 +6,6 @@ import type {
   IAutoMovieResolvedAssembly,
 } from "@automovie/interface";
 
-/** The hull and summed thickness of layers sharing one role. */
-interface IRoleSpan {
-  /** Least signed layer endpoint. */
-  min: number;
-
-  /** Greatest signed layer endpoint. */
-  max: number;
-
-  /** Sum of matching layer thicknesses. */
-  thickness: number;
-}
-
 /**
  * Report which construction roles survive a junction between two build-ups.
  *
@@ -79,6 +67,18 @@ export function matchAutoMovieAssemblyJunction(
     if (!left.has(role))
       broken.push({ role, side: "right", thickness: span.thickness });
   return { continuous, broken };
+}
+
+/** The hull and summed thickness of layers sharing one role. */
+interface IRoleSpan {
+  /** Least signed layer endpoint. */
+  min: number;
+
+  /** Greatest signed layer endpoint. */
+  max: number;
+
+  /** Sum of matching layer thicknesses. */
+  thickness: number;
 }
 
 /** Fold one build-up's layers into one span per role, in first-seen order. */

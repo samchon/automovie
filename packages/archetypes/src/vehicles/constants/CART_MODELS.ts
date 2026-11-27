@@ -6,9 +6,6 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeCart } from "../AutoMovieArchetypeCart";
 
-/** One read model's or option's figures by dimension. */
-type Figures = Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, number>>>;
-
 /** Inches. */
 const IN: number = AutoMovieArchetypeUnits.INCH;
 
@@ -184,3 +181,6 @@ export const CART_MODELS: Readonly<{
     },
   },
 };
+
+/** One read model's or option's figures by dimension. */
+type Figures = Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, number>>>;

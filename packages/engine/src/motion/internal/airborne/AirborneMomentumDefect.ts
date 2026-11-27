@@ -11,12 +11,6 @@ import { AirborneShapeHistory } from "./AirborneShapeHistory";
 import { AirborneTabulatedShapeHistory } from "./AirborneTabulatedShapeHistory";
 import type { MotionTrajectoryFailure } from "../../MotionTrajectoryFailure";
 
-/** Relative angular-momentum share and absolute kg m²/s budget. */
-type MomentumTolerance = Pick<
-  IAutoMovieIntegrateMotionTrajectory.ITolerance,
-  "relative" | "absolute"
->;
-
 /**
  * Measure a dense flight's angular-momentum defect in the actual mass model.
  *
@@ -380,3 +374,9 @@ function physicalScale(
     )
   );
 }
+
+/** Relative angular-momentum share and absolute kg m²/s budget. */
+type MomentumTolerance = Pick<
+  IAutoMovieIntegrateMotionTrajectory.ITolerance,
+  "relative" | "absolute"
+>;

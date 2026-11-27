@@ -18,62 +18,6 @@ import { projectPhysicalJointRotation } from "./internal/projectPhysicalJointRot
 import { solvePhysicalArticulationTargets } from "./internal/solvePhysicalArticulationTargets";
 
 
-function computeSwingReference(input: {
-  joints: readonly IAutoMoviePhysicalJoint[];
-  base: IAutoMovieRigidTransform;
-  actual: Readonly<Record<string, IAutoMovieRigidTransform>>;
-  fit: Readonly<Record<string, IAutoMovieRigidTransform>>;
-  share: number;
-}): Record<string, IAutoMovieRigidTransform> {
-  const share: number = Math.max(0, Math.min(1, input.share));
-  const out: Record<string, IAutoMovieRigidTransform> = Object.create(null);
-  const relative = (
-    poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
-    joint: IAutoMoviePhysicalJoint,
-  ): IAutoMovieQuaternion =>
-    Quaternion.multiply(
-      Quaternion.inverse(
-        Quaternion.multiply(
-          poses[joint.parent]!.rotation,
-          joint.parentFrame.rotation,
-        ),
-      ),
-      Quaternion.multiply(
-        poses[joint.child]!.rotation,
-        joint.childFrame.rotation,
-      ),
-    );
-  for (const joint of input.joints) {
-    const parent: IAutoMovieRigidTransform = out[joint.parent] ?? input.base;
-    const turn: IAutoMovieQuaternion = Quaternion.slerp(
-      relative(input.actual, joint),
-      relative(input.fit, joint),
-      share,
-    );
-    const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(
-        Quaternion.multiply(
-          Quaternion.multiply(parent.rotation, joint.parentFrame.rotation),
-          turn,
-        ),
-        Quaternion.inverse(joint.childFrame.rotation),
-      ),
-    );
-    const pivot: IAutoMovieVector3 = Vector3.add(
-      parent.position,
-      Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),
-    );
-    out[joint.child] = {
-      position: Vector3.subtract(
-        pivot,
-        Quaternion.rotateVector(rotation, joint.childFrame.position),
-      ),
-      rotation,
-    };
-  }
-  return out;
-}
-
 /** The swing reference's rates near lift-off. */
 export namespace AutoMovieEnginePhysicalSwingReference {
   /**
@@ -393,4 +337,60 @@ export namespace AutoMovieEnginePhysicalSwingReference {
       below(input.planned, input.endpoint) - below(input.planted, input.rest),
     );
   }
+}
+
+function computeSwingReference(input: {
+  joints: readonly IAutoMoviePhysicalJoint[];
+  base: IAutoMovieRigidTransform;
+  actual: Readonly<Record<string, IAutoMovieRigidTransform>>;
+  fit: Readonly<Record<string, IAutoMovieRigidTransform>>;
+  share: number;
+}): Record<string, IAutoMovieRigidTransform> {
+  const share: number = Math.max(0, Math.min(1, input.share));
+  const out: Record<string, IAutoMovieRigidTransform> = Object.create(null);
+  const relative = (
+    poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
+    joint: IAutoMoviePhysicalJoint,
+  ): IAutoMovieQuaternion =>
+    Quaternion.multiply(
+      Quaternion.inverse(
+        Quaternion.multiply(
+          poses[joint.parent]!.rotation,
+          joint.parentFrame.rotation,
+        ),
+      ),
+      Quaternion.multiply(
+        poses[joint.child]!.rotation,
+        joint.childFrame.rotation,
+      ),
+    );
+  for (const joint of input.joints) {
+    const parent: IAutoMovieRigidTransform = out[joint.parent] ?? input.base;
+    const turn: IAutoMovieQuaternion = Quaternion.slerp(
+      relative(input.actual, joint),
+      relative(input.fit, joint),
+      share,
+    );
+    const rotation: IAutoMovieQuaternion = Quaternion.normalize(
+      Quaternion.multiply(
+        Quaternion.multiply(
+          Quaternion.multiply(parent.rotation, joint.parentFrame.rotation),
+          turn,
+        ),
+        Quaternion.inverse(joint.childFrame.rotation),
+      ),
+    );
+    const pivot: IAutoMovieVector3 = Vector3.add(
+      parent.position,
+      Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),
+    );
+    out[joint.child] = {
+      position: Vector3.subtract(
+        pivot,
+        Quaternion.rotateVector(rotation, joint.childFrame.position),
+      ),
+      rotation,
+    };
+  }
+  return out;
 }

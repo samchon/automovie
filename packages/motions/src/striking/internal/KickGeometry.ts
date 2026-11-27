@@ -322,15 +322,6 @@ export namespace KickGeometry {
     };
   }
 
-  /** The body and the kicking leg's goal at one instant. */
-  interface IHeld {
-    /** The body's posture without the kicking leg's goal. */
-    body: IAutoMovieMotionHumanPosture;
-
-    /** The kicking leg's goal. */
-    leg: IAutoMovieMotionHumanKickGeometry.ILeg;
-  }
-
   /**
    * A kick's foot windows: the kicking foot planted until the launch, unless it
    * is still landing from a step, and back down at the end; the support foot
@@ -402,5 +393,14 @@ export namespace KickGeometry {
           ]
         : [pivot(initiallyBearing ? 0 : launch, 1)]),
     ];
+  }
+
+  /** The body and the kicking leg's goal at one instant. */
+  interface IHeld {
+    /** The body's posture without the kicking leg's goal. */
+    body: IAutoMovieMotionHumanPosture;
+
+    /** The kicking leg's goal. */
+    leg: IAutoMovieMotionHumanKickGeometry.ILeg;
   }
 }

@@ -6,15 +6,6 @@ import { walk } from "../../gait/internal/walk";
 import { walkFoot } from "../../actions/internal/walkFoot";
 import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
 
-/** The alternatives of `STEPLENGTHEntryItem`'s site. */
-type STEPLENGTHEntryItem = "forward" | "side" | "backward";
-
-/** The alternatives of `LATERALEntryItem`'s site. */
-type LATERALEntryItem = "footOff" | "swing";
-
-/** The alternatives of `STEPTIMEEntryItem`'s site. */
-type STEPTIMEEntryItem = "forward" | "side" | "backward";
-
 /**
  * The measured bounds and the model's own constants of a stagger's recovery
  * (`stagger`): the reaction, the weight shift and the steps' times and lengths
@@ -205,3 +196,12 @@ export namespace staggerBounds {
     );
   }
 }
+
+/** The alternatives of `STEPLENGTHEntryItem`'s site. */
+type STEPLENGTHEntryItem = "forward" | "side" | "backward";
+
+/** The alternatives of `LATERALEntryItem`'s site. */
+type LATERALEntryItem = "footOff" | "swing";
+
+/** The alternatives of `STEPTIMEEntryItem`'s site. */
+type STEPTIMEEntryItem = "forward" | "side" | "backward";

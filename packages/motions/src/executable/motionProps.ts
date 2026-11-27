@@ -6,9 +6,6 @@ import type { IMotionCaptureCase } from "./internal/IMotionCaptureCase";
 import { buildMotionCaptureCases } from "./internal/buildMotionCaptureCases";
 import { planMotionCaptureProps } from "./internal/planMotionCaptureProps";
 
-/** The motions package, whose `media/props/` holds the written files by default. */
-const ROOT: string = path.join(__dirname, "..", "..");
-
 /**
  * Write motion cases' page data as files, so the `automovie` commands draw a
  * case through `src/executable/subjects.ts` with `--props`.
@@ -56,6 +53,9 @@ export async function motionProps(): Promise<void> {
     console.log(file);
   }
 }
+
+/** The motions package, whose `media/props/` holds the written files by default. */
+const ROOT: string = path.join(__dirname, "..", "..");
 
 void motionProps().catch((error: unknown): void => {
   console.error(error);

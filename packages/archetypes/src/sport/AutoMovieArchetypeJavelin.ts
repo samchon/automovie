@@ -19,24 +19,6 @@ export namespace AutoMovieArchetypeJavelin {
   /** The categories. */
   export type Kind = "men" | "women";
 
-  /** Every category, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["men", "women"];
-
-  /**
-   * The cord's thickness over the shaft, metres: an estimate inside Technical
-   * Rule 38.8's 8 mm over the shaft's diameter.
-   */
-  export const CORD: number = 0.003;
-
-  /**
-   * The cord's width along the shaft, metres, by category: the rule's 150 to
-   * 160 mm and 140 to 150 mm, their middles.
-   */
-  export const CORD_WIDTH: Readonly<Record<Kind, number>> = {
-    men: 0.155,
-    women: 0.145,
-  };
-
   /**
    * The affordance ids:
    *
@@ -55,16 +37,6 @@ export namespace AutoMovieArchetypeJavelin {
    */
   export type Dimension = "length" | "diameter" | "balance" | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<
-    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
-  > = {
-    length: "m",
-    diameter: "m",
-    balance: "m",
-    mass: "kg",
-  };
-
   /**
    * The parameters: the category, and any free dimension fixed to a value
    * inside its band.
@@ -76,6 +48,34 @@ export namespace AutoMovieArchetypeJavelin {
     /** The model's id, unique in a scene; `javelin` when absent. */
     id?: string;
   }
+
+  /** Every category, for a caller that reads one at run time. */
+  export const KINDS: readonly Kind[] = ["men", "women"];
+
+  /**
+   * The cord's thickness over the shaft, metres: an estimate inside Technical
+   * Rule 38.8's 8 mm over the shaft's diameter.
+   */
+  export const CORD: number = 0.003;
+
+  /**
+   * The cord's width along the shaft, metres, by category: the rule's 150 to
+   * 160 mm and 140 to 150 mm, their middles.
+   */
+  export const CORD_WIDTH: Readonly<Record<Kind, number>> = {
+    men: 0.155,
+    women: 0.145,
+  };
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
+    length: "m",
+    diameter: "m",
+    balance: "m",
+    mass: "kg",
+  };
 
   /** A band in metres of the rule. */
   const m = (

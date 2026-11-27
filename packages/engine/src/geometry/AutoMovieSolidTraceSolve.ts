@@ -13,11 +13,8 @@ import { AutoMovieSolidTraceObservation as Observation } from "./construction/Au
 import { AutoMovieSolidTraceTrial } from "./construction/internal/AutoMovieSolidTraceTrial";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-type Vec3 = AutoMovieVector3Tuple;
-type IJet = IAutoMovieSolidSurface.IJet;
 const { combine, cross, dot, norm, sub }: typeof AutoMovieSolidVector =
   AutoMovieSolidVector;
-
 /**
  * The meeting points of an intersection trace (`AutoMovieSolidIntersection`):
  * Newton's method on the four equations `A(s, phi) = B(y, theta)` and the
@@ -112,6 +109,155 @@ export namespace AutoMovieSolidTraceSolve {
     return Observation.fail(observation, "host-face-limit", x, f, {
       budget: budget.left,
     });
+  }
+
+  /**
+   * Continue from a point to a target parameter by predicted and corrected
+   * steps, halving a rejected proposal and recovering a low-defect step.
+   *
+   * @param part The part's surface.
+   * @param host The host's faces.
+   * @param law The parameter's law.
+   * @param from The point to continue from.
+   * @param target The parameter to reach.
+   * @param tolerance Largest gap accepted, mm.
+   * @param observation Optional call-owned record of the last meeting attempt's
+   *   refusal; it changes no candidate, budget or result.
+   * @returns The point at the target, or null after more than {@link HALVINGS}
+   *   consecutive failed halvings, 1024 meeting candidates, or a proposed
+   *   parameter that cannot make finite representable progress.
+   *
+   *   The next proposal may double when the corrected world defect uses at most
+   *   one eighth of the existing acceptance allowance. That is a bounded
+   *   proposal heuristic, not a third-order error guarantee for a C2 surface;
+   *   every candidate still passes the same predictor/corrector acceptance
+   *   test. The original interval caps growth and each accepted point restarts
+   *   the consecutive-failure counter. The 1024-candidate protection is a
+   *   product work budget, not a geometric sufficiency condition or a wall-time
+   *   bound. Different accepted substeps can change rounding or expose a budget
+   *   failure without changing the source surfaces, Newton residual or
+   *   tolerance.
+   */
+  export function advance(
+    part: IAutoMovieSolidSurface,
+    host: IAutoMovieSolidAtlas,
+    law: IAutoMovieSolidTraceLaw.ILaw,
+    from: IAutoMovieSolidIntersection.IPoint,
+    target: number,
+    tolerance: number,
+    observation?: Observation.IState,
+  ): IAutoMovieSolidIntersection.IPoint | null {
+    let current: IAutoMovieSolidIntersection.IPoint = from;
+
+    /** Signed original interval, also the maximum recovered proposal. */
+    const span: number = target - from.t;
+    let h: number = span;
+    let halvings: number = 0;
+
+    /**
+     * Every accepted or rejected meeting candidate spends the same product work
+     * budget.
+     */
+    for (
+      let attempt: number = 0;
+      current.t !== target && attempt < 1024;
+      attempt++
+    ) {
+      const step: number =
+        Math.abs(target - current.t) < Math.abs(h) ? target - current.t : h;
+      const x0: AutoMovieSolidChartVector4 = [
+        current.s,
+        current.phi,
+        current.y,
+        current.theta,
+      ];
+      const guess: AutoMovieSolidChartVector4 = x0.map(
+        (v: number, i: number): number =>
+          v + current.rate[i]! * step + (current.rate2[i]! * step * step) / 2,
+      ) as AutoMovieSolidChartVector4;
+      const predicted: Vec3 = combine([
+        [1, current.point],
+        [step, current.tangent],
+        [(step * step) / 2, current.second],
+      ]);
+      const t: number =
+        Math.abs(target - current.t - step) === 0 ? target : current.t + step;
+      if (t === current.t) return null;
+      const next: IAutoMovieSolidIntersection.IPoint | null = solve(
+        part,
+        host,
+        law,
+        t,
+        guess,
+        current.face,
+        tolerance,
+        observation,
+      );
+      const length: number = norm(sub(predicted, current.point));
+
+      /** The unchanged world-space predictor allowance, in mm. */
+      const allowance: number = 0.25 * length + 10 * tolerance;
+
+      /**
+       * A missing correction is rejected; a present one keeps the original
+       * defect norm.
+       */
+      const defect: number =
+        next === null ? Infinity : norm(sub(next.point, predicted));
+      if (next !== null && defect <= allowance) {
+        current = next;
+        halvings = 0;
+
+        // Recovery proposes a larger step; its own corrected result must still pass.
+        h =
+          defect <= allowance / 8
+            ? Math.sign(step) * Math.min(Math.abs(span), 2 * Math.abs(step))
+            : step;
+        continue;
+      }
+      // A corrected point refused by the predictor allowance is this attempt's refusal; a failed solve has recorded its own.
+      if (next !== null)
+        Observation.fail(
+          observation,
+          "branch-distance",
+          [next.s, next.phi, next.y, next.theta],
+          next.face,
+        );
+      if (observation !== undefined)
+        observation.step = {
+          h: step,
+          predicted,
+          tangent: current.tangent,
+          guess,
+          halving: halvings,
+          distance: next === null ? null : defect,
+          allowance,
+        };
+      if (++halvings > HALVINGS) return null;
+      h = step / 2;
+    }
+    return current.t === target ? current : null;
+  }
+
+  /**
+   * A point moved by whole turns: its host phase, part phase and parameter
+   * shifted.
+   *
+   * @param p The point.
+   * @param theta The host phase's shift, radians.
+   * @param phi The part phase's shift, radians.
+   * @param t The parameter's shift, radians.
+   * @returns The moved point, or the point itself for no shift.
+   */
+  export function shifted(
+    p: IAutoMovieSolidIntersection.IPoint,
+    theta: number,
+    phi: number,
+    t: number,
+  ): IAutoMovieSolidIntersection.IPoint {
+    return theta === 0 && phi === 0 && t === 0
+      ? p
+      : { ...p, theta: p.theta + theta, phi: p.phi + phi, t: p.t + t };
   }
 
   /**
@@ -411,153 +557,7 @@ export namespace AutoMovieSolidTraceSolve {
       angle: Math.asin(Math.min(1, sine)),
     };
   }
-
-  /**
-   * Continue from a point to a target parameter by predicted and corrected
-   * steps, halving a rejected proposal and recovering a low-defect step.
-   *
-   * @param part The part's surface.
-   * @param host The host's faces.
-   * @param law The parameter's law.
-   * @param from The point to continue from.
-   * @param target The parameter to reach.
-   * @param tolerance Largest gap accepted, mm.
-   * @param observation Optional call-owned record of the last meeting attempt's
-   *   refusal; it changes no candidate, budget or result.
-   * @returns The point at the target, or null after more than {@link HALVINGS}
-   *   consecutive failed halvings, 1024 meeting candidates, or a proposed
-   *   parameter that cannot make finite representable progress.
-   *
-   *   The next proposal may double when the corrected world defect uses at most
-   *   one eighth of the existing acceptance allowance. That is a bounded
-   *   proposal heuristic, not a third-order error guarantee for a C2 surface;
-   *   every candidate still passes the same predictor/corrector acceptance
-   *   test. The original interval caps growth and each accepted point restarts
-   *   the consecutive-failure counter. The 1024-candidate protection is a
-   *   product work budget, not a geometric sufficiency condition or a wall-time
-   *   bound. Different accepted substeps can change rounding or expose a budget
-   *   failure without changing the source surfaces, Newton residual or
-   *   tolerance.
-   */
-  export function advance(
-    part: IAutoMovieSolidSurface,
-    host: IAutoMovieSolidAtlas,
-    law: IAutoMovieSolidTraceLaw.ILaw,
-    from: IAutoMovieSolidIntersection.IPoint,
-    target: number,
-    tolerance: number,
-    observation?: Observation.IState,
-  ): IAutoMovieSolidIntersection.IPoint | null {
-    let current: IAutoMovieSolidIntersection.IPoint = from;
-
-    /** Signed original interval, also the maximum recovered proposal. */
-    const span: number = target - from.t;
-    let h: number = span;
-    let halvings: number = 0;
-
-    /**
-     * Every accepted or rejected meeting candidate spends the same product work
-     * budget.
-     */
-    for (
-      let attempt: number = 0;
-      current.t !== target && attempt < 1024;
-      attempt++
-    ) {
-      const step: number =
-        Math.abs(target - current.t) < Math.abs(h) ? target - current.t : h;
-      const x0: AutoMovieSolidChartVector4 = [
-        current.s,
-        current.phi,
-        current.y,
-        current.theta,
-      ];
-      const guess: AutoMovieSolidChartVector4 = x0.map(
-        (v: number, i: number): number =>
-          v + current.rate[i]! * step + (current.rate2[i]! * step * step) / 2,
-      ) as AutoMovieSolidChartVector4;
-      const predicted: Vec3 = combine([
-        [1, current.point],
-        [step, current.tangent],
-        [(step * step) / 2, current.second],
-      ]);
-      const t: number =
-        Math.abs(target - current.t - step) === 0 ? target : current.t + step;
-      if (t === current.t) return null;
-      const next: IAutoMovieSolidIntersection.IPoint | null = solve(
-        part,
-        host,
-        law,
-        t,
-        guess,
-        current.face,
-        tolerance,
-        observation,
-      );
-      const length: number = norm(sub(predicted, current.point));
-
-      /** The unchanged world-space predictor allowance, in mm. */
-      const allowance: number = 0.25 * length + 10 * tolerance;
-
-      /**
-       * A missing correction is rejected; a present one keeps the original
-       * defect norm.
-       */
-      const defect: number =
-        next === null ? Infinity : norm(sub(next.point, predicted));
-      if (next !== null && defect <= allowance) {
-        current = next;
-        halvings = 0;
-
-        // Recovery proposes a larger step; its own corrected result must still pass.
-        h =
-          defect <= allowance / 8
-            ? Math.sign(step) * Math.min(Math.abs(span), 2 * Math.abs(step))
-            : step;
-        continue;
-      }
-      // A corrected point refused by the predictor allowance is this attempt's refusal; a failed solve has recorded its own.
-      if (next !== null)
-        Observation.fail(
-          observation,
-          "branch-distance",
-          [next.s, next.phi, next.y, next.theta],
-          next.face,
-        );
-      if (observation !== undefined)
-        observation.step = {
-          h: step,
-          predicted,
-          tangent: current.tangent,
-          guess,
-          halving: halvings,
-          distance: next === null ? null : defect,
-          allowance,
-        };
-      if (++halvings > HALVINGS) return null;
-      h = step / 2;
-    }
-    return current.t === target ? current : null;
-  }
-
-  /**
-   * A point moved by whole turns: its host phase, part phase and parameter
-   * shifted.
-   *
-   * @param p The point.
-   * @param theta The host phase's shift, radians.
-   * @param phi The part phase's shift, radians.
-   * @param t The parameter's shift, radians.
-   * @returns The moved point, or the point itself for no shift.
-   */
-  export function shifted(
-    p: IAutoMovieSolidIntersection.IPoint,
-    theta: number,
-    phi: number,
-    t: number,
-  ): IAutoMovieSolidIntersection.IPoint {
-    return theta === 0 && phi === 0 && t === 0
-      ? p
-      : { ...p, theta: p.theta + theta, phi: p.phi + phi, t: p.t + t };
-  }
 }
+type Vec3 = AutoMovieVector3Tuple;
+
+type IJet = IAutoMovieSolidSurface.IJet;

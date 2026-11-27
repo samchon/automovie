@@ -5,9 +5,6 @@ import type {
 
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 
-/** The alternatives of `WalkStepsTempoContext`'s site. */
-type WalkStepsTempoContext = "skill" | "subject" | "series";
-
 /**
  * The stream a take's tempo is drawn from: one per performer and per occurrence
  * of the action in their chain, keyed as a walk whatever the gait is called. A
@@ -29,3 +26,6 @@ export function walkStepsTempo(
     "period",
   );
 }
+
+/** The alternatives of `WalkStepsTempoContext`'s site. */
+type WalkStepsTempoContext = "skill" | "subject" | "series";

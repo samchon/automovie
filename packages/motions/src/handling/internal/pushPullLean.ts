@@ -3,15 +3,6 @@ import type {
   IAutoMovieMotionHumanPushPullLean,
 } from "@automovie/interface";
 
-/** The alternatives of `OfTableEntry`'s site. */
-type OfTableEntry = "waist" | "shoulder";
-
-/** The alternatives of `OfWay`'s site. */
-type OfWay = IAutoMovieMotionHumanPushPullLean.Way | "drag";
-
-/** The alternatives of `EntryEntryEntry`'s site. */
-type EntryEntryEntry = "waist" | "shoulder";
-
 /**
  * The trunk's incline from the vertical for a haul.
  *
@@ -91,3 +82,12 @@ export namespace pushPullLean {
     },
   };
 }
+
+/** The alternatives of `OfTableEntry`'s site. */
+type OfTableEntry = "waist" | "shoulder";
+
+/** The alternatives of `OfWay`'s site. */
+type OfWay = IAutoMovieMotionHumanPushPullLean.Way | "drag";
+
+/** The alternatives of `EntryEntryEntry`'s site. */
+type EntryEntryEntry = "waist" | "shoulder";

@@ -19,9 +19,6 @@ import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/** The alternatives of `OfContext`'s site. */
-type OfContext = "body" | "entry" | "prop";
-
 /**
  * The prop the entry holds in one hand or both, with an end.
  *
@@ -482,3 +479,6 @@ export namespace walkPoleFrame {
         );
   }
 }
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "entry" | "prop";

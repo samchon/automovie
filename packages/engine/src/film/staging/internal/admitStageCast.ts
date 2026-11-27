@@ -6,9 +6,6 @@ import type {
 
 import { describeInvalidValue } from "../../../validation/internal/describeInvalidValue";
 
-/** A script member whose model is resolved by its declared node id. */
-type CastMember = IAutoMovieScript["cast"][number];
-
 /**
  * Check the correspondence between the cast and its placements. Duplicate cast
  * ids keep their first member. Every actor claims its staged id even when it
@@ -79,3 +76,6 @@ export function admitStageCast(
   });
   return cast;
 }
+
+/** A script member whose model is resolved by its declared node id. */
+type CastMember = IAutoMovieScript["cast"][number];

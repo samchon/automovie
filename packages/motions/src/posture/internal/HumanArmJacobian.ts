@@ -19,9 +19,6 @@ import { HumanArmFrame } from "./HumanArmFrame";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanJacobian } from "./HumanJacobian";
 
-/** The alternatives of `AXESItem`'s site. */
-type AXESItem = 0 | 1 | 2;
-
 /**
  * The analytic Jacobian of the arm planner's coordinates: for each free
  * coordinate, the twist of the upper arm, the forearm and the hand, so a point
@@ -279,3 +276,6 @@ export namespace HumanArmJacobian {
     return { x: (q.x / s) * angle, y: (q.y / s) * angle, z: (q.z / s) * angle };
   };
 }
+
+/** The alternatives of `AXESItem`'s site. */
+type AXESItem = 0 | 1 | 2;

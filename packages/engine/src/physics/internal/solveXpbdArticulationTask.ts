@@ -9,21 +9,6 @@ import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
 import { solveXpbdArticulationContacts as Contacts } from "./solveXpbdArticulationContacts";
 import { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
 
-/** A support row. */
-type IRow = Contacts.IRow;
-
-/** A support patch. */
-type IPatch = Contacts.IPatch;
-
-/** A tree's support rows and patches. */
-type ISet = Contacts.ISet;
-
-/** An actuated axis. */
-type IActuator = Contacts.IActuator;
-
-/** A held solution. */
-type IHeld = Contacts.IHeld;
-
 /**
  * One articulated tree's support task (`solveXpbdArticulationContacts`): the
  * cascade over its support rows and actuated axes, and the actuated chain
@@ -346,3 +331,18 @@ export namespace solveXpbdArticulationTask {
       );
   }
 }
+
+/** A support row. */
+type IRow = Contacts.IRow;
+
+/** A support patch. */
+type IPatch = Contacts.IPatch;
+
+/** A tree's support rows and patches. */
+type ISet = Contacts.ISet;
+
+/** An actuated axis. */
+type IActuator = Contacts.IActuator;
+
+/** A held solution. */
+type IHeld = Contacts.IHeld;

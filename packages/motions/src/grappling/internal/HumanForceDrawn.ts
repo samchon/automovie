@@ -1,8 +1,3 @@
-/** The record of `ISampleProps`'s site. */
-type ISampleProps = {
-  /** Seconds since the pull began. */
-  seconds: number;
-};
 /**
  * The original constant-pull inverted pendulum with fixed physical
  * coefficients. Position-only reads and complete state reads share the same
@@ -84,3 +79,8 @@ export namespace HumanForceDrawn {
     return { offset, speed, extrapolated: offset + speed / w };
   }
 }
+/** The record of `ISampleProps`'s site. */
+type ISampleProps = {
+  /** Seconds since the pull began. */
+  seconds: number;
+};

@@ -35,9 +35,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanAdaptiveKnots } from "../../posture/internal/prepareHumanAdaptiveKnots";
 import type { prepareHumanKnotCourse } from "../../posture/internal/prepareHumanKnotCourse";
 
-/** Both hands. */
-const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-
 /**
  * The backup member of a hose team (`hoseLine`'s `backup` role): both hands on
  * the line's grip without carrying it, each a power grip rolled about the line
@@ -264,3 +261,6 @@ export function hoseBackup(
     ],
   };
 }
+
+/** Both hands. */
+const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];

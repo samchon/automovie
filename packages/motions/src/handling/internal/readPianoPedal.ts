@@ -11,21 +11,6 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** The admitted level plate in world space. */
-interface IPedal {
-  /** Centre of the undepressed plate. */
-  point: IAutoMovieVector3;
-  /** Plate axes, used to check the ball lies within the plate. */
-  rotation: IAutoMovieQuaternion;
-  /** Hinge pivot and positive lateral axis in world space. */
-  pivot: IAutoMovieVector3;
-  axis: IAutoMovieVector3;
-  /** Plate dimensions in metres and hinge travel in degrees. */
-  width: number;
-  depth: number;
-  travel: number;
-}
-
 /**
  * Read a released upright damper pedal and its hinge in world coordinates.
  *
@@ -120,6 +105,21 @@ export function readPianoPedal(
     width: pedal.width,
     depth: pedal.depth,
   };
+}
+
+/** The admitted level plate in world space. */
+interface IPedal {
+  /** Centre of the undepressed plate. */
+  point: IAutoMovieVector3;
+  /** Plate axes, used to check the ball lies within the plate. */
+  rotation: IAutoMovieQuaternion;
+  /** Hinge pivot and positive lateral axis in world space. */
+  pivot: IAutoMovieVector3;
+  axis: IAutoMovieVector3;
+  /** Plate dimensions in metres and hinge travel in degrees. */
+  width: number;
+  depth: number;
+  travel: number;
 }
 
 /** Report the prop placement the author can correct. */

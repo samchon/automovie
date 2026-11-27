@@ -37,9 +37,6 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/** The alternatives of `PlanRestBone`'s site. */
-type PlanRestBone = "UpperLeg" | "LowerLeg" | "Foot" | "Toes";
-
 /**
  * A touch with the leg while standing (effectors below the hip): the toes, the
  * heel or the knee of one leg is brought onto a place and held there, the other
@@ -381,3 +378,6 @@ export namespace legTouch {
     };
   }
 }
+
+/** The alternatives of `PlanRestBone`'s site. */
+type PlanRestBone = "UpperLeg" | "LowerLeg" | "Foot" | "Toes";

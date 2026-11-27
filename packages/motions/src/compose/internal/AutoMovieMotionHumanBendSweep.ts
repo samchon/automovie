@@ -19,18 +19,6 @@ import type { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendCh
 import type { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain";
 
-/** The record of `IAutoMovieMotionHumanBendSweepMid`'s site. */
-type IAutoMovieMotionHumanBendSweepMid = {
-  rotation: IAutoMovieQuaternion;
-  overshoot: number;
-};
-
-/** The record of `IAutoMovieMotionHumanBendSweepResult`'s site. */
-type IAutoMovieMotionHumanBendSweepResult = {
-  candidate: ICandidate;
-  seed: IAutoMovieSwivelSeed;
-};
-
 /**
  * The best elbow place of a prepared arm chain for a wrist's place under a
  * ranking: the engine's swivel sweep over the elbow's circle, each place read
@@ -250,6 +238,18 @@ export function AutoMovieMotionHumanBendSweep(
   };
   return complete();
 }
+
+/** The record of `IAutoMovieMotionHumanBendSweepMid`'s site. */
+type IAutoMovieMotionHumanBendSweepMid = {
+  rotation: IAutoMovieQuaternion;
+  overshoot: number;
+};
+
+/** The record of `IAutoMovieMotionHumanBendSweepResult`'s site. */
+type IAutoMovieMotionHumanBendSweepResult = {
+  candidate: ICandidate;
+  seed: IAutoMovieSwivelSeed;
+};
 
 /** A place on the swivel circle, the search's. */
 type ICandidate = AutoMovieMotionHumanBendSearch.ICandidate;

@@ -99,16 +99,6 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
     ) => IAutoMovieVector3[];
   }
 
-  /** Fold-dependent lower-carriage vector in the second bar's neutral frame. */
-  interface IPiece extends IRange {
-    /** Third-bar angle relative to the second, radians. */
-    bend: number;
-    /** Resultant lower-carriage length, metres. */
-    lower: number;
-    /** Resultant angle from the second bar, radians. */
-    offset: number;
-  }
-
   /**
    * Snapshot four lengths and neutral relative angles.
    *
@@ -421,6 +411,16 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
         };
       },
     };
+  }
+
+  /** Fold-dependent lower-carriage vector in the second bar's neutral frame. */
+  interface IPiece extends IRange {
+    /** Third-bar angle relative to the second, radians. */
+    bend: number;
+    /** Resultant lower-carriage length, metres. */
+    lower: number;
+    /** Resultant angle from the second bar, radians. */
+    offset: number;
   }
 
   /** Admit finite coordinates without dereferencing a missing/sparse control. */

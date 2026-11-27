@@ -14,22 +14,6 @@ import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/** The authored trunk channels a hold place reads when given. */
-type CarryPostureItem = "pitch" | "roll" | "joints";
-
-/** The channels that carry a hold place's floor frame. */
-type CarryPosture2 = "root" | "yaw";
-
-/**
- * Root and heading with the optional authored trunk channels that move a hand's
- * support frame.
- */
-type CarryPosture = Pick<IAutoMovieMotionHumanPosture, CarryPosture2> &
-  Partial<Pick<IAutoMovieMotionHumanPosture, CarryPostureItem>>;
-
-/** A same-body FK loan scoped to the current posture evaluation. */
-type FK = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
-
 /**
  * A hand's hold place in the performer's moving floor frame (`carry`).
  *
@@ -133,6 +117,22 @@ export function carryPlace(
       return undefined;
   }
 }
+
+/** The authored trunk channels a hold place reads when given. */
+type CarryPostureItem = "pitch" | "roll" | "joints";
+
+/** The channels that carry a hold place's floor frame. */
+type CarryPosture2 = "root" | "yaw";
+
+/**
+ * Root and heading with the optional authored trunk channels that move a hand's
+ * support frame.
+ */
+type CarryPosture = Pick<IAutoMovieMotionHumanPosture, CarryPosture2> &
+  Partial<Pick<IAutoMovieMotionHumanPosture, CarryPostureItem>>;
+
+/** A same-body FK loan scoped to the current posture evaluation. */
+type FK = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
 
 /** The current abdomen's front in the walking floor frame. */
 function forwardAbdomen(

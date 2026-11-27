@@ -8,36 +8,6 @@ import type {
 import { AutoMovieMotionHumanHead } from "../../compose/internal/AutoMovieMotionHumanHead";
 import { kissBody } from "./kissBody";
 
-/** The alternatives of `KissPoseHeldBone2`'s site. */
-type KissPoseHeldBone2 = "neck" | "head";
-
-/** The alternatives of `KissPoseHeldBone`'s site. */
-type KissPoseHeldBone = "neck" | "head";
-
-/** The alternatives of `KissPoseS`'s site. */
-type KissPoseS =
-  | "pitch"
-  | "roll"
-  | "flexion"
-  | "raise"
-  | "sink"
-  | "twist"
-  | "shift"
-  | "advance"
-  | "bearing";
-
-/** The alternatives of `KissPoseSResult`'s site. */
-type KissPoseSResult =
-  | "pitch"
-  | "roll"
-  | "flexion"
-  | "raise"
-  | "sink"
-  | "twist"
-  | "shift"
-  | "advance"
-  | "bearing";
-
 /**
  * Build each kiss-search candidate: the kiss's body at its full share
  * (`kissBody`, the model the displayed kiss writes), with the neck's flexion
@@ -103,3 +73,33 @@ export function kissPose(
     };
   };
 }
+
+/** The alternatives of `KissPoseHeldBone2`'s site. */
+type KissPoseHeldBone2 = "neck" | "head";
+
+/** The alternatives of `KissPoseHeldBone`'s site. */
+type KissPoseHeldBone = "neck" | "head";
+
+/** The alternatives of `KissPoseS`'s site. */
+type KissPoseS =
+  | "pitch"
+  | "roll"
+  | "flexion"
+  | "raise"
+  | "sink"
+  | "twist"
+  | "shift"
+  | "advance"
+  | "bearing";
+
+/** The alternatives of `KissPoseSResult`'s site. */
+type KissPoseSResult =
+  | "pitch"
+  | "roll"
+  | "flexion"
+  | "raise"
+  | "sink"
+  | "twist"
+  | "shift"
+  | "advance"
+  | "bearing";

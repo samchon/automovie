@@ -22,15 +22,6 @@ import { builtFootprintsOverlap } from "./builtFootprintsOverlap";
 import { AUTOMOVIE_SUPPORT_TOLERANCE } from "../AUTOMOVIE_SUPPORT_TOLERANCE";
 import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
 
-/** A resolved support: the face it bears on and how that face was derived. */
-interface IResolvedSupport {
-  /** Polygon and height rule sampled by the gap query. */
-  face: IAutoMoviePropSupportFace;
-
-  /** Provenance of the support's measured proxy. */
-  basis: AutoMovieBuiltPlacementBasis;
-}
-
 /**
  * Classify one project-authored bearing or suspension relation.
  *
@@ -128,6 +119,15 @@ export function builtEnvironmentSupportStatus(
     subjectBasis: subject.basis,
     supportBasis: support.basis,
   };
+}
+
+/** A resolved support: the face it bears on and how that face was derived. */
+interface IResolvedSupport {
+  /** Polygon and height rule sampled by the gap query. */
+  face: IAutoMoviePropSupportFace;
+
+  /** Provenance of the support's measured proxy. */
+  basis: AutoMovieBuiltPlacementBasis;
 }
 
 /**

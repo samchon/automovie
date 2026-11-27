@@ -25,12 +25,6 @@ const FORES: readonly Fore[] = ["leftFore", "rightFore"];
  */
 const OFF: number = 1e-6;
 
-/** A fore limb. */
-type Fore = Extract<AutoMovieArchetypeQuadrupedBody.Limb, `${string}Fore`>;
-
-/** A named instant of a ride. */
-type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
-
 /**
  * The Spanish walk, a layer over an equid's walk: each forelimb, while it
  * swings, is carried straight up and forward from the shoulder and set down on
@@ -255,3 +249,9 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
     return Math.min(top.y, bottom.y) - radius * Math.hypot(axis.x, axis.z);
   }
 }
+
+/** A fore limb. */
+type Fore = Extract<AutoMovieArchetypeQuadrupedBody.Limb, `${string}Fore`>;
+
+/** A named instant of a ride. */
+type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];

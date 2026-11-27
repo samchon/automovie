@@ -9,30 +9,6 @@ import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { MotionBodies } from "../internal/MotionBodies";
 import { FootSlip } from "./FootSlip";
 
-/** The record of `IFitValueS`'s site. */
-type IFitValueS = { t: number; p: IAutoMovieVector3 };
-
-/** The record of `IJumpCasesSamplesItem`'s site. */
-type IJumpCasesSamplesItem = { t: number; p: IAutoMovieVector3 };
-
-/** The record of `IJumpCasesChannelBest`'s site. */
-type IJumpCasesChannelBest = { key: string; score: number };
-
-/** The record of `IJumpCasesSink`'s site. */
-type IJumpCasesSink = { value: number; where: string };
-
-/** The record of `IJumpCasesFlight`'s site. */
-type IJumpCasesFlight = { value: number; where: string };
-
-/** The record of `IJumpCasesPop`'s site. */
-type IJumpCasesPop = { value: number; where: string };
-
-/** The record of `IJumpCasesJumpRatio`'s site. */
-type IJumpCasesJumpRatio = { value: number; where: string };
-
-/** The record of `IJumpCasesSlip`'s site. */
-type IJumpCasesSlip = { value: number; where: string };
-
 /**
  * Experiment E1 on the polygon man (`jump-e1-<body>` for the smallest, the
  * average and the tallest sweep bodies): the body walks at a normal pace and is
@@ -418,3 +394,27 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
     },
   ];
 }
+
+/** The record of `IFitValueS`'s site. */
+type IFitValueS = { t: number; p: IAutoMovieVector3 };
+
+/** The record of `IJumpCasesSamplesItem`'s site. */
+type IJumpCasesSamplesItem = { t: number; p: IAutoMovieVector3 };
+
+/** The record of `IJumpCasesChannelBest`'s site. */
+type IJumpCasesChannelBest = { key: string; score: number };
+
+/** The record of `IJumpCasesSink`'s site. */
+type IJumpCasesSink = { value: number; where: string };
+
+/** The record of `IJumpCasesFlight`'s site. */
+type IJumpCasesFlight = { value: number; where: string };
+
+/** The record of `IJumpCasesPop`'s site. */
+type IJumpCasesPop = { value: number; where: string };
+
+/** The record of `IJumpCasesJumpRatio`'s site. */
+type IJumpCasesJumpRatio = { value: number; where: string };
+
+/** The record of `IJumpCasesSlip`'s site. */
+type IJumpCasesSlip = { value: number; where: string };

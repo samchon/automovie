@@ -5,22 +5,6 @@ import type {
   IAutoMovieRecoveryNamedDomainsDescriptionOperation,
 } from "@automovie/interface";
 
-/** One planned named domain, read from either declaration kind. */
-interface IDeclared {
-  id: string;
-  curves: readonly string[];
-  closedGroups: readonly IAutoMovieRecoveryDomainAddress[] | null;
-}
-
-/** One actual report, read from either report kind. */
-interface IReported {
-  id: string;
-  admitted: boolean;
-  delegatedGroups: readonly IAutoMovieRecoveryDomainAddress[] | null;
-  diagnostics: readonly string[];
-  primitiveRanges: readonly IAutoMovieRecoveryAtlasPrimitiveRange[];
-}
-
 /**
  * Bind planned named domains only to unique actual reports with the same
  * identity. Repeated or missing names keep admission and generation unknown,
@@ -164,4 +148,20 @@ export function describeRecoveryNamedDomains(
         );
   }
   return { members, owners, diagnostics };
+}
+
+/** One planned named domain, read from either declaration kind. */
+interface IDeclared {
+  id: string;
+  curves: readonly string[];
+  closedGroups: readonly IAutoMovieRecoveryDomainAddress[] | null;
+}
+
+/** One actual report, read from either report kind. */
+interface IReported {
+  id: string;
+  admitted: boolean;
+  delegatedGroups: readonly IAutoMovieRecoveryDomainAddress[] | null;
+  diagnostics: readonly string[];
+  primitiveRanges: readonly IAutoMovieRecoveryAtlasPrimitiveRange[];
 }

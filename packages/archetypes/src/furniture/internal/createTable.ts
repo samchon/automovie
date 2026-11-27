@@ -4,25 +4,6 @@ import { Vector3 } from "@automovie/engine";
 import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 import "../constants/TABLE_BANDS";
 
-/** The readable name of each kind. */
-const NAMES: Readonly<Record<AutoMovieArchetypeTable.Kind, string>> = {
-  dining: "dining table",
-  desk: "desk",
-  counter: "counter",
-  coffee: "coffee table",
-  bar: "bar counter",
-  serviceCounter: "service counter",
-  workbench: "workbench",
-  pupilDesk: "pupil desk",
-  altar: "altar",
-};
-
-/**
- * A bar counter's knee space under its top's front, metres: NKBA Guideline 9's
- * 12 in (305 mm) for a 42 in counter.
- */
-const KNEE: number = 0.305;
-
 /**
  * A table: a dining table, a desk, a counter, a coffee table, a raised bar
  * counter, a service counter, a workbench, a pupil desk or an altar.
@@ -183,3 +164,22 @@ export function createTable(
     });
   return builder.build(d.mass!);
 }
+
+/** The readable name of each kind. */
+const NAMES: Readonly<Record<AutoMovieArchetypeTable.Kind, string>> = {
+  dining: "dining table",
+  desk: "desk",
+  counter: "counter",
+  coffee: "coffee table",
+  bar: "bar counter",
+  serviceCounter: "service counter",
+  workbench: "workbench",
+  pupilDesk: "pupil desk",
+  altar: "altar",
+};
+
+/**
+ * A bar counter's knee space under its top's front, metres: NKBA Guideline 9's
+ * 12 in (305 mm) for a 42 in counter.
+ */
+const KNEE: number = 0.305;

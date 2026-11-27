@@ -44,9 +44,6 @@ import { HumanPropFlight } from "./internal/HumanPropFlight";
 import { HumanSegment } from "./internal/HumanSegment";
 import { fractureHumanPerformanceProp } from "./internal/fractureHumanPerformanceProp";
 
-/** The record of `IAimResult`'s site. */
-type IAimResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
-
 /**
  * A performance of people and props: their chained actions placed on the film
  * clock, every cut checked against the actions' interrupt tables, and each
@@ -494,3 +491,6 @@ export class HumanPerformance {
     return HumanPerformanceAim.aim(this.resolved, target, seconds, frame);
   }
 }
+
+/** The record of `IAimResult`'s site. */
+type IAimResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };

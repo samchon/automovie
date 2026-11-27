@@ -6,28 +6,6 @@ import {
 
 import { Vector3 } from "../../math/Vector3";
 
-const JOINT_AXES: readonly AutoMovieJointAxis[] = [
-  "flexion",
-  "abduction",
-  "twist",
-];
-
-/** Length at or below which an axis names no direction. */
-const MIN_AXIS_LENGTH: number = 1e-9;
-
-/** Largest absolute cosine two axes may have and still count as orthogonal. */
-const MAX_AXIS_DOT: number = 1e-6;
-
-/** The axis pairs whose orthogonality is checked, reported on the second. */
-const AXIS_PAIRS: readonly (readonly [
-  AutoMovieJointAxis,
-  AutoMovieJointAxis,
-])[] = [
-  ["flexion", "abduction"],
-  ["flexion", "twist"],
-  ["abduction", "twist"],
-];
-
 /**
  * Every reason a joint-axis basis cannot serve the clinical angle conversions,
  * as located issues; an empty list means the basis is usable.
@@ -110,5 +88,27 @@ export function validateJointAxesBasis(
 
   return issues;
 }
+
+const JOINT_AXES: readonly AutoMovieJointAxis[] = [
+  "flexion",
+  "abduction",
+  "twist",
+];
+
+/** Length at or below which an axis names no direction. */
+const MIN_AXIS_LENGTH: number = 1e-9;
+
+/** Largest absolute cosine two axes may have and still count as orthogonal. */
+const MAX_AXIS_DOT: number = 1e-6;
+
+/** The axis pairs whose orthogonality is checked, reported on the second. */
+const AXIS_PAIRS: readonly (readonly [
+  AutoMovieJointAxis,
+  AutoMovieJointAxis,
+])[] = [
+  ["flexion", "abduction"],
+  ["flexion", "twist"],
+  ["abduction", "twist"],
+];
 
 type AutoMovieJointAxis = "flexion" | "abduction" | "twist";

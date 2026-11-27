@@ -8,16 +8,6 @@ import type {
 
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 
-/** One already admitted original chart and its actual station ownership. */
-type Chart = {
-  /** Actual physical station interval, kernel millimetres. */
-  domain: [number, number];
-  /** Exact original clock interval and direction. */
-  piece: IAutoMovieConstructionProfilePiece;
-  /** Borrowed immutable generating function owner. */
-  curve: IAutoMovieConstructionProfileSource.ICurve;
-};
-
 /**
  * Qualified phase readings of actual profile fields, independently of
  * physical2.
@@ -105,6 +95,16 @@ export namespace AutoMovieConstructionProfilePhase {
     };
   }
 }
+
+/** One already admitted original chart and its actual station ownership. */
+type Chart = {
+  /** Actual physical station interval, kernel millimetres. */
+  domain: [number, number];
+  /** Exact original clock interval and direction. */
+  piece: IAutoMovieConstructionProfilePiece;
+  /** Borrowed immutable generating function owner. */
+  curve: IAutoMovieConstructionProfileSource.ICurve;
+};
 
 /** Every provided local derivative owns both components. */
 function pair(value: readonly number[]): void {

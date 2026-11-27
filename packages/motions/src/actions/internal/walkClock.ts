@@ -72,12 +72,6 @@ export function walkClock(
         walkStation.rests(context, station),
       );
 }
-/** The record of `IWalkClockStepsResult`'s site. */
-type IWalkClockStepsResult = {
-  plan: IAutoMovieMotionHumanWalkSteps.IPlan;
-  clock?: walkTempo.IClock | null;
-};
-
 /** Companions of {@link walkClock}. */
 export namespace walkClock {
   /**
@@ -125,9 +119,6 @@ export namespace walkClock {
       plan = fitted;
     }
   }
-  /** The alternatives of `WalkClockEntrainmentPlanned`'s site. */
-  type WalkClockEntrainmentPlanned = "duration" | "events";
-
   /**
    * Read the cue and phase correction for this sequence of heel strikes.
    *
@@ -155,6 +146,7 @@ export namespace walkClock {
           seconds.map((s: number): number => s - context.start),
         ) ?? null);
   }
+
   /**
    * The factor a member's fatigue puts on a walk's speed
    * (`HUMAN_ATTRIBUTE_EFFECTS.fatigue.pace`, fresh when absent): 1 for a
@@ -177,4 +169,12 @@ export namespace walkClock {
           0,
         );
   }
+  /** The alternatives of `WalkClockEntrainmentPlanned`'s site. */
+  type WalkClockEntrainmentPlanned = "duration" | "events";
 }
+
+/** The record of `IWalkClockStepsResult`'s site. */
+type IWalkClockStepsResult = {
+  plan: IAutoMovieMotionHumanWalkSteps.IPlan;
+  clock?: walkTempo.IClock | null;
+};

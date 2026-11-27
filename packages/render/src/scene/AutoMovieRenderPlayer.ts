@@ -18,18 +18,6 @@ import type { IAutoMovieSpringConfig } from "./IAutoMovieSpringConfig.js";
 import { applyExpression } from "./internal/applyExpression.js";
 import { applyPose } from "./internal/applyPose.js";
 
-/** One joint's three solver states, retained in this player's spring map. */
-interface IAxisSprings {
-  /** Flexion value and velocity carried between bounded solver updates. */
-  flexion: IAutoMovieSpringStep;
-
-  /** Abduction value and velocity carried between the same updates. */
-  abduction: IAutoMovieSpringStep;
-
-  /** Twist value and velocity carried between the same updates. */
-  twist: IAutoMovieSpringStep;
-}
-
 /**
  * Drives a motion clip onto a built model: given an elapsed time it samples the
  * clip (via the engine's interpolation) and applies the resulting pose to the
@@ -249,4 +237,16 @@ export class AutoMovieRenderPlayer {
   public get lastExpression(): IAutoMovieExpression | null {
     return this.lastSample?.expression ?? null;
   }
+}
+
+/** One joint's three solver states, retained in this player's spring map. */
+interface IAxisSprings {
+  /** Flexion value and velocity carried between bounded solver updates. */
+  flexion: IAutoMovieSpringStep;
+
+  /** Abduction value and velocity carried between the same updates. */
+  abduction: IAutoMovieSpringStep;
+
+  /** Twist value and velocity carried between the same updates. */
+  twist: IAutoMovieSpringStep;
 }

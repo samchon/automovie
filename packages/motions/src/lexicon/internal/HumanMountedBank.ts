@@ -14,12 +14,6 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
 import { HumanMountedStirrups } from "./HumanMountedStirrups";
 import { respondHumanMounted } from "./respondHumanMounted";
 
-/** The alternatives of `KeyAttitude`'s site. */
-type KeyAttitude = "yaw" | "pitch" | "roll";
-
-/** The alternatives of `Phase2`'s site. */
-type Phase2 = "index" | "share";
-
 /**
  * The bank seats of a mounted performance: down a bank the rider sits with the
  * heels down and gives the reins forward while the trunk stays upright in
@@ -191,3 +185,9 @@ export namespace HumanMountedBank {
     );
   }
 }
+
+/** The alternatives of `KeyAttitude`'s site. */
+type KeyAttitude = "yaw" | "pitch" | "roll";
+
+/** The alternatives of `Phase2`'s site. */
+type Phase2 = "index" | "share";

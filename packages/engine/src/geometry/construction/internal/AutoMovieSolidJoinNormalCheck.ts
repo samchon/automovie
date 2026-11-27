@@ -8,15 +8,6 @@ import type {
 import { AutoMovieSolidBlend } from "../../AutoMovieSolidBlend";
 import { AutoMovieSolidVector } from "../../AutoMovieSolidVector";
 
-/** World vectors retain the source reader's millimetre units. */
-type Vec3 = AutoMovieVector3Tuple;
-
-/** Only the original neighbouring-rail or sampled-normal premise can fail here. */
-type IFailure = {
-  contract: "rails" | "unfolded blend";
-  detail: string;
-};
-
 /**
  * Observe the join's original consecutive-normal dot predicate at its sampled
  * columns, preserving the rail/blend reads and their evaluation order.
@@ -179,3 +170,12 @@ export function AutoMovieSolidJoinNormalCheck(
   }
   return null;
 }
+
+/** World vectors retain the source reader's millimetre units. */
+type Vec3 = AutoMovieVector3Tuple;
+
+/** Only the original neighbouring-rail or sampled-normal premise can fail here. */
+type IFailure = {
+  contract: "rails" | "unfolded blend";
+  detail: string;
+};

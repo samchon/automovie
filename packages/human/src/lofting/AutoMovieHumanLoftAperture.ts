@@ -241,6 +241,53 @@ export namespace AutoMovieHumanLoftAperture {
   }
 
   /**
+   * Move a point within the projection plane onto the projected margin.
+   *
+   * The point keeps its depth along `forward`; its in-plane position moves
+   * to the nearest point of the projected polyline. Used to place the
+   * vertices where the cut crosses the margin exactly on it, instead of
+   * where a linear interpolation of the signed distance put them.
+   *
+   * @param outline Projected margin.
+   * @param p Point in mm.
+   */
+  export function snap(
+    outline: IAutoMovieHumanLoftApertureConstruction.IOutline,
+    p: Readonly<AutoMovieVector3Tuple>,
+  ): AutoMovieVector3Tuple {
+    const [u, v] = project(outline.lateral, outline.up, p);
+    let best: number = Infinity;
+    let target: [number, number] = [u, v];
+    const points: [number, number][] = outline.points;
+    for (
+      let i: number = 0, j: number = points.length - 1;
+      i < points.length;
+      j = i++
+    ) {
+      const a: [number, number] = points[j]!;
+      const c: [number, number] = points[i]!;
+      const du: number = c[0] - a[0];
+      const dv: number = c[1] - a[1];
+      const l: number = du * du + dv * dv;
+      const w: number =
+        l > 0
+          ? Math.min(1, Math.max(0, ((u - a[0]) * du + (v - a[1]) * dv) / l))
+          : 0;
+      const d: number = (a[0] + w * du - u) ** 2 + (a[1] + w * dv - v) ** 2;
+      if (d < best) {
+        best = d;
+        target = [a[0] + w * du, a[1] + w * dv];
+      }
+    }
+    const du: number = target[0] - u;
+    const dv: number = target[1] - v;
+    return [0, 1, 2].map(
+      (k: number): number =>
+        p[k]! + du * outline.lateral[k]! + dv * outline.up[k]!,
+    ) as AutoMovieVector3Tuple;
+  }
+
+  /**
    * The grid of an outline: about `sqrt(n)` cells along its longer side for
    * `n` segments, so a dense margin puts a few segments in each cell it
    * crosses.
@@ -297,53 +344,6 @@ export namespace AutoMovieHumanLoftAperture {
         ? Math.min(1, Math.max(0, ((u - a[0]) * du + (v - a[1]) * dv) / l))
         : 0;
     return (a[0] + w * du - u) ** 2 + (a[1] + w * dv - v) ** 2;
-  }
-
-  /**
-   * Move a point within the projection plane onto the projected margin.
-   *
-   * The point keeps its depth along `forward`; its in-plane position moves
-   * to the nearest point of the projected polyline. Used to place the
-   * vertices where the cut crosses the margin exactly on it, instead of
-   * where a linear interpolation of the signed distance put them.
-   *
-   * @param outline Projected margin.
-   * @param p Point in mm.
-   */
-  export function snap(
-    outline: IAutoMovieHumanLoftApertureConstruction.IOutline,
-    p: Readonly<AutoMovieVector3Tuple>,
-  ): AutoMovieVector3Tuple {
-    const [u, v] = project(outline.lateral, outline.up, p);
-    let best: number = Infinity;
-    let target: [number, number] = [u, v];
-    const points: [number, number][] = outline.points;
-    for (
-      let i: number = 0, j: number = points.length - 1;
-      i < points.length;
-      j = i++
-    ) {
-      const a: [number, number] = points[j]!;
-      const c: [number, number] = points[i]!;
-      const du: number = c[0] - a[0];
-      const dv: number = c[1] - a[1];
-      const l: number = du * du + dv * dv;
-      const w: number =
-        l > 0
-          ? Math.min(1, Math.max(0, ((u - a[0]) * du + (v - a[1]) * dv) / l))
-          : 0;
-      const d: number = (a[0] + w * du - u) ** 2 + (a[1] + w * dv - v) ** 2;
-      if (d < best) {
-        best = d;
-        target = [a[0] + w * du, a[1] + w * dv];
-      }
-    }
-    const du: number = target[0] - u;
-    const dv: number = target[1] - v;
-    return [0, 1, 2].map(
-      (k: number): number =>
-        p[k]! + du * outline.lateral[k]! + dv * outline.up[k]!,
-    ) as AutoMovieVector3Tuple;
   }
 
   /** In-plane coordinates `[lateral, up]` of a point. */

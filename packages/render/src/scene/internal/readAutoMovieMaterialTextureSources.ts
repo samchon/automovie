@@ -9,15 +9,6 @@ import type { AutoMovieRenderMaterial } from "../AutoMovieRenderMaterial.js";
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import { readAutoMovieTextureSource } from "./readAutoMovieTextureSource.js";
 
-type RuntimeSource = NonNullable<
-  IAutoMovieRenderTextureResidency["runtimeTextures"]
->[number];
-/**
- * Returned rows always carry the current live-scope list, including an empty
- * list.
- */
-type ObservedRuntimeSource = RuntimeSource & { residents: string[] };
-
 /**
  * Read actual implicit material and area-light lookup objects for one scope.
  * Shader factories publish the same Texture reference they bind. The area pair
@@ -131,3 +122,12 @@ export function readAutoMovieMaterialTextureSources(
   }
   return rows;
 }
+type RuntimeSource = NonNullable<
+  IAutoMovieRenderTextureResidency["runtimeTextures"]
+>[number];
+
+/**
+ * Returned rows always carry the current live-scope list, including an empty
+ * list.
+ */
+type ObservedRuntimeSource = RuntimeSource & { residents: string[] };

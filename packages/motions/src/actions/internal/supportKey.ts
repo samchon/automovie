@@ -27,21 +27,6 @@ import { stand } from "./stand";
 import { supportContact } from "./supportContact";
 import { supportKeyHeels } from "./supportKeyHeels";
 
-/** A contact with no authored or previously laid world position yet. */
-type ContactPoint = IAutoMovieVector3 | null;
-
-/** The record of `IAnchorsItemResult`'s site. */
-type IAnchorsItemResult = {
-  contact: IAutoMovieMotionHumanSupport.IContact;
-  at: IAutoMovieVector3;
-};
-
-/** The record of `IPreferredAnchorsItem`'s site. */
-type IPreferredAnchorsItem = {
-  contact: IAutoMovieMotionHumanSupport.IContact;
-  at: IAutoMovieVector3;
-};
-
 /**
  * A support planner's key postures (`support`): one solved on a stance's
  * contacts by the whole-body fit, and the course between two of them.
@@ -249,10 +234,6 @@ export namespace supportKey {
     return result.posture;
   }
 
-  /** The solver's measured miss of one target. */
-  type Residual =
-    IAutoMovieMotionHumanBodyFitTypes.IResult["residuals"][number];
-
   /**
    * A stance's preferred posture: its stated posture (`prefer`) over the key
    * before it, turned by the stance's turn and rested on the floor by its
@@ -405,6 +386,10 @@ export namespace supportKey {
     };
   }
 
+  /** The solver's measured miss of one target. */
+  type Residual =
+    IAutoMovieMotionHumanBodyFitTypes.IResult["residuals"][number];
+
   /** One fixed union joint; absent tuples keep their original fresh-zero rule. */
   interface IBlendPair {
     /** The canonical joint name in original union order. */
@@ -423,3 +408,18 @@ export namespace supportKey {
     read: ReturnType<typeof blendHumanJoint.between> | undefined;
   }
 }
+
+/** A contact with no authored or previously laid world position yet. */
+type ContactPoint = IAutoMovieVector3 | null;
+
+/** The record of `IAnchorsItemResult`'s site. */
+type IAnchorsItemResult = {
+  contact: IAutoMovieMotionHumanSupport.IContact;
+  at: IAutoMovieVector3;
+};
+
+/** The record of `IPreferredAnchorsItem`'s site. */
+type IPreferredAnchorsItem = {
+  contact: IAutoMovieMotionHumanSupport.IContact;
+  at: IAutoMovieVector3;
+};

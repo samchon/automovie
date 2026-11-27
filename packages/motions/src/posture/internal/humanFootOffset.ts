@@ -6,9 +6,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** The alternatives of `HumanFootOffsetPoint`'s site. */
-type HumanFootOffsetPoint = "heel" | "ball" | "toe" | "sole" | "mtp";
-
 /**
  * Read a sole point in ankle-local metres with its actual toe articulation.
  *
@@ -38,8 +35,6 @@ export function humanFootOffset(
   );
   return articulated(joint, socket.point, toes);
 }
-/** The alternatives of `HumanFootOffsetPreparePoint`'s site. */
-type HumanFootOffsetPreparePoint = "heel" | "ball" | "toe" | "sole" | "mtp";
 
 /** Fixed ankle-local socket preparation for an action's changing toe angles. */
 export namespace humanFootOffset {
@@ -78,7 +73,6 @@ export namespace humanFootOffset {
       articulated(joint, socket.point, toes);
   }
 }
-
 /** The unchanged joint translation after the socket's actual toe rotation. */
 function articulated(
   joint: IAutoMovieVector3,
@@ -91,3 +85,9 @@ function articulated(
 /** The private unchanged negative lateral toe-flexion axis. */
 const FLEXION: ReturnType<typeof Quaternion.prepareAxisAngle> =
   Quaternion.prepareAxisAngle({ x: -1, y: 0, z: 0 });
+
+/** The alternatives of `HumanFootOffsetPoint`'s site. */
+type HumanFootOffsetPoint = "heel" | "ball" | "toe" | "sole" | "mtp";
+
+/** The alternatives of `HumanFootOffsetPreparePoint`'s site. */
+type HumanFootOffsetPreparePoint = "heel" | "ball" | "toe" | "sole" | "mtp";

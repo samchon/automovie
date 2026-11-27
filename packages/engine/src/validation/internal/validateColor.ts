@@ -5,9 +5,6 @@ import type {
 
 import { linearColorToSrgbHex } from "../../math/internal/linearColorToSrgbHex";
 
-/** The optional display label uses exactly three eight-bit sRGB channels. */
-const HEX_COLOR_PATTERN: RegExp = /^#[0-9A-Fa-f]{6}$/;
-
 /**
  * Append every out-of-range linear RGBA field and contradictory display label.
  * RGB and non-null alpha must be finite within [0,1]. Hex is null or #RRGGBB
@@ -58,3 +55,6 @@ export function validateColor(
       );
   }
 }
+
+/** The optional display label uses exactly three eight-bit sRGB channels. */
+const HEX_COLOR_PATTERN: RegExp = /^#[0-9A-Fa-f]{6}$/;

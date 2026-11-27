@@ -8,9 +8,6 @@ import type {
 import { HumanFootRotation } from "./HumanFootRotation";
 import { humanFootOffset } from "./humanFootOffset";
 
-/** The alternatives of `PrepareHumanFootAnklePivot`'s site. */
-type PrepareHumanFootAnklePivot = "heel" | "ball" | "toe" | "sole" | "mtp";
-
 /**
  * Prepare the ankle of a foot pivoting about a sole point fixed in the world,
  * for a search that reads many pitches and keeps none of them.
@@ -66,3 +63,6 @@ export function prepareHumanFootAnkle(
     return ankle;
   };
 }
+
+/** The alternatives of `PrepareHumanFootAnklePivot`'s site. */
+type PrepareHumanFootAnklePivot = "heel" | "ball" | "toe" | "sole" | "mtp";

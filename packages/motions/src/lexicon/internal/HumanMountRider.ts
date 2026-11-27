@@ -238,74 +238,6 @@ export namespace HumanMountRider {
       );
   }
 
-  /** A held grip requires its free origin only before acquisition finishes. */
-  function held(
-    body: IAutoMovieMotionHumanBody,
-    side: AutoMovieHumanSide,
-    posture: IAutoMovieMotionHumanPosture,
-    grip: IAutoMovieMotionHumanMountRider.IHoldGrip,
-    share: number,
-    closed: IAutoMovieMotionHumanPosture["joints"],
-    free: () => IFree,
-  ): IAutoMovieMotionHumanMountRider.IHoldResult {
-    const s: number = Math.min(1, Math.max(0, share));
-    const {
-      point: target,
-      fingers,
-      contact,
-      rotation: rein,
-    }: IWrist = wrist(body, posture, grip);
-    const turned: IAutoMovieQuaternion =
-      rein ??
-      HumanHand.rotation(side, {
-        fingers,
-        palm: Vector3.scale(grip.normal, -1),
-      });
-    let point: IAutoMovieVector3 = target;
-    let rotation: IAutoMovieQuaternion = turned;
-    const hang: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
-      body,
-      posture,
-      side,
-      0.2,
-    );
-    let bend: IAutoMovieVector3 = hang;
-    if (s < 1) {
-      const hand: IFree = free();
-      point = Vector3.lerp(hand.position, target, s);
-      rotation = Quaternion.slerp(hand.rotation, turned, s);
-      // The elbow leaves where the posture shows it, so a hand taken from or given back to its rest keeps its elbow's side at the end it is free.
-      if (hand.pole !== undefined) bend = Vector3.lerp(hand.pole, hang, s);
-    }
-    const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
-      side,
-      "relaxed",
-    );
-    const closing: IAutoMovieMotionHumanPosture["joints"] = {};
-    for (const bone of Object.keys(closed) as AutoMovieHumanoidBone[]) {
-      // The fingers start as the posture shows them, so a hold that begins
-      // mid-motion does not snap the hand to its relaxed shape.
-      const from: readonly [number, number, number] = posture.joints[bone] ??
-        relaxed[bone] ?? [0, 0, 0];
-      const to: readonly [number, number, number] = closed[bone]!;
-      closing[bone] = [
-        from[0] + (to[0] - from[0]) * s,
-        from[1] + (to[1] - from[1]) * s,
-        from[2] + (to[2] - from[2]) * s,
-      ];
-    }
-    return {
-      arm: {
-        point,
-        rotation,
-        bend,
-        ...(contact === undefined ? {} : { contact }),
-        planted: s >= 1,
-      },
-      fingers: closing,
-    };
-  }
-
   /**
    * The finger joints of a hand closed on a grip of the support: each digit
    * curled from the relaxed hand until its phalanges meet the handle
@@ -415,6 +347,74 @@ export namespace HumanMountRider {
     return sides.length === 0
       ? 0
       : HumanMountReach.reach(body, seated, sides)(points);
+  }
+
+  /** A held grip requires its free origin only before acquisition finishes. */
+  function held(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    posture: IAutoMovieMotionHumanPosture,
+    grip: IAutoMovieMotionHumanMountRider.IHoldGrip,
+    share: number,
+    closed: IAutoMovieMotionHumanPosture["joints"],
+    free: () => IFree,
+  ): IAutoMovieMotionHumanMountRider.IHoldResult {
+    const s: number = Math.min(1, Math.max(0, share));
+    const {
+      point: target,
+      fingers,
+      contact,
+      rotation: rein,
+    }: IWrist = wrist(body, posture, grip);
+    const turned: IAutoMovieQuaternion =
+      rein ??
+      HumanHand.rotation(side, {
+        fingers,
+        palm: Vector3.scale(grip.normal, -1),
+      });
+    let point: IAutoMovieVector3 = target;
+    let rotation: IAutoMovieQuaternion = turned;
+    const hang: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
+      body,
+      posture,
+      side,
+      0.2,
+    );
+    let bend: IAutoMovieVector3 = hang;
+    if (s < 1) {
+      const hand: IFree = free();
+      point = Vector3.lerp(hand.position, target, s);
+      rotation = Quaternion.slerp(hand.rotation, turned, s);
+      // The elbow leaves where the posture shows it, so a hand taken from or given back to its rest keeps its elbow's side at the end it is free.
+      if (hand.pole !== undefined) bend = Vector3.lerp(hand.pole, hang, s);
+    }
+    const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+      side,
+      "relaxed",
+    );
+    const closing: IAutoMovieMotionHumanPosture["joints"] = {};
+    for (const bone of Object.keys(closed) as AutoMovieHumanoidBone[]) {
+      // The fingers start as the posture shows them, so a hold that begins
+      // mid-motion does not snap the hand to its relaxed shape.
+      const from: readonly [number, number, number] = posture.joints[bone] ??
+        relaxed[bone] ?? [0, 0, 0];
+      const to: readonly [number, number, number] = closed[bone]!;
+      closing[bone] = [
+        from[0] + (to[0] - from[0]) * s,
+        from[1] + (to[1] - from[1]) * s,
+        from[2] + (to[2] - from[2]) * s,
+      ];
+    }
+    return {
+      arm: {
+        point,
+        rotation,
+        bend,
+        ...(contact === undefined ? {} : { contact }),
+        planted: s >= 1,
+      },
+      fingers: closing,
+    };
   }
   /** A mounted hand's exact wrist goal and the axis the fingers follow. */
   interface IWrist {

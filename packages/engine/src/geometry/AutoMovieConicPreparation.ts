@@ -7,15 +7,6 @@ import type {
 import { AutoMovieConicArcField } from "./AutoMovieConicArcField";
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 
-/** Eight invocation-local endpoint values, indexed by their guide and side. */
-interface Own<T> {
-  /** Curvature from the previous quarter's reflected final end. */
-  before: T[];
-
-  /** Curvature from the next quarter's initial end. */
-  after: T[];
-}
-
 /** Internal conic assembly shared by the existing public preparation wrappers. */
 export namespace AutoMovieConicPreparation {
   /**
@@ -284,4 +275,13 @@ export namespace AutoMovieConicPreparation {
     }
     return { quarters, failure: null };
   }
+}
+
+/** Eight invocation-local endpoint values, indexed by their guide and side. */
+interface Own<T> {
+  /** Curvature from the previous quarter's reflected final end. */
+  before: T[];
+
+  /** Curvature from the next quarter's initial end. */
+  after: T[];
 }

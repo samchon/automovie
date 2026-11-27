@@ -31,30 +31,8 @@ import { kissPose } from "./kissPose";
  * angles, the chest's contact with the partner's torso, and the refusals.
  */
 export namespace embraceFromBehindSolve {
-  /**
-   * The miss under which a region rests on another, metres (provisional: a skin
-   * contact, as `headRest`'s).
-   */
-  export const NEAR: number = 0.01;
-
-  /** The lean's forward range, degrees: the kiss's own. */
-  const PITCH: readonly [number, number] = [-10, 45];
-
-  /** Radians in a degree. */
-  const RADIAN: number = Math.PI / 180;
-
-  /** The partner's torso bones whose colliders are the back the chest lies on. */
-  export const TORSO: ReadonlySet<AutoMovieHumanoidBone> =
-    new Set<AutoMovieHumanoidBone>(["spine", "chest", "upperChest"]);
-
   /** The neck's two bones a resting head bends over. */
   export type NeckBone = "neck" | "head";
-
-  /**
-   * How far the body may sink on bent knees to bring the chin down, metres
-   * (provisional: a slight knee bend).
-   */
-  const SINK: number = 0.12;
 
   /** A freedom's range in the solve, metres or radians. */
   export interface IRange {
@@ -121,6 +99,47 @@ export namespace embraceFromBehindSolve {
   }
 
   /**
+   * The partner's surfaces the embrace bears on: the torso's colliders (the
+   * back the chest lies on), the shoulder region's bone's colliders (the
+   * shoulder the head rests on) and the region's point on them (where the chin
+   * goes).
+   */
+  export interface ISurfaces {
+    /** The signed distance to the partner's torso colliders. */
+    back: (
+      point: IAutoMovieVector3,
+    ) => IAutoMovieMotionHumanColliders.IDistance;
+
+    /** The signed distance to the colliders of the shoulder region's bone. */
+    top: (point: IAutoMovieVector3) => IAutoMovieMotionHumanColliders.IDistance;
+
+    /** The shoulder region's point, world metres. */
+    rest: IAutoMovieVector3;
+  }
+
+  /**
+   * The miss under which a region rests on another, metres (provisional: a skin
+   * contact, as `headRest`'s).
+   */
+  export const NEAR: number = 0.01;
+
+  /** The lean's forward range, degrees: the kiss's own. */
+  const PITCH: readonly [number, number] = [-10, 45];
+
+  /** Radians in a degree. */
+  const RADIAN: number = Math.PI / 180;
+
+  /** The partner's torso bones whose colliders are the back the chest lies on. */
+  export const TORSO: ReadonlySet<AutoMovieHumanoidBone> =
+    new Set<AutoMovieHumanoidBone>(["spine", "chest", "upperChest"]);
+
+  /**
+   * How far the body may sink on bent knees to bring the chin down, metres
+   * (provisional: a slight knee bend).
+   */
+  const SINK: number = 0.12;
+
+  /**
    * The neck's flexion, side bend and turn at a share, added over the posture's
    * own.
    */
@@ -151,25 +170,6 @@ export namespace embraceFromBehindSolve {
       ...posture,
       joints: { ...posture.joints, neck: added("neck"), head: added("head") },
     };
-  }
-
-  /**
-   * The partner's surfaces the embrace bears on: the torso's colliders (the
-   * back the chest lies on), the shoulder region's bone's colliders (the
-   * shoulder the head rests on) and the region's point on them (where the chin
-   * goes).
-   */
-  export interface ISurfaces {
-    /** The signed distance to the partner's torso colliders. */
-    back: (
-      point: IAutoMovieVector3,
-    ) => IAutoMovieMotionHumanColliders.IDistance;
-
-    /** The signed distance to the colliders of the shoulder region's bone. */
-    top: (point: IAutoMovieVector3) => IAutoMovieMotionHumanColliders.IDistance;
-
-    /** The shoulder region's point, world metres. */
-    rest: IAutoMovieVector3;
   }
 
   /**

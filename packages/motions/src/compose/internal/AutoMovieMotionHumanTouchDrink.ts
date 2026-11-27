@@ -21,27 +21,6 @@ import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEf
 import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
 import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpright";
 
-/** The alternatives of `TrialLaidAt`'s site. */
-type TrialLaidAt = "point" | "normal";
-
-/** The alternatives of `TrialAnatomyName2`'s site. */
-type TrialAnatomyName2 = "fingers" | "palm" | "thumb";
-
-/** The alternatives of `TrialAnatomyName`'s site. */
-type TrialAnatomyName = "fingers" | "palm" | "thumb";
-
-/** The alternatives of `TrialPlace`'s site. */
-type TrialPlace = "point" | "normal";
-
-/** The alternatives of `HeldPlace`'s site. */
-type HeldPlace = "point" | "normal";
-
-/** The alternatives of `AdmittedPlace`'s site. */
-type AdmittedPlace = "point" | "normal";
-
-/** The alternatives of `DrinkingPlace`'s site. */
-type DrinkingPlace = "point" | "normal";
-
 /**
  * How far a vessel is leaned toward the face at the lips, and turned there, so
  * the arm that brings it holds it as a person drinks: the least lean, in
@@ -487,3 +466,24 @@ export namespace AutoMovieMotionHumanTouchDrink {
     return AutoMovieMotionHumanDrinkingArm.drinks(arm) && arm.tilt <= LEAN_STEP;
   }
 }
+
+/** The alternatives of `TrialLaidAt`'s site. */
+type TrialLaidAt = "point" | "normal";
+
+/** The alternatives of `TrialAnatomyName2`'s site. */
+type TrialAnatomyName2 = "fingers" | "palm" | "thumb";
+
+/** The alternatives of `TrialAnatomyName`'s site. */
+type TrialAnatomyName = "fingers" | "palm" | "thumb";
+
+/** The alternatives of `TrialPlace`'s site. */
+type TrialPlace = "point" | "normal";
+
+/** The alternatives of `HeldPlace`'s site. */
+type HeldPlace = "point" | "normal";
+
+/** The alternatives of `AdmittedPlace`'s site. */
+type AdmittedPlace = "point" | "normal";
+
+/** The alternatives of `DrinkingPlace`'s site. */
+type DrinkingPlace = "point" | "normal";

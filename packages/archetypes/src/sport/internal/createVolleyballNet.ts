@@ -9,6 +9,36 @@ import {
 import { GoalBuild } from "./GoalBuild";
 import type { AutoMovieArchetypeGoal } from "../AutoMovieArchetypeGoal";
 
+/**
+ * A volleyball net with class-specific height, side antennas and post grips.
+ *
+ * The net extends along X. Top marks its upper edge and its two posts stand on
+ * the floor.
+ *
+ * @param params The identifier, net class and optional dimensions. The class
+ *   supplies the top height.
+ * @param seed The seed draws the class and free dimensions. Without a seed, the
+ *   men's class and band midpoints apply.
+ * @returns The model with its named contacts in its local frame.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
+ *   cannot be realized.
+ */
+export function createVolleyballNet(
+  params: AutoMovieArchetypeVolleyballNet.IParams = {},
+  seed?: number,
+): AutoMovieArchetype<
+  AutoMovieArchetypeVolleyballNet.Affordance,
+  AutoMovieArchetypeVolleyballNet.Dimension
+> {
+  const {
+    builder,
+    d,
+  }: ReturnType<typeof GoalBuild.draw<AutoMovieArchetypeVolleyballNet.Affordance>> =
+    GoalBuild.draw("volleyballNet", params, seed);
+  volleyball(builder, d);
+  return builder.build(d.mass!);
+}
+
 /** The builder for this field or court apparatus. */
 type Builder = AutoMovieArchetypeBuilder<
   AutoMovieArchetypeVolleyballNet.Affordance,
@@ -55,36 +85,6 @@ const ESTIMATES: Readonly<IEstimates> = {
   mesh: 0.005,
   antenna: 0.005,
 };
-
-/**
- * A volleyball net with class-specific height, side antennas and post grips.
- *
- * The net extends along X. Top marks its upper edge and its two posts stand on
- * the floor.
- *
- * @param params The identifier, net class and optional dimensions. The class
- *   supplies the top height.
- * @param seed The seed draws the class and free dimensions. Without a seed, the
- *   men's class and band midpoints apply.
- * @returns The model with its named contacts in its local frame.
- * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
- *   cannot be realized.
- */
-export function createVolleyballNet(
-  params: AutoMovieArchetypeVolleyballNet.IParams = {},
-  seed?: number,
-): AutoMovieArchetype<
-  AutoMovieArchetypeVolleyballNet.Affordance,
-  AutoMovieArchetypeVolleyballNet.Dimension
-> {
-  const {
-    builder,
-    d,
-  }: ReturnType<typeof GoalBuild.draw<AutoMovieArchetypeVolleyballNet.Affordance>> =
-    GoalBuild.draw("volleyballNet", params, seed);
-  volleyball(builder, d);
-  return builder.build(d.mass!);
-}
 
 /**
  * Build a volleyball net: the posts outside the side lines, the net hung from

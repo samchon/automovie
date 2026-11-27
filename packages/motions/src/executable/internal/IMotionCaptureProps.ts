@@ -5,25 +5,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** The record of `IMotionCapturePropsBoxesItem`'s site. */
-type IMotionCapturePropsBoxesItem = {
-  centre: IAutoMovieVector3;
-  half: IAutoMovieVector3;
-  color: number;
-};
-
-/** The record of `IMotionCapturePropsGhostsItem`'s site. */
-type IMotionCapturePropsGhostsItem = {
-  /** Opacity in (0, 1]. */
-  opacity: number;
-};
-
-/** The record of `IMotionCapturePropsRaster`'s site. */
-type IMotionCapturePropsRaster = { width: number; height: number };
-
-/** The record of `IMotionCapturePropsInstantsItem`'s site. */
-type IMotionCapturePropsInstantsItem = { seconds: number; label: string };
-
 /**
  * One motion case as the draw page receives it: everything the page needs to
  * draw the case, computed in Node where the case is built and judged, and
@@ -74,6 +55,7 @@ export interface IMotionCaptureProps extends IAutoMovieMotionHumanMotionCaptureO
    */
   boxes: IMotionCapturePropsBoxesItem[];
 }
+
 export namespace IMotionCaptureProps {
   /** One figure: its body, its colour and its pose at every instant. */
   export interface IFigure {
@@ -90,3 +72,21 @@ export namespace IMotionCaptureProps {
     poses: IAutoMoviePose[];
   }
 }
+
+/** The record of `IMotionCapturePropsBoxesItem`'s site. */
+type IMotionCapturePropsBoxesItem = {
+  centre: IAutoMovieVector3;
+  half: IAutoMovieVector3;
+  color: number;
+};
+
+/** The record of `IMotionCapturePropsGhostsItem`'s site. */
+type IMotionCapturePropsGhostsItem = {
+  /** Opacity in (0, 1]. */
+  opacity: number;
+};
+
+/** The record of `IMotionCapturePropsRaster`'s site. */
+type IMotionCapturePropsRaster = { width: number; height: number };
+/** The record of `IMotionCapturePropsInstantsItem`'s site. */
+type IMotionCapturePropsInstantsItem = { seconds: number; label: string };

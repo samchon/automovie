@@ -6,12 +6,6 @@ import { StrikingBody } from "./StrikingBody";
 import { StrikingGuardBones } from "./StrikingGuardBones";
 import { StrikingStance } from "./StrikingStance";
 
-/** The alternatives of `StrikingGuardOut`'s site. */
-type StrikingGuardOut = "leftArm" | "rightArm";
-
-/** The alternatives of `StrikingGuardResult`'s site. */
-type StrikingGuardResult = "leftArm" | "rightArm";
-
 /**
  * Place the fighting guard's two glove goals on the current trunk: both at
  * their ear's height the same short distance ahead of their jaw, the rear glove
@@ -202,6 +196,7 @@ export namespace StrikingGuard {
     return { ...fistAt, y: fistAt.y - at.drop };
   }
 }
+
 /**
  * The existing horizontal-normal convention, with +Z when horizontal length is
  * at most 1e-9.
@@ -210,3 +205,8 @@ function horizontal(v: IAutoMovieVector3): IAutoMovieVector3 {
   const h: IAutoMovieVector3 = { x: v.x, y: 0, z: v.z };
   return Vector3.length(h) > 1e-9 ? Vector3.normalize(h) : { x: 0, y: 0, z: 1 };
 }
+
+/** The alternatives of `StrikingGuardOut`'s site. */
+type StrikingGuardOut = "leftArm" | "rightArm";
+/** The alternatives of `StrikingGuardResult`'s site. */
+type StrikingGuardResult = "leftArm" | "rightArm";

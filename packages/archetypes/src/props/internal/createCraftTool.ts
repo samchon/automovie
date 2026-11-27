@@ -10,19 +10,6 @@ import {
 } from "../../core/index";
 
 /**
- * Each kind's size, metres and kilograms. No source is read: every figure is a
- * provisional construction estimate of the common article (an artist's
- * long-handled brush, a conductor's baton, a hand-sewing needle, a straight
- * knitting needle).
- */
-const KINDS: Readonly<Record<AutoMovieArchetypeCraftTool.Kind, AutoMovieArchetypeCraftTool.ISize>> = {
-  paintbrush: { length: 0.3, radius: 0.004, grip: 0.12, mass: 0.015 },
-  baton: { length: 0.4, radius: 0.004, grip: 0.04, mass: 0.02 },
-  needle: { length: 0.04, radius: 0.0004, grip: 0.01, mass: 0.0005 },
-  knittingNeedle: { length: 0.3, radius: 0.0025, grip: 0.1, mass: 0.01 },
-};
-
-/**
  * A slender hand tool worked by its tip: an artist's paintbrush, a conductor's
  * baton, a sewing needle or a knitting needle.
  *
@@ -104,3 +91,16 @@ export function createCraftTool(
     });
   return builder.build(size.mass);
 }
+
+/**
+ * Each kind's size, metres and kilograms. No source is read: every figure is a
+ * provisional construction estimate of the common article (an artist's
+ * long-handled brush, a conductor's baton, a hand-sewing needle, a straight
+ * knitting needle).
+ */
+const KINDS: Readonly<Record<AutoMovieArchetypeCraftTool.Kind, AutoMovieArchetypeCraftTool.ISize>> = {
+  paintbrush: { length: 0.3, radius: 0.004, grip: 0.12, mass: 0.015 },
+  baton: { length: 0.4, radius: 0.004, grip: 0.04, mass: 0.02 },
+  needle: { length: 0.04, radius: 0.0004, grip: 0.01, mass: 0.0005 },
+  knittingNeedle: { length: 0.3, radius: 0.0025, grip: 0.1, mass: 0.01 },
+};

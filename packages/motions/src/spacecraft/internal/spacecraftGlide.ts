@@ -40,9 +40,6 @@ export const spacecraftGlide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHum
     interrupts: {},
     plan,
   };
-/** The alternatives of `PlanPart`'s site. */
-type PlanPart = "leftHand" | "rightHand";
-
 /**
  * Resolve the handrails once, then evaluate an analytic root path and one grip
  * goal.
@@ -292,8 +289,6 @@ function plan(
     },
   };
 }
-/** The alternatives of `RailField`'s site. */
-type RailField = "departure" | "arrival";
 
 /** Read a named fixed mobility aid from a prop's affordances. */
 function rail(
@@ -318,7 +313,6 @@ function rail(
     });
   return found;
 }
-
 /** Turn a rail-local axis into the placed spacecraft's world frame. */
 function axis(
   spacecraft: IAutoMovieRigidTransform,
@@ -330,3 +324,9 @@ function axis(
     Quaternion.rotateVector(rail.frame.rotation, local),
   );
 }
+
+/** The alternatives of `PlanPart`'s site. */
+type PlanPart = "leftHand" | "rightHand";
+
+/** The alternatives of `RailField`'s site. */
+type RailField = "departure" | "arrival";

@@ -1,21 +1,6 @@
 import type { HumanArmSeed } from "./HumanArmSeed";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
-/** The knot and chart data needed to apply a step. */
-type StepContext = Pick<
-  M.IContext,
-  | "n"
-  | "open"
-  | "times"
-  | "sites"
-  | "rest"
-  | "back"
-  | "free"
-  | "bounds"
-  | "offset"
-  | "width"
->;
-
 /**
  * The iterate after a step of the convex subproblem: each inner waypoint's free
  * coordinates moved by the step, the others kept, then projected onto the hard
@@ -47,3 +32,18 @@ export function HumanArmTrajectoryStep(
     }),
   );
 }
+
+/** The knot and chart data needed to apply a step. */
+type StepContext = Pick<
+  M.IContext,
+  | "n"
+  | "open"
+  | "times"
+  | "sites"
+  | "rest"
+  | "back"
+  | "free"
+  | "bounds"
+  | "offset"
+  | "width"
+>;

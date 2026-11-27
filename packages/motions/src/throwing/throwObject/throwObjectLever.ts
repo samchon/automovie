@@ -12,25 +12,6 @@ import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotion
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 import { throwObjectLaunch } from "../internal/throwObjectLaunch";
 
-/** The alternatives of `SpinContext`'s site. */
-type SpinContext = "body" | "entry" | "prop" | "subject";
-
-/** The record of `IOfProps`'s site. */
-type IOfProps = {
-  context: Pick<IAutoMovieMotionHumanActionContext, OfPropsContext>;
-  side: AutoMovieHumanSide;
-  shoulder: IAutoMovieVector3;
-  release: IAutoMovieVector3;
-  held: IAutoMovieQuaternion;
-  target: IAutoMovieVector3;
-  degrees: number;
-  implement?: IAutoMovieMotionHumanThrowObjectLever.IImplement;
-  prop?: string;
-};
-
-/** The alternatives of `OfPropsContext`'s site. */
-type OfPropsContext = "body" | "entry" | "prop" | "subject";
-
 /**
  * Read the lever of a throw.
  *
@@ -207,3 +188,22 @@ export namespace throwObjectLever {
     };
   }
 }
+
+/** The alternatives of `SpinContext`'s site. */
+type SpinContext = "body" | "entry" | "prop" | "subject";
+
+/** The record of `IOfProps`'s site. */
+type IOfProps = {
+  context: Pick<IAutoMovieMotionHumanActionContext, OfPropsContext>;
+  side: AutoMovieHumanSide;
+  shoulder: IAutoMovieVector3;
+  release: IAutoMovieVector3;
+  held: IAutoMovieQuaternion;
+  target: IAutoMovieVector3;
+  degrees: number;
+  implement?: IAutoMovieMotionHumanThrowObjectLever.IImplement;
+  prop?: string;
+};
+
+/** The alternatives of `OfPropsContext`'s site. */
+type OfPropsContext = "body" | "entry" | "prop" | "subject";

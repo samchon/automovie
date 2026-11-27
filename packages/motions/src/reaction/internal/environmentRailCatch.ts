@@ -25,33 +25,6 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { poseBones } from "../../posture/internal/poseBones";
 
 /**
- * Seconds to close the hand on the rail while the lost foot hangs
- * (provisional).
- */
-const CATCH: number = 0.38;
-
-/** Seconds to set the lost foot down while the hand holds (provisional). */
-const RECOVER: number = 0.45;
-
-/** Seconds to let go of the rail and stand (provisional). */
-const LET_GO: number = 0.38;
-
-/**
- * How far ahead along the trip the lost foot recovers, foot lengths
- * (provisional: a short capture step).
- */
-const STEP: number = 0.48;
-
-/** The rail's share of the body weight while the hand braces (provisional). */
-const LOAD: number = 0.15;
-
-/**
- * Reach slack beyond the straight arm, metres (provisional: the shoulder's
- * protraction).
- */
-const REACH: number = 0.03;
-
-/**
  * Brace a hand on a named rail after a lost foot: the hand closes on the bar's
  * nearest point to the shoulder while the remaining foot bears, the lost foot
  * comes down `STEP` foot lengths along the trip, and the hand lets go into an
@@ -194,6 +167,33 @@ export function environmentRailCatch(
     base: { kind: "standing" },
   };
 }
+
+/**
+ * Seconds to close the hand on the rail while the lost foot hangs
+ * (provisional).
+ */
+const CATCH: number = 0.38;
+
+/** Seconds to set the lost foot down while the hand holds (provisional). */
+const RECOVER: number = 0.45;
+
+/** Seconds to let go of the rail and stand (provisional). */
+const LET_GO: number = 0.38;
+
+/**
+ * How far ahead along the trip the lost foot recovers, foot lengths
+ * (provisional: a short capture step).
+ */
+const STEP: number = 0.48;
+
+/** The rail's share of the body weight while the hand braces (provisional). */
+const LOAD: number = 0.15;
+
+/**
+ * Reach slack beyond the straight arm, metres (provisional: the shoulder's
+ * protraction).
+ */
+const REACH: number = 0.03;
 
 /** The rail catch's affordance refusal. */
 function refuse(value: string, reason: string): HumanRefusal {

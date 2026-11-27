@@ -21,22 +21,6 @@ import { AquaticPosture } from "./AquaticPosture";
  * 27762669, with provisional timings and take-off velocity.
  */
 export namespace AquaticDive {
-  /** A block or board departure with a resolved first surface crossing. */
-  interface IEntryFlight {
-    /** Seconds spent on the board before release. */
-    release: number;
-    /** Local second at which the leading hands reach the water. */
-    entry: number;
-    /** Pose at the entry event. */
-    immersed: IAutoMovieMotionHumanPosture;
-    /** World velocity of the hips at entry, metres per second. */
-    velocity: IAutoMovieVector3;
-    /** Foot windows on the entered support. */
-    contacts: IAutoMovieMotionHumanContactWindow[];
-    /** Dry and airborne trajectory up to the entry event. */
-    posture(seconds: number): IAutoMovieMotionHumanPosture;
-  }
-
   /** One forward tucked dive and its first underwater recovery. */
   export function dive(
     context: AquaticPosture.Context,
@@ -335,5 +319,21 @@ export namespace AquaticDive {
         return floating(airborne, u * airtime);
       },
     };
+  }
+
+  /** A block or board departure with a resolved first surface crossing. */
+  interface IEntryFlight {
+    /** Seconds spent on the board before release. */
+    release: number;
+    /** Local second at which the leading hands reach the water. */
+    entry: number;
+    /** Pose at the entry event. */
+    immersed: IAutoMovieMotionHumanPosture;
+    /** World velocity of the hips at entry, metres per second. */
+    velocity: IAutoMovieVector3;
+    /** Foot windows on the entered support. */
+    contacts: IAutoMovieMotionHumanContactWindow[];
+    /** Dry and airborne trajectory up to the entry event. */
+    posture(seconds: number): IAutoMovieMotionHumanPosture;
   }
 }

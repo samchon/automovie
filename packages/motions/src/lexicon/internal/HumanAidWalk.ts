@@ -31,34 +31,6 @@ const FLOOR: number = 0.01;
 /** Fixed world vertical for floor, pivot and grip reads. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/**
- * One prop advance and the floor poses it joins, in film seconds and world
- * metres.
- */
-interface IAdvance {
-  /** Lift begins. */
-  from: number;
-
-  /** The next tip becomes planted. */
-  to: number;
-
-  /** Start and finish floor poses. */
-  floor: readonly [IAutoMovieRigidTransform, IAutoMovieRigidTransform];
-}
-
-/** The aid's course: when the body is ready and each advance after it. */
-interface ICourse {
-  /**
-   * Seconds from the action's start of the opening stance that settles the
-   * grip, a quarter of the first station's time; the first advance begins
-   * then.
-   */
-  ready: number;
-
-  /** Each aid advance in order. */
-  moves: readonly IAdvance[];
-}
-
 /** Name the aid or route setting that prevents motion. */
 function refuse(axis: string, value: unknown, reason: string): never {
   throw new HumanRefusal({
@@ -441,3 +413,31 @@ export const HumanAidWalk: IAutoMovieMotionHumanAidWalk.ILaw = {
     };
   },
 };
+
+/**
+ * One prop advance and the floor poses it joins, in film seconds and world
+ * metres.
+ */
+interface IAdvance {
+  /** Lift begins. */
+  from: number;
+
+  /** The next tip becomes planted. */
+  to: number;
+
+  /** Start and finish floor poses. */
+  floor: readonly [IAutoMovieRigidTransform, IAutoMovieRigidTransform];
+}
+
+/** The aid's course: when the body is ready and each advance after it. */
+interface ICourse {
+  /**
+   * Seconds from the action's start of the opening stance that settles the
+   * grip, a quarter of the first station's time; the first advance begins
+   * then.
+   */
+  ready: number;
+
+  /** Each aid advance in order. */
+  moves: readonly IAdvance[];
+}

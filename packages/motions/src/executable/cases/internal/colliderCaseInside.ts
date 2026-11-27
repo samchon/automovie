@@ -1,12 +1,5 @@
 import * as THREE from "three";
 
-/** A fixed direction no drawn edge or face is parallel to, for the parity test. */
-const RAY: THREE.Vector3 = new THREE.Vector3(
-  0.5371,
-  0.7193,
-  0.4402,
-).normalize();
-
 /**
  * Whether a point lies inside a closed triangle mesh, by ray parity: a ray from
  * the point crosses a closed surface an odd number of times exactly when the
@@ -31,3 +24,10 @@ export function colliderCaseInside(
       hits++;
   return hits % 2 === 1;
 }
+
+/** A fixed direction no drawn edge or face is parallel to, for the parity test. */
+const RAY: THREE.Vector3 = new THREE.Vector3(
+  0.5371,
+  0.7193,
+  0.4402,
+).normalize();

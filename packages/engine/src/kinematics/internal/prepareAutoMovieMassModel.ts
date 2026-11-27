@@ -17,68 +17,6 @@ import { resolveAutoMovieMomentum } from "./resolveAutoMovieMomentum";
 
 import { resolveAutoMovieMomentumRates } from "./resolveAutoMovieMomentumRates";
 
-/**
- * Snapshot one mass model for a synchronous physical planning operation.
- *
- * Call release in finally after the last inertia, momentum or centre query.
- * Preparation validates finite SI model values and copies every local numeric
- * prerequisite. A prepared model therefore keeps its meaning if its source is
- * edited, while every requested posed bone is still read at its actual value. A
- * getter may reenter this owner. Nested reads use the existing uncached
- * formulas instead of overwriting the outer call's frame or interval scratch.
- */
-function prepareAutoMovieMassModelRun(
-  source: IAutoMovieResolveCenterOfMass.IModel,
-): prepareAutoMovieMassModel.IPrepared {
-  const segments: IAutoMovieResolveCenterOfMass.ISegment[] =
-    source.segments.map(
-      (
-        segment: IAutoMovieResolveCenterOfMass.ISegment,
-      ): IAutoMovieResolveCenterOfMass.ISegment => {
-        const copied: IAutoMovieResolveCenterOfMass.ISegment = {
-          bone: segment.bone,
-          mass: segment.mass,
-          point: copyVector(segment.point),
-          inertia: copyVector(segment.inertia),
-          axes: copyQuaternion(segment.axes),
-        };
-        if (
-          copied.mass < 0 ||
-          copied.inertia.x < 0 ||
-          copied.inertia.y < 0 ||
-          copied.inertia.z < 0 ||
-          !(
-            Math.hypot(
-              copied.axes.x,
-              copied.axes.y,
-              copied.axes.z,
-              copied.axes.w,
-            ) > 0
-          )
-        )
-          throw new Error(
-            `The prepared mass model needs finite physical data for ${copied.bone}`,
-          );
-        return copied;
-      },
-    );
-  const mass: number = segments.reduce(
-    (sum: number, segment: IAutoMovieResolveCenterOfMass.ISegment): number =>
-      sum + segment.mass,
-    0,
-  );
-  if (!(mass > 0 && Object.is(mass, source.mass)))
-    throw new Error(
-      "The prepared mass model needs its finite positive segment mass sum",
-    );
-  return {
-    model: { mass, segments },
-    active: false,
-    tensor: AutoMoviePhysicalInertiaTensor.prepare(),
-    interval: resolveAutoMovieMomentum.prepareIntervals(),
-  };
-}
-
 /** Readers of an explicitly owned mass-model snapshot. */
 export namespace prepareAutoMovieMassModel {
   /** Execute the operation without merging a callable with this namespace. */
@@ -310,6 +248,68 @@ export namespace prepareAutoMovieMassModel {
   export function release(_prepared: IPrepared): void {
     // The model state lives and dies with its handle; nothing is registered.
   }
+}
+
+/**
+ * Snapshot one mass model for a synchronous physical planning operation.
+ *
+ * Call release in finally after the last inertia, momentum or centre query.
+ * Preparation validates finite SI model values and copies every local numeric
+ * prerequisite. A prepared model therefore keeps its meaning if its source is
+ * edited, while every requested posed bone is still read at its actual value. A
+ * getter may reenter this owner. Nested reads use the existing uncached
+ * formulas instead of overwriting the outer call's frame or interval scratch.
+ */
+function prepareAutoMovieMassModelRun(
+  source: IAutoMovieResolveCenterOfMass.IModel,
+): prepareAutoMovieMassModel.IPrepared {
+  const segments: IAutoMovieResolveCenterOfMass.ISegment[] =
+    source.segments.map(
+      (
+        segment: IAutoMovieResolveCenterOfMass.ISegment,
+      ): IAutoMovieResolveCenterOfMass.ISegment => {
+        const copied: IAutoMovieResolveCenterOfMass.ISegment = {
+          bone: segment.bone,
+          mass: segment.mass,
+          point: copyVector(segment.point),
+          inertia: copyVector(segment.inertia),
+          axes: copyQuaternion(segment.axes),
+        };
+        if (
+          copied.mass < 0 ||
+          copied.inertia.x < 0 ||
+          copied.inertia.y < 0 ||
+          copied.inertia.z < 0 ||
+          !(
+            Math.hypot(
+              copied.axes.x,
+              copied.axes.y,
+              copied.axes.z,
+              copied.axes.w,
+            ) > 0
+          )
+        )
+          throw new Error(
+            `The prepared mass model needs finite physical data for ${copied.bone}`,
+          );
+        return copied;
+      },
+    );
+  const mass: number = segments.reduce(
+    (sum: number, segment: IAutoMovieResolveCenterOfMass.ISegment): number =>
+      sum + segment.mass,
+    0,
+  );
+  if (!(mass > 0 && Object.is(mass, source.mass)))
+    throw new Error(
+      "The prepared mass model needs its finite positive segment mass sum",
+    );
+  return {
+    model: { mass, segments },
+    active: false,
+    tensor: AutoMoviePhysicalInertiaTensor.prepare(),
+    interval: resolveAutoMovieMomentum.prepareIntervals(),
+  };
 }
 
 /** The posed bone a segment rides on; a missing bone throws. */

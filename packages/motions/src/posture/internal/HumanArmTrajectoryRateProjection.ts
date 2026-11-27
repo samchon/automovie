@@ -3,12 +3,6 @@ import { ROM_TOLERANCE } from "@automovie/engine";
 import type { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
-/** Physical ranges and the clock shared by the adjacent quintics. */
-type RangeContext = Pick<
-  M.IContext,
-  "times" | "n" | "open" | "free" | "bounds" | "rest" | "back"
->;
-
 /**
  * A knotted iterate's rates projected onto the ranges its positions keep: a
  * knot whose bounded coordinate lies on its bound (within the joint's
@@ -84,6 +78,12 @@ export function HumanArmTrajectoryRateProjection(
   }
   return { velocities, accelerations };
 }
+
+/** Physical ranges and the clock shared by the adjacent quintics. */
+type RangeContext = Pick<
+  M.IContext,
+  "times" | "n" | "open" | "free" | "bounds" | "rest" | "back"
+>;
 
 /** Two endpoint-relative Bernstein controls of a quintic of signed span `h`. */
 function controls(h: number, v: number, a: number): [number, number] {

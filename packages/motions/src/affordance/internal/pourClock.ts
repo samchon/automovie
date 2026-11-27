@@ -6,9 +6,6 @@ import type {
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** A pour stage's start event and authored length, seconds. */
-type IPourClockPhase = { name: string; seconds: number };
-
 /**
  * The pour's stage clock: the five authored stages in order, each 0.2 to 3
  * seconds and at most 10 seconds in all, scaled by the performance's tempo. The
@@ -57,3 +54,6 @@ export function pourClock(
   for (const phase of phases) phase.seconds *= tempo;
   return AutoMovieMotionClock.sequence(phases);
 }
+
+/** A pour stage's start event and authored length, seconds. */
+type IPourClockPhase = { name: string; seconds: number };

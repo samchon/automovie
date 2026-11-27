@@ -7,33 +7,6 @@ import type {
 import { handshakeOffer } from "./handshakeOffer";
 import type { handshakeReach } from "./handshakeReach";
 
-/** The alternatives of `AttemptOther`'s site. */
-type AttemptOther = 0 | 1;
-
-/** The alternatives of `AttemptTop`'s site. */
-type AttemptTop = 0 | 1;
-
-/** The alternatives of `AttemptDeepI`'s site. */
-type AttemptDeepI = 0 | 1;
-
-/** The record of `IAttemptDeepReads2`'s site. */
-type IAttemptDeepReads2 = { distance: number; reach: number };
-
-/** The record of `IAttemptDeepReads`'s site. */
-type IAttemptDeepReads = { distance: number; reach: number };
-
-/** The record of `IAttemptWithinRead`'s site. */
-type IAttemptWithinRead = { distance: number; reach: number };
-
-/** The alternatives of `AttemptWithinI`'s site. */
-type AttemptWithinI = 0 | 1;
-
-/** The record of `IAttemptBottomResult`'s site. */
-type IAttemptBottomResult = { distance: number; reach: number };
-
-/** The alternatives of `AttemptBottomI`'s site. */
-type AttemptBottomI = 0 | 1;
-
 /**
  * The meeting, or the bound it missed: `point` without the refusal, which the
  * refusal reads again to find the band of gaps that would plan.
@@ -281,3 +254,30 @@ export function handshakeOfferAttempt(
     },
   };
 }
+
+/** The alternatives of `AttemptOther`'s site. */
+type AttemptOther = 0 | 1;
+
+/** The alternatives of `AttemptTop`'s site. */
+type AttemptTop = 0 | 1;
+
+/** The alternatives of `AttemptDeepI`'s site. */
+type AttemptDeepI = 0 | 1;
+
+/** The record of `IAttemptDeepReads2`'s site. */
+type IAttemptDeepReads2 = { distance: number; reach: number };
+
+/** The record of `IAttemptDeepReads`'s site. */
+type IAttemptDeepReads = { distance: number; reach: number };
+
+/** The record of `IAttemptWithinRead`'s site. */
+type IAttemptWithinRead = { distance: number; reach: number };
+
+/** The alternatives of `AttemptWithinI`'s site. */
+type AttemptWithinI = 0 | 1;
+
+/** The record of `IAttemptBottomResult`'s site. */
+type IAttemptBottomResult = { distance: number; reach: number };
+
+/** The alternatives of `AttemptBottomI`'s site. */
+type AttemptBottomI = 0 | 1;

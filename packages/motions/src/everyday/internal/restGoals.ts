@@ -13,9 +13,6 @@ import { restClasped } from "./restClasped";
 import { restCrossedArms } from "./restCrossedArms";
 import { restElbowSupport } from "./restElbowSupport";
 
-/** The alternatives of `RestGoalsSuffix`'s site. */
-type RestGoalsSuffix = "Left" | "Right";
-
 /**
  * Both hands' rest goals on a posture.
  *
@@ -352,6 +349,9 @@ export function restGoals(
   }
   return out;
 }
+
+/** The alternatives of `RestGoalsSuffix`'s site. */
+type RestGoalsSuffix = "Left" | "Right";
 
 /**
  * The posture's neck alone, posed, for a ray that meets the throat and nothing

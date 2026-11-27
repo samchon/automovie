@@ -7,10 +7,6 @@ import type {
 import { readInspectionNumber } from "./readInspectionNumber.js";
 import { readInspectionVector } from "./readInspectionVector.js";
 
-/** The accepted forms, quoted in every refusal. */
-const FORMS: string =
-  "film; x,y,z:tx,ty,tz in metres, followed by any of @ortho=<metres per pixel> or @up=x,y,z; or a name such as front, followed by any of @ortho, @follow, @focus=<pattern> or @flagged";
-
 /**
  * Read one inspection view from its text, the form a page address, a command
  * line and a capture plan all write.
@@ -149,3 +145,7 @@ export function parseAutoMovieInspectionView(
   }
   return { type: "named", name: head!, orthographic, follow, focus };
 }
+
+/** The accepted forms, quoted in every refusal. */
+const FORMS: string =
+  "film; x,y,z:tx,ty,tz in metres, followed by any of @ortho=<metres per pixel> or @up=x,y,z; or a name such as front, followed by any of @ortho, @follow, @focus=<pattern> or @flagged";

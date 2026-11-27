@@ -10,9 +10,6 @@ import { appendGraphCycles } from "../../validation/internal/appendGraphCycles";
 import { collectDeclaredIds } from "../../validation/internal/collectDeclaredIds";
 import { validateBuiltSpaceShell } from "./validateBuiltSpaceShell";
 
-/** A plane normal this short or shorter has no direction. */
-const PLANE_NORMAL_EPSILON: number = 1e-12;
-
 /**
  * Validate the logical spaces of a building and their hierarchy.
  *
@@ -132,3 +129,6 @@ export function validateBuiltSpaces(
   );
   return spaceIds;
 }
+
+/** A plane normal this short or shorter has no direction. */
+const PLANE_NORMAL_EPSILON: number = 1e-12;

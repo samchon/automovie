@@ -14,9 +14,6 @@ import { roundToThousandths } from "../../math/internal/roundToThousandths";
 import { GRAMMAR_EPSILON } from "../GRAMMAR_EPSILON";
 import { projectToNdc } from "./projectToNdc";
 
-/** A sign on one screen axis: toward negative, none, or toward positive. */
-type Sign = -1 | 0 | 1;
-
 /**
  * Appends every film-grammar finding of one cut to `diagnostics`, filed on the
  * incoming shot, in this order: axis crossing, eyeline, jump cut, displacement
@@ -134,6 +131,9 @@ export function inspectGrammarCut(
     recovery: `introduce "${entrant.id}" in a wide or neutral establishing shot before "${incoming.id}", or mark tight-reestablish`,
   });
 }
+
+/** A sign on one screen axis: toward negative, none, or toward positive. */
+type Sign = -1 | 0 | 1;
 
 /** Files an axis finding when an unseen cut puts the camera across the axis. */
 function inspectAxis(

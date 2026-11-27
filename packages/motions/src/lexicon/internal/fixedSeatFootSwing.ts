@@ -13,11 +13,6 @@ import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-type PostureAtAngle = (degrees: number) => IAutoMovieMotionHumanPosture;
-type OptionalAngle = number | undefined;
-type OptionalGoal = IAutoMovieHumanLimbGoal | undefined;
-const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-
 /**
  * A tilt between neutral and the request with both original floor contacts. The
  * caller fixes the bearing before asking for the range. Angular resolution is
@@ -94,3 +89,8 @@ export function fixedSeatFootSwing(
   }
   return near;
 }
+type PostureAtAngle = (degrees: number) => IAutoMovieMotionHumanPosture;
+type OptionalAngle = number | undefined;
+type OptionalGoal = IAutoMovieHumanLimbGoal | undefined;
+
+const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];

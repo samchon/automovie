@@ -16,9 +16,6 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 
-/** An arm's blended joint triples at a unitless share. */
-type Arm = (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
-
 /**
  * Prepare or evaluate the correction of a joint-space arm carry. The live carry
  * takes the current solved arm and planning pose. A fixed course owns endpoint
@@ -249,6 +246,9 @@ export namespace AutoMovieMotionHumanArmCarryCourse {
     return courses;
   }
 }
+
+/** An arm's blended joint triples at a unitless share. */
+type Arm = (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
 
 /** A hand's finger angles at a share of the carry, read on a pose. */
 type Fingers = IAutoMovieMotionHumanArmAngles.IAngles["fingers"];

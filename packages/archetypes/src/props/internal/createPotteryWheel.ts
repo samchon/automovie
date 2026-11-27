@@ -9,21 +9,6 @@ import {
 } from "../../core/index";
 
 /**
- * A potter's wheel with a centred clay form. No source is read: the head's
- * height and diameter, the clay's size, how far its wall rises and the mass are
- * provisional construction estimates of a seated studio wheel.
- */
-const SIZE: Readonly<AutoMovieArchetypePotteryWheel.ISize> = {
-  height: 0.45,
-  head: 0.3,
-  clay: 0.06,
-  wall: 0.008,
-  start: 0.08,
-  rise: 0.1,
-  mass: 40,
-};
-
-/**
  * A potter's wheel: a wheel head turning on a stand, with a form of clay thrown
  * on it whose wall rises as the hands draw it up.
  *
@@ -128,3 +113,18 @@ export function createPotteryWheel(
   });
   return builder.build(SIZE.mass);
 }
+
+/**
+ * A potter's wheel with a centred clay form. No source is read: the head's
+ * height and diameter, the clay's size, how far its wall rises and the mass are
+ * provisional construction estimates of a seated studio wheel.
+ */
+const SIZE: Readonly<AutoMovieArchetypePotteryWheel.ISize> = {
+  height: 0.45,
+  head: 0.3,
+  clay: 0.06,
+  wall: 0.008,
+  start: 0.08,
+  rise: 0.1,
+  mass: 40,
+};

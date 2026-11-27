@@ -27,11 +27,6 @@ const TOUCHING: ReadonlySet<AutoMovieArchetypeEquineExpressionCue.Act> =
     "suckle",
   ]);
 
-/** A cue that poses nothing and only marks an instant. */
-type Marked =
-  | AutoMovieArchetypeEquineExpressionCue.IVocalize
-  | AutoMovieArchetypeEquineExpressionCue.ITwitch;
-
 /**
  * The expression layer's cue admission and the readers its channels share: each
  * cue's eased share, a target's world point and a world point in a sample's
@@ -171,3 +166,8 @@ export namespace EquineExpressionAdmission {
     return held;
   }
 }
+
+/** A cue that poses nothing and only marks an instant. */
+type Marked =
+  | AutoMovieArchetypeEquineExpressionCue.IVocalize
+  | AutoMovieArchetypeEquineExpressionCue.ITwitch;

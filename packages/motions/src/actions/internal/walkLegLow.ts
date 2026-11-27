@@ -1,17 +1,4 @@
 /**
- * The share of a bracket round a room's low that the search narrows it to: what
- * the twenty-four ternary steps it replaces left, so the low is placed as
- * finely as they placed it.
- */
-const NARROWED: number = (2 / 3) ** 24;
-
-/**
- * The golden section's share of a bracket, `(sqrt(5) - 1) / 2`: an inner point
- * at it stays an inner point of the narrowed bracket.
- */
-const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
-
-/**
  * Narrow a bracket round the low of a planted foot's room (`walkLegRise`) by
  * golden-section search (Kiefer 1953, "Sequential minimax search for a
  * maximum").
@@ -59,3 +46,16 @@ export function walkLegLow(
   }
   return [far, near];
 }
+
+/**
+ * The share of a bracket round a room's low that the search narrows it to: what
+ * the twenty-four ternary steps it replaces left, so the low is placed as
+ * finely as they placed it.
+ */
+const NARROWED: number = (2 / 3) ** 24;
+
+/**
+ * The golden section's share of a bracket, `(sqrt(5) - 1) / 2`: an inner point
+ * at it stays an inner point of the narrowed bracket.
+ */
+const GOLDEN: number = (Math.sqrt(5) - 1) / 2;

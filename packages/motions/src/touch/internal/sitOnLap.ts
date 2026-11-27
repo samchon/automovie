@@ -267,14 +267,6 @@ function planSitOnLap(
   return result;
 }
 
-/** The same-second thigh placement and the posture reader's yaw carrier. */
-interface ILap {
-  /** Receiver bones needed by the physical pairing. */
-  bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-  /** The heading and mean height of the thighs' top surfaces. */
-  frame: IAutoMovieRigidTransform;
-}
-
 /** Read the displayed lap axes and bounds from one partner observation. */
 function lap(
   partner: IAutoMovieMotionHumanPerformerReader,
@@ -327,3 +319,11 @@ export const sitOnLap: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSitOn
     interrupts: sit.interrupts,
     plan: planSitOnLap,
   };
+
+/** The same-second thigh placement and the posture reader's yaw carrier. */
+interface ILap {
+  /** Receiver bones needed by the physical pairing. */
+  bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+  /** The heading and mean height of the thighs' top surfaces. */
+  frame: IAutoMovieRigidTransform;
+}

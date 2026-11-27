@@ -9,14 +9,6 @@ import { builtPointBounds } from "../../architecture/internal/builtPointBounds";
 import { seededValue } from "../../math/internal/seededValue";
 import { plantingYaw } from "./plantingYaw";
 
-const SALT_PLACE_X: number = 0x706c6378;
-
-const SALT_PLACE_Z: number = 0x706c637a;
-
-const SALT_PLACE_YAW: number = 0x79617700;
-
-const SALT_PLACE_SCALE: number = 0x73636c00;
-
 /**
  * Generate seeded full-TRS members in authored slot order, counting slots
  * rejected after their attempt limit. A minSpacing grid tests nearby accepted
@@ -106,6 +98,14 @@ export function arrangePlantingCluster(
     ),
   };
 }
+
+const SALT_PLACE_X: number = 0x706c6378;
+
+const SALT_PLACE_Z: number = 0x706c637a;
+
+const SALT_PLACE_YAW: number = 0x79617700;
+
+const SALT_PLACE_SCALE: number = 0x73636c00;
 
 /**
  * The uniform-grid key one ground position falls in.

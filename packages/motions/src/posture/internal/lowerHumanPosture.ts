@@ -46,12 +46,6 @@ export function lowerHumanPosture(
 ): IAutoMovieMotionHumanPosture {
   return lower(body, posture, knee, resolution, undefined, step);
 }
-/** The alternatives of `LowerRight`'s site. */
-type LowerRight = IAutoMovieVector3 | typeof NO_PLANT;
-
-/** The alternatives of `LowerLeft`'s site. */
-type LowerLeft = IAutoMovieVector3 | typeof NO_PLANT;
-
 /**
  * One current-goal/hip/drop law; the optional scalar reader belongs only to
  * this producer.
@@ -97,8 +91,6 @@ function lower(
     ? posture
     : { ...posture, root: { ...posture.root, y: posture.root.y - drop } };
 }
-/** The alternatives of `WorldPlantResult`'s site. */
-type WorldPlantResult = IAutoMovieVector3 | typeof NO_PLANT;
 
 /** Read an actual world-anchored plant before hip FK. */
 function worldPlant(
@@ -207,23 +199,6 @@ export namespace lowerHumanPosture {
     return reachDrop(reachLimit(body, knee, step), hip, ankle);
   }
 }
-
-/**
- * A leg's fixed reach: the two-segment cosine-law length at the least knee
- * flexion, metres, its squared rounded value and the width of its soft band
- * (`soft`).
- */
-interface IReach {
-  /** The hip-to-ankle length at `knee` degrees of flexion, metres. */
-  limit: number;
-
-  /** The square of the rounded length, used by the original vertical formula. */
-  limitSquared: number;
-
-  /** The soft band's width below that length, metres; 0 for the hard reach. */
-  width: number;
-}
-
 /**
  * The leg's reach at `knee` degrees, with the soft band a hip moving `step`
  * metres a frame asks (`soft`).
@@ -295,4 +270,29 @@ function reachDrop(
   return v <= start
     ? v - start
     : v - (start + w * (1 - Math.exp(-(v - start) / w)));
+}
+
+/** The alternatives of `LowerRight`'s site. */
+type LowerRight = IAutoMovieVector3 | typeof NO_PLANT;
+
+/** The alternatives of `LowerLeft`'s site. */
+type LowerLeft = IAutoMovieVector3 | typeof NO_PLANT;
+
+/** The alternatives of `WorldPlantResult`'s site. */
+type WorldPlantResult = IAutoMovieVector3 | typeof NO_PLANT;
+
+/**
+ * A leg's fixed reach: the two-segment cosine-law length at the least knee
+ * flexion, metres, its squared rounded value and the width of its soft band
+ * (`soft`).
+ */
+interface IReach {
+  /** The hip-to-ankle length at `knee` degrees of flexion, metres. */
+  limit: number;
+
+  /** The square of the rounded length, used by the original vertical formula. */
+  limitSquared: number;
+
+  /** The soft band's width below that length, metres; 0 for the hard reach. */
+  width: number;
 }

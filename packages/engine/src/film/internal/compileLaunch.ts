@@ -19,18 +19,6 @@ import { solveBallisticLaunch } from "../../physics/internal/solveBallisticLaunc
 import { solveMovingLaunch } from "../../physics/internal/solveMovingLaunch";
 import { eventTimeKey } from "./eventTimeKey";
 
-/** The default fall the launch solves against: standard gravity, world −Y. */
-const DEFAULT_GRAVITY: IAutoMovieVector3 = AutoMovieGravity.DOWN;
-
-/** Below this landing speed in m/s the incoming direction is undefined. */
-const STILL_SPEED: number = 1e-9;
-
-function firstActor(action: IAutoMovieLaunchAction): string | null {
-  return typeof action.actor === "string"
-    ? action.actor
-    : (action.actor[0] ?? null);
-}
-
 /**
  * Compose the `launch` verb's engine primitives into one result: the
  * projectile's flight and the struck target's reaction, timed to the
@@ -184,4 +172,16 @@ export function compileLaunch(
     velocity: solution.velocity,
     events,
   };
+}
+
+/** The default fall the launch solves against: standard gravity, world −Y. */
+const DEFAULT_GRAVITY: IAutoMovieVector3 = AutoMovieGravity.DOWN;
+
+/** Below this landing speed in m/s the incoming direction is undefined. */
+const STILL_SPEED: number = 1e-9;
+
+function firstActor(action: IAutoMovieLaunchAction): string | null {
+  return typeof action.actor === "string"
+    ? action.actor
+    : (action.actor[0] ?? null);
 }

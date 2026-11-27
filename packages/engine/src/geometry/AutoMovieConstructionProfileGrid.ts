@@ -7,9 +7,6 @@ import type {
 
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 
-/** World millimetres, copied before a cached source reading is retained. */
-type Point = [number, number, number];
-
 /**
  * Maximum requested rectangular cells per original loop; exceeding it refuses
  * instead of coarsening.
@@ -293,3 +290,6 @@ function same(a: Point, b: Point, message: string): void {
 function fail(message: string): never {
   throw new AutoMovieLoftAdmissionError(message);
 }
+
+/** World millimetres, copied before a cached source reading is retained. */
+type Point = [number, number, number];

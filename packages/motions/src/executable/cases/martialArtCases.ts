@@ -20,13 +20,6 @@ import { StanceVerdicts } from "./StanceVerdicts";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/** The record of `IMartialArtCasesPeaksItem`'s site. */
-type IMartialArtCasesPeaksItem = {
-  t: number;
-  side: AutoMovieHumanSide;
-  reach: number;
-};
-
 /**
  * Capture cases of the martial-art techniques from quiet standing.
  *
@@ -240,3 +233,10 @@ export function martialArtCases(
   }
   return out;
 }
+
+/** The record of `IMartialArtCasesPeaksItem`'s site. */
+type IMartialArtCasesPeaksItem = {
+  t: number;
+  side: AutoMovieHumanSide;
+  reach: number;
+};

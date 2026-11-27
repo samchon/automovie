@@ -17,46 +17,6 @@ import { stuntFallPose } from "../../reaction/internal/stuntFallPose";
 import { edgeRescueScene } from "./edgeRescueScene";
 
 /**
- * Seconds the faller takes to settle from its entry into the hang
- * (provisional).
- */
-const SETTLE: number = 0.3;
-
-/**
- * How far out from the lip the hanging body's hands sit, metres: the wall's
- * face clear of the knuckles (provisional).
- */
-const CLEAR: number = 0.05;
-
-/**
- * How far up past the lip the hips clear it as the faller comes over, metres
- * (provisional).
- */
-const OVER: number = 0.15;
-
-/** Seconds a missed faller takes to collapse on the ground (provisional). */
-const COLLAPSE: number = 0.5;
-
-/**
- * The hang: arms up on the lip, the body hanging straight (provisional angles,
- * degrees).
- */
-const HANG: IAutoMovieMotionHumanLieDown.IPose = {
-  pitch: 0,
-  roll: 0,
-  joints: {
-    leftUpperLeg: [5, 5, 0],
-    rightUpperLeg: [5, 5, 0],
-    leftLowerLeg: [10, 0, 0],
-    rightLowerLeg: [10, 0, 0],
-    leftUpperArm: [165, 10, 0],
-    rightUpperArm: [165, 10, 0],
-    leftLowerArm: [10, 0, 0],
-    rightLowerArm: [10, 0, 0],
-  },
-};
-
-/**
  * The faller's part in an edge rescue, closed form over the shared scene:
  * hanging by both hands from the lip, facing the wall; at release falling
  * freely, the right hand drawn out to the grip as the body drops to it; once
@@ -289,3 +249,43 @@ export function edgeRescueFaller(
     yields: [],
   };
 }
+
+/**
+ * Seconds the faller takes to settle from its entry into the hang
+ * (provisional).
+ */
+const SETTLE: number = 0.3;
+
+/**
+ * How far out from the lip the hanging body's hands sit, metres: the wall's
+ * face clear of the knuckles (provisional).
+ */
+const CLEAR: number = 0.05;
+
+/**
+ * How far up past the lip the hips clear it as the faller comes over, metres
+ * (provisional).
+ */
+const OVER: number = 0.15;
+
+/** Seconds a missed faller takes to collapse on the ground (provisional). */
+const COLLAPSE: number = 0.5;
+
+/**
+ * The hang: arms up on the lip, the body hanging straight (provisional angles,
+ * degrees).
+ */
+const HANG: IAutoMovieMotionHumanLieDown.IPose = {
+  pitch: 0,
+  roll: 0,
+  joints: {
+    leftUpperLeg: [5, 5, 0],
+    rightUpperLeg: [5, 5, 0],
+    leftLowerLeg: [10, 0, 0],
+    rightLowerLeg: [10, 0, 0],
+    leftUpperArm: [165, 10, 0],
+    rightUpperArm: [165, 10, 0],
+    leftLowerArm: [10, 0, 0],
+    rightLowerArm: [10, 0, 0],
+  },
+};

@@ -39,12 +39,6 @@ import { stretchHoldClock } from "./stretchHoldClock";
 import { stretchOverheadPlace } from "./stretchOverheadPlace";
 import { stretchQuadriceps } from "./stretchQuadriceps";
 
-/** The alternatives of `ComposeBendBone`'s site. */
-type ComposeBendBone = "spine" | "chest";
-
-/** The alternatives of `INTENSITYEntryItem`'s site. */
-type INTENSITYEntryItem = "mild" | "moderate";
-
 /**
  * A standing static stretch or yoga pose held and released: the neck side bend,
  * the cross-body shoulder stretch, the overhead side bend, the standing
@@ -502,3 +496,9 @@ export namespace stretch {
     });
   }
 }
+
+/** The alternatives of `ComposeBendBone`'s site. */
+type ComposeBendBone = "spine" | "chest";
+
+/** The alternatives of `INTENSITYEntryItem`'s site. */
+type INTENSITYEntryItem = "mild" | "moderate";

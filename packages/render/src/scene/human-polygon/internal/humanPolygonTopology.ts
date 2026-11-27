@@ -54,6 +54,22 @@ export namespace humanPolygonTopology {
     }
   }
 
+  /** Close an existing ring with the original oriented crown fan. */
+  export function cap(
+    context: IContext,
+    ring: readonly number[],
+    apex: number,
+    top: boolean,
+  ): void {
+    const n: number = ring.length;
+    for (let i: number = 0; i < n; i++) {
+      const a: number = ring[i]!;
+      const b: number = ring[(i + 1) % n]!;
+      if (top) context.indices.push(apex, b, a);
+      else context.indices.push(apex, a, b);
+    }
+  }
+
   /**
    * Preserve original phase reduction and cyclic-start selection.
    *
@@ -89,21 +105,5 @@ export namespace humanPolygonTopology {
       out.push({ v: ring[i]!, t });
     }
     return out;
-  }
-
-  /** Close an existing ring with the original oriented crown fan. */
-  export function cap(
-    context: IContext,
-    ring: readonly number[],
-    apex: number,
-    top: boolean,
-  ): void {
-    const n: number = ring.length;
-    for (let i: number = 0; i < n; i++) {
-      const a: number = ring[i]!;
-      const b: number = ring[(i + 1) % n]!;
-      if (top) context.indices.push(apex, b, a);
-      else context.indices.push(apex, a, b);
-    }
   }
 }

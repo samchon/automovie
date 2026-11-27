@@ -91,20 +91,6 @@ export namespace HumanCarriedCouplingLoad {
   }
 
   /**
-   * A bearer at the origin facing +Z in the coupling's stance, upright for a
-   * further bearer: its mass and centre, its share of the borne mass with the
-   * point its contacts press it at (the share-weighted contact points, the
-   * borne centre for a coupling without them), and its feet's midpoint.
-   */
-  interface IStanding {
-    mass: number;
-    own: IAutoMovieVector3;
-    load: number;
-    borne: IAutoMovieVector3;
-    pivot: IAutoMovieVector3;
-  }
-
-  /**
    * The bearer standing still with its share of the coupled load, read once for
    * the lean and the capacity.
    */
@@ -323,6 +309,20 @@ export namespace HumanCarriedCouplingLoad {
       (p: IAutoMovieVector3): number => 1 / n + ls * along(p.x - mx, p.z - mz),
     );
   };
+
+  /**
+   * A bearer at the origin facing +Z in the coupling's stance, upright for a
+   * further bearer: its mass and centre, its share of the borne mass with the
+   * point its contacts press it at (the share-weighted contact points, the
+   * borne centre for a coupling without them), and its feet's midpoint.
+   */
+  interface IStanding {
+    mass: number;
+    own: IAutoMovieVector3;
+    load: number;
+    borne: IAutoMovieVector3;
+    pivot: IAutoMovieVector3;
+  }
 }
 
 /** The attachment and mass-placement frames from the actual bearer key. */

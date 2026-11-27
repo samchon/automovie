@@ -1,8 +1,5 @@
 import type { IAutoMovieMotionHumanMartialArt } from "@automovie/interface";
 
-/** The alternatives of `Kind2`'s site. */
-type Kind2 = "horseStance" | "chokuZuki" | "taiChiPush";
-
 /**
  * The martial-art stance phrases' blocking: each form's provisional entry,
  * transfer and reset values and the held guards' hand sites
@@ -170,3 +167,6 @@ export namespace MartialArtStanceForms {
     },
   };
 }
+
+/** The alternatives of `Kind2`'s site. */
+type Kind2 = "horseStance" | "chokuZuki" | "taiChiPush";

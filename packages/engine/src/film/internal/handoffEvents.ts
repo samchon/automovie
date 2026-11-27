@@ -2,16 +2,6 @@ import type { IAutoMovieInteractionEvent } from "@automovie/interface";
 
 import { eventTimeKey } from "./eventTimeKey";
 
-/** The four handoff kinds in emission order, each with the end it fires at. */
-const HANDOFF_KINDS: ReadonlyArray<
-  readonly [IAutoMovieInteractionEvent["kind"], "start" | "end"]
-> = [
-  ["grab", "start"],
-  ["attach", "start"],
-  ["detach", "end"],
-  ["release", "end"],
-];
-
 /**
  * The four scripted-cue events one `attachTo` handoff emits: the child is
  * grabbed and attached at `start`, then detached and released at `end`.
@@ -61,3 +51,13 @@ export function handoffEvents(
     },
   );
 }
+
+/** The four handoff kinds in emission order, each with the end it fires at. */
+const HANDOFF_KINDS: ReadonlyArray<
+  readonly [IAutoMovieInteractionEvent["kind"], "start" | "end"]
+> = [
+  ["grab", "start"],
+  ["attach", "start"],
+  ["detach", "end"],
+  ["release", "end"],
+];

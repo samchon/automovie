@@ -9,66 +9,6 @@ import {
   type IAutoMovieViolationAppendSink,
 } from "@automovie/interface";
 
-const DISCIPLINES: readonly AutoMovieServiceDiscipline[] = [
-  "plumbing",
-  "drainage",
-  "electrical",
-  "data",
-  "hvac",
-  "fire",
-  "control",
-];
-const FLOWS: readonly ["from-root", "to-root", "undirected"] = [
-  "from-root",
-  "to-root",
-  "undirected",
-] as const;
-/**
- * Which media each discipline is allowed to carry.
- *
- * `other` sits in every row on purpose: it is the escape a production carrying
- * medical gas, vacuum or compressed air takes, and it opts out of the unit
- * check with it rather than forcing this table to grow before the production
- * can be authored at all.
- */
-const DISCIPLINE_MEDIA: Record<
-  AutoMovieServiceDiscipline,
-  readonly AutoMovieServiceMedium[]
-> = {
-  plumbing: ["cold-water", "hot-water", "other"],
-  drainage: ["waste-water", "vent-air", "other"],
-  electrical: ["electric-power", "other"],
-  data: ["data-signal", "other"],
-  hvac: ["supply-air", "return-air", "exhaust-air", "other"],
-  fire: ["fire-water", "control-signal", "other"],
-  control: ["control-signal", "other"],
-};
-
-/** Which units each medium may be measured in; `other` accepts any of them. */
-const MEDIUM_UNITS: Record<
-  AutoMovieServiceMedium,
-  readonly AutoMovieServiceUnit[]
-> = {
-  "cold-water": ["cubic-meter-per-second"],
-  "hot-water": ["cubic-meter-per-second"],
-  "waste-water": ["cubic-meter-per-second"],
-  "fire-water": ["cubic-meter-per-second"],
-  "vent-air": ["cubic-meter-per-second"],
-  "supply-air": ["cubic-meter-per-second"],
-  "return-air": ["cubic-meter-per-second"],
-  "exhaust-air": ["cubic-meter-per-second"],
-  "electric-power": ["watt", "ampere"],
-  "data-signal": ["bit-per-second"],
-  "control-signal": ["dimensionless"],
-  other: [
-    "cubic-meter-per-second",
-    "watt",
-    "ampere",
-    "bit-per-second",
-    "dimensionless",
-  ],
-};
-
 /**
  * Check system vocabulary, declared units and root port direction in source
  * order.
@@ -179,3 +119,63 @@ export function appendServiceNetworkSystems(
     },
   );
 }
+const DISCIPLINES: readonly AutoMovieServiceDiscipline[] = [
+  "plumbing",
+  "drainage",
+  "electrical",
+  "data",
+  "hvac",
+  "fire",
+  "control",
+];
+const FLOWS: readonly ["from-root", "to-root", "undirected"] = [
+  "from-root",
+  "to-root",
+  "undirected",
+] as const;
+
+/**
+ * Which media each discipline is allowed to carry.
+ *
+ * `other` sits in every row on purpose: it is the escape a production carrying
+ * medical gas, vacuum or compressed air takes, and it opts out of the unit
+ * check with it rather than forcing this table to grow before the production
+ * can be authored at all.
+ */
+const DISCIPLINE_MEDIA: Record<
+  AutoMovieServiceDiscipline,
+  readonly AutoMovieServiceMedium[]
+> = {
+  plumbing: ["cold-water", "hot-water", "other"],
+  drainage: ["waste-water", "vent-air", "other"],
+  electrical: ["electric-power", "other"],
+  data: ["data-signal", "other"],
+  hvac: ["supply-air", "return-air", "exhaust-air", "other"],
+  fire: ["fire-water", "control-signal", "other"],
+  control: ["control-signal", "other"],
+};
+
+/** Which units each medium may be measured in; `other` accepts any of them. */
+const MEDIUM_UNITS: Record<
+  AutoMovieServiceMedium,
+  readonly AutoMovieServiceUnit[]
+> = {
+  "cold-water": ["cubic-meter-per-second"],
+  "hot-water": ["cubic-meter-per-second"],
+  "waste-water": ["cubic-meter-per-second"],
+  "fire-water": ["cubic-meter-per-second"],
+  "vent-air": ["cubic-meter-per-second"],
+  "supply-air": ["cubic-meter-per-second"],
+  "return-air": ["cubic-meter-per-second"],
+  "exhaust-air": ["cubic-meter-per-second"],
+  "electric-power": ["watt", "ampere"],
+  "data-signal": ["bit-per-second"],
+  "control-signal": ["dimensionless"],
+  other: [
+    "cubic-meter-per-second",
+    "watt",
+    "ampere",
+    "bit-per-second",
+    "dimensionless",
+  ],
+};

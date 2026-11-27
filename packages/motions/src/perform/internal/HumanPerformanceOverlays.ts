@@ -14,16 +14,6 @@ import { AutoMovieMotionHumanChannel as HumanChannels } from "../../compose/inte
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 
-/** The record of `IPlaceResult`'s site. */
-type IPlaceResult = {
-  duration: number;
-  contact?: number;
-  events: IPlaceEventsItemResult[];
-};
-
-/** The record of `IPlaceEventsItemResult`'s site. */
-type IPlaceEventsItemResult = { name: string; share: number };
-
 /**
  * A planned action placed over its carrier: the channels it claims checked
  * against what the carrier yields and what the other overlays of the same span
@@ -246,3 +236,13 @@ export namespace HumanPerformanceOverlays {
       });
   }
 }
+
+/** The record of `IPlaceResult`'s site. */
+type IPlaceResult = {
+  duration: number;
+  contact?: number;
+  events: IPlaceEventsItemResult[];
+};
+
+/** The record of `IPlaceEventsItemResult`'s site. */
+type IPlaceEventsItemResult = { name: string; share: number };

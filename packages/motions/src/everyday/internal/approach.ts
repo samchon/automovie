@@ -26,9 +26,6 @@ import { HumanProxemics } from "./HumanProxemics";
 import { HumanTrunk } from "./HumanTrunk";
 import { approachAbeam } from "./approachAbeam";
 
-/** The record of `IToStop`'s site. */
-type IToStop = { at: IAutoMovieVector3; yaw: number };
-
 /**
  * Walking up to a person, a prop or a point and stopping at an interpersonal
  * distance, facing it.
@@ -274,6 +271,30 @@ export namespace approach {
   export const LAG: number = 0.42;
 
   /**
+   * How far the front of the chest stands ahead of the ankles' midpoint in the
+   * standing posture, metres: the sternum region's forward offset with the
+   * body's upright alignment and lean.
+   *
+   * @param body The body.
+   * @returns Metres.
+   */
+  export function chest(body: IAutoMovieMotionHumanBody): number {
+    const posture: IAutoMovieMotionHumanPosture = stand.posture(
+      body,
+      { x: 0, y: 0, z: 0 },
+      0,
+    );
+    const sternum: IAutoMovieVector3 = HumanTrunk.region(
+      body,
+      posture,
+      "sternum",
+    ).point;
+    const ankles: number =
+      (posture.limbs.leftLeg!.point.z + posture.limbs.rightLeg!.point.z) / 2;
+    return sternum.z - ankles;
+  }
+
+  /**
    * The turn from one heading to another, degrees in [-180, 180), so a heading
    * crossing ±180 is not read as a whole turn.
    */
@@ -444,28 +465,7 @@ export namespace approach {
       z: stop.at.z + ((point.z - stop.at.z) / length) * error,
     });
   }
-
-  /**
-   * How far the front of the chest stands ahead of the ankles' midpoint in the
-   * standing posture, metres: the sternum region's forward offset with the
-   * body's upright alignment and lean.
-   *
-   * @param body The body.
-   * @returns Metres.
-   */
-  export function chest(body: IAutoMovieMotionHumanBody): number {
-    const posture: IAutoMovieMotionHumanPosture = stand.posture(
-      body,
-      { x: 0, y: 0, z: 0 },
-      0,
-    );
-    const sternum: IAutoMovieVector3 = HumanTrunk.region(
-      body,
-      posture,
-      "sternum",
-    ).point;
-    const ankles: number =
-      (posture.limbs.leftLeg!.point.z + posture.limbs.rightLeg!.point.z) / 2;
-    return sternum.z - ankles;
-  }
 }
+
+/** The record of `IToStop`'s site. */
+type IToStop = { at: IAutoMovieVector3; yaw: number };

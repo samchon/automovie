@@ -95,27 +95,6 @@ export function sitHandMeet(
   );
 }
 
-/** The lower-body course admits a set of independent unbraced hands. */
-interface ILowering extends Omit<sitHandMeet.IProps, "side"> {
-  /** No single side is being read over an unrestricted posture. */
-  side?: never;
-
-  /** The hands with no armrest, each read once. */
-  sides: ReadonlySet<AutoMovieHumanSide>;
-}
-
-/** The original ordered collider indices for one hand and its own thigh. */
-interface IHand {
-  /** The side the pair belongs to. */
-  side: AutoMovieHumanSide;
-
-  /** The hand and digit collider part indices, in body order. */
-  hands: readonly number[];
-
-  /** The upper leg collider part index. */
-  thigh: number;
-}
-
 /** Read the original grid once, checking each hand until its first meeting. */
 function firstMeets(
   props: Omit<sitHandMeet.IProps, "side">,
@@ -215,4 +194,25 @@ export namespace sitHandMeet {
     /** The last second read, from the sit's start. */
     until: number;
   }
+}
+
+/** The lower-body course admits a set of independent unbraced hands. */
+interface ILowering extends Omit<sitHandMeet.IProps, "side"> {
+  /** No single side is being read over an unrestricted posture. */
+  side?: never;
+
+  /** The hands with no armrest, each read once. */
+  sides: ReadonlySet<AutoMovieHumanSide>;
+}
+
+/** The original ordered collider indices for one hand and its own thigh. */
+interface IHand {
+  /** The side the pair belongs to. */
+  side: AutoMovieHumanSide;
+
+  /** The hand and digit collider part indices, in body order. */
+  hands: readonly number[];
+
+  /** The upper leg collider part index. */
+  thigh: number;
 }

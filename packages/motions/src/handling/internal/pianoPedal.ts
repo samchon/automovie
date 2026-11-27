@@ -43,9 +43,6 @@ export const pianoPedal: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPia
     plan,
   };
 
-/** The foot clock's independently authored stroke. */
-type Press = IAutoMovieMotionHumanPianoPedal.IPress;
-
 /** Resolve a seated right-foot path and independent pedal travel. */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPianoPedal>,
@@ -331,9 +328,6 @@ function plan(
   };
 }
 
-/** The alternatives of `RefuseValue`'s site. */
-type RefuseValue = string | number;
-
 /** Report a placement or clock the author can correct. */
 function refuse(axis: string, value: RefuseValue, fix: string): never {
   throw new HumanRefusal({
@@ -344,3 +338,9 @@ function refuse(axis: string, value: RefuseValue, fix: string): never {
     fix,
   });
 }
+
+/** The foot clock's independently authored stroke. */
+type Press = IAutoMovieMotionHumanPianoPedal.IPress;
+
+/** The alternatives of `RefuseValue`'s site. */
+type RefuseValue = string | number;

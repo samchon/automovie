@@ -102,22 +102,6 @@ export namespace AutoMovieSweepRotation {
     );
   };
 
-  /** Write and normalize the completed X/Y/Z/W components at the output offset. */
-  function writeBasisRotation(
-    x: number,
-    y: number,
-    z: number,
-    w: number,
-    out: IAutoMovieSweepRotation.IFromBasisOut,
-    oi: number,
-  ): void {
-    out[oi + 3] = w;
-    out[oi] = x;
-    out[oi + 1] = y;
-    out[oi + 2] = z;
-    normalize(out, oi);
-  }
-
   /** Write a vector rotated by a unit quaternion. */
   export const rotate = (
     q: ArrayLike<number>,
@@ -188,4 +172,20 @@ export namespace AutoMovieSweepRotation {
     out[oi + 2] = az * wa + bz * wb;
     out[oi + 3] = aw * wa + bw * wb;
   };
+
+  /** Write and normalize the completed X/Y/Z/W components at the output offset. */
+  function writeBasisRotation(
+    x: number,
+    y: number,
+    z: number,
+    w: number,
+    out: IAutoMovieSweepRotation.IFromBasisOut,
+    oi: number,
+  ): void {
+    out[oi + 3] = w;
+    out[oi] = x;
+    out[oi + 1] = y;
+    out[oi + 2] = z;
+    normalize(out, oi);
+  }
 }

@@ -1,11 +1,5 @@
 import type { IAutoMovieMotionHumanWalkPace } from "@automovie/interface";
 
-/** The record of `IWalkPaceProps`'s site. */
-type IWalkPaceProps = {
-  steps: number;
-  longest: number;
-};
-
 /**
  * The timing of a stepping gait over a distance: its step period, its swing,
  * and how far along its path the pelvis is at each instant.
@@ -375,3 +369,9 @@ export class WalkPace {
     return 2.5 * u ** 4 - 3 * u ** 5 + u ** 6;
   }
 }
+
+/** The record of `IWalkPaceProps`'s site. */
+type IWalkPaceProps = {
+  steps: number;
+  longest: number;
+};

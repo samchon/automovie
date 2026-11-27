@@ -9,12 +9,6 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Original world positions in mm, or component derivatives in their named
- * coordinate.
- */
-type V = AutoMovieVector3Tuple;
-
-/**
  * Original target arithmetic, affine course origins and qualified chart priors.
  * Target compensation changes evaluation of the same P, never its geometry.
  * Coordinate priors remain distinct from full relieved-source inversion.
@@ -317,3 +311,9 @@ export namespace AutoMovieHumanF1NativeRootControl {
     ];
   }
 }
+
+/**
+ * Original world positions in mm, or component derivatives in their named
+ * coordinate.
+ */
+type V = AutoMovieVector3Tuple;

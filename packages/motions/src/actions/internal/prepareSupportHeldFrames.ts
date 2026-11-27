@@ -191,9 +191,6 @@ function angles(
     lower: posture.joints[lower] ?? zero,
   };
 }
-/** The alternatives of `PrepareSupportHeldFramesSocket2`'s site. */
-type PrepareSupportHeldFramesSocket2 = "heel" | "ball" | undefined;
-
 /**
  * The retained contact selection and the solved frames used by support
  * playback.
@@ -228,15 +225,6 @@ export namespace prepareSupportHeldFrames {
     /** The shared contact supplying the end-effector datum. */
     contact: IAutoMovieMotionHumanSupport.IContact;
   }
-  /** The record of `IPrepareSupportHeldFramesHeldFramesPivot`'s site. */
-  type IPrepareSupportHeldFramesHeldFramesPivot = {
-    /** The offset in the end bone's frame, metres. */
-    local: IAutoMovieVector3;
-
-    /** The socket's world place at the key before, then after. */
-    at: readonly [IAutoMovieVector3, IAutoMovieVector3];
-  };
-
   /**
    * The solved frames and held datum for one limb at both support keys.
    *
@@ -281,4 +269,16 @@ export namespace prepareSupportHeldFrames {
      */
     pivot?: IPrepareSupportHeldFramesHeldFramesPivot;
   }
+
+  /** The record of `IPrepareSupportHeldFramesHeldFramesPivot`'s site. */
+  type IPrepareSupportHeldFramesHeldFramesPivot = {
+    /** The offset in the end bone's frame, metres. */
+    local: IAutoMovieVector3;
+
+    /** The socket's world place at the key before, then after. */
+    at: readonly [IAutoMovieVector3, IAutoMovieVector3];
+  };
 }
+
+/** The alternatives of `PrepareSupportHeldFramesSocket2`'s site. */
+type PrepareSupportHeldFramesSocket2 = "heel" | "ball" | undefined;

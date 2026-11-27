@@ -18,18 +18,6 @@ import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBo
 import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
-/** A named instant of a ride. */
-type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
-
-/** One rein's ride and the film second it takes over. */
-interface ISegment<Id extends string, D extends string> {
-  /** The film second the rein begins. */
-  from: number;
-
-  /** The rein's ride, its halt and turns included. */
-  ride: AutoMovieArchetypeRide.IRide<Id, D>;
-}
-
 /**
  * An equid lunged on a circle round its handler: each rein a ride round the
  * circle at its gaits, a halt, a quarter turn in on the centre to stand facing
@@ -454,4 +442,16 @@ export namespace AutoMovieArchetypeEquineLunge {
       fix: "Give a positive radius, acceleration and turn, reins that alternate sides, and works of positive laps within their gaits' speeds.",
     });
   }
+}
+
+/** A named instant of a ride. */
+type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
+
+/** One rein's ride and the film second it takes over. */
+interface ISegment<Id extends string, D extends string> {
+  /** The film second the rein begins. */
+  from: number;
+
+  /** The rein's ride, its halt and turns included. */
+  ride: AutoMovieArchetypeRide.IRide<Id, D>;
 }

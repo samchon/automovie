@@ -454,15 +454,6 @@ function sinusoidZeros(h: readonly number[]): number[] {
   return [centre + spread, centre - spread];
 }
 
-/** Internal joint-only and paired modes share one candidate search. */
-interface ISolution {
-  /** Selected actual clamped mid articulation. */
-  joint: IAutoMovieJointPose;
-
-  /** Retained only in paired mode, after at least the start was scored. */
-  projection: AutoMovieEngineMotionDistalTwist.IProjection | undefined;
-}
-
 /**
  * Fixed-source effector readers and one solve's paired candidate/result
  * records.
@@ -697,4 +688,13 @@ export namespace AutoMovieEngineMotionDistalTwist {
      */
     preparedEffector?: IPrepared;
   }
+}
+
+/** Internal joint-only and paired modes share one candidate search. */
+interface ISolution {
+  /** Selected actual clamped mid articulation. */
+  joint: IAutoMovieJointPose;
+
+  /** Retained only in paired mode, after at least the start was scored. */
+  projection: AutoMovieEngineMotionDistalTwist.IProjection | undefined;
 }

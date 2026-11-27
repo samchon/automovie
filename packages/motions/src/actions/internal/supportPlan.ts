@@ -23,9 +23,6 @@ import { supportCourse } from "./supportCourse";
 import { supportHeldSocket } from "./supportHeldSocket";
 import { supportWindows } from "./supportWindows";
 
-/** The record of `IOfUnbalancedResult`'s site. */
-type IOfUnbalancedResult = { name: string; share: number };
-
 /**
  * Build the plan from solved keys.
  *
@@ -341,3 +338,6 @@ export namespace supportPlan {
     place: supportCourse.Place;
   }
 }
+
+/** The record of `IOfUnbalancedResult`'s site. */
+type IOfUnbalancedResult = { name: string; share: number };

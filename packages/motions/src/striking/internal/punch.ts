@@ -18,15 +18,6 @@ import { punchGeometry } from "./punchGeometry";
 import { punchLaunch } from "./punchLaunch";
 import { strikingReadBack } from "./strikingReadBack";
 
-/** The alternatives of `PlanLimb`'s site. */
-type PlanLimb = "leftArm" | "rightArm";
-
-/** The alternatives of `PlanWhich`'s site. */
-type PlanWhich = "lead" | "rear";
-
-/** The alternatives of `HandResult`'s site. */
-type HandResult = "lead" | "rear";
-
 /**
  * A punch: the fist's knuckles brought onto the target along a measured path
  * and returned to the guard, with the trunk turning and the feet stepping or
@@ -376,3 +367,12 @@ export namespace punch {
     return out;
   }
 }
+
+/** The alternatives of `PlanLimb`'s site. */
+type PlanLimb = "leftArm" | "rightArm";
+
+/** The alternatives of `PlanWhich`'s site. */
+type PlanWhich = "lead" | "rear";
+
+/** The alternatives of `HandResult`'s site. */
+type HandResult = "lead" | "rear";

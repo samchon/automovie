@@ -19,12 +19,6 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
 import { prepareCrawlPalms } from "./prepareCrawlPalms";
 
-/** The alternatives of `ArmReadersEntryEntry`'s site. */
-type ArmReadersEntryEntry = "upper" | "lower" | "hand";
-
-/** The record of `IOverResult`'s site. */
-type IOverResult = { point: IAutoMovieVector3; hike: number };
-
 /**
  * The pieces the crawls on the hands share: where a wrist stands over its flat
  * palm, the palms laid on their floor points, a body tilted forward by a pitch
@@ -238,58 +232,6 @@ export namespace crawlFrame {
   }
 
   /**
-   * Fixed clinical pairs use their numerical owner; changing pairs share one
-   * synchronous metadata pass.
-   */
-  function writeArms(
-    body: IAutoMovieMotionHumanBody,
-    posture: IAutoMovieMotionHumanPosture,
-    held: Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>,
-    toward: Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>,
-    share: number,
-    prepared?: IArmReaders,
-  ): IAutoMovieMotionHumanPosture {
-    const joints: IAutoMovieMotionHumanPosture["joints"] = {
-      ...posture.joints,
-    };
-    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-    const blend: ReturnType<typeof blendHumanJoint.prepare> | undefined =
-      prepared !== undefined || share <= 0 || share >= 1
-        ? undefined
-        : blendHumanJoint.prepare(body);
-    for (const side of ["left", "right"] as const) {
-      const from: IAutoMovieMotionHumanArmAngles.IAngles = held[side];
-      const to: IAutoMovieMotionHumanArmAngles.IAngles = toward[side];
-      for (const [bone, key] of [
-        [`${side}UpperArm`, "upper"],
-        [`${side}LowerArm`, "lower"],
-        [`${side}Hand`, "hand"],
-      ] as const) {
-        if (prepared !== undefined) {
-          joints[bone] = prepared[side][key](share);
-          continue;
-        }
-        joints[bone] =
-          share <= 0
-            ? from[key]
-            : share >= 1
-              ? to[key]
-              : blend!(bone, from[key], to[key], share);
-      }
-      const flat: IAutoMovieMotionHumanPosture["joints"] = FLAT[side];
-      const was: IAutoMovieMotionHumanPosture["joints"] = {};
-      for (const bone of FLAT_BONES[side]) {
-        const held: readonly [number, number, number] | undefined =
-          from.fingers?.[bone] ?? posture.joints[bone];
-        if (held !== undefined) was[bone] = held;
-      }
-      Object.assign(joints, prepareHumanShapeBlend(was, flat)(share));
-      delete limbs[`${side}Arm`];
-    }
-    return { ...posture, joints, limbs };
-  }
-
-  /**
    * The body tilted forward by a pitch at a share of the way down, its pelvis
    * turned about the spine's axis and the spine and the chest turning it back,
    * the arms hanging as the body's relaxed arms (`stand.relaxed`).
@@ -374,6 +316,7 @@ export namespace crawlFrame {
             Math.PI,
     };
   }
+
   /**
    * The root that puts a tilted posture's hip joints' middle at a place.
    *
@@ -394,6 +337,57 @@ export namespace crawlFrame {
       tilted.joints.hips,
     );
     return Vector3.subtract(hips, Vector3.lerp(joints.left, joints.right, 0.5));
+  }
+  /**
+   * Fixed clinical pairs use their numerical owner; changing pairs share one
+   * synchronous metadata pass.
+   */
+  function writeArms(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    held: Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>,
+    toward: Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>,
+    share: number,
+    prepared?: IArmReaders,
+  ): IAutoMovieMotionHumanPosture {
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
+      ...posture.joints,
+    };
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+    const blend: ReturnType<typeof blendHumanJoint.prepare> | undefined =
+      prepared !== undefined || share <= 0 || share >= 1
+        ? undefined
+        : blendHumanJoint.prepare(body);
+    for (const side of ["left", "right"] as const) {
+      const from: IAutoMovieMotionHumanArmAngles.IAngles = held[side];
+      const to: IAutoMovieMotionHumanArmAngles.IAngles = toward[side];
+      for (const [bone, key] of [
+        [`${side}UpperArm`, "upper"],
+        [`${side}LowerArm`, "lower"],
+        [`${side}Hand`, "hand"],
+      ] as const) {
+        if (prepared !== undefined) {
+          joints[bone] = prepared[side][key](share);
+          continue;
+        }
+        joints[bone] =
+          share <= 0
+            ? from[key]
+            : share >= 1
+              ? to[key]
+              : blend!(bone, from[key], to[key], share);
+      }
+      const flat: IAutoMovieMotionHumanPosture["joints"] = FLAT[side];
+      const was: IAutoMovieMotionHumanPosture["joints"] = {};
+      for (const bone of FLAT_BONES[side]) {
+        const held: readonly [number, number, number] | undefined =
+          from.fingers?.[bone] ?? posture.joints[bone];
+        if (held !== undefined) was[bone] = held;
+      }
+      Object.assign(joints, prepareHumanShapeBlend(was, flat)(share));
+      delete limbs[`${side}Arm`];
+    }
+    return { ...posture, joints, limbs };
   }
 
   /** Side-only flat clinical shapes are immutable inputs to both palm writers. */
@@ -421,3 +415,9 @@ export namespace crawlFrame {
     Record<ArmReadersEntryEntry, ReturnType<typeof blendHumanJoint.between>>
   >;
 }
+
+/** The alternatives of `ArmReadersEntryEntry`'s site. */
+type ArmReadersEntryEntry = "upper" | "lower" | "hand";
+
+/** The record of `IOverResult`'s site. */
+type IOverResult = { point: IAutoMovieVector3; hike: number };

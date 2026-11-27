@@ -1,13 +1,6 @@
 import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanLimb, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, AutoMovieMotionHumanChannel, IAutoMovieHumanLimbGoal, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSupport, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-type Follow = (
-  posture: IAutoMovieMotionHumanPosture,
-  seconds: number,
-  channels?: readonly AutoMovieMotionHumanChannel[],
-) => IAutoMovieMotionHumanPosture;
-type OptionalFollow = Follow | undefined;
-
 /**
  * Keep a helper's palm on the rising person's displayed palm throughout a
  * closed grip. The rising person's planted course is evaluated first, so their
@@ -71,3 +64,10 @@ export function prepareSupportHelperGrip(
     };
   };
 }
+type Follow = (
+  posture: IAutoMovieMotionHumanPosture,
+  seconds: number,
+  channels?: readonly AutoMovieMotionHumanChannel[],
+) => IAutoMovieMotionHumanPosture;
+
+type OptionalFollow = Follow | undefined;

@@ -7,15 +7,6 @@ import {
 import type { AutoMovieArchetypeSanitary } from "../AutoMovieArchetypeSanitary";
 import { AutoMovieArchetypeTap } from "../AutoMovieArchetypeTap";
 
-/** The builder every kind's construction fills. */
-type Builder = AutoMovieArchetypeBuilder<
-  AutoMovieArchetypeSanitary.Affordance,
-  AutoMovieArchetypeSanitary.Dimension
->;
-
-/** The drawn dimensions of one kind. */
-type Drawn = Partial<Record<AutoMovieArchetypeSanitary.Dimension, number>>;
-
 /** White vitreous china and enamel. */
 const CHINA: string = "#eef0ee";
 
@@ -477,3 +468,12 @@ export namespace SanitaryConstruction {
     });
   }
 }
+
+/** The builder every kind's construction fills. */
+type Builder = AutoMovieArchetypeBuilder<
+  AutoMovieArchetypeSanitary.Affordance,
+  AutoMovieArchetypeSanitary.Dimension
+>;
+
+/** The drawn dimensions of one kind. */
+type Drawn = Partial<Record<AutoMovieArchetypeSanitary.Dimension, number>>;

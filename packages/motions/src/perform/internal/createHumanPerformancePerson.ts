@@ -17,11 +17,6 @@ import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
-/** The alternatives of `HumanPerformanceStateLayer`'s site. */
-type HumanPerformanceStateLayer =
-  | IAutoMovieMotionHumanLayer
-  | IAutoMovieMotionHumanLayer.IScheduled;
-
 /**
  * A performer's person as a performance starts resolving it
  * (`HumanPerformanceState`): standing where the performer is placed, its skill
@@ -122,3 +117,8 @@ export function createHumanPerformancePerson(
     },
   };
 }
+
+/** The alternatives of `HumanPerformanceStateLayer`'s site. */
+type HumanPerformanceStateLayer =
+  | IAutoMovieMotionHumanLayer
+  | IAutoMovieMotionHumanLayer.IScheduled;

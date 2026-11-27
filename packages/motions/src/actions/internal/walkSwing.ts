@@ -13,29 +13,6 @@ import { walkFoot } from "./walkFoot";
 import { walkLocomoteSwings } from "./walkLocomoteSwings";
 import { walkSteps } from "../../gait/internal/walkSteps";
 
-/** The alternatives of `Swing2`'s site. */
-type Swing2 = "off" | "on";
-
-/** Swing endpoints in action seconds. */
-type Swing = Pick<
-  NonNullable<IAutoMovieMotionHumanWalkFoot.IScheduled["swing"]>,
-  Swing2
->;
-
-/** A swing evaluated at its normalized time from toe-off to heel strike. */
-type ReadSwing = (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot;
-
-/** Reader prepared for the recorded arrival of this toe-off. */
-interface IArrival {
-  /** Heel-strike time in action seconds. */
-  on: number;
-
-  /** The owner's prepared swing. */
-  read: ReadSwing;
-}
-/** The alternatives of `WalkSwingGait`'s site. */
-type WalkSwingGait = "lift" | "stiff" | "swing" | "toeClearance" | "width";
-
 /**
  * Prepare every swing of a plan from the stance reader that owns its endpoints:
  * for each swing the departure, its two predecessors a `WALK_TICK` apart, the
@@ -78,6 +55,29 @@ export function walkSwing(
     return prepared.read;
   };
 }
+
+/** The alternatives of `Swing2`'s site. */
+type Swing2 = "off" | "on";
+
+/** Swing endpoints in action seconds. */
+type Swing = Pick<
+  NonNullable<IAutoMovieMotionHumanWalkFoot.IScheduled["swing"]>,
+  Swing2
+>;
+
+/** A swing evaluated at its normalized time from toe-off to heel strike. */
+type ReadSwing = (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot;
+/** Reader prepared for the recorded arrival of this toe-off. */
+interface IArrival {
+  /** Heel-strike time in action seconds. */
+  on: number;
+
+  /** The owner's prepared swing. */
+  read: ReadSwing;
+}
+
+/** The alternatives of `WalkSwingGait`'s site. */
+type WalkSwingGait = "lift" | "stiff" | "swing" | "toeClearance" | "width";
 
 /**
  * Prepare one swing from its endpoints.

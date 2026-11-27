@@ -16,18 +16,6 @@ import { triangulateAutoMovieSolidBoundary } from "./construction/internal/trian
 import { witnessAutoMovieSolidChartTriangle } from "./construction/internal/witnessAutoMovieSolidChartTriangle";
 
 /**
- * One possible straight visibility edge, ordered by original endpoint IDs and
- * turn.
- */
-type Candidate = IAutoMovieSolidMeshConstraints.ISegment;
-
-/** A kept left boundary, classified in its own finite native cover. */
-interface Component {
-  /** Directed original-ID occurrences and cover lifts. */ walk: IAutoMovieSolidMeshIncidence.IWalk;
-  /** Whether the finite left probe is inside this zero-winding boundary. */ outer: boolean;
-}
-
-/**
  * A finite visibility triangulation of an indexed native-chart partition.
  *
  * Boundary segments, including retained-grid boundaries, already describe the
@@ -215,6 +203,18 @@ export namespace AutoMovieSolidMeshPlan {
       return `inserted grid triangle: visibility triangle has no represented strict centroid, nor any triangle of its constraint-bounded region; original vertices ${legal[unread]!.vertices.join("/")}; cover ${JSON.stringify(covers[unread])}`;
     return { triangles: legal, constraints: split };
   }
+}
+
+/**
+ * One possible straight visibility edge, ordered by original endpoint IDs and
+ * turn.
+ */
+type Candidate = IAutoMovieSolidMeshConstraints.ISegment;
+
+/** A kept left boundary, classified in its own finite native cover. */
+interface Component {
+  /** Directed original-ID occurrences and cover lifts. */ walk: IAutoMovieSolidMeshIncidence.IWalk;
+  /** Whether the finite left probe is inside this zero-winding boundary. */ outer: boolean;
 }
 
 /**

@@ -12,9 +12,6 @@ import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionH
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import type { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/** The alternatives of `SoleOfPoint`'s site. */
-type SoleOfPoint = "heel" | "ball" | "toe";
-
 /**
  * The footprints of a stair climb: each foot's settled flat sole on its tread
  * at the standing lateral place, its leg placement and its sole points about
@@ -216,3 +213,6 @@ export namespace climbStairsPrints {
     return { goals, soles, print, required };
   }
 }
+
+/** The alternatives of `SoleOfPoint`'s site. */
+type SoleOfPoint = "heel" | "ball" | "toe";

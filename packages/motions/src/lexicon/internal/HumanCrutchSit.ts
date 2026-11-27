@@ -30,6 +30,31 @@ import { crutchSitUp } from "./crutchSitUp";
  * hold the crutches. The crutches are held, never leaned on: the hands carry
  * them by grip windows, a wear and holds.
  */
+export const HumanCrutchSit: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCrutchSit> =
+  {
+    name: "crutchSit",
+    interrupts: {},
+    plan: planHumanCrutchSit,
+  };
+
+/**
+ * Sit down onto a chair with two crutches, or rise from it, in the prescribed
+ * order (Cornell Health and HealthLinkBC, Using crutches).
+ *
+ * Sitting (`crutchSitDown`): the hands take the standing crutches' grips
+ * (`taken`) as the injured leg lifts off the floor; both crutches are gathered
+ * into the injured side's hand (`gathered`); the sound hand reaches back to the
+ * chair's armrest or seat (`reached`); and the sit law lowers the body while
+ * the crutches tilt on their planted tips. Rising (`crutchSitUp`): the rise law
+ * stands the body on the sound leg while the sound hand pushes on the chair and
+ * the crutches come back upright; the sound hand takes its crutch back
+ * (`taken`), and both are planted in the tripod (`planted`). The injured leg is
+ * held off the floor throughout.
+ *
+ * Both arms are laid as one course (`courseArmGoal`) from the second the hands
+ * hold the crutches. The crutches are held, never leaned on: the hands carry
+ * them by grip windows, a wear and holds.
+ */
 function planHumanCrutchSit(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrutchSit>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -69,28 +94,3 @@ function planHumanCrutchSit(
     after: "angles",
   });
 }
-
-/**
- * Sit down onto a chair with two crutches, or rise from it, in the prescribed
- * order (Cornell Health and HealthLinkBC, Using crutches).
- *
- * Sitting (`crutchSitDown`): the hands take the standing crutches' grips
- * (`taken`) as the injured leg lifts off the floor; both crutches are gathered
- * into the injured side's hand (`gathered`); the sound hand reaches back to the
- * chair's armrest or seat (`reached`); and the sit law lowers the body while
- * the crutches tilt on their planted tips. Rising (`crutchSitUp`): the rise law
- * stands the body on the sound leg while the sound hand pushes on the chair and
- * the crutches come back upright; the sound hand takes its crutch back
- * (`taken`), and both are planted in the tripod (`planted`). The injured leg is
- * held off the floor throughout.
- *
- * Both arms are laid as one course (`courseArmGoal`) from the second the hands
- * hold the crutches. The crutches are held, never leaned on: the hands carry
- * them by grip windows, a wear and holds.
- */
-export const HumanCrutchSit: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCrutchSit> =
-  {
-    name: "crutchSit",
-    interrupts: {},
-    plan: planHumanCrutchSit,
-  };

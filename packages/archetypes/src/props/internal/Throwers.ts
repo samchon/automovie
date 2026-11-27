@@ -10,15 +10,6 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeLongTool } from "../AutoMovieArchetypeLongTool";
 
-/** A long tool under construction. */
-type Builder = AutoMovieArchetypeBuilder<
-  AutoMovieArchetypeLongTool.Affordance,
-  AutoMovieArchetypeLongTool.Dimension
->;
-
-/** A long tool's drawn dimensions. */
-type Drawn = Readonly<Partial<Record<AutoMovieArchetypeLongTool.Dimension, number>>>;
-
 /** Finney's measured Bolivian sling. */
 const FINNEY: string =
   "Finney, An Archaeological and Experimental Study of the Sling (PhD thesis, Bournemouth University, 2005), p. 167, fig. 4.6: a Bolivian camelid-wool sling 1780 mm long in total, its main cords about 6 mm across, its pouch 155 mm long and 40 mm wide at most (https://eprints.bournemouth.ac.uk/396/1/Jon_Bryant_Finney.pdf)";
@@ -226,3 +217,12 @@ export namespace Throwers {
     });
   }
 }
+
+/** A long tool under construction. */
+type Builder = AutoMovieArchetypeBuilder<
+  AutoMovieArchetypeLongTool.Affordance,
+  AutoMovieArchetypeLongTool.Dimension
+>;
+
+/** A long tool's drawn dimensions. */
+type Drawn = Readonly<Partial<Record<AutoMovieArchetypeLongTool.Dimension, number>>>;

@@ -33,12 +33,6 @@ import { overlayContinuations } from "./overlayContinuations";
 import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { unplantedHumanObservation } from "./unplantedHumanObservation";
 
-/** The record of `IBuildResult`'s site. */
-type IBuildResult = {
-  pose: IAutoMoviePose;
-  contacts: IAutoMovieMotionHumanPosture["limbs"];
-};
-
 /**
  * A carrier's pose with its overlays written over it: which overlays run at a
  * second, and how each one's channels are faded in and out against the body
@@ -447,13 +441,6 @@ export namespace HumanSegmentOverlay {
     return { pose: fitted.pose, seeds, contacts: built.contacts };
   }
 
-  /** A fresh clinical tuple, without a closure for each interior fade branch. */
-  function angles(
-    joint: IAutoMovieJointPose | undefined,
-  ): readonly [number, number, number] {
-    return [joint?.flexion ?? 0, joint?.abduction ?? 0, joint?.twist ?? 0];
-  }
-
   /** The overlays that run at a second (`HumanSegmentOverlayRun.running`). */
   export const running: typeof HumanSegmentOverlayRun.running =
     HumanSegmentOverlayRun.running;
@@ -464,4 +451,17 @@ export namespace HumanSegmentOverlay {
    */
   export const handing: typeof HumanSegmentOverlayRun.handing =
     HumanSegmentOverlayRun.handing;
+
+  /** A fresh clinical tuple, without a closure for each interior fade branch. */
+  function angles(
+    joint: IAutoMovieJointPose | undefined,
+  ): readonly [number, number, number] {
+    return [joint?.flexion ?? 0, joint?.abduction ?? 0, joint?.twist ?? 0];
+  }
 }
+
+/** The record of `IBuildResult`'s site. */
+type IBuildResult = {
+  pose: IAutoMoviePose;
+  contacts: IAutoMovieMotionHumanPosture["limbs"];
+};

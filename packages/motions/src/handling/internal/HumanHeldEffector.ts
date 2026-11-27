@@ -14,9 +14,6 @@ import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMo
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/** The alternatives of `HumanHeldEffectorContext`'s site. */
-type HumanHeldEffectorContext = "body" | "entry" | "prop";
-
 /**
  * Prepare the effector of a held prop's point (`HumanHeld.effector`): the point
  * and its directions in the hand's frame, read once at the entry, and for an
@@ -125,6 +122,9 @@ export function HumanHeldEffector(
     },
   });
 }
+
+/** The alternatives of `HumanHeldEffectorContext`'s site. */
+type HumanHeldEffectorContext = "body" | "entry" | "prop";
 /** The record of `IGeometryRing`'s site. */
 type IGeometryRing = {
   centre: IAutoMovieVector3;

@@ -13,21 +13,6 @@ import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation";
 import { solvePhysicalTargetStep } from "./solvePhysicalTargetStep";
 
-/** Admitted articulation trees with unique names in the same candidate pose map. */
-type IPhysicalTargetForestInput = Omit<
-  IAutoMovieSolvePhysicalArticulationTargets.IInput,
-  "profile"
-> & {
-  readonly segments: readonly Pick<IAutoMoviePhysicalSegment, "bone">[];
-  readonly joints: readonly IAutoMoviePhysicalJoint[];
-};
-
-/** The best finite candidate and its number of attempted bounded updates. */
-type IPhysicalTargetForestResult =
-  IAutoMovieSolvePhysicalArticulationTargets.IResult & {
-    readonly iterations: number;
-  };
-
 /**
  * Fit metre residuals across one or more fixed-root articulation trees. The
  * caller supplies admitted topology and globally unique joint and bone names.
@@ -396,3 +381,18 @@ export function solvePhysicalTargetForest(
     return poses;
   }
 }
+
+/** Admitted articulation trees with unique names in the same candidate pose map. */
+type IPhysicalTargetForestInput = Omit<
+  IAutoMovieSolvePhysicalArticulationTargets.IInput,
+  "profile"
+> & {
+  readonly segments: readonly Pick<IAutoMoviePhysicalSegment, "bone">[];
+  readonly joints: readonly IAutoMoviePhysicalJoint[];
+};
+
+/** The best finite candidate and its number of attempted bounded updates. */
+type IPhysicalTargetForestResult =
+  IAutoMovieSolvePhysicalArticulationTargets.IResult & {
+    readonly iterations: number;
+  };

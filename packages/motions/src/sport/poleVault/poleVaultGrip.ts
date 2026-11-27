@@ -11,12 +11,6 @@ import { poleVaultSwing } from "./poleVaultSwing";
 import { poleVaultTakeoffAngle } from "./poleVaultTakeoffAngle";
 
 /**
- * The halvings the grip's bisection takes: a pole's length to well under a
- * millimetre.
- */
-const SPLITS: number = 24;
-
-/**
  * The farthest from the planted end the top hand can grip the pole and still
  * swing it upright from a run at `speed`: a pole stands only as far as the
  * run's energy carries the vaulter over the planted end (Linthorne 2000: the
@@ -109,3 +103,9 @@ export function poleVaultGrip(
   }
   return low;
 }
+
+/**
+ * The halvings the grip's bisection takes: a pole's length to well under a
+ * millimetre.
+ */
+const SPLITS: number = 24;

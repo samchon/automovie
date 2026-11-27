@@ -15,9 +15,6 @@ import { EquineBodyPose } from "./EquineBodyPose";
 import type { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
 
-/** A limb end of the body. */
-type End = "Fore" | "Hind";
-
 /** A rearing strike's trunk pitch about the hips, degrees: authored. */
 const STRIKE_PITCH: number = 30;
 
@@ -182,3 +179,6 @@ export namespace EquineEncounterRows {
     };
   }
 }
+
+/** A limb end of the body. */
+type End = "Fore" | "Hind";

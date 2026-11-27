@@ -13,9 +13,7 @@ import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidFoot } from "./AutoMovieSolidFoot";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-type Vec3 = AutoMovieVector3Tuple;
 const { norm, scale, solve3, sub } = AutoMovieSolidVector;
-
 /**
  * A join's seed record as the trace's seed
  * (`IAutoMovieSolidIntersection.IInput.seed`), in millimetres.
@@ -411,3 +409,5 @@ export namespace AutoMovieConstructionSeeds {
     return best;
   }
 }
+
+type Vec3 = AutoMovieVector3Tuple;

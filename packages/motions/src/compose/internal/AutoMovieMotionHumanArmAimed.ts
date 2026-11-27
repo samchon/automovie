@@ -8,11 +8,6 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { AutoMovieMotionHumanArmObservation } from "./AutoMovieMotionHumanArmObservation";
 
-/** The record of `IAutoMovieMotionHumanArmAimedAt`'s site. */
-type IAutoMovieMotionHumanArmAimedAt = {
-  posture: IAutoMovieMotionHumanPosture;
-};
-
 /**
  * A planner's reader of its arms' goals (`AutoMovieMotionHumanArmPlanned`):
  * each arm's goal at an instant as the plan perceives it
@@ -50,3 +45,8 @@ export function AutoMovieMotionHumanArmAimed(
     return found;
   };
 }
+
+/** The record of `IAutoMovieMotionHumanArmAimedAt`'s site. */
+type IAutoMovieMotionHumanArmAimedAt = {
+  posture: IAutoMovieMotionHumanPosture;
+};

@@ -9,27 +9,6 @@ import type { HumanMountPush } from "./HumanMountPush";
 import { HumanMountPushSquare } from "./HumanMountPushSquare";
 
 /**
- * A point in the knee's plane, metres from the hip along the leg (`x`) and
- * toward the pole (`y`).
- */
-interface IPoint {
-  /** Along the leg. */
-  x: number;
-
-  /** Toward the pole. */
-  y: number;
-}
-
-/** One meeting of the knee's two circles (`pitch`). */
-interface IKneeTurn {
-  /** The turn that brings the knee there, radians about the hinge. */
-  angle: number;
-
-  /** Whether the knee bends toward the pole off the moved leg. */
-  poled: boolean;
-}
-
-/**
  * The turn of a foot about a point of its own (its ball), in the knee's plane,
  * that leaves its ankle bent by exactly `target` once the knee has followed the
  * moved ankle, in closed form. Turning the foot moves the ankle about the ball,
@@ -158,4 +137,25 @@ export function HumanMountPushPitch(
     down:
       Vector3.dot(Vector3.cross(normal, toes), hinge) >= 0 ? degrees : -degrees,
   };
+}
+
+/**
+ * A point in the knee's plane, metres from the hip along the leg (`x`) and
+ * toward the pole (`y`).
+ */
+interface IPoint {
+  /** Along the leg. */
+  x: number;
+
+  /** Toward the pole. */
+  y: number;
+}
+
+/** One meeting of the knee's two circles (`pitch`). */
+interface IKneeTurn {
+  /** The turn that brings the knee there, radians about the hinge. */
+  angle: number;
+
+  /** Whether the knee bends toward the pole off the moved leg. */
+  poled: boolean;
 }
