@@ -1,6 +1,8 @@
-import type { IAutoMovieAffordanceCoupling } from "@automovie/interface";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieAffordanceCoupling,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import {
   type AutoMovieArchetypeBuilder,
