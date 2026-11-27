@@ -47,4 +47,4 @@ export * from "../AutoMovieSweepRotation";
 
 
 
-export { AutoMovieEngineSweep } from "../AutoMovieEngineSweep";
+export * from "../AutoMovieEngineSweep";

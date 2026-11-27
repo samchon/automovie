@@ -18,4 +18,4 @@ export * from "./AutoMovieRenderCaptureRecord.js";
 
 
 export * from "./AutoMovieRenderCapture.js";
-export { AutoMovieRenderMedia } from "./AutoMovieRenderMedia.js";
+export * from "./AutoMovieRenderMedia.js";

@@ -17,14 +17,16 @@ import { FamilyConicCaseIdentity as Identity } from "../../../reference-conics/F
  * @evidence contracts/development/common.md#meaningful-documentation Four numbered scenarios keep transport, source-only scope and sampled operator inputs separate from shape approval.
  */
 export function test_human_capture_transport(): void {
+  // The synthetic receipts identify the source layout at the time of capture.
+  const recordedRoot: string = "packages/engine/src/geometry/construction";
   const files: string[] = [
-    "packages/engine/src/geometry/AutoMovieConstructionSeeds.ts",
-    "packages/engine/src/geometry/AutoMovieConstructionSplitBand.ts",
-    "packages/engine/src/geometry/construction/index.ts",
+    `${recordedRoot}/AutoMovieConstructionSeeds.ts`,
+    `${recordedRoot}/AutoMovieConstructionSplitBand.ts`,
+    `${recordedRoot}/index.ts`,
   ];
   const added: string[] = [
-    "packages/engine/src/geometry/AutoMovieConstructionSplitBandTrace.ts",
-    "packages/engine/src/geometry/AutoMovieConstructionSeedTrace.ts",
+    `${recordedRoot}/AutoMovieConstructionSplitBandTrace.ts`,
+    `${recordedRoot}/AutoMovieConstructionSeedTrace.ts`,
   ];
   const beforeHashes: Record<string, string> = Object.fromEntries(
     files.map((file: string): [string, string] => [file, "a".repeat(64)]),

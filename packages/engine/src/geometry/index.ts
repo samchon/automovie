@@ -1,5 +1,5 @@
 export * from "./AutoMovieEngineGeometryObservation";
-export { AutoMovieEnginePlanarArea } from "./AutoMovieEnginePlanarArea";
+export * from "./AutoMovieEnginePlanarArea";
 export * from "./AutoMovieMotionBound";
 
 
@@ -53,17 +53,12 @@ export * from "./extract";
 
 
 
-export { AutoMovieEngineMeshCrossingQuery } from "./AutoMovieEngineMeshCrossingQuery";
+export * from "./AutoMovieEngineMeshCrossingQuery";
 
 
 
 
-export { AutoMovieEnginePlanarRegion } from "./AutoMovieEnginePlanarRegion";
-
-
-
-
-
+export * from "./AutoMovieEnginePlanarRegion";
 
 
 
@@ -82,7 +77,12 @@ export { AutoMovieEnginePlanarRegion } from "./AutoMovieEnginePlanarRegion";
 
 
 
-export { AutoMovieEngineConvexSupportLoft } from "./AutoMovieEngineConvexSupportLoft";
+
+
+
+
+
+export * from "./AutoMovieEngineConvexSupportLoft";
 export * from "./sweep";
 
 
@@ -91,4 +91,4 @@ export * from "./sweep";
 
 
 
-export { AutoMovieEngineGeometry } from "./AutoMovieEngineGeometry";
+export * from "./AutoMovieEngineGeometry";

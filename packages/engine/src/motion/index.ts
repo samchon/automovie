@@ -1,14 +1,14 @@
 export * from "./AutoMovieEnvelope";
 export * from "./MotionTrajectoryFailure";
 
-export { AutoMovieEngineMotionPlanting } from "./AutoMovieEngineMotionPlanting";
+export * from "./AutoMovieEngineMotionPlanting";
 
 
 export * from "./constants";
 
 
 
-export { AutoMovieEngineMotionKinematics } from "./AutoMovieEngineMotionKinematics";
+export * from "./AutoMovieEngineMotionKinematics";
 
 
 
@@ -16,9 +16,9 @@ export { AutoMovieEngineMotionKinematics } from "./AutoMovieEngineMotionKinemati
 
 
 export * from "./AutoMovieEngineMotionAirborneRotation";
-export { AutoMovieEngineMotionAirborneTakeoff } from "./AutoMovieEngineMotionAirborneTakeoff";
-export { AutoMovieEngineMotionCrowd } from "./AutoMovieEngineMotionCrowd";
-export { AutoMovieEngineMotionHydrodynamics } from "./AutoMovieEngineMotionHydrodynamics";
+export * from "./AutoMovieEngineMotionAirborneTakeoff";
+export * from "./AutoMovieEngineMotionCrowd";
+export * from "./AutoMovieEngineMotionHydrodynamics";
 
 
 
@@ -40,10 +40,10 @@ export * from "./AutoMovieEngineMotionChainTwist";
 
 
 
-export { AutoMovieEngineMotionSampling } from "./AutoMovieEngineMotionSampling";
+export * from "./AutoMovieEngineMotionSampling";
 
-export { AutoMovieEngineMotionClip } from "./AutoMovieEngineMotionClip";
+export * from "./AutoMovieEngineMotionClip";
 
-export { AutoMovieEngineMotionRetargeting } from "./AutoMovieEngineMotionRetargeting";
+export * from "./AutoMovieEngineMotionRetargeting";
 
-export { AutoMovieEngineMotionTrajectory } from "./AutoMovieEngineMotionTrajectory";
+export * from "./AutoMovieEngineMotionTrajectory";

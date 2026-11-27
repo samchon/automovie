@@ -2,6 +2,6 @@ export type { IAutoMovieEnvironmentBuildingFootprint } from "./IAutoMovieEnviron
 export type { IAutoMovieEnvironmentBuildingPoint } from "./IAutoMovieEnvironmentBuildingPoint";
 export * from "./rides";
 
-export { AutoMovieEnvironment } from "./AutoMovieEnvironment";
+export * from "./AutoMovieEnvironment";
 
-export { AutoMovieEnvironmentFurnishing } from "./AutoMovieEnvironmentFurnishing";
+export * from "./AutoMovieEnvironmentFurnishing";

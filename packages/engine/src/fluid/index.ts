@@ -1,2 +1,2 @@
-export { AutoMovieEngineFluid } from "./AutoMovieEngineFluid";
+export * from "./AutoMovieEngineFluid";
 export * from "./constants";

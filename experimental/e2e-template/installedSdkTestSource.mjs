@@ -7,7 +7,7 @@ import {
   AutoMovieArchetypeDesktopKeyboard as RootAutoMovieArchetypeDesktopKeyboard,
   AutoMovieArchetypeLaptop as RootAutoMovieArchetypeLaptop,
   AutoMovieArchetypeRadio as RootAutoMovieArchetypeRadio,
-  createScenicContainer,
+  AutoMovieArchetypeScenicContainer,
 } from "@automovie/archetypes";
 import { AutoMovieArchetypeCargoPod } from "@automovie/archetypes/props";
 import { AutoMovieArchetypeRing } from "@automovie/archetypes/gym";
@@ -24,7 +24,7 @@ import { starter } from "../../../src/composition/films/starter";
 /**
  * Execute installed SDK consumers through the generated nested test project.
  *
- * Scenarios: the old and named props, two displayed phone swipes and the
+ * Scenarios: the saved selector and named props, two displayed phone swipes and the
  * compiled furnished room run after dynamic test discovery.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the nested runtime integration and actual installed SDK consumers.
@@ -41,7 +41,7 @@ export async function test_installed_sdk(): Promise<void> {
   assert.equal(AutoMovieArchetypeRemote, props.AutoMovieArchetypeRemote);
   assert.equal(AutoMovieArchetypeTablet, props.AutoMovieArchetypeTablet);
   assert.equal(AutoMovieArchetypeCamera.create({ model: "grIII" }).dimensions.width, 0.1094);
-  const oldPod = createScenicContainer({ kind: "cargoPod" }, 7);
+  const oldPod = AutoMovieArchetypeScenicContainer.create({ kind: "cargoPod" }, 7);
   const pod = AutoMovieArchetypeCargoPod.create({}, 7);
   assert.deepEqual(oldPod.affordances.map((contact) => contact.id), ["top"]);
   assert.deepEqual(pod.affordance("top"), oldPod.affordance("top"));

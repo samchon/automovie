@@ -20,7 +20,7 @@ export * from "../AUTO_MOVIE_INSPECTION_PALETTE.js";
 export * from "../AutoMovieCollisionSource.js";
 
 
-export { AutoMovieRenderInspectionGeometry } from "../AutoMovieRenderInspectionGeometry.js";
+export * from "../AutoMovieRenderInspectionGeometry.js";
 
 
 
@@ -58,16 +58,16 @@ export * from "../IRenderAutoMovieInspectionDiagnosticsProps.js";
 
 
 
-export { AutoMovieRenderInspection } from "../AutoMovieRenderInspection.js";
+export * from "../AutoMovieRenderInspection.js";
 
-export { AutoMovieRenderInspectionCamera } from "../AutoMovieRenderInspectionCamera.js";
+export * from "../AutoMovieRenderInspectionCamera.js";
 
-export { AutoMovieRenderInspectionMarks } from "../AutoMovieRenderInspectionMarks.js";
+export * from "../AutoMovieRenderInspectionMarks.js";
 
-export { AutoMovieRenderInspectionOverlay } from "../AutoMovieRenderInspectionOverlay.js";
+export * from "../AutoMovieRenderInspectionOverlay.js";
 
-export { AutoMovieRenderInspectionRequest } from "../AutoMovieRenderInspectionRequest.js";
+export * from "../AutoMovieRenderInspectionRequest.js";
 
-export { AutoMovieRenderInspectionPath } from "../AutoMovieRenderInspectionPath.js";
+export * from "../AutoMovieRenderInspectionPath.js";
 
-export { AutoMovieRenderInspectionMaterial } from "../AutoMovieRenderInspectionMaterial.js";
+export * from "../AutoMovieRenderInspectionMaterial.js";

@@ -110,20 +110,20 @@ export * from "./AutoMovieResourceRetirementScope.js";
 
 export * from "./AutoMovieSceneTexture.js";
 
-export { AutoMovieRenderSceneMotion } from "./AutoMovieRenderSceneMotion.js";
+export * from "./AutoMovieRenderSceneMotion.js";
 
 export * from "./AutoMovieRenderSceneLayout.js";
 
 export * from "./AutoMovieRenderMaterial.js";
 
-export { AutoMovieSceneResource } from "./AutoMovieSceneResource.js";
+export * from "./AutoMovieSceneResource.js";
 
-export { AutoMovieSceneRenderMode } from "./AutoMovieSceneRenderMode.js";
+export * from "./AutoMovieSceneRenderMode.js";
 
-export { AutoMovieSceneShadow } from "./AutoMovieSceneShadow.js";
+export * from "./AutoMovieSceneShadow.js";
 
 export * from "./AutoMovieSceneFramebuffer.js";
 
-export { AutoMovieRenderSceneEnvironment } from "./AutoMovieRenderSceneEnvironment.js";
+export * from "./AutoMovieRenderSceneEnvironment.js";
 
-export { AutoMovieRenderSceneLighting } from "./AutoMovieRenderSceneLighting.js";
+export * from "./AutoMovieRenderSceneLighting.js";

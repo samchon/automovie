@@ -192,9 +192,8 @@ import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieCompiledDefinedShot, IAutoMovieEnvironment, IAutoMovieModel, IAutoMovieStage } from "@automovie/interface";
 import {
   type IAutoMovieSceneObject,
-  buildModel,
-  buildScene,
-  collectAutoMovieOwnedResources,
+  AutoMovieRenderSceneLayout,
+  AutoMovieSceneResource,
 } from "@automovie/render";
 
 import type { IFilm } from "../../IFilm";
@@ -203,7 +202,7 @@ import type { IFilmProduction } from "../../IFilmProduction";
 /**
  * A packed-SDK room exercised by the generated production's existing film.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Defines a shot from the installed room and furniture outputs. The compiler checks the authored camera and depth bound. A compiler refusal or missing walkable entrance threshold stops the mount before buildScene places the models that buildModel produces.
+ * @evidence contracts/development/implementation.md#principled-implementation Defines a shot from the installed room and furniture outputs. The compiler checks the authored camera and depth bound. A compiler refusal or missing walkable entrance threshold stops the mount before AutoMovieRenderSceneLayout.buildScene places the models built by AutoMovieRenderSceneLayout.buildModel.
  * @evidence contracts/development/implementation.md#efficient-algorithms The Viewer and capture share the same scene factory. Each mount compiles the room once, indexes models by id and builds a distinct object for each scene node. Each seek updates world matrices on the retained scene. Disposal collects and releases the scene's owned resources, then clears the scene.
  */
 export function starter(): IFilm {
@@ -216,7 +215,7 @@ export function starter(): IFilm {
       const room: IAutoMovieEnvironment = AutoMovieEnvironment.create({
         id: "installed-room",
         items: {
-          hall: { use: AutoMovieEnvironment.building({ levels: [{
+          hall: { use: AutoMovieEnvironment.building({ type: "levels", levels: [{
             id: "ground",
             rooms: { studio: { type: "rectangle", value: { x: 0, z: 0, width: 6, depth: 4 } } },
             openings: [{ id: "entry", kind: "passage", between: { from: "studio", to: null }, edge: { from: { x: 0, z: 0 }, to: { x: 6, z: 0 } }, width: 1.2, height: 2.1 }],
@@ -256,16 +255,19 @@ export function starter(): IFilm {
       if (!compiled.source.scene.space?.walkable.includes("installed-room/hall/ground/entry/threshold"))
         throw new Error("The named entry did not reach the compiled room");
       const models: Map<string, IAutoMovieModel> = new Map(room.runtime.models.map((model: IAutoMovieModel) => [model.id, model]));
-      const drawing: IAutoMovieSceneObject = buildScene(compiled.source.scene, (id: string) => {
-        const model: IAutoMovieModel | undefined = models.get(id);
-        return model === undefined ? undefined : buildModel(model);
+      const drawing: IAutoMovieSceneObject = AutoMovieRenderSceneLayout.buildScene({
+        scene: compiled.source.scene,
+        getModelObject: (id: string) => {
+          const model: IAutoMovieModel | undefined = models.get(id);
+          return model === undefined ? undefined : AutoMovieRenderSceneLayout.buildModel(model);
+        },
       });
       return {
         scene: drawing.scene,
         camera: drawing.cameras[0]!,
         seek: (): void => drawing.scene.updateMatrixWorld(true),
         dispose: (): void => {
-          for (const resource of collectAutoMovieOwnedResources(drawing.scene)) resource.dispose();
+          for (const resource of AutoMovieSceneResource.collectOwnedResources(drawing.scene)) resource.dispose();
           drawing.scene.clear();
         },
       };

@@ -16,4 +16,4 @@ export * from "../IAutoMovieViewerSubjectViewRequest.js";
 
 
 
-export { AutoMovieRenderSubjectViewpoint } from "../AutoMovieRenderSubjectViewpoint.js";
+export * from "../AutoMovieRenderSubjectViewpoint.js";
