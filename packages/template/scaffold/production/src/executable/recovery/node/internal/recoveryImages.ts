@@ -1,5 +1,7 @@
 import { AutoMovieIngestPpmImage } from "@automovie/ingest";
 import type {
+  IAutoMovieRecoveryImageFit,
+  IAutoMovieRecoveryImageFitPolicy,
   IAutoMovieRecoveryImageFiles,
   IAutoMovieRecoveryImageInput,
   IAutoMovieRecoveryImageLoftBudget,
@@ -7,6 +9,8 @@ import type {
   IAutoMovieRecoveryImageRealization,
   IAutoMovieRecoveryImageRecipe,
   IAutoMovieRecoveryResult,
+  IAutoMovieRecoverySupportFit,
+  IAutoMovieRecoverySupportFitPolicy,
   IAutoMovieRecoverySupportLoftBudget,
   IAutoMovieRecoverySupportRealization,
 } from "@automovie/interface";

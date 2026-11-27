@@ -515,7 +515,7 @@ function describeDiagnostics(
     const status: string =
       strongest.confidence === "candidate" ? "Possible" : "Confirmed";
     messages.push(
-      `${status} ??${describeFinding({ finding: strongest, time: strongest.witness.time ?? packet.time })}`,
+      `${status} — ${describeFinding({ finding: strongest, time: strongest.witness.time ?? packet.time })}`,
     );
   }
   if (unavailable.length !== 0)

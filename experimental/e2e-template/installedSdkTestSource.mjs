@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeRadio as RootAutoMovieArchetypeRadio,
   createScenicContainer,
 } from "@automovie/archetypes";
-import { AutoMovieArchetypeCargoPod, AutoMovieArchetypeDesktopKeyboard, AutoMovieArchetypeLaptop, AutoMovieArchetypeRadio } from "@automovie/archetypes/props";
+import { AutoMovieArchetypeCargoPod } from "@automovie/archetypes/props";
 import { AutoMovieArchetypeRing } from "@automovie/archetypes/gym";
 import * as props from "@automovie/archetypes/props";
 import { Quaternion, Vector3 } from "@automovie/engine";
