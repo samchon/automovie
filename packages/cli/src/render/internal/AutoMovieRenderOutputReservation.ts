@@ -1,7 +1,7 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
-import { readAutoMovieErrorCode } from "./readAutoMovieErrorCode";
+import { readAutoMovieErrorCode } from "../../file/internal/readAutoMovieErrorCode";
 
 /**
  * The publish lock of one render output folder: a `.render-publish` directory

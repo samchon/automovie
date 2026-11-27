@@ -7,7 +7,7 @@ import type {
   IAutoMovieRecoverySourceTerminalsObservationOperation,
 } from "@automovie/interface";
 
-import { RecoverySlabGraph } from "../../internal/RecoverySlabGraph";
+import { RecoverySlabGraph } from "../../geometry/RecoverySlabGraph";
 import { critical } from "./critical";
 import { prepareRecoveryCriticalBrackets } from "./prepareRecoveryCriticalBrackets";
 

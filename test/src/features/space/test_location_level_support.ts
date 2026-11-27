@@ -1,6 +1,5 @@
 import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
-  AutoMovieCameraFraming,
   type IAutoMovieActorContext,
   type IAutoMovieBeatEndActorState,
   type IAutoMovieBeatEndState,
@@ -176,7 +175,7 @@ function compileSupport(
             }),
           ),
           camera: {
-            framing: AutoMovieCameraFraming.Full,
+            framing: "full",
             move: "static",
             on: { kind: "node", node: "knightA" },
           },
@@ -208,7 +207,7 @@ function compileSupport(
               actor: "cam-main",
               start: 0,
               duration: "auto",
-              framing: AutoMovieCameraFraming.Full,
+              framing: "full",
               move: "static",
               on: { kind: "node", node: "knightA" },
             },

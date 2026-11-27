@@ -1,13 +1,13 @@
-import type * as animals from "./animals";
-import type * as architecture from "./architecture";
-import type * as furniture from "./furniture";
-import type * as gym from "./gym";
-import type * as music from "./music";
-import type * as nature from "./nature";
-import type * as props from "./props";
-import type * as sport from "./sport";
-import type * as vehicles from "./vehicles";
-import type * as weapons from "./weapons";
+import type * as animals from "../animals";
+import type * as architecture from "../architecture";
+import type * as furniture from "../furniture";
+import type * as gym from "../gym";
+import type * as music from "../music";
+import type * as nature from "../nature";
+import type * as props from "../props";
+import type * as sport from "../sport";
+import type * as vehicles from "../vehicles";
+import type * as weapons from "../weapons";
 
 /**
  * The model-producing families by their package subpaths, each the module its

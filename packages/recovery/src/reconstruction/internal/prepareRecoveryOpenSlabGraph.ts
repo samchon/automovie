@@ -5,7 +5,7 @@ import type {
   IAutoMovieRecoverySlabGraph,
 } from "@automovie/interface";
 
-import { RecoverySlabGraph as G } from "../../internal/RecoverySlabGraph";
+import { RecoverySlabGraph as G } from "../../geometry/RecoverySlabGraph";
 
 /**
  * Prepare ordinary open-slab observations without exposing original mesh

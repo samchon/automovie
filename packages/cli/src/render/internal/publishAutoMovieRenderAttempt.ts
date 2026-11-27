@@ -1,6 +1,6 @@
 import * as fs from "node:fs/promises";
 
-import { readAutoMovieErrorCode } from "./readAutoMovieErrorCode";
+import { readAutoMovieErrorCode } from "../../file/internal/readAutoMovieErrorCode";
 
 /**
  * Installs the approved film, its control channels when the attempt drew them,

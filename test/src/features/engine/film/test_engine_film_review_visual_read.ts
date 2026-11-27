@@ -1,6 +1,5 @@
 import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
-  AutoMovieInteractionEventKind,
   type IAutoMovieCamera,
   type IAutoMovieClip,
   type IAutoMovieInteractionEvent,
@@ -86,7 +85,7 @@ const hitEvent: (
   over: Partial<IAutoMovieInteractionEvent> = {},
 ): IAutoMovieInteractionEvent => ({
   id: "e",
-  kind: AutoMovieInteractionEventKind.Hit,
+  kind: "hit",
   source: "impactOutput",
   time: 0,
   actor: null,
@@ -367,7 +366,7 @@ export function test_engine_film_review_visual_read(): void {
     "a contact-kind event off the body also reads as a miss",
     contact(heroAtOrigin, [
       hitEvent({
-        kind: AutoMovieInteractionEventKind.Contact,
+        kind: "contact",
         point: { x: 5, y: 0, z: 0 },
       }),
     ]).length,
@@ -377,7 +376,7 @@ export function test_engine_film_review_visual_read(): void {
     "a non-impact event (grab) is not a contact check",
     contact(heroAtOrigin, [
       hitEvent({
-        kind: AutoMovieInteractionEventKind.Grab,
+        kind: "grab",
         point: { x: 5, y: 0, z: 0 },
       }),
     ]).length,

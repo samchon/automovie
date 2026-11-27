@@ -1,5 +1,4 @@
 import {
-  AutoMovieInteractionEventKind,
   type IAutoMovieDetectSupportToppling,
   type IAutoMovieHullEdge,
   IAutoMovieInteractionEvent,
@@ -66,7 +65,7 @@ export function detectSupportToppling(
   const overshoot: number = distance - margin;
   const event: IAutoMovieInteractionEvent = {
     id: "fall:0",
-    kind: AutoMovieInteractionEventKind.Fall,
+    kind: "fall",
     source: "sampledProximity",
     time: 0,
     actor: node,

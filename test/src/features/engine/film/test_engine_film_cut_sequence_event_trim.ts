@@ -1,6 +1,5 @@
 import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
-  AutoMovieInteractionEventKind,
   type IAutoMovieConstraintViolation,
   type IAutoMovieCut,
   type IAutoMovieEditPlan,
@@ -39,7 +38,7 @@ import { nclose } from "../../internal/predicates";
 export function test_engine_film_cut_sequence_event_trim(): void {
   const start: IAutoMovieInteractionEvent = {
     id: "start",
-    kind: AutoMovieInteractionEventKind.Attach,
+    kind: "attach",
     source: "scriptedCue",
     time: 0.5,
     actor: "performer",

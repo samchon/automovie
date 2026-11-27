@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { RecoveryEventRegion } from "./RecoveryEventRegion";
-import { RecoveryScalarIndex as I } from "../../internal/RecoveryScalarIndex";
+import { RecoveryScalarIndex as I } from "../../geometry/RecoveryScalarIndex";
 import { AutoMovieRecoveryProfileFitting } from "../../fitting/AutoMovieRecoveryProfileFitting";
 
 /** Admit the immutable source and prepare the selected scalar interval index. */

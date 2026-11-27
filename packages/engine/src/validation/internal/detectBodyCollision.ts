@@ -1,6 +1,5 @@
 import {
   AutoMovieHumanoidBone,
-  AutoMovieInteractionEventKind,
   IAutoMovieBody,
   type IAutoMovieBodyCollisionResult,
   IAutoMovieBone,
@@ -141,7 +140,7 @@ export function detectBodyCollision(
       i: number,
     ): {
       id: string;
-      kind: AutoMovieInteractionEventKind.Contact;
+      kind: "contact";
       source: "sampledProximity";
       time: number;
       actor: string;
@@ -152,7 +151,7 @@ export function detectBodyCollision(
       reaction: null;
     } => ({
       id: `contact:${i}`,
-      kind: AutoMovieInteractionEventKind.Contact,
+      kind: "contact",
       source: "sampledProximity",
       time: pen.time,
       actor: props.a.node,

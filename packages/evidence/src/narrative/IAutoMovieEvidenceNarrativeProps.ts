@@ -1,7 +1,7 @@
 import type { IEvidenceClaim } from "@wrtnlabs/evidence";
 
-import type { IAutoMovieEvidenceProductionConstruction } from "./narrative/IAutoMovieEvidenceProductionConstruction";
-import type { AutoMovieEvidenceNarrativeScope } from "./narrative/AutoMovieEvidenceNarrativeScope";
+import type { IAutoMovieEvidenceProductionConstruction } from "./IAutoMovieEvidenceProductionConstruction";
+import type { AutoMovieEvidenceNarrativeScope } from "./AutoMovieEvidenceNarrativeScope";
 
 /**
  * Opts into narrative evidence using native claims and selected authored

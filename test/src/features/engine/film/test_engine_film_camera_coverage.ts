@@ -1,6 +1,5 @@
 import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
-  AutoMovieCameraFraming,
   IAutoMovieCamera,
   type IAutoMovieCameraCoverageEntry,
   IAutoMovieCameraIntent,
@@ -40,7 +39,7 @@ const intent: (
   over: Partial<IAutoMovieCameraIntent> = {},
 ): IAutoMovieCameraIntent => ({
   start,
-  framing: AutoMovieCameraFraming.Medium,
+  framing: "medium",
   move: "static",
   focus: { x: 0, y: 1.2, z: 0 },
   focalLength: 85,
@@ -61,7 +60,7 @@ const entry: (
     actor: "cam-alt",
     start,
     duration: move === "static" ? 1 : "auto",
-    framing: AutoMovieCameraFraming.Medium,
+    framing: "medium",
     move,
     on: { kind: "point", point: { x: 0, y: 0, z: 0 } },
   },

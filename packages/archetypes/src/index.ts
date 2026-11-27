@@ -1,5 +1,5 @@
-export * from "./ARCHETYPE_FAMILIES";
-export * from "./IAutoMovieArchetypeFamilies";
+export { ARCHETYPE_FAMILIES } from "./core";
+export type { IAutoMovieArchetypeFamilies } from "./core";
 export * from "./animals";
 export * from "./architecture";
 export {

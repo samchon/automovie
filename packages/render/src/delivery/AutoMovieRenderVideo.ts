@@ -1,13 +1,13 @@
-import { planAutoMovieVideoEncoding as planAutoMovieVideoEncodingImplementation } from "./delivery/internal/planAutoMovieVideoEncoding.js";
-import { autoMovieVideoFrameRate as autoMovieVideoFrameRateImplementation } from "./delivery/internal/autoMovieVideoFrameRate.js";
-import { planAutoMovieAlphaWrap as planAutoMovieAlphaWrapImplementation } from "./delivery/internal/planAutoMovieAlphaWrap.js";
+import { planAutoMovieVideoEncoding as planAutoMovieVideoEncodingImplementation } from "./internal/planAutoMovieVideoEncoding.js";
+import { autoMovieVideoFrameRate as autoMovieVideoFrameRateImplementation } from "./internal/autoMovieVideoFrameRate.js";
+import { planAutoMovieAlphaWrap as planAutoMovieAlphaWrapImplementation } from "./internal/planAutoMovieAlphaWrap.js";
 
 import { type IAutoMovieRenderSpec, type IAutoMovieDrawnVideoResult, type IAutoMovieRenderAndSeeResult, type IAutoMovieRenderAndSeeRequest, type IAutoMovieRenderResult, type IAutoMovieRenderAdapters, type IAutoMoviePlanVideoEncodingResult, type IAutoMoviePlanVideoEncodingProps, type IAutoMoviePlanAlphaWrapProps } from "@automovie/interface";
-import { ffmpegArgs as ffmpegArgsImplementation } from "./internal/ffmpegArgs.js";
-import { renderAndSee as renderAndSeeImplementation } from "./internal/renderAndSee.js";
-import { renderVideo as renderVideoImplementation } from "./internal/renderVideo.js";
-import { renderAutoMovieDrawnVideo as renderAutoMovieDrawnVideoImplementation } from "./draw/internal/renderAutoMovieDrawnVideo.js";
-import type { IAutoMovieRenderDrawnVideoProps } from "./draw/IAutoMovieRenderDrawnVideoProps.js";
+import { ffmpegArgs as ffmpegArgsImplementation } from "../internal/ffmpegArgs.js";
+import { renderAndSee as renderAndSeeImplementation } from "../internal/renderAndSee.js";
+import { renderVideo as renderVideoImplementation } from "../internal/renderVideo.js";
+import { renderAutoMovieDrawnVideo as renderAutoMovieDrawnVideoImplementation } from "../draw/internal/renderAutoMovieDrawnVideo.js";
+import type { IAutoMovieRenderDrawnVideoProps } from "../draw/IAutoMovieRenderDrawnVideoProps.js";
 
 /** Public operations for Auto Movie Render Video. */
 export namespace AutoMovieRenderVideo {

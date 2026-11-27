@@ -6,7 +6,7 @@ import type {
   IAutoMovieRecoveryChartSurface,
 } from "@automovie/interface";
 
-import { RecoveryBezierFit as F } from "./RecoveryBezierFit";
+import { RecoveryBezierFit as F } from "../fitting/RecoveryBezierFit";
 import { RecoveryChartLeafFit as L } from "../observation/internal/RecoveryChartLeafFit";
 import { RecoveryChartMap as M } from "./RecoveryChartMap";
 

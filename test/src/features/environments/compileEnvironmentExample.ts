@@ -1,6 +1,5 @@
 import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
-  AutoMovieCameraFraming,
   type IAutoMovieActionCall,
   type IAutoMovieActorContext,
   type IAutoMovieBeatEndState,
@@ -183,7 +182,7 @@ export function compileEnvironmentExample(
             beats: input.summary,
           })),
           camera: {
-            framing: AutoMovieCameraFraming.Wide,
+            framing: "wide",
             move: "static",
             on: { kind: "point", point: input.camera.target },
           },

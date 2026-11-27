@@ -11,13 +11,13 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
 import type { AutoMovieCliRender } from "../AutoMovieCliRender";
-import { AutoMovieRenderOutputReservation } from "../../AutoMovieRenderOutputReservation";
-import type { IAutoMovieDeliveryProfileFinding } from "../../IAutoMovieDeliveryProfileFinding";
-import { auditAutoMovieAlphaSamples } from "../../auditAutoMovieAlphaSamples";
+import { AutoMovieRenderOutputReservation } from "./AutoMovieRenderOutputReservation";
+import type { IAutoMovieDeliveryProfileFinding } from "../../delivery/internal/IAutoMovieDeliveryProfileFinding";
+import { auditAutoMovieAlphaSamples } from "./auditAutoMovieAlphaSamples";
 import { auditAutoMovieDeliveryProfile } from "../../delivery/internal/auditAutoMovieDeliveryProfile";
 import { AutoMovieCliDelivery } from "../../delivery/AutoMovieCliDelivery";
-import { listAutoMovieReleaseFindings } from "../../listAutoMovieReleaseFindings";
-import { publishAutoMovieRenderAttempt } from "../../publishAutoMovieRenderAttempt";
+import { listAutoMovieReleaseFindings } from "./listAutoMovieReleaseFindings";
+import { publishAutoMovieRenderAttempt } from "./publishAutoMovieRenderAttempt";
 import { readAutoMovieRevision } from "../../production/internal/readAutoMovieRevision";
 import { runAutoMovieFfmpeg } from "../../ffmpeg/internal/runAutoMovieFfmpeg";
 

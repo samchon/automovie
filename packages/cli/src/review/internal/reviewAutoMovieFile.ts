@@ -6,14 +6,14 @@ import * as path from "node:path";
 
 import type { AutoMovieCliReviewTypes } from "../AutoMovieCliReviewTypes";
 import type { IAutoMovieCliReviewObservation } from "../IAutoMovieCliReviewObservation";
-import type { AutoMovieFfmpegStaticPath } from "../../AutoMovieFfmpegStaticPath";
+import type { AutoMovieFfmpegStaticPath } from "../../ffmpeg/internal/AutoMovieFfmpegStaticPath";
 import { hashAutoMovieFile } from "../../file/internal/hashAutoMovieFile";
 import { loadAutoMovieProductionModule } from "../../production/internal/loadAutoMovieProductionModule";
-import { readAutoMovieErrorCode } from "../../readAutoMovieErrorCode";
+import { readAutoMovieErrorCode } from "../../file/internal/readAutoMovieErrorCode";
 import { readAutoMovieReviewObservation } from "./readAutoMovieReviewObservation";
 import { resolveAutoMovieFfmpeg } from "../../ffmpeg/internal/resolveAutoMovieFfmpeg";
 import { runAutoMovieFfmpeg } from "../../ffmpeg/internal/runAutoMovieFfmpeg";
-import { sameAutoMovieReviewFile } from "../../sameAutoMovieReviewFile";
+import { sameAutoMovieReviewFile } from "./sameAutoMovieReviewFile";
 
 /**
  * Create or explicitly rebind a review mark from a published film's verified

@@ -6,7 +6,7 @@ import type {
   IAutoMovieRecoveryChartBoundary,
 } from "@automovie/interface";
 
-import { RecoveryBezierFit as F } from "../../internal/RecoveryBezierFit";
+import { RecoveryBezierFit as F } from "../../fitting/RecoveryBezierFit";
 
 /**
  * Own one fitted curve and accepted pointwise phase chart per private boundary

@@ -1,6 +1,5 @@
 import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
-  AutoMovieInteractionEventKind,
   type IAutoMovieCut,
   type IAutoMovieEditPlan,
   type IAutoMovieInteractionEvent,
@@ -23,7 +22,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_engine_film_event_trim_numeric_boundaries(): void {
   const anchor: IAutoMovieInteractionEvent = {
     id: "anchor",
-    kind: AutoMovieInteractionEventKind.Attach,
+    kind: "attach",
     source: "scriptedCue",
     time: 0.7999999999999999,
     actor: "performer",

@@ -1,8 +1,8 @@
 import type { IEvidenceClaim } from "@wrtnlabs/evidence";
 
-import type { IAutoMovieEvidenceDevelopmentProps } from "./IAutoMovieEvidenceDevelopmentProps";
-import type { IAutoMovieEvidenceNarrativeProps } from "./IAutoMovieEvidenceNarrativeProps";
-import type { IAutoMovieEvidenceNoNarrativeProps } from "./IAutoMovieEvidenceNoNarrativeProps";
+import type { IAutoMovieEvidenceDevelopmentProps } from "../development/IAutoMovieEvidenceDevelopmentProps";
+import type { IAutoMovieEvidenceNarrativeProps } from "../narrative/IAutoMovieEvidenceNarrativeProps";
+import type { IAutoMovieEvidenceNoNarrativeProps } from "../narrative/IAutoMovieEvidenceNoNarrativeProps";
 
 /** Configures a project's engineering evidence and optional narrative workflow. */
 export interface IAutoMovieEvidenceConfigProps {

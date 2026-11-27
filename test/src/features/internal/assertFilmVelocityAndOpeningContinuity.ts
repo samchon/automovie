@@ -1,6 +1,5 @@
 import { AutoMovieEngineMotionSampling, Vector3, AutoMovieEngineFilm } from "@automovie/engine";
 import {
-  AutoMovieCameraFraming,
   type IAutoMovieActorContext,
   type IAutoMovieBeatEndActorState,
   type IAutoMovieBeatEndState,
@@ -134,7 +133,7 @@ export function assertFilmVelocityAndOpeningContinuity(
           actor: "cam-main",
           start: 0,
           duration: "auto",
-          framing: AutoMovieCameraFraming.Full,
+          framing: "full",
           move: "static",
           on: { kind: "node", node: "knightA" },
         },

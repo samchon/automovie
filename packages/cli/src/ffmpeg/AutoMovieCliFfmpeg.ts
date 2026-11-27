@@ -1,4 +1,4 @@
-import type { IAutoMovieFfmpegSources } from "../IAutoMovieFfmpegSources";
+import type { IAutoMovieFfmpegSources } from "./IAutoMovieFfmpegSources";
 import { resolveAutoMovieFfmpeg } from "./internal/resolveAutoMovieFfmpeg";
 import { runAutoMovieFfmpeg } from "./internal/runAutoMovieFfmpeg";
 

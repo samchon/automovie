@@ -3,15 +3,15 @@ import fs from "node:fs";
 import path from "node:path";
 
 import type { IAutoMovieEvidenceConfigProps } from "./IAutoMovieEvidenceConfigProps";
-import { createDevelopmentContractClaims } from "./createDevelopmentContractClaims";
-import { createEngineeringClaims } from "./createEngineeringClaims";
-import { createResearchClaims } from "./createResearchClaims";
-import { assertFilmCatalogLayout } from "./internal/assertFilmCatalogLayout";
-import { assertProductionContractLayout } from "./internal/assertProductionContractLayout";
-import { createReferenceRoot } from "./internal/createReferenceRoot";
-import { hasMatchingFile } from "./internal/hasMatchingFile";
-import { resolveSkillsDirectory } from "./internal/resolveSkillsDirectory";
-import { createProductionConfig } from "./narrative/internal/createProductionConfig";
+import { createDevelopmentContractClaims } from "../development/claims/createDevelopmentContractClaims";
+import { createEngineeringClaims } from "./claims/createEngineeringClaims";
+import { createResearchClaims } from "./claims/createResearchClaims";
+import { assertFilmCatalogLayout } from "../internal/assertFilmCatalogLayout";
+import { assertProductionContractLayout } from "../internal/assertProductionContractLayout";
+import { createReferenceRoot } from "../internal/createReferenceRoot";
+import { hasMatchingFile } from "../internal/hasMatchingFile";
+import { resolveSkillsDirectory } from "../internal/resolveSkillsDirectory";
+import { createProductionConfig } from "../narrative/internal/createProductionConfig";
 
 /** Owns configuration assembly for an AutoMovie production. */
 export namespace AutoMovieEvidenceConfig {

@@ -1,6 +1,5 @@
 import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
-  AutoMovieInteractionEventKind,
   type IAutoMovieCut,
   type IAutoMovieEditPlan,
   type IAutoMovieInteractionEvent,
@@ -31,7 +30,7 @@ import { nclose, throwsError } from "../../internal/predicates";
 export function test_engine_film_playback_rate(): void {
   const handoff: IAutoMovieInteractionEvent = {
     id: "handoff",
-    kind: AutoMovieInteractionEventKind.Attach,
+    kind: "attach",
     source: "scriptedCue",
     time: 1.5,
     actor: "performer",

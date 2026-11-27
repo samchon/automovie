@@ -1,6 +1,6 @@
 import {
-  AutoMovieGrammarStyleIntent,
   type AutoMovieCameraFraming,
+  AutoMovieGrammarStyleIntent,
   IAutoMovieCameraIntent,
   type IAutoMovieGrammarDiagnostic,
   type IAutoMovieGrammarInput,

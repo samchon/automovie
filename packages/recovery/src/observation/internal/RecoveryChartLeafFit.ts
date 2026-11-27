@@ -12,7 +12,7 @@ import type {
 
 import { RecoveryChartAreaObservations as A } from "./RecoveryChartAreaObservations";
 import { RecoveryChartCollar as L } from "./RecoveryChartCollar";
-import { RecoveryChartFit as J } from "../../internal/RecoveryChartFit";
+import { RecoveryChartFit as J } from "../../fitting/RecoveryChartFit";
 import { RecoveryChartLeafControls as K } from "./RecoveryChartLeafControls";
 import { RecoveryChartRefinementClosure as E } from "./RecoveryChartRefinementClosure";
 import { prepareRecoveryChartLeafBoundary } from "../../geometry/internal/prepareRecoveryChartLeafBoundary";

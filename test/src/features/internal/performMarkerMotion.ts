@@ -1,6 +1,5 @@
 import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
-  AutoMovieCameraFraming,
   type IAutoMovieAttachJob,
   type IAutoMovieClip,
   type IAutoMoviePerformedShot,
@@ -94,7 +93,7 @@ export function performMarkerMotion(
           actor: "camera",
           start: 0,
           duration: "auto",
-          framing: AutoMovieCameraFraming.Full,
+          framing: "full",
           move: "static",
           on: { kind: "node", node: "keeper" },
         },

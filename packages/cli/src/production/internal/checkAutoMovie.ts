@@ -2,7 +2,7 @@ import type { IAutoMovieProductionCheck } from "@automovie/interface";
 
 import { loadAutoMovieProductionCheckModule } from "./loadAutoMovieProductionCheckModule";
 import { readAutoMovieCheckOptions } from "./readAutoMovieCheckOptions";
-import { runAutoMovieProductionCheck } from "./production/internal/runAutoMovieProductionCheck";
+import { runAutoMovieProductionCheck } from "./runAutoMovieProductionCheck";
 
 /**
  * Load the production's authored check definitions with its installed Node

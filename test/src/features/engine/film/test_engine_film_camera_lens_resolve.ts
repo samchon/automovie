@@ -1,6 +1,5 @@
 import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
-  AutoMovieCameraFraming,
   type IAutoMovieCameraIntent,
   type IAutoMovieFilmOptics,
 } from "@automovie/interface";
@@ -35,7 +34,7 @@ export function test_engine_film_camera_lens_resolve(): void {
     fNumber?: number,
   ): IAutoMovieCameraIntent => ({
     start,
-    framing: AutoMovieCameraFraming.Medium,
+    framing: "medium",
     move: "static",
     focus: depth === null ? null : { x: 0, y: 0, z: -depth },
     focalLength: null,

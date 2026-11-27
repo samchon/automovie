@@ -5,7 +5,7 @@ import type {
   IAutoMovieProductionVideoProfile,
 } from "@automovie/interface";
 
-import { AutoMovieMp4Boxes } from "../../AutoMovieMp4Boxes";
+import { AutoMovieMp4Boxes } from "./AutoMovieMp4Boxes";
 
 /**
  * Read the picture and sound facts a delivery profile is checked against from

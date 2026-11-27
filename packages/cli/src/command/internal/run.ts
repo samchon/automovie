@@ -9,7 +9,7 @@ import * as path from "node:path";
 import type { AutoMovieCliCommand } from "../AutoMovieCliCommand";
 import { readAutoMovieCommandArguments } from "./readAutoMovieCommandArguments";
 import { AutoMovieCliCapture } from "../../capture/AutoMovieCliCapture";
-import { checkAutoMovie } from "../../checkAutoMovie";
+import { checkAutoMovie } from "../../production/internal/checkAutoMovie";
 import { AutoMovieCliInspect } from "../../inspect/AutoMovieCliInspect";
 import { AutoMovieCliRender } from "../../render/AutoMovieCliRender";
 import { AutoMovieCliReview } from "../../review/AutoMovieCliReview";

@@ -1,6 +1,5 @@
 import { AutoMovieEngineCompositionContact } from "@automovie/engine";
 import {
-  AutoMovieInteractionEventKind,
   type AutoMovieHumanoidBone,
   type IAutoMovieInteractionEvent,
   type IAutoMovieMotionHumanHitTrack,
@@ -224,7 +223,7 @@ export namespace HumanHitTrack {
             )!;
             out.push({
               id: `hit:${person.performer.subject}:${w.id}:${on}:${e.seconds.toFixed(6)}`,
-              kind: AutoMovieInteractionEventKind.Hit,
+              kind: "hit",
               source: "collisionSolver",
               time: e.seconds,
               actor: person.performer.subject,

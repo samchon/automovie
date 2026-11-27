@@ -1,4 +1,4 @@
-import { AutoMovieCameraFraming, IAutoMoviePerformance } from "@automovie/interface";
+import { IAutoMoviePerformance } from "@automovie/interface";
 
 /**
  * Create the existing beat-1 draft: two actors walk, knightA gestures at knightB and the main camera frames knightA over two seconds. The final shallow partial spread is unchanged and can author explicit contradictions for the engine's gate.
@@ -31,7 +31,7 @@ export function makePerformanceWrite(
         actor: "cam-main",
         start: 0,
         duration: "auto",
-        framing: AutoMovieCameraFraming.Medium,
+        framing: "medium",
         move: "static",
         on: { kind: "node", node: "knightA" },
       },

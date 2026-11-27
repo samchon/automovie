@@ -1,7 +1,7 @@
 import type { IEvidenceClaim } from "@wrtnlabs/evidence";
 
-import { SKILLS_ROOT } from "./internal/SKILLS_ROOT";
-import { STORY_CONTRACTS } from "./internal/STORY_CONTRACTS";
+import { SKILLS_ROOT } from "../../internal/SKILLS_ROOT";
+import { STORY_CONTRACTS } from "../../internal/STORY_CONTRACTS";
 
 /**
  * Creates the claim that holds research studies to the story research

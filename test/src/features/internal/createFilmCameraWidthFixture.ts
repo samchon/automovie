@@ -1,6 +1,5 @@
 import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
-  AutoMovieCameraFraming,
   type IAutoMovieCamera,
   type IAutoMovieCameraAction,
   type IAutoMovieClip,
@@ -114,7 +113,7 @@ export function createFilmCameraWidthFixture(props: {
     actor: "cam",
     start: 0,
     duration: "auto",
-    framing: AutoMovieCameraFraming.Full,
+    framing: "full",
     move: "static",
     on: { kind: "node", node: props.node },
   };

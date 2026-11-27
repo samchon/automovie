@@ -1,4 +1,4 @@
-import type { AutoMovieCommand } from "../AutoMovieCommand";
+import type { AutoMovieCommand } from "./AutoMovieCommand";
 import { readAutoMovieCommandArguments } from "./internal/readAutoMovieCommandArguments";
 import { run as runAutoMovieCli } from "./internal/run";
 

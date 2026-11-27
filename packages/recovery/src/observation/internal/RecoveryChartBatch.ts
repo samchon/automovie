@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { RecoveryChartBoundaryNetwork as N } from "./RecoveryChartBoundaryNetwork";
-import { RecoveryChartSurface as F } from "../../internal/RecoveryChartSurface";
+import { RecoveryChartSurface as F } from "../../geometry/RecoveryChartSurface";
 import { refineRecoveryChartBoundaryChords as R } from "../../geometry/internal/refineRecoveryChartBoundaryChords";
 
 /**

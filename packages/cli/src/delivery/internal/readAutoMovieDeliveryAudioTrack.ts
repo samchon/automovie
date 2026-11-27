@@ -1,4 +1,4 @@
-import { AutoMovieMp4Boxes } from "../../AutoMovieMp4Boxes";
+import { AutoMovieMp4Boxes } from "./AutoMovieMp4Boxes";
 import type { IAutoMovieDeliveryAudioTrack } from "./IAutoMovieDeliveryAudioTrack";
 
 /**

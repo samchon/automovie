@@ -1,6 +1,6 @@
 import type { IAutoMovieTemplateScaffoldProps } from "@automovie/template";
 
-import type { AutoMovieCommand } from "../AutoMovieCommand";
+import type { AutoMovieCommand } from "../command/AutoMovieCommand";
 import type { AutoMovieCliProjectNameSelection } from "./AutoMovieCliProjectNameSelection";
 import { AUTOMOVIE_DEFAULT_PROJECT_NAME } from "./internal/AUTOMOVIE_DEFAULT_PROJECT_NAME";
 import { deriveAutoMovieProjectName } from "./internal/deriveAutoMovieProjectName";

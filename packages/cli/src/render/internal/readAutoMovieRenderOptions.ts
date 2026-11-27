@@ -1,6 +1,6 @@
 import { AUTOMOVIE_RENDER_OPTIONS } from "./AUTOMOVIE_RENDER_OPTIONS";
 import type { AutoMovieCliRenderTypes } from "../AutoMovieCliRenderTypes";
-import { readAutoMoviePageTimeout } from "../../readAutoMoviePageTimeout";
+import { readAutoMoviePageTimeout } from "../../page/internal/readAutoMoviePageTimeout";
 
 /**
  * Split the options of `automovie render` into the command's own,

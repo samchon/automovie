@@ -15,8 +15,8 @@ import type {
   IAutoMovieRecoverySourceLineage,
 } from "@automovie/interface";
 
-import { RecoveryScalarIndex as S } from "../../internal/RecoveryScalarIndex";
-import { RecoverySlabGraph as G } from "../../internal/RecoverySlabGraph";
+import { RecoveryScalarIndex as S } from "../../geometry/RecoveryScalarIndex";
+import { RecoverySlabGraph as G } from "../../geometry/RecoverySlabGraph";
 import { createRecoveryObservationPolicy } from "../../observation/internal/createRecoveryObservationPolicy";
 import { critical } from "./critical";
 import { prepareCutExact } from "../../internal/mesh-observations/prepareCutExact";

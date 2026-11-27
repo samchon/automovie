@@ -13,7 +13,7 @@ import type {
   IAutoMovieRecoverySceneWork,
 } from "@automovie/interface";
 
-import { RecoveryFeasibleCapacityError } from "../../internal/RecoveryFeasibleCapacityError";
+import { RecoveryFeasibleCapacityError } from "../RecoveryFeasibleCapacityError";
 import { assertRecoverySceneLinearRetention } from "./assertRecoverySceneLinearRetention";
 import { collectRecoverySceneSupport } from "./collectRecoverySceneSupport";
 import { completeRecoverySceneCheckpoint } from "./completeRecoverySceneCheckpoint";

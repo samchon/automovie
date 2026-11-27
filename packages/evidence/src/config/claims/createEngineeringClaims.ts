@@ -1,6 +1,6 @@
 import type { IEvidenceClaim } from "@wrtnlabs/evidence";
 
-import { SKILLS_ROOT } from "./internal/SKILLS_ROOT";
+import { SKILLS_ROOT } from "../../internal/SKILLS_ROOT";
 
 /**
  * Creates fresh source/test claims against the project's own checklists.

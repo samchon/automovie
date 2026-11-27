@@ -1,7 +1,5 @@
 import { AutoMovieEngineValidation } from "@automovie/engine";
 import {
-  AutoMovieCameraFraming,
-  AutoMovieInteractionEventKind,
   type IAutoMovieCamera,
   type IAutoMovieCameraIntent,
   type IAutoMovieClip,
@@ -87,7 +85,7 @@ const event: (
   overrides: Partial<IAutoMovieInteractionEvent> = {},
 ): IAutoMovieInteractionEvent => ({
   id: "contact-1",
-  kind: AutoMovieInteractionEventKind.Contact,
+  kind: "contact",
   source: "collisionSolver",
   time: 1,
   actor: null,
@@ -106,7 +104,7 @@ const intent: (
   overrides: Partial<IAutoMovieCameraIntent> = {},
 ): IAutoMovieCameraIntent => ({
   start: 0,
-  framing: AutoMovieCameraFraming.Medium,
+  framing: "medium",
   move: "static",
   focus: null,
   focalLength: null,

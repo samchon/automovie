@@ -11,9 +11,9 @@ import {
 import * as path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { createAutoMovieProductionCheckInputScope } from "./production/internal/createAutoMovieProductionCheckInputScope";
+import { createAutoMovieProductionCheckInputScope } from "./createAutoMovieProductionCheckInputScope";
 import { importAutoMovieProductionCheckEntry } from "./importAutoMovieProductionCheckEntry.mjs";
-import { readAutoMovieErrorCode } from "./readAutoMovieErrorCode";
+import { readAutoMovieErrorCode } from "../../file/internal/readAutoMovieErrorCode";
 
 /** Load check definitions and bind their local sources to the bytes Node loaded. */
 export async function loadAutoMovieProductionCheckModule(

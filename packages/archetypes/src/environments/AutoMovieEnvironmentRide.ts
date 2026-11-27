@@ -1,7 +1,7 @@
 import { type IAutoMovieModel, type IAutoMovieTrackCourse, type IAutoMovieEnvironmentModule, type IAutoMovieTrackedRide } from "@automovie/interface";
-import { createCoasterCar as createCoasterCarImplementation } from "./internal/createCoasterCar";
-import { createTrackedCourse as createTrackedCourseImplementation } from "./internal/createTrackedCourse";
-import { createTrackedRide as createTrackedRideImplementation } from "./internal/createTrackedRide";
+import { createCoasterCar as createCoasterCarImplementation } from "./rides/internal/createCoasterCar";
+import { createTrackedCourse as createTrackedCourseImplementation } from "./rides/internal/createTrackedCourse";
+import { createTrackedRide as createTrackedRideImplementation } from "./rides/internal/createTrackedRide";
 
 /** Public operations for Auto Movie Environment Ride. */
 export namespace AutoMovieEnvironmentRide {

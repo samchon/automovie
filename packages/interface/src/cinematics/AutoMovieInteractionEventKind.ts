@@ -9,26 +9,20 @@
  * handoff emits `grab` and `attach` at its start and `detach` and `release` at
  * its end; the exported collision and support detectors emit `contact` and
  * `fall`.
+ *
+ * - "contact": Two bodies meet: a solved projectile contact or a sampled collision.
+ * - "hit": A landed projectile strikes the node it was aimed at.
+ * - "grab": An `attachTo` child is taken by its parent at the action start.
+ * - "release": An `attachTo` child is let go by its parent at the action end.
+ * - "attach": The child starts riding the parent's bone at the action start.
+ * - "detach": The child stops riding the parent's bone at the action end.
+ * - "fall": A body loses support: an unbalancing hit, a free fall or a topple.
  */
-export const enum AutoMovieInteractionEventKind {
-  /** Two bodies meet: a solved projectile contact or a sampled collision. */
-  Contact = "contact",
-
-  /** A landed projectile strikes the node it was aimed at. */
-  Hit = "hit",
-
-  /** An `attachTo` child is taken by its parent at the action start. */
-  Grab = "grab",
-
-  /** An `attachTo` child is let go by its parent at the action end. */
-  Release = "release",
-
-  /** The child starts riding the parent's bone at the action start. */
-  Attach = "attach",
-
-  /** The child stops riding the parent's bone at the action end. */
-  Detach = "detach",
-
-  /** A body loses support: an unbalancing hit, a free fall or a topple. */
-  Fall = "fall",
-}
+export type AutoMovieInteractionEventKind =
+  | "contact"
+  | "hit"
+  | "grab"
+  | "release"
+  | "attach"
+  | "detach"
+  | "fall";

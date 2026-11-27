@@ -1,15 +1,13 @@
 /**
  * The closed shot-size vocabulary accepted by a camera frame action.
  *
- * Its string values are the serialized authoring spellings.
+ * - `wide`: Shows the subject small in its surroundings.
+ * - `full`: Frames the subject's full body.
+ * - `medium`: Frames the subject from the waist up.
+ * - `close`: Fills the frame with the subject's head and shoulders.
  */
-export const enum AutoMovieCameraFraming {
-  /** A wide view that includes more of the surroundings. */
-  Wide = "wide",
-  /** A full-body view of the subject. */
-  Full = "full",
-  /** A medium view of the subject. */
-  Medium = "medium",
-  /** A close view of the subject. */
-  Close = "close",
-}
+export type AutoMovieCameraFraming =
+  | "wide"
+  | "full"
+  | "medium"
+  | "close";

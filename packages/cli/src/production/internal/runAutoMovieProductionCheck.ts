@@ -12,7 +12,7 @@ import { inspectAutoMovieProductionCheckCapture } from "./inspectAutoMovieProduc
 import { inspectAutoMovieProductionCheckDelivery } from "./inspectAutoMovieProductionCheckDelivery";
 import { inspectAutoMovieProductionCheckReview } from "./inspectAutoMovieProductionCheckReview";
 import { writeAutoMovieProductionCheckReceipt } from "./writeAutoMovieProductionCheckReceipt";
-import { readAutoMovieErrorCode } from "../../readAutoMovieErrorCode";
+import { readAutoMovieErrorCode } from "../../file/internal/readAutoMovieErrorCode";
 import { readAutoMovieRevision } from "./readAutoMovieRevision";
 
 /**

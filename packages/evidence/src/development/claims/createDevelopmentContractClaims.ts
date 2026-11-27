@@ -4,8 +4,8 @@ import type {
   IEvidenceMarkdownReference,
 } from "@wrtnlabs/evidence";
 
-import type { IAutoMovieEvidenceDevelopmentProps } from "./IAutoMovieEvidenceDevelopmentProps";
-import { SKILLS_ROOT } from "./internal/SKILLS_ROOT";
+import type { IAutoMovieEvidenceDevelopmentProps } from "../IAutoMovieEvidenceDevelopmentProps";
+import { SKILLS_ROOT } from "../../internal/SKILLS_ROOT";
 
 /**
  * Creates the claims of the enabled production-specific development contracts.

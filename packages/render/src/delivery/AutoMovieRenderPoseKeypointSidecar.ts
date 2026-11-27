@@ -1,6 +1,6 @@
 import type { IAutoMoviePlanPoseKeypointSidecarProps, IAutoMoviePoseKeypointSidecar } from "@automovie/interface";
-import { renderPoseKeypointSidecar as renderPoseKeypointSidecarImplementation } from "./internal/renderPoseKeypointSidecar.js";
-import { planPoseKeypointSidecar as planPoseKeypointSidecarImplementation } from "./internal/planPoseKeypointSidecar.js";
+import { renderPoseKeypointSidecar as renderPoseKeypointSidecarImplementation } from "../internal/renderPoseKeypointSidecar.js";
+import { planPoseKeypointSidecar as planPoseKeypointSidecarImplementation } from "../internal/planPoseKeypointSidecar.js";
 
 /** Public operations for Auto Movie Render Pose Keypoint Sidecar. */
 export namespace AutoMovieRenderPoseKeypointSidecar {

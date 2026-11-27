@@ -20,7 +20,7 @@ import type {
 } from "@automovie/interface";
 
 import { convertAutoMovieRecoveryCurves } from "../../curves/internal/convertAutoMovieRecoveryCurves";
-import { RecoveryScalarIndex } from "../../internal/RecoveryScalarIndex";
+import { RecoveryScalarIndex } from "../../geometry/RecoveryScalarIndex";
 import { prepareCutExact } from "../../internal/mesh-observations/prepareCutExact";
 import { planeFrame } from "../../geometry/internal/planeFrame";
 import { sourceOrientation } from "../../geometry/internal/sourceOrientation";

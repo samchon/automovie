@@ -5,7 +5,7 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
 import type { AutoMovieCliRenderTypes } from "../AutoMovieCliRenderTypes";
-import type { AutoMovieFfmpegStaticPath } from "../../AutoMovieFfmpegStaticPath";
+import type { AutoMovieFfmpegStaticPath } from "../../ffmpeg/internal/AutoMovieFfmpegStaticPath";
 import { AutoMovieCliCaptureHost } from "../../capture/AutoMovieCliCaptureHost";
 import { loadAutoMovieProductionModule } from "../../production/internal/loadAutoMovieProductionModule";
 import { readAutoMovieRenderOptions } from "./readAutoMovieRenderOptions";

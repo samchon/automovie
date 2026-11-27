@@ -1,5 +1,4 @@
 import {
-  AutoMovieInteractionEventKind,
   type IAutoMovieInteractionEvent,
   type IAutoMovieMotionHumanBlast,
   type IAutoMovieMotionHumanForce,
@@ -98,7 +97,7 @@ function scenario_test_motions_perform_force_impulse(): void {
   for (const speed of [-2, 0, 2]) {
     const caught: IAutoMovieInteractionEvent = {
       id: "catch",
-      kind: AutoMovieInteractionEventKind.Hit,
+      kind: "hit",
       source: "collisionSolver",
       time: 0.5,
       actor: "ball",

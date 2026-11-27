@@ -5,7 +5,6 @@ import {
   Quaternion,
 } from "@automovie/engine";
 import {
-  AutoMovieInteractionEventKind,
   type IAutoMovieInteractionEvent,
   type IAutoMovieMotionHumanObject,
   type IAutoMovieMotionHumanPropFracture,
@@ -43,7 +42,7 @@ export function HumanPropFracture<
   const contact: IAutoMovieInteractionEvent = {
     ...hit,
     id: `${hit.id}:fracture`,
-    kind: AutoMovieInteractionEventKind.Contact,
+    kind: "contact",
     source: "impactOutput",
   };
   const detached: {

@@ -1,7 +1,7 @@
 import type { IAutoMovieProductionAudioProbe } from "@automovie/interface";
 import type * as Render from "@automovie/render";
 
-import type { IAutoMovieDeliveryProfileFinding } from "../../IAutoMovieDeliveryProfileFinding";
+import type { IAutoMovieDeliveryProfileFinding } from "./IAutoMovieDeliveryProfileFinding";
 import type { IAutoMovieCliDeliveryProbe } from "../IAutoMovieCliDeliveryProbe";
 import { readAutoMovieDeliveryProbe } from "./readAutoMovieDeliveryProbe";
 

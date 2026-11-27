@@ -10,7 +10,7 @@ import type * as Render from "@automovie/render";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
-import type { AutoMovieFfmpegStaticPath } from "../../AutoMovieFfmpegStaticPath";
+import type { AutoMovieFfmpegStaticPath } from "../../ffmpeg/internal/AutoMovieFfmpegStaticPath";
 import { loadAutoMovieProductionModule } from "../../production/internal/loadAutoMovieProductionModule";
 import { readAutoMovieRevision } from "../../production/internal/readAutoMovieRevision";
 import { resolveAutoMovieFfmpeg } from "../../ffmpeg/internal/resolveAutoMovieFfmpeg";

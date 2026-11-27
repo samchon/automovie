@@ -1,4 +1,4 @@
-import { readAutoMoviePageTimeout } from "../../readAutoMoviePageTimeout";
+import { readAutoMoviePageTimeout } from "../../page/internal/readAutoMoviePageTimeout";
 import type { AutoMovieCliCaptureTypes } from "../AutoMovieCliCaptureTypes";
 import { AUTOMOVIE_CAPTURE_OPTIONS } from "./AUTOMOVIE_CAPTURE_OPTIONS";
 

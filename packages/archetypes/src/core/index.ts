@@ -32,3 +32,5 @@ export * from "./AutoMovieArchetypeTrack";
 export * from "./AutoMovieArchetypeUnits";
 export * from "./IAutoMovieArchetypeBand";
 export * from "./IAutoMovieArchetypeProps";
+export { ARCHETYPE_FAMILIES } from "./ARCHETYPE_FAMILIES";
+export type { IAutoMovieArchetypeFamilies } from "./IAutoMovieArchetypeFamilies";

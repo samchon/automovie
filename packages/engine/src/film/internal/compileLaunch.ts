@@ -1,5 +1,4 @@
 import {
-  AutoMovieInteractionEventKind,
   type IAutoMovieBallisticSolution,
   IAutoMovieClip,
   type IAutoMovieCompileLaunch,
@@ -138,7 +137,7 @@ export function compileLaunch(
   const events: IAutoMovieInteractionEvent[] = [
     {
       id: `contact:${action.projectile}:${targetNode ?? "point"}:${eventTimeKey(hitAt)}`,
-      kind: AutoMovieInteractionEventKind.Contact,
+      kind: "contact",
       source: "collisionSolver",
       time: hitAt,
       actor: sourceActor,
@@ -152,7 +151,7 @@ export function compileLaunch(
   if (targetNode !== null) {
     events.push({
       id: `hit:${action.projectile}:${targetNode}:${eventTimeKey(hitAt)}`,
-      kind: AutoMovieInteractionEventKind.Hit,
+      kind: "hit",
       source: "impactOutput",
       time: hitAt,
       actor: sourceActor,
@@ -165,7 +164,7 @@ export function compileLaunch(
     if (react?.unbalance === true)
       events.push({
         id: `fall:${targetNode}:${eventTimeKey(hitAt)}`,
-        kind: AutoMovieInteractionEventKind.Fall,
+        kind: "fall",
         source: "impactOutput",
         time: hitAt,
         actor: targetNode,

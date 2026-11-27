@@ -8,7 +8,7 @@ import type {
   IAutoMovieRecoveryMapPose,
 } from "@automovie/interface";
 
-import { RecoveryFeasibleCapacityError } from "../../internal/RecoveryFeasibleCapacityError";
+import { RecoveryFeasibleCapacityError } from "../RecoveryFeasibleCapacityError";
 import { prepareRecoveryFeasibleMapWork } from "./prepareRecoveryFeasibleMapWork";
 import { prepareRecoveryFeasibleReportCapacity } from "./prepareRecoveryFeasibleReportCapacity";
 

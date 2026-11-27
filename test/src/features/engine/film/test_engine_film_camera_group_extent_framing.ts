@@ -1,6 +1,5 @@
 import { FRAMING_AIM_FRACTION, FRAMING_HEIGHT_FRACTION, AutoMovieEngineFilm } from "@automovie/engine";
 import {
-  AutoMovieCameraFraming,
   IAutoMovieCamera,
   IAutoMovieCameraAction,
   type IAutoMovieFramedSubject,
@@ -36,7 +35,7 @@ const WIDE: IAutoMovieCameraAction = {
   actor: "cam",
   start: 0,
   duration: "auto",
-  framing: AutoMovieCameraFraming.Wide,
+  framing: "wide",
   move: "static",
   on: { kind: "group", nodes: ["left", "right"] },
 };

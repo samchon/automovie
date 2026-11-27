@@ -1,5 +1,4 @@
 import {
-  AutoMovieInteractionEventKind,
   IAutoMovieClip,
   type IAutoMovieDetectFreeFall,
   type IAutoMovieFreeFallResult,
@@ -71,7 +70,7 @@ export function detectFreeFall(
 
   const event: IAutoMovieInteractionEvent = {
     id: "fall:0",
-    kind: AutoMovieInteractionEventKind.Fall,
+    kind: "fall",
     source: "sampledProximity",
     time: 0,
     actor: node,

@@ -1,4 +1,4 @@
-import type { AutoMovieFfmpegStaticPath } from "./AutoMovieFfmpegStaticPath";
+import type { AutoMovieFfmpegStaticPath } from "./internal/AutoMovieFfmpegStaticPath";
 
 /** What finding FFmpeg reads. */
 export interface IAutoMovieFfmpegSources {

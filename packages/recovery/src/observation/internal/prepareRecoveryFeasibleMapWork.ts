@@ -6,7 +6,7 @@ import type {
   IAutoMovieRecoveryMapPose,
 } from "@automovie/interface";
 
-import { RecoveryFeasibleCapacityError } from "../../internal/RecoveryFeasibleCapacityError";
+import { RecoveryFeasibleCapacityError } from "../RecoveryFeasibleCapacityError";
 import { isRecoveryMapIdentityGauge } from "./isRecoveryMapIdentityGauge";
 
 /** Admit fixed-population map work and its separately bounded chart scratch. */

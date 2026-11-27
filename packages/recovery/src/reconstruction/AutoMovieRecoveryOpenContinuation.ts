@@ -13,8 +13,8 @@ import type {
   IAutoMovieRecoveryScalarIndex,
 } from "@automovie/interface";
 
-import { RecoveryOpenSlabGraph as O } from "../internal/RecoveryOpenSlabGraph";
-import { RecoveryScalarIndex as S } from "../internal/RecoveryScalarIndex";
+import { RecoveryOpenSlabGraph as O } from "../geometry/RecoveryOpenSlabGraph";
+import { RecoveryScalarIndex as S } from "../geometry/RecoveryScalarIndex";
 import { critical } from "../geometry/internal/critical";
 import { prepareCutExact } from "../internal/mesh-observations/prepareCutExact";
 import { planeFrame } from "../geometry/internal/planeFrame";

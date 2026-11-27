@@ -11,7 +11,7 @@ import type {
   IAutoMovieRecoverySourceLineage,
 } from "@automovie/interface";
 
-import { RecoveryScalarIndex } from "../../internal/RecoveryScalarIndex";
+import { RecoveryScalarIndex } from "../../geometry/RecoveryScalarIndex";
 import { bindRecoverySavedSectionCuts } from "./bindRecoverySavedSectionCuts";
 import { prepareCutExact } from "../../internal/mesh-observations/prepareCutExact";
 import { planeFrame } from "./planeFrame";

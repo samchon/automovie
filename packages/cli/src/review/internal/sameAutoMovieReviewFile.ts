@@ -1,7 +1,7 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
-import { readAutoMovieErrorCode } from "./readAutoMovieErrorCode";
+import { readAutoMovieErrorCode } from "../../file/internal/readAutoMovieErrorCode";
 
 /** Check filesystem identity for two spellings of the same native review path. */
 export async function sameAutoMovieReviewFile(

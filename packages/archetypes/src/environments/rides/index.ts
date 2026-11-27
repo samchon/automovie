@@ -2,4 +2,4 @@
 
 
 
-export * from "./AutoMovieEnvironmentRide";
+export * from "../AutoMovieEnvironmentRide";

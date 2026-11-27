@@ -1,6 +1,5 @@
 import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
 import {
-  AutoMovieInteractionEventKind,
   type AutoMovieHumanSide,
   type AutoMovieHumanoidBone,
   type AutoMovieHumanoidRegion,
@@ -150,7 +149,7 @@ export namespace HumanPerformanceHits {
         const mass: number | undefined = distalMass(striker, distal);
         return {
           id: `hit:${strike.subject}:${strike.weapon.id}:${strike.against}:${t.toFixed(6)}`,
-          kind: AutoMovieInteractionEventKind.Hit,
+          kind: "hit",
           source: "collisionSolver",
           time: t,
           actor: strike.subject,
@@ -192,7 +191,7 @@ export namespace HumanPerformanceHits {
           reach > 0 ? Vector3.scale(away, 1 / reach) : struck.normal;
         out.push({
           id: `blast:${blast.id}:${subject}`,
-          kind: AutoMovieInteractionEventKind.Hit,
+          kind: "hit",
           source: "impactOutput",
           time: t,
           actor: null,
@@ -251,8 +250,8 @@ export namespace HumanPerformanceHits {
             id: index === 0 ? id : `${id}:${index}`,
             kind:
               struck.kind === "ground"
-                ? AutoMovieInteractionEventKind.Contact
-                : AutoMovieInteractionEventKind.Hit,
+                ? "contact"
+                : "hit",
             source: "collisionSolver",
             time,
             actor: f.source.subject,
