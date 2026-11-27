@@ -64,7 +64,7 @@ export namespace AutoMovieCliRender {
     report: string;
     /** The number of frames written. */
     frames: number;
-    /** The path of the installed controls file, or null when absent. */
+    /** The path of the installed controls directory, or null when absent. */
     controls: string | null;
   }
 

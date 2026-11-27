@@ -271,35 +271,6 @@ export namespace AutoMovieRenderInspectionCamera {
           reason: string;
         };
   }
-  /** Observes required-subject framing from the original delivered projection. */
-  export function observe(
-    props: Parameters<typeof observeAutoMovieCameraInspection>[0],
-  ): ReturnType<typeof observeAutoMovieCameraInspection> {
-    return observeAutoMovieCameraInspection(props);
-  }
-
-  /**
-   * Observe active, source-owned requirements on the host's original delivery
-   * camera.
-   *
-   * The interactive Viewer checks each painted frame under fixed triangle budgets
-   * and reports a check they stop as `deferred`. Capture and delivery run every
-   * camera check without a budget, and they audit authored pixel coverage with
-   * the host renderer, so they leave nothing deferred. A check that cannot run on
-   * the subject at all is `unsupported` in every host.
-   *
-   * A subject whose bounds cross a side of the frame gets an optional
-   * `camera-frame-edge` check: a cut by the frame edge is often the intended
-   * composition, so it is a `frame-edge-cut` warning that never blocks delivery.
-   *
-   * @param props The placed sample and the requirements active at its time.
-   * @returns Findings and one coverage row per check and requirement.
-   */
-  export function observePlaced(
-    props: Parameters<typeof observeAutoMoviePlacedCamera>[0],
-  ): ReturnType<typeof observeAutoMoviePlacedCamera> {
-    return observeAutoMoviePlacedCamera(props);
-  }
   /** Inputs for one required subject's camera frame-edge surface check. */
   export interface IFrameEdgeSurfaceProps {
     /** Admitted meshes with current world matrices and poses. */
