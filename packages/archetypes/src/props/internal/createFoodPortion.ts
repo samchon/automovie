@@ -2,12 +2,14 @@ import { AutoMovieArchetypeFoodPortion } from "../AutoMovieArchetypeFoodPortion"
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeDraw,
   type AutoMovieArchetype,
   AutoMovieArchetypeBuilder,
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeFrame,
 } from "../../core/index";
+import {
+  ArchetypeDraw,
+} from "../../core/internal/ArchetypeDraw";
 
 /*
  * A plated portion of food: a steak cut at the table, a bite-sized piece of it,

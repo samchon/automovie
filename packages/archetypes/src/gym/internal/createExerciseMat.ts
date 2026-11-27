@@ -1,7 +1,15 @@
 import { AutoMovieArchetypeExerciseMat } from "../AutoMovieArchetypeExerciseMat";
 import { Vector3 } from "@automovie/engine";
 
-import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
+import {
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+} from "../../core";
+import {
+  ArchetypeDraw,
+} from "../../core/internal/ArchetypeDraw";
 
 /*
  * An exercise mat laid on the floor: a thin yoga mat or a thicker gym mat.

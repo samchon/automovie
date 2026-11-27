@@ -5,13 +5,15 @@ import type {
 } from "@automovie/interface";
 
 import {
-  ArchetypeDraw,
   AutoMovieArchetype,
   AutoMovieArchetypeBand,
   type AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 import { AutoMovieArchetypeCostumeCuirass } from "./AutoMovieArchetypeCostumeCuirass";
 import { AutoMovieArchetypeCostumeGauntlet } from "./AutoMovieArchetypeCostumeGauntlet";
 import { AutoMovieArchetypeCostumeGreave } from "./AutoMovieArchetypeCostumeGreave";

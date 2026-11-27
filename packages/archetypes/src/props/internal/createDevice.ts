@@ -1,5 +1,10 @@
 import { AutoMovieArchetypeDevice } from "../AutoMovieArchetypeDevice";
-import { ArchetypeDraw, type AutoMovieArchetype } from "../../core/index";
+import {
+  type AutoMovieArchetype,
+} from "../../core/index";
+import {
+  ArchetypeDraw,
+} from "../../core/internal/ArchetypeDraw";
 import { AutoMovieArchetypeCamera } from "../AutoMovieArchetypeCamera";
 import { AutoMovieArchetypePhone } from "../AutoMovieArchetypePhone";
 import { AutoMovieArchetypeRemote } from "../AutoMovieArchetypeRemote";

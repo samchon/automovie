@@ -1,7 +1,15 @@
 import { AutoMovieArchetypeRack } from "../AutoMovieArchetypeRack";
 import { Vector3 } from "@automovie/engine";
 
-import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
+import {
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+} from "../../core";
+import {
+  ArchetypeDraw,
+} from "../../core/internal/ArchetypeDraw";
 
 /*
  * A squat rack: two uprights, each with a hook a barbell rests on.

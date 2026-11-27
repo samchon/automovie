@@ -1,5 +1,10 @@
 import { AutoMovieArchetypeCookingPot } from "../AutoMovieArchetypeCookingPot";
-import { ArchetypeDraw, type AutoMovieArchetype } from "../../core/index";
+import {
+  type AutoMovieArchetype,
+} from "../../core/index";
+import {
+  ArchetypeDraw,
+} from "../../core/internal/ArchetypeDraw";
 import { VesselConstruction } from "./VesselConstruction";
 
 

@@ -13,11 +13,13 @@ import type {
 } from "@automovie/interface";
 
 import {
-  ArchetypeDraw,
   AutoMovieArchetype,
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeRefusal,
 } from "../../core";
+import {
+  ArchetypeDraw,
+} from "../../core/internal/ArchetypeDraw";
 import type { AutoMovieArchetypeArmour } from "../AutoMovieArchetypeArmour";
 
 /*

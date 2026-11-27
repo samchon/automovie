@@ -1,10 +1,12 @@
 import {
-  ArchetypeDraw,
   AutoMovieArchetype,
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 import { LIGHT_BANDS } from "./constants/LIGHT_BANDS";
 import { AutoMovieArchetypeCandle } from "./AutoMovieArchetypeCandle";
 import { AutoMovieArchetypeFireTorch } from "./AutoMovieArchetypeFireTorch";

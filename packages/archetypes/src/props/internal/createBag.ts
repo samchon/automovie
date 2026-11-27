@@ -1,7 +1,16 @@
 import { AutoMovieArchetypeBag } from "../AutoMovieArchetypeBag";
 import { Vector3 } from "@automovie/engine";
 
-import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal } from "../../core";
+import {
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+} from "../../core";
+import {
+  ArchetypeDraw,
+} from "../../core/internal/ArchetypeDraw";
 import "../constants/BAG_BANDS";
 
 /*

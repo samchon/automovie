@@ -1,7 +1,15 @@
 import { AutoMovieArchetypeTable } from "../AutoMovieArchetypeTable";
 import { Vector3 } from "@automovie/engine";
 
-import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
+import {
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+} from "../../core";
+import {
+  ArchetypeDraw,
+} from "../../core/internal/ArchetypeDraw";
 import "../constants/TABLE_BANDS";
 
 /*

@@ -2,7 +2,6 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import {
-  ArchetypeDraw,
   AutoMovieArchetype,
   AutoMovieArchetypeBand,
   AutoMovieArchetypeBuilder,
@@ -11,6 +10,9 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 import { buildTennisRacketHead } from "./internal/buildTennisRacketHead";
 
 /** Canonical producer and authoring contract for Racket. */

@@ -2,7 +2,6 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  ArchetypeDraw,
   AutoMovieArchetype,
   AutoMovieArchetypeBand,
   type AutoMovieArchetypeBandUnit,
@@ -11,6 +10,9 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 
 /*
  * The World Athletics rule as read.

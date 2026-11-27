@@ -1,5 +1,4 @@
 import {
-  ArchetypeDraw,
   type AutoMovieArchetype,
   AutoMovieArchetypeBand,
   type AutoMovieArchetypeBandUnit,
@@ -8,6 +7,9 @@ import {
   AutoMovieArchetypeRefusal,
   type IAutoMovieArchetypeBand,
 } from "../../core/index";
+import {
+  ArchetypeDraw,
+} from "../../core/internal/ArchetypeDraw";
 import { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import type { AutoMovieArchetypeQuadrupedEquipment } from "../AutoMovieArchetypeQuadrupedEquipment";
 import type { AutoMovieArchetypeQuadrupedLead } from "../AutoMovieArchetypeQuadrupedLead";

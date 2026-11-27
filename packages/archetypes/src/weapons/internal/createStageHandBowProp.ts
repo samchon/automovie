@@ -3,10 +3,12 @@ import { AutoMovieArchetypeStageHandBowProp } from "../AutoMovieArchetypeStageHa
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeDraw,
   type AutoMovieArchetype,
   AutoMovieArchetypeFrame,
 } from "../../core/index";
+import {
+  ArchetypeDraw,
+} from "../../core/internal/ArchetypeDraw";
 import { StageBowConstruction } from "./StageBowConstruction";
 import { AutoMovieArchetypeBow } from "../AutoMovieArchetypeBow";
 

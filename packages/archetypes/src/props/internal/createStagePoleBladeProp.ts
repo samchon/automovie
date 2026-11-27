@@ -3,11 +3,13 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  ArchetypeDraw,
   type AutoMovieArchetype,
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeFrame,
 } from "../../core/index";
+import {
+  ArchetypeDraw,
+} from "../../core/internal/ArchetypeDraw";
 import { StageShaftConstruction } from "./StageShaftConstruction";
 import type { AutoMovieArchetypeStageWeaponProp } from "../AutoMovieArchetypeStageWeaponProp";
 

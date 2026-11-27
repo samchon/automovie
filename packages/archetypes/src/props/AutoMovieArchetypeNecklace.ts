@@ -2,7 +2,6 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  ArchetypeDraw,
   type AutoMovieArchetype,
   AutoMovieArchetypeBand,
   AutoMovieArchetypeBuilder,
@@ -11,6 +10,9 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 
 /*
  * A chain long enough to pass over a head: the matinee to the lower opera

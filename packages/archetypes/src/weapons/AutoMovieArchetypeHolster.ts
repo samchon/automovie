@@ -1,10 +1,12 @@
 import {
-  ArchetypeDraw,
   AutoMovieArchetype,
   type AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 import { HOLSTER_BANDS } from "./constants/HOLSTER_BANDS";
 import { HOLSTER_BLADES } from "./constants/HOLSTER_BLADES";
 import { AutoMovieArchetypeStageBladeCarrier } from "./AutoMovieArchetypeStageBladeCarrier";

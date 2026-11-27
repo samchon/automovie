@@ -1,13 +1,15 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeDraw,
   AutoMovieArchetype,
   AutoMovieArchetypeBuilder,
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeUnits,
 } from "../core/index";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 
 /*
  * Each kind's models read, each whole, by name, the default first. The wheeled

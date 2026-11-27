@@ -2,7 +2,6 @@ import { AutoMovieGravity, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  ArchetypeDraw,
   AutoMovieArchetype,
   AutoMovieArchetypeBand,
   AutoMovieArchetypeBuilder,
@@ -12,6 +11,9 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 import { ADA_RANGES } from "./constants/ADA_RANGES";
 
 /*

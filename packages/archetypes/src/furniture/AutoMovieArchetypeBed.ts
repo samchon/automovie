@@ -1,9 +1,11 @@
 import {
-  ArchetypeDraw,
   AutoMovieArchetype,
   AutoMovieArchetypeDrawSession,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 import { BED_BANDS } from "./constants/BED_BANDS";
 import { AutoMovieArchetypeBunkBed } from "./AutoMovieArchetypeBunkBed";
 import { AutoMovieArchetypeCrib } from "./AutoMovieArchetypeCrib";

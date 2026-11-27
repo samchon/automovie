@@ -1,7 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeDraw,
   AutoMovieArchetype,
   AutoMovieArchetypeBand,
   AutoMovieArchetypeBuilder,
@@ -10,6 +9,9 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 import { BoardDimensions } from "./internal/BoardDimensions";
 
 /** Creates a deterministic board fixture and exposes its construction parameters. */

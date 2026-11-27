@@ -2,10 +2,12 @@ import { AutoMovieArchetypeStageBladeCarrier } from "../AutoMovieArchetypeStageB
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeDraw,
   type AutoMovieArchetype,
   AutoMovieArchetypeFrame,
 } from "../../core/index";
+import {
+  ArchetypeDraw,
+} from "../../core/internal/ArchetypeDraw";
 import { StageCarrierConstruction } from "./StageCarrierConstruction";
 import { AutoMovieArchetypeHolster } from "../AutoMovieArchetypeHolster";
 

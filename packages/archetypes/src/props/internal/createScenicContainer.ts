@@ -1,9 +1,11 @@
 import {
-  ArchetypeDraw,
   AutoMovieArchetype,
   AutoMovieArchetypeDrawSession,
   type IAutoMovieArchetypeBand,
 } from "../../core";
+import {
+  ArchetypeDraw,
+} from "../../core/internal/ArchetypeDraw";
 import { SCENIC_CONTAINER_BANDS } from "../constants/SCENIC_CONTAINER_BANDS";
 import { ScenicContainerConstruction } from "./ScenicContainerConstruction";
 import { AutoMovieArchetypeCargoPod } from "../AutoMovieArchetypeCargoPod";

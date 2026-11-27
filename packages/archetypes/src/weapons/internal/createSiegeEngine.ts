@@ -1,7 +1,14 @@
 import { AutoMovieArchetypeSiegeEngine } from "../AutoMovieArchetypeSiegeEngine";
 
 
-import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession } from "../../core";
+import {
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+} from "../../core";
+import {
+  ArchetypeDraw,
+} from "../../core/internal/ArchetypeDraw";
 import "../constants/SIEGE_BANDS";
 import { SiegeArm } from "./SiegeArm";
 

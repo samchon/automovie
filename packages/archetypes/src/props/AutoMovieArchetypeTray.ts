@@ -1,10 +1,12 @@
 import {
-  ArchetypeDraw,
   AutoMovieArchetype,
   AutoMovieArchetypeBand,
   AutoMovieArchetypeDrawSession,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 import { AutoMovieArchetypeCarryBasket } from "./AutoMovieArchetypeCarryBasket";
 import { AutoMovieArchetypeServingTray } from "./AutoMovieArchetypeServingTray";
 

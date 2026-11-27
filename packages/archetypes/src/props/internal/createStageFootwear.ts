@@ -2,7 +2,6 @@ import { AutoMovieArchetypeStageFootwear } from "../AutoMovieArchetypeStageFootw
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeDraw,
   type AutoMovieArchetype,
   AutoMovieArchetypeBand,
   AutoMovieArchetypeBuilder,
@@ -10,6 +9,9 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../../core/index";
+import {
+  ArchetypeDraw,
+} from "../../core/internal/ArchetypeDraw";
 
 /*
  * An open-footwear stage prop with a clear upper cavity.

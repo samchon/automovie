@@ -2,7 +2,6 @@ import { RigidCarrierSample } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 
 import {
-  ArchetypeDraw,
   type AutoMovieArchetype,
   type AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeUnits,
@@ -11,6 +10,9 @@ import {
   AutoMovieArchetypeSea,
   type IAutoMovieArchetypeBand,
 } from "../core";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 import { BOAT_BANDS } from "./constants/BOAT_BANDS";
 import { AutoMovieArchetypeCanoe } from "./AutoMovieArchetypeCanoe";
 import { AutoMovieArchetypePullingBoat } from "./AutoMovieArchetypePullingBoat";

@@ -2,12 +2,14 @@ import { AutoMovieArchetypeCraftTool } from "../AutoMovieArchetypeCraftTool";
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeDraw,
   type AutoMovieArchetype,
   AutoMovieArchetypeBuilder,
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeFrame,
 } from "../../core/index";
+import {
+  ArchetypeDraw,
+} from "../../core/internal/ArchetypeDraw";
 
 /*
  * A slender hand tool worked by its tip: an artist's paintbrush, a conductor's

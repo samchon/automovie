@@ -1,7 +1,15 @@
 import { AutoMovieArchetypeHandgun } from "../AutoMovieArchetypeHandgun";
 import { Vector3 } from "@automovie/engine";
 
-import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
+import {
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+} from "../../core";
+import {
+  ArchetypeDraw,
+} from "../../core/internal/ArchetypeDraw";
 import "../constants/HANDGUN_BANDS";
 import "../constants/HANDGUN_MODELS";
 import { HandgunActions } from "./HandgunActions";

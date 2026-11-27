@@ -1,8 +1,10 @@
 import {
-  ArchetypeDraw,
   type AutoMovieArchetype,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 import { APPLIANCE_BANDS } from "./constants/APPLIANCE_BANDS";
 import { FixtureDraw } from "./internal/FixtureDraw";
 import { AutoMovieArchetypeMicrowave } from "./AutoMovieArchetypeMicrowave";

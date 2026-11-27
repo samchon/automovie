@@ -2,10 +2,12 @@ import { AutoMovieArchetypeStageShaftToken } from "../AutoMovieArchetypeStageSha
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeDraw,
   type AutoMovieArchetype,
   AutoMovieArchetypeFrame,
 } from "../../core/index";
+import {
+  ArchetypeDraw,
+} from "../../core/internal/ArchetypeDraw";
 import { StageTokenConstruction } from "./StageTokenConstruction";
 import { AutoMovieArchetypeProjectile } from "../AutoMovieArchetypeProjectile";
 

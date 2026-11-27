@@ -1,7 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  ArchetypeDraw,
   AutoMovieArchetype,
   AutoMovieArchetypeBand,
   AutoMovieArchetypeBuilder,
@@ -9,6 +8,9 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 import { CannonPieces } from "./internal/CannonPieces";
 import { FIELD_GUN } from "./constants/FIELD_GUN";
 import { buildFieldGun } from "./internal/buildFieldGun";

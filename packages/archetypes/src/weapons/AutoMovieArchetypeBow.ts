@@ -1,13 +1,15 @@
 import { AutoMovieGravity } from "@automovie/engine";
 
 import {
-  ArchetypeDraw,
   AutoMovieArchetype,
   AutoMovieArchetypeBand,
   type AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 import { BOW_BANDS } from "./constants/BOW_BANDS";
 import { bowLaunchSpeed } from "./internal/bowLaunchSpeed";
 import { bowLimbs } from "./internal/bowLimbs";

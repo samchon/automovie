@@ -1,4 +1,5 @@
 import * as archetypes from "@automovie/archetypes";
+import { ARCHETYPE_FAMILY_EXPORTS } from "./ArchetypeFamilyExports.generated";
 
 /** Stable authored IDs whose package owners are namespaces with `.create`. */
 const STABLE_PRODUCER_IDS: Readonly<Record<string, string>> = {
@@ -450,39 +451,25 @@ export namespace ArchetypeRegistry {
     factories: readonly IFactory[];
   }
 
-  /** Resolves the package's model-producing family table on demand. */
+  /** Resolves the package's model-producing exports by their source family. */
   export function families(): readonly IFamily[] {
-    return Object.entries(archetypes.ARCHETYPE_FAMILIES).map(
-      ([id, exports]: [
-        string,
-        Readonly<Record<string, unknown>>,
-      ]): IFamily => ({
+    return Object.entries(ARCHETYPE_FAMILY_EXPORTS).map(
+      ([id, names]: [string, readonly string[]]): IFamily => ({
         id,
-        factories: Object.entries(exports).flatMap(
-          ([name, value]: [string, unknown]): IFactory[] => {
-            const stableId: string | undefined = STABLE_PRODUCER_IDS[name];
-            if (stableId !== undefined && isRecord(value)) {
-              const create: unknown = Reflect.get(value, "create");
-              if (isFactory(create))
-                return [
-                  record(
-                    stableId,
-                    `archetypes.${name}.create`,
-                    create,
-                  ),
-                ];
-            }
-            return /^create[A-Z]/.test(name) && isFactory(value)
-              ? [
-                  record(
-                    name,
-                    `archetypes.ARCHETYPE_FAMILIES.${id}.${name}`,
-                    value,
-                  ),
-                ]
-              : [];
-          },
-        ),
+        factories: names.flatMap((name: string): IFactory[] => {
+          const value: unknown = Reflect.get(archetypes, name);
+          const stableId: string | undefined = STABLE_PRODUCER_IDS[name];
+          if (stableId !== undefined && isRecord(value)) {
+            const create: unknown = Reflect.get(value, "create");
+            if (isFactory(create))
+              return [
+                record(stableId, `archetypes.${name}.create`, create),
+              ];
+          }
+          return /^create[A-Z]/.test(name) && isFactory(value)
+            ? [record(name, `archetypes.${name}`, value)]
+            : [];
+        }),
       }),
     );
   }

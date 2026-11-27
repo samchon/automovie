@@ -1,10 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeDraw,
   type AutoMovieArchetype,
   AutoMovieArchetypeFrame,
 } from "../core";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 import { StationeryDraw } from "./internal/StationeryDraw";
 
 /** Constructs the paper sheet or folded map according to its recipe. */

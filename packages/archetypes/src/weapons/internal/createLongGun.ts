@@ -1,7 +1,15 @@
 import { AutoMovieArchetypeLongGun } from "../AutoMovieArchetypeLongGun";
 import { Vector3 } from "@automovie/engine";
 
-import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
+import {
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+} from "../../core";
+import {
+  ArchetypeDraw,
+} from "../../core/internal/ArchetypeDraw";
 import "../constants/LONG_GUN_BANDS";
 import "../constants/LONG_GUN_MODELS";
 import { LongGunLock } from "./LongGunLock";

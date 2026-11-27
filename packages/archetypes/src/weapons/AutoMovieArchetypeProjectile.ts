@@ -1,11 +1,13 @@
 import {
-  ArchetypeDraw,
   AutoMovieArchetype,
   AutoMovieArchetypeDensity,
   type AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 import { PROJECTILE_BANDS } from "./constants/PROJECTILE_BANDS";
 import { AutoMovieArchetypeStageBallProp } from "./AutoMovieArchetypeStageBallProp";
 import { AutoMovieArchetypeStageCartridgeProp } from "./AutoMovieArchetypeStageCartridgeProp";

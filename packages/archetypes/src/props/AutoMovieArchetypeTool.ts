@@ -1,4 +1,9 @@
-import { ArchetypeDraw, type AutoMovieArchetype } from "../core/index";
+import {
+  type AutoMovieArchetype,
+} from "../core/index";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 import { HandToolDraw } from "./internal/HandToolDraw";
 import { AutoMovieArchetypeFork } from "./AutoMovieArchetypeFork";
 import { AutoMovieArchetypeHammer } from "./AutoMovieArchetypeHammer";

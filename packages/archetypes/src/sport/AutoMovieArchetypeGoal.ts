@@ -1,4 +1,9 @@
-import { ArchetypeDraw, type AutoMovieArchetype } from "../core/index";
+import {
+  type AutoMovieArchetype,
+} from "../core/index";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 import { GoalBuild } from "./internal/GoalBuild";
 import { AutoMovieArchetypeBasketballHoop } from "./AutoMovieArchetypeBasketballHoop";
 import { AutoMovieArchetypeFieldGoal } from "./AutoMovieArchetypeFieldGoal";

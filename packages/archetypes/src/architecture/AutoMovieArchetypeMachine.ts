@@ -1,4 +1,9 @@
-import { ArchetypeDraw, type AutoMovieArchetype } from "../core/index";
+import {
+  type AutoMovieArchetype,
+} from "../core/index";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 import { FixtureDraw } from "./internal/FixtureDraw";
 import { ServiceCabinet } from "./internal/ServiceCabinet";
 import { AutoMovieArchetypeAtm } from "./AutoMovieArchetypeAtm";

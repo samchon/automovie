@@ -1,4 +1,9 @@
-import { ArchetypeDraw, type AutoMovieArchetype } from "../core/index";
+import {
+  type AutoMovieArchetype,
+} from "../core/index";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 import { AutoMovieArchetypeStageFencingProp } from "./AutoMovieArchetypeStageFencingProp";
 import { AutoMovieArchetypeStagePracticeSwordProp } from "./AutoMovieArchetypeStagePracticeSwordProp";
 import { AutoMovieArchetypeStageTwoHandedSwordProp } from "./AutoMovieArchetypeStageTwoHandedSwordProp";

@@ -1,8 +1,10 @@
 import {
-  ArchetypeDraw,
   type AutoMovieArchetype,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 import { FixtureDraw } from "./internal/FixtureDraw";
 import { SANITARY_BANDS } from "./constants/SANITARY_BANDS";
 import { SanitaryConstruction } from "./internal/SanitaryConstruction";

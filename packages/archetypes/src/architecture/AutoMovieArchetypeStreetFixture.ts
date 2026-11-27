@@ -1,4 +1,10 @@
-import { ArchetypeDraw, type AutoMovieArchetype, type IAutoMovieArchetypeBand, } from "../core";
+import {
+  type AutoMovieArchetype,
+  type IAutoMovieArchetypeBand,
+} from "../core";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 import { FixtureDraw } from "./internal/FixtureDraw";
 import { STREET_FIXTURE_BANDS } from "./constants/STREET_FIXTURE_BANDS";
 import { STREET_FIXTURE_MODELS } from "./constants/STREET_FIXTURE_MODELS";

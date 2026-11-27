@@ -1,9 +1,11 @@
 import {
-  ArchetypeDraw,
   AutoMovieArchetype,
   AutoMovieArchetypeDrawSession,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 import { STORAGE_BANDS } from "./constants/STORAGE_BANDS";
 import { AutoMovieArchetypeBookcase } from "./AutoMovieArchetypeBookcase";
 import { AutoMovieArchetypeDrawerUnit } from "./AutoMovieArchetypeDrawerUnit";

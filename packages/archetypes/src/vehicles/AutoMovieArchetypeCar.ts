@@ -1,5 +1,4 @@
 import {
-  ArchetypeDraw,
   type AutoMovieArchetype,
   AutoMovieArchetypeBuilder,
   AutoMovieArchetypeCourse,
@@ -8,6 +7,9 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 import { CAR_BANDS } from "./constants/CAR_BANDS";
 import { CAR_MODELS } from "./constants/CAR_MODELS";
 import type { CarAffordance } from "./internal/CarAffordance";

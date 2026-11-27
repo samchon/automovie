@@ -1,10 +1,12 @@
 import {
-  ArchetypeDraw,
   type AutoMovieArchetype,
   type AutoMovieArchetypeCourse,
   type AutoMovieArchetypeRide,
   AutoMovieArchetypeRefusal,
 } from "../core/index";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 import { AnnularFitting } from "./fittings/AnnularFitting";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { EquineFootwork } from "./equine/EquineFootwork";

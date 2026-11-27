@@ -2,12 +2,14 @@ import { AutoMovieArchetypePalette } from "../AutoMovieArchetypePalette";
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeDraw,
   type AutoMovieArchetype,
   AutoMovieArchetypeBuilder,
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeFrame,
 } from "../../core/index";
+import {
+  ArchetypeDraw,
+} from "../../core/internal/ArchetypeDraw";
 
 /*
  * A flat board held by one edge: a painter's palette on the thumb, a piece of

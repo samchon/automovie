@@ -2,11 +2,13 @@ import { AutoMovieArchetypeFieldGoal } from "../AutoMovieArchetypeFieldGoal";
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeDraw,
   type AutoMovieArchetype,
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeFrame,
 } from "../../core/index";
+import {
+  ArchetypeDraw,
+} from "../../core/internal/ArchetypeDraw";
 import { GoalBuild } from "./GoalBuild";
 import type { AutoMovieArchetypeGoal } from "../AutoMovieArchetypeGoal";
 
