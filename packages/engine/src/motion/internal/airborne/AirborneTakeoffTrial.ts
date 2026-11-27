@@ -5,12 +5,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
+import { Quaternion } from "../../../math/Quaternion";
 import { AirborneShapeHistory } from "./AirborneShapeHistory";
 import { AirborneTakeoffAngles } from "./AirborneTakeoffAngles";
 import { AirborneTakeoffJacobian } from "./AirborneTakeoffJacobian";
-import { MotionTrajectoryPartition } from "./internal/trajectory/MotionTrajectoryPartition";
-import { IntegrateAirborneRotationImplementation } from "./internal/IntegrateAirborneRotationImplementation";
+import { MotionTrajectoryPartition } from "../trajectory/MotionTrajectoryPartition";
+import { IntegrateAirborneRotationImplementation } from "../IntegrateAirborneRotationImplementation";
 
 /**
  * Evaluate shooting points with optional momentum sensitivities. A search point

@@ -1,14 +1,14 @@
-import { AutoMovieEngineKinematics } from "../kinematics/AutoMovieEngineKinematics";
+import { AutoMovieEngineKinematics } from "../../../kinematics/AutoMovieEngineKinematics";
 import type { AutoMovieVector3Tuple, IAutoMovieQuaternion, IAutoMovieSolveAirborneTakeoff, IAutoMovieVector3 } from "@automovie/interface";
 
-import { AutoMovieSolidVector } from "../geometry/AutoMovieSolidVector";
+import { AutoMovieSolidVector } from "../../../geometry/AutoMovieSolidVector";
 
-import { Quaternion } from "../math/Quaternion";
-import type { physicalInertiaFactor } from "../physics/internal/physicalInertiaFactor";
-import { AutoMoviePhysicalInertiaTensor } from "../physics/AutoMoviePhysicalInertiaTensor";
+import { Quaternion } from "../../../math/Quaternion";
+import type { physicalInertiaFactor } from "../../../physics/internal/physicalInertiaFactor";
+import { AutoMoviePhysicalInertiaTensor } from "../../../physics/AutoMoviePhysicalInertiaTensor";
 import { AirborneShapeHistory } from "./AirborneShapeHistory";
-import { AirborneTakeoffQuadrature } from "./internal/AirborneTakeoffQuadrature";
-import { AutoMovieEngineMotionTrajectory } from "./AutoMovieEngineMotionTrajectory";
+import { AirborneTakeoffQuadrature } from "../AirborneTakeoffQuadrature";
+import { AutoMovieEngineMotionTrajectory } from "../../AutoMovieEngineMotionTrajectory";
 
 /**
  * The linearized shooting relation `angle = turning L - lagging` in the

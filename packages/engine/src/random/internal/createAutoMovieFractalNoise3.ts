@@ -4,7 +4,7 @@ import { admitAutoMovieNoiseCoordinate } from "./admitAutoMovieNoiseCoordinate";
 import { admitAutoMovieNoiseOctaves } from "./admitAutoMovieNoiseOctaves";
 import { createAutoMovieGradientNoise3 } from "./createAutoMovieGradientNoise3";
 import { createAutoMovieRandom } from "./createAutoMovieRandom";
-import { AutoMovieEngineRandomBounds } from "../AutoMovieEngineRandomBounds";
+import { AutoMovieEngineRandomBounds } from "./AutoMovieEngineRandomBounds";
 
 /**
  * Seeded three-dimensional fractal noise in [-1, 1]: a sum of octaves of

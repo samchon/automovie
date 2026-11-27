@@ -5,11 +5,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
-import type { physicalInertiaFactor } from "../physics/internal/physicalInertiaFactor";
+import { Quaternion } from "../../../math/Quaternion";
+import type { physicalInertiaFactor } from "../../../physics/internal/physicalInertiaFactor";
 import { AirborneShapeHistory } from "./AirborneShapeHistory";
 import { AirborneTabulatedShapeHistory } from "./AirborneTabulatedShapeHistory";
-import type { MotionTrajectoryFailure } from "./MotionTrajectoryFailure";
+import type { MotionTrajectoryFailure } from "../../MotionTrajectoryFailure";
 
 /** Relative angular-momentum share and absolute kg m²/s budget. */
 type MomentumTolerance = Pick<

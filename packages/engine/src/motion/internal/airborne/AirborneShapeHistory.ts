@@ -1,19 +1,19 @@
-import { AutoMovieEngineKinematics } from "../kinematics/AutoMovieEngineKinematics";
+import { AutoMovieEngineKinematics } from "../../../kinematics/AutoMovieEngineKinematics";
 import type { AutoMovieHumanoidBone, IAutoMovieBodyMomentum, IAutoMovieIntegrateAirborneRotation, IAutoMovieQuaternion, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 
-import type { AutoMovieEngineKinematicsTypes } from "../kinematics/AutoMovieEngineKinematicsTypes";
+import type { AutoMovieEngineKinematicsTypes } from "../../../kinematics/AutoMovieEngineKinematicsTypes";
 
-import { resolveAutoMovieMomentumRates } from "../kinematics/internal/resolveAutoMovieMomentumRates";
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
-import type { physicalInertiaFactor } from "../physics/internal/physicalInertiaFactor";
+import { resolveAutoMovieMomentumRates } from "../../../kinematics/internal/resolveAutoMovieMomentumRates";
+import { Quaternion } from "../../../math/Quaternion";
+import { Vector3 } from "../../../math/Vector3";
+import type { physicalInertiaFactor } from "../../../physics/internal/physicalInertiaFactor";
 import { AirborneConstantShapeHistory } from "./AirborneConstantShapeHistory";
 import { AirborneShapeInertia } from "./AirborneShapeInertia";
 import { AirborneShapeReduction } from "./AirborneShapeReduction";
 import { AirborneShapeStatistics } from "./AirborneShapeStatistics";
 import { AirborneTabulatedShapeHistory } from "./AirborneTabulatedShapeHistory";
-import type { AutoMovieEngineMotionAirborneRotation } from "./AutoMovieEngineMotionAirborneRotation";
+import type { AutoMovieEngineMotionAirborneRotation } from "../../AutoMovieEngineMotionAirborneRotation";
 
 /** The numeric sufficient statistics that survive a shape query. */
 type IInstant = IAutoMovieIntegrateAirborneRotation.IInstant;

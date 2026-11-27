@@ -1,9 +1,9 @@
-import { AutoMovieEngineKinematics } from "../kinematics/AutoMovieEngineKinematics";
+import { AutoMovieEngineKinematics } from "../../../kinematics/AutoMovieEngineKinematics";
 import type { AutoMovieHumanoidBone, IAutoMovieBodyMomentum, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone } from "@automovie/interface";
 
 
 
-import { AutoMoviePhysicalInertiaTensor } from "../physics/AutoMoviePhysicalInertiaTensor";
+import { AutoMoviePhysicalInertiaTensor } from "../../../physics/AutoMoviePhysicalInertiaTensor";
 
 /**
  * The three reductions a flight's shape history makes of posed bones, chosen

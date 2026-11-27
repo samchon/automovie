@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
+import { Quaternion } from "../../../math/Quaternion";
 
 /**
  * The endpoint angle Jacobian of a flight's integrated momentum tangents.

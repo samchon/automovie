@@ -1,16 +1,16 @@
-import { AutoMovieEngineKinematics } from "../kinematics/AutoMovieEngineKinematics";
+import { AutoMovieEngineKinematics } from "../../../kinematics/AutoMovieEngineKinematics";
 import type { AutoMovieHumanoidBone, IAutoMovieBodyMomentum, IAutoMovieIntegrateAirborneRotation, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
 
-import { indexSkeletonTopology } from "../kinematics/internal/indexSkeletonTopology";
+import { indexSkeletonTopology } from "../../../kinematics/internal/indexSkeletonTopology";
 
-import { resolveAutoMovieBoneRates } from "../kinematics/internal/resolveAutoMovieBoneRates";
+import { resolveAutoMovieBoneRates } from "../../../kinematics/internal/resolveAutoMovieBoneRates";
 
-import { resolveAutoMovieMomentumRates } from "../kinematics/internal/resolveAutoMovieMomentumRates";
-import { physicalInertiaFactor } from "../physics/internal/physicalInertiaFactor";
-import { AutoMoviePhysicalInertiaTensor } from "../physics/AutoMoviePhysicalInertiaTensor";
+import { resolveAutoMovieMomentumRates } from "../../../kinematics/internal/resolveAutoMovieMomentumRates";
+import { physicalInertiaFactor } from "../../../physics/internal/physicalInertiaFactor";
+import { AutoMoviePhysicalInertiaTensor } from "../../../physics/AutoMoviePhysicalInertiaTensor";
 import { AirborneShapeInertia } from "./AirborneShapeInertia";
 import { AirborneShapeStatistics } from "./AirborneShapeStatistics";
-import type { AutoMovieEngineMotionAirborneRotation } from "./AutoMovieEngineMotionAirborneRotation";
+import type { AutoMovieEngineMotionAirborneRotation } from "../../AutoMovieEngineMotionAirborneRotation";
 
 /**
  * Construct a genuinely fixed root-frame shape from copied rig/bone values.

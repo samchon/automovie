@@ -7,9 +7,9 @@ import type {
 
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { AirborneTakeoffAngles } from "../AirborneTakeoffAngles";
-import { AirborneTakeoffLinear } from "../AirborneTakeoffLinear";
-import { AirborneTakeoffTrial } from "../AirborneTakeoffTrial";
+import { AirborneTakeoffAngles } from "./airborne/AirborneTakeoffAngles";
+import { AirborneTakeoffLinear } from "./airborne/AirborneTakeoffLinear";
+import { AirborneTakeoffTrial } from "./airborne/AirborneTakeoffTrial";
 
 /** Private implementation bindings for the airborne take-off owner. */
 export namespace SolveAirborneTakeoffImplementation {

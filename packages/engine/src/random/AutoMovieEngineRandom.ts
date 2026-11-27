@@ -8,7 +8,7 @@ import { createAutoMovieRandom } from "./internal/createAutoMovieRandom";
 import { deriveAutoMovieSeed } from "./internal/deriveAutoMovieSeed";
 import { hashAutoMovieFnv1a64 } from "./internal/hashAutoMovieFnv1a64";
 import { philoxAutoMovie4x32 } from "./internal/philoxAutoMovie4x32";
-import { AutoMovieEngineRandomBounds } from "./AutoMovieEngineRandomBounds";
+import { AutoMovieEngineRandomBounds } from "./internal/AutoMovieEngineRandomBounds";
 
 /**
  * The Engine's deterministic counter streams, seed derivation and seeded noise.

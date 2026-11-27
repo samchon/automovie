@@ -5,8 +5,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
-import { AutoMovieEngineMotionTrajectory } from "./AutoMovieEngineMotionTrajectory";
+import { Quaternion } from "../../../math/Quaternion";
+import { AutoMovieEngineMotionTrajectory } from "../../AutoMovieEngineMotionTrajectory";
 
 /** The lateral unit axis, read without mutation by quaternion operations. */
 const LATERAL: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };

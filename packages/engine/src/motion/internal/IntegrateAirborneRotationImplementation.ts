@@ -13,12 +13,12 @@ import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinem
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import type { physicalInertiaFactor } from "../../physics/internal/physicalInertiaFactor";
-import { AirborneConstantShapeHistory } from "../AirborneConstantShapeHistory";
-import { AirborneMomentumDefect } from "../AirborneMomentumDefect";
-import { AirborneRotationFlight } from "../AirborneRotationFlight";
-import { AirborneShapeHistory } from "../AirborneShapeHistory";
-import { AirborneShapeStatistics } from "../AirborneShapeStatistics";
-import { AirborneTabulatedShapeHistory } from "../AirborneTabulatedShapeHistory";
+import { AirborneConstantShapeHistory } from "./airborne/AirborneConstantShapeHistory";
+import { AirborneMomentumDefect } from "./airborne/AirborneMomentumDefect";
+import { AirborneRotationFlight } from "./airborne/AirborneRotationFlight";
+import { AirborneShapeHistory } from "./airborne/AirborneShapeHistory";
+import { AirborneShapeStatistics } from "./airborne/AirborneShapeStatistics";
+import { AirborneTabulatedShapeHistory } from "./airborne/AirborneTabulatedShapeHistory";
 import { AutoMovieEngineMotionTrajectory } from "../AutoMovieEngineMotionTrajectory";
 import { MotionTrajectoryFailure } from "../MotionTrajectoryFailure";
 import { solveAirborneInvariant } from "./solveAirborneInvariant";

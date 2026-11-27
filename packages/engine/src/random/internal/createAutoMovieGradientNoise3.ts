@@ -3,7 +3,7 @@ import type { IAutoMovieRandom } from "@automovie/interface";
 import { admitAutoMovieNoiseCoordinate } from "./admitAutoMovieNoiseCoordinate";
 import { createAutoMovieRandom } from "./createAutoMovieRandom";
 import { fadeAutoMovieGradientNoise } from "./fadeAutoMovieGradientNoise";
-import { AutoMovieEngineRandomBounds } from "../AutoMovieEngineRandomBounds";
+import { AutoMovieEngineRandomBounds } from "./AutoMovieEngineRandomBounds";
 
 /**
  * Seeded three-dimensional gradient noise, a smooth non-periodic value over
