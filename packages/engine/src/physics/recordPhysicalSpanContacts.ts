@@ -8,14 +8,14 @@ import type {
 import { Vector3 } from "../math/Vector3";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { physicalSpanPose } from "./physicalSpanPose";
-import type { preparePhysicalDisturbanceSpan } from "./internal/preparePhysicalDisturbanceSpan";
+import type { AutoMovieEnginePhysicalBalanceTypes } from "./AutoMovieEnginePhysicalBalanceTypes";
 import { recordPhysicalContact } from "./internal/recordPhysicalContact";
 
 /**
  * Record the floor's reaction on a body while its disturbance response plays
  * (`physicalSpanPose.play`), from the response's curves rather than the solver,
  * the body being kinematic there: each planted foot's share of the pendulum's
- * reaction (`preparePhysicalDisturbanceSpan.ISample.reaction`, `loads`) as one
+ * reaction (`AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.ISample.reaction`, `loads`) as one
  * floor contact sample over the substep, its normal impulse the share of the
  * weight times the substep, at the foot's endpoint moved by the pivot's offset
  * from the shares' weighted endpoint, so the shares' centre of pressure is the
@@ -54,7 +54,7 @@ export function recordPhysicalSpanContacts(input: {
   if (!floor) return;
   for (const body of settings.bodies) {
     if (body.mode.kind === "kinematic") continue;
-    const sample: preparePhysicalDisturbanceSpan.ISample | undefined =
+    const sample: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.ISample | undefined =
       physicalSpanPose.play(
         bound,
         body,

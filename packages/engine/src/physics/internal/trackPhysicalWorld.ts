@@ -28,7 +28,7 @@ import { physicalRecoveryRequested } from "./physicalRecoveryRequested";
 import { physicalSpanPose } from "../physicalSpanPose";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { physicalTrackingWithdrawn } from "./physicalTrackingWithdrawn";
-import type { preparePhysicalDisturbanceSpan } from "./preparePhysicalDisturbanceSpan";
+import type { AutoMovieEnginePhysicalBalanceTypes } from "../AutoMovieEnginePhysicalBalanceTypes";
 import { readPhysicalScene } from "./readPhysicalScene";
 import { releasePhysicalTracking } from "./releasePhysicalTracking";
 import { samplePhysicalAuthoredTargets } from "./samplePhysicalAuthoredTargets";
@@ -73,7 +73,7 @@ export function trackPhysicalWorld(
     // A biped's prepared disturbance response plays between its branch
     // points: the body is authored from it, every segment kinematic
     // (`preparePhysicalDisturbanceSpan`, `physicalSpanPose`).
-    const played: preparePhysicalDisturbanceSpan.ISample | undefined =
+    const played: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.ISample | undefined =
       body.mode.kind === "kinematic"
         ? undefined
         : physicalSpanPose.play(bound, body, recovery[body.id], seconds);

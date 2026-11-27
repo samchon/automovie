@@ -8,6 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
+import type { AutoMovieEnginePhysicalBalanceTypes } from "./AutoMovieEnginePhysicalBalanceTypes";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { physicalAuthoredCenter } from "./physicalAuthoredCenter";
 import { physicalSupportPoint } from "./internal/physicalSupportPoint";
@@ -28,7 +29,7 @@ import { preparePhysicalDisturbanceSpan } from "./internal/preparePhysicalDistur
 export function physicalSpanPose(input: {
   body: IAutoMoviePhysicalSimulationInput.IBody;
   goals: Readonly<Record<string, IAutoMovieSamplePhysicalTarget.IResult>>;
-  sample: preparePhysicalDisturbanceSpan.ISample;
+  sample: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.ISample;
 }): Record<string, IAutoMovieSamplePhysicalTarget.IResult> {
   const { body, goals, sample } = input;
   const authored = physicalAuthoredCenter(body.profile, goals);
@@ -175,7 +176,7 @@ export namespace physicalSpanPose {
     body: IBody,
     state: IAutoMoviePhysicalRecoveryState | undefined,
     seconds: number,
-  ): preparePhysicalDisturbanceSpan.ISample | undefined {
+  ): AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.ISample | undefined {
     const recorded: IAutoMoviePhysicalRecoveryState["span"] = state?.span;
     if (!recorded || !(seconds > recorded.seconds)) return undefined;
     let held = bound.spans.get(body.id);
@@ -278,7 +279,7 @@ export namespace physicalSpanPose {
       return;
     if (seconds < held.span.until) return;
     held.handed = true;
-    const last: preparePhysicalDisturbanceSpan.ISample = held.span.sample(
+    const last: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.ISample = held.span.sample(
       held.span.until,
     );
     const authored = physicalAuthoredCenter(body.profile, goals);

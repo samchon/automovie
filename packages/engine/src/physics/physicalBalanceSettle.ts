@@ -9,7 +9,7 @@ import type {
 import { Vector3 } from "../math/Vector3";
 import { physicalBalanceBracing } from "./internal/physicalBalanceBracing";
 import { physicalBalanceExhaustion } from "./internal/physicalBalanceExhaustion";
-import type { physicalBalanceSense } from "./internal/physicalBalanceSense";
+import type { AutoMovieEnginePhysicalBalanceTypes } from "./AutoMovieEnginePhysicalBalanceTypes";
 import { physicalRecoveryLimbSwing } from "./internal/physicalRecoveryLimbSwing";
 
 /**
@@ -34,7 +34,7 @@ import { physicalRecoveryLimbSwing } from "./internal/physicalRecoveryLimbSwing"
  */
 export function physicalBalanceSettle(input: {
   state: Readonly<IAutoMoviePhysicalRecoveryState>;
-  sense: physicalBalanceSense.ISense;
+  sense: AutoMovieEnginePhysicalBalanceTypes.Sense.ISense;
   goals: Readonly<Record<string, IAutoMovieVector3>>;
   assessment: IAutoMoviePhysicalBalance.IResult;
 }): physicalBalanceSettle.IResult {

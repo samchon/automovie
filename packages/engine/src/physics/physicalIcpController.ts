@@ -15,6 +15,7 @@
 // See vendor/ihmc/NOTICE.
 import { physicalAngularMomentumIntegrator as Integrator } from "./physicalAngularMomentumIntegrator";
 import { physicalIcpControllerQp as Qp } from "./internal/physicalIcpControllerQp";
+import type { AutoMovieEnginePhysicalBalanceTypes } from "./AutoMovieEnginePhysicalBalanceTypes";
 import type { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 
 /**
@@ -105,12 +106,12 @@ export function physicalIcpController(input: {
 
   // Gains, weights and the motion-frame transform (l.319, l.361-366,
   // l.506-519); the unconstrained feedback K e (l.436-445).
-  const gains: Qp.IMatrix = fromMotion(
+  const gains: AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IMatrix = fromMotion(
     velocity,
     p.kpParallel + 1.0,
     p.kpOrthogonal + 1.0,
   );
-  const weight: Qp.IMatrix = fromMotion(
+  const weight: AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IMatrix = fromMotion(
     velocity,
     p.forwardWeight,
     p.lateralWeight,
@@ -129,7 +130,7 @@ export function physicalIcpController(input: {
   // The feedback limits unless just initialized or failing (l.385-408).
   const limited: boolean =
     !input.state.ignoreRateLimit && input.state.failures < 5;
-  const solution: Qp.ISolution | null = Qp({
+  const solution: AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.ISolution | null = Qp({
     error,
     feedForwardCop: perfectCop,
     gains,
@@ -388,7 +389,7 @@ export namespace physicalIcpController {
 }
 
 /** The 2 x 2 identity. */
-const IDENTITY: Qp.IMatrix = [
+const IDENTITY: AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IMatrix = [
   [1, 0],
   [0, 1],
 ];
@@ -424,7 +425,7 @@ function fromMotion(
   velocity: Polygon.IPoint,
   along: number,
   across: number,
-): Qp.IMatrix {
+): AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IMatrix {
   if (stationary(velocity))
     return [
       [across, 0.0],
@@ -447,7 +448,7 @@ function fromMotion(
  * The rotation from the caller's frame into the plan's motion frame, R^T; the
  * identity at rest (`getTransformToDynamicsFrame` l.59-76).
  */
-function toMotion(velocity: Polygon.IPoint): Qp.IMatrix {
+function toMotion(velocity: Polygon.IPoint): AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IMatrix {
   if (stationary(velocity)) return IDENTITY;
   const { x, y } = motionAxes(velocity);
   return [
