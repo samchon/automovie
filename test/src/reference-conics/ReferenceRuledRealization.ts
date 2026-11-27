@@ -11,7 +11,7 @@ import type {
   IAutoMovieRecoveryTensorConstruction,
   IAutoMovieRecoveryTensorFamiliesInput,
 } from "@automovie/interface";
-import { AutoMovieRecoveryOpenRun, normalizeRecoveryCourse, AutoMovieRecoveryReconstruction, restoreRecoveryCurveBasis } from "@automovie/recovery";
+import { AutoMovieRecoveryOpenRun, AutoMovieRecoveryReconstruction, restoreRecoveryCurveBasis } from "@automovie/recovery";
 
 /** Browser consumer policy; mathematical limits remain the official Node limits. */
 interface Options {
@@ -305,7 +305,7 @@ export async function ReferenceRuledRealization(
     try {
       const courses: IAutoMovieCubicBezierCurve64[] = nodes.map(
         (n: Node, i: number): IAutoMovieCubicBezierCurve64 =>
-          normalizeRecoveryCourse(
+          AutoMovieRecoveryOpenRun.normalizeCourse(
             bundle.reports[n.section]!.open[n.arc]!.curve,
             reversals[i]!,
           ),

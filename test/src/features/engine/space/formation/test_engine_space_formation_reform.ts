@@ -1,4 +1,4 @@
-import { sampleFormationMotion, AutoMovieEnginePopulationFormation } from "@automovie/engine";
+import { AutoMovieEnginePopulationFormation } from "@automovie/engine";
 import {
   IAutoMovieFormationDesign,
   IAutoMovieFormationMotion,
@@ -113,7 +113,7 @@ export function test_engine_space_formation_reform(): void {
   const at: (time: number) => IAutoMovieSampledFormationMotion = (
     time: number,
   ): IAutoMovieSampledFormationMotion =>
-    sampleFormationMotion(cues, "block", time);
+    AutoMovieEnginePopulationFormation.sampleFormationMotion(cues, "block", time);
   const placed: (
     formation: IAutoMovieFormationPlacement,
     slot: number,
@@ -241,7 +241,7 @@ export function test_engine_space_formation_reform(): void {
     AutoMovieEnginePopulationFormation.formationSlotPosition(
       straight,
       slot,
-      sampleFormationMotion(dressedCues, "block", 3).reform,
+      AutoMovieEnginePopulationFormation.sampleFormationMotion(dressedCues, "block", 3).reform,
     );
   TestValidator.equals(
     "a re-form ends on the target arrangement's own dressing",
@@ -309,7 +309,7 @@ export function test_engine_space_formation_reform(): void {
     AutoMovieEnginePopulationFormation.formationSlotPosition(
       straight,
       6,
-      sampleFormationMotion(sequential, "block", time).reform,
+      AutoMovieEnginePopulationFormation.sampleFormationMotion(sequential, "block", time).reform,
     );
   for (const time of [3.5, 4])
     TestValidator.predicate(

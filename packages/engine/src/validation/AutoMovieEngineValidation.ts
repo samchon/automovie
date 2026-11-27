@@ -1,3 +1,9 @@
+import { classifyAutoMovieCameraInspection as classifyAutoMovieCameraInspectionImplementation } from "./internal/classifyAutoMovieCameraInspection";
+import { clipTrackShapeFaults as clipTrackShapeFaultsImplementation } from "./internal/clipTrackShapeFaults";
+import { isAutoMovieMaterialExtension as isAutoMovieMaterialExtensionImplementation } from "./internal/isAutoMovieMaterialExtension";
+import { materialTextureSlots as materialTextureSlotsImplementation } from "./internal/materialTextureSlots";
+import { readAutoMovieImageFacts as readAutoMovieImageFactsImplementation } from "./internal/readAutoMovieImageFacts";
+
 import { validateAffordance as validateAffordanceImplementation } from "./internal/validateAffordance";
 import { validateAutoMovieFormationMotions as validateAutoMovieFormationMotionsImplementation } from "./internal/validateAutoMovieFormationMotions";
 import { validateAffordanceArticulation as validateAffordanceArticulationImplementation } from "./internal/validateAffordanceArticulation";
@@ -41,7 +47,7 @@ import { validateTextureBinding as validateTextureBindingImplementation } from "
 
 import { validateModel as validateModelImplementation } from "./internal/validateModel";
 
-import { type IAutoMovieMesh, type IAutoMovieViolationCollector, type IAutoMovieValidation, type IAutoMovieMeshTopologyValidationProps, type IAutoMovieBody, type IAutoMovieCapsuleProxy, type AutoMovieHumanoidBone, type IAutoMovieValidateTransformScalars, type IAutoMovieConstraintViolation, type IAutoMovieValidateUniqueBy, type IAutoMovieValidateTextureScale, type IAutoMovieBodyCollisionResult, type IAutoMovieDetectBodyCollision, type IAutoMovieFreeFallResult, type IAutoMovieDetectFreeFall, type IAutoMovieSupportResult, type IAutoMovieDetectSupportToppling, type IAutoMoviePlacedContact, type IAutoMoviePlacedContinuity, type IAutoMovieSceneCollision as Collision, type IAutoMovieSweptCapsuleCollision as Sweep, type IAutoMovieValidateModel, type IAutoMovieAffordance, type IAutoMovieDiagnostic, type IAutoMovieShotContract, type IAutoMovieCompiledShotSource, type IAutoMovieValidateFormationGround, type IAutoMovieValidateFormationOverlap, type IAutoMovieValidateFormationSlotMotions, type IAutoMovieAffordanceCoupling, type IAutoMovieAffordanceTravelRange, type IAutoMovieValidateBalanceSupport, type IAutoMovieClip, type IAutoMovieClipChannelGate, type IAutoMovieColor, type IAutoMovieViolationAppendRangeItemsSink, type IAutoMovieValidateContinuity, type IAutoMovieViolationAppendSink, type IAutoMovieExpression, type IAutoMoviePrimitiveShape, type IAutoMovieValidateFilmContinuity, type IAutoMovieValidateFootSkate, type IAutoMovieValidateGroundContact, type IAutoMovieChannel, type IAutoMovieJointConstraint, type IAutoMovieLookAt, type IAutoMovieSkeleton, type IAutoMovieValidateMaterialLobes, type IAutoMovieMaterialOverlay, type IAutoMovieValidateMaterialProcedural, type IAutoMovieMaterialWear, type IAutoMovieImage, type IAutoMovieValidateMotion, type IAutoMoviePose, type IAutoMovieValidateProfileCapabilities, type IAutoMovieValidateSceneEnvironment, type IAutoMovieValidateScriptTree, type IAutoMovieValidateSelfIntersection, type IAutoMovieShot, type IAutoMovieScene, type IAutoMovieValidateSpace, type IAutoMovieHeightRule, type IAutoMovieTextureClosureInput, type AutoMovieTextureBinding } from "@automovie/interface";
+import { type IAutoMovieMesh, type IAutoMovieViolationCollector, type IAutoMovieValidation, type IAutoMovieMeshTopologyValidationProps, type IAutoMovieBody, type IAutoMovieCapsuleProxy, type AutoMovieHumanoidBone, type IAutoMovieValidateTransformScalars, type IAutoMovieConstraintViolation, type IAutoMovieValidateUniqueBy, type IAutoMovieValidateTextureScale, type IAutoMovieBodyCollisionResult, type IAutoMovieDetectBodyCollision, type IAutoMovieFreeFallResult, type IAutoMovieDetectFreeFall, type IAutoMovieSupportResult, type IAutoMovieDetectSupportToppling, type IAutoMoviePlacedContact, type IAutoMoviePlacedContinuity, type IAutoMovieSceneCollision as Collision, type IAutoMovieSweptCapsuleCollision as Sweep, type IAutoMovieValidateModel, type IAutoMovieAffordance, type IAutoMovieDiagnostic, type IAutoMovieShotContract, type IAutoMovieCompiledShotSource, type IAutoMovieValidateFormationGround, type IAutoMovieValidateFormationOverlap, type IAutoMovieValidateFormationSlotMotions, type IAutoMovieAffordanceCoupling, type IAutoMovieAffordanceTravelRange, type IAutoMovieValidateBalanceSupport, type IAutoMovieClip, type IAutoMovieClipChannelGate, type IAutoMovieColor, type IAutoMovieViolationAppendRangeItemsSink, type IAutoMovieValidateContinuity, type IAutoMovieViolationAppendSink, type IAutoMovieExpression, type IAutoMoviePrimitiveShape, type IAutoMovieValidateFilmContinuity, type IAutoMovieValidateFootSkate, type IAutoMovieValidateGroundContact, type IAutoMovieChannel, type IAutoMovieJointConstraint, type IAutoMovieLookAt, type IAutoMovieSkeleton, type IAutoMovieValidateMaterialLobes, type IAutoMovieMaterialOverlay, type IAutoMovieValidateMaterialProcedural, type IAutoMovieMaterialWear, type IAutoMovieImage, type IAutoMovieValidateMotion, type IAutoMoviePose, type IAutoMovieValidateProfileCapabilities, type IAutoMovieValidateSceneEnvironment, type IAutoMovieValidateScriptTree, type IAutoMovieValidateSelfIntersection, type IAutoMovieShot, type IAutoMovieScene, type IAutoMovieValidateSpace, type IAutoMovieHeightRule, type IAutoMovieTextureClosureInput, type AutoMovieTextureBinding, type IAutoMovieCameraInspection, type IAutoMovieClipShapeFault, type IAutoMovieClipTrackShapeFaults, type IAutoMovieMaterialTextureSlotsMaterialTextureSlot, type IAutoMovieMaterial, type IAutoMovieTextureImageFacts } from "@automovie/interface";
 import { validateMesh as validateMeshImplementation } from "./internal/validateMesh";
 import { validateMeshTopology as validateMeshTopologyImplementation } from "./internal/validateMeshTopology";
 import { validateBody as validateBodyImplementation } from "./internal/validateBody";
@@ -721,5 +727,43 @@ export namespace AutoMovieEngineValidation {
    */
   export function validateTextureBinding(binding: AutoMovieTextureBinding | null | undefined, path: string, expectedColorSpace: "srgb" | "linear", collector: IAutoMovieViolationCollector): void {
     validateTextureBindingImplementation(binding, path, expectedColorSpace, collector);
+  }
+
+  /**
+   * Grades one active requirement against delivery framing and occlusion
+   * evidence.
+   */
+  export function classifyAutoMovieCameraInspection(input: IAutoMovieCameraInspection): IAutoMovieCameraInspection.IResult {
+    return classifyAutoMovieCameraInspectionImplementation(input);
+  }
+
+  /** Accumulate ordered keyframe-clock, finite-value and stride faults. */
+  export function clipTrackShapeFaults(track: IAutoMovieClipTrackShapeFaults.ITrack, duration: number): IAutoMovieClipShapeFault[] {
+    return clipTrackShapeFaultsImplementation(track, duration);
+  }
+
+  /**
+   * Split an extension name on underscores and recognize
+   * material/materials/texture/textures segments case-insensitively.
+   */
+  export function isAutoMovieMaterialExtension(name: string): boolean {
+    return isAutoMovieMaterialExtensionImplementation(name);
+  }
+
+  /**
+   * Enumerate present baseColor, metalRough, normal, detailNormal, occlusion,
+   * emissive and thickness bindings, the anisotropy direction binding, then
+   * overlay color/normal bindings, carrying exact suffixes and decoding intent.
+   */
+  export function materialTextureSlots(material: IAutoMovieMaterial): IAutoMovieMaterialTextureSlotsMaterialTextureSlot[] {
+    return materialTextureSlotsImplementation(material);
+  }
+
+  /**
+   * Probe PNG, JPEG, WebP and Radiance dimension headers in order, returning
+   * media/edge facts or null.
+   */
+  export function readAutoMovieImageFacts(bytes: Uint8Array | null | undefined): IAutoMovieTextureImageFacts | null {
+    return readAutoMovieImageFactsImplementation(bytes);
   }
 }

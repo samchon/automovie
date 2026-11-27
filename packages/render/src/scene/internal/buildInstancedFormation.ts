@@ -1,4 +1,4 @@
-import { sampleFormationMotion, sampleFormationSlotMotion, selectFormationLod, AutoMovieEngineFilm, AutoMovieEnginePopulationFormation } from "@automovie/engine";
+import { AutoMovieEngineFilm, AutoMovieEnginePopulationFormation } from "@automovie/engine";
 import {
   IAutoMovieCompiledFormationHero,
   IAutoMovieCompiledFormationLod,
@@ -337,7 +337,7 @@ export const buildInstancedFormation: (
           stats.culled = 0;
           stats.removed = 0;
           const sampled: IAutoMovieSampledFormationMotion =
-            sampleFormationMotion(
+            AutoMovieEnginePopulationFormation.sampleFormationMotion(
               input.motions ?? [],
               input.formation.id,
               time ?? 0,
@@ -442,7 +442,7 @@ export const buildInstancedFormation: (
           }
           for (const exception of exceptions) {
             const state: IAutoMovieFormationSlotState =
-              sampleFormationSlotMotion(
+              AutoMovieEnginePopulationFormation.sampleFormationSlotMotion(
                 slotMotions,
                 input.formation.id,
                 exception.slot,
@@ -610,7 +610,7 @@ export const buildInstancedFormation: (
             const projectedPixels: number =
               (selectionRadius * viewportHeight) /
               (effectiveHalfY * cameraDepth);
-            const selected: IAutoMovieCompiledFormationLod = selectFormationLod(
+            const selected: IAutoMovieCompiledFormationLod = AutoMovieEnginePopulationFormation.selectFormationLod(
               {
                 lod: input.formation.lod,
                 distance,

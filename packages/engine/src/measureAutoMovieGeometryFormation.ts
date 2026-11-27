@@ -1,3 +1,4 @@
+import { AutoMovieEnginePopulationFormation } from "./populationRuntime/formation/AutoMovieEnginePopulationFormation";
 import {
   IAutoMovieCompiledShotSource,
   type IAutoMovieDeliveryCrop,
@@ -15,7 +16,6 @@ import {
   type IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
 import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryActorReader";
 import { intersectsPerspectiveFrustumSphere } from "./film/internal/intersectsPerspectiveFrustumSphere";
 import { placeTransformedPoint } from "./film/internal/placeTransformedPoint";
@@ -25,9 +25,6 @@ import { resolveCameraAt } from "./film/internal/resolveCameraAt";
 import { composeFormationHeroTransform } from "./populationRuntime/formation/internal/composeFormationHeroTransform";
 import { formationSlotPosition } from "./populationRuntime/formation/internal/formationSlotPosition";
 import { placeFormationSlot } from "./populationRuntime/formation/internal/placeFormationSlot";
-import { sampleFormationMotion } from "./populationRuntime/formation/sampleFormationMotion";
-import { sampleFormationSlotMotion } from "./populationRuntime/formation/sampleFormationSlotMotion";
-import { selectFormationLod } from "./populationRuntime/formation/selectFormationLod";
 import { transformFormationBounds } from "./populationRuntime/formation/internal/transformFormationBounds";
 import { transformFormationPoint } from "./populationRuntime/formation/internal/transformFormationPoint";
 import { readAutoMovieGeometryGround } from "./readAutoMovieGeometryGround";
@@ -127,7 +124,7 @@ export function measureAutoMovieGeometryFormation(
       `Formation sample time ${sampledTime} is outside current shot "${selectedShot}". Choose a finite time from 0 through ${compiled.shot.duration}.`,
     );
 
-  const sampledMotion: IAutoMovieSampledFormationMotion = sampleFormationMotion(
+  const sampledMotion: IAutoMovieSampledFormationMotion = AutoMovieEnginePopulationFormation.sampleFormationMotion(
     compiled.formationMotions,
     formation.id,
     sampledTime,
@@ -167,7 +164,7 @@ export function measureAutoMovieGeometryFormation(
         anchor: runtime.anchor,
         baseFacingDeg: runtime.facingDeg,
         unit: sampledMotion,
-        member: sampleFormationSlotMotion(
+        member: AutoMovieEnginePopulationFormation.sampleFormationSlotMotion(
           compiled.formationSlotMotions,
           formation.id,
           slot,
@@ -344,7 +341,7 @@ export function measureAutoMovieGeometryFormation(
         culled += chunk.anonymousCount;
         return;
       }
-      const lod: IAutoMovieFormationLodSelection["lod"] = selectFormationLod({
+      const lod: IAutoMovieFormationLodSelection["lod"] = AutoMovieEnginePopulationFormation.selectFormationLod({
         lod: runtime.lod,
         distance: measurement.distance,
         projectedPixels: measurement.projectedPixels,

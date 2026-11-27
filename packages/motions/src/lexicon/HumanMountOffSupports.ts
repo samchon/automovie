@@ -4,7 +4,7 @@ import {
   RigidCarrierSample,
   Vector3,
   integrateMotionTrajectory,
-  samplePoseVelocity,
+  AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -227,7 +227,7 @@ export namespace HumanMountOffSupports {
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(end.rotation);
     const delta = (other: IAutoMovieRigidTransform): IAutoMovieVector3 =>
       Vector3.scale(
-        samplePoseVelocity.rotationVector(
+        AutoMovieEngineMotionSampling.samplePoseVelocityRotationVector(
           Quaternion.multiply(other.rotation, inverse),
         ),
         -1,

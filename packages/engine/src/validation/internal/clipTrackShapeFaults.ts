@@ -3,7 +3,7 @@ import type {
   IAutoMovieClipTrackShapeFaults,
 } from "@automovie/interface";
 
-import { channelValueWidth } from "./internal/channelValueWidth";
+import { channelValueWidth } from "./channelValueWidth";
 
 /** Accumulate ordered keyframe-clock, finite-value and stride faults. */
 export function clipTrackShapeFaults(

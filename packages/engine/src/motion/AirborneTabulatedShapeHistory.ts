@@ -15,7 +15,7 @@ import { AirborneShapeInertia } from "./AirborneShapeInertia";
 import { AirborneShapeReduction } from "./AirborneShapeReduction";
 import { AirborneShapeStatistics } from "./AirborneShapeStatistics";
 import type { integrateAirborneRotation } from "./integrateAirborneRotation";
-import { samplePoseVelocity } from "./samplePoseVelocity";
+import { AutoMovieEngineMotionSampling } from "./AutoMovieEngineMotionSampling";
 import { tabulateAirborneShapeKnots } from "./internal/tabulateAirborneShapeKnots";
 
 /** The numeric sufficient statistics a query returns. */
@@ -439,7 +439,7 @@ function derivative(
  * c'` with its centre's velocity from the knots' derivative stencil
  * (`derivative`), and its spin `I w` with `w` the stencil applied to the
  * rotation vectors that carry the part's principal frame at the knot to its
- * frame at each neighbouring knot (`samplePoseVelocity.rotationVector` of `q_j
+ * frame at each neighbouring knot (`AutoMovieEngineMotionSampling.samplePoseVelocityRotationVector` of `q_j
  * q_k^-1`): that vector is a smooth function of time whose derivative at the
  * knot is the angular velocity, so the stencil reads it to the same order. The
  * velocity of the centre drops out, as the parts' offsets from it sum to zero.
@@ -471,7 +471,7 @@ function pointMomentum(
       vy += weight * other.centerOfMass.y;
       vz += weight * other.centerOfMass.z;
       if (knot === k) continue;
-      const turn: IAutoMovieVector3 = samplePoseVelocity.rotationVector(
+      const turn: IAutoMovieVector3 = AutoMovieEngineMotionSampling.samplePoseVelocityRotationVector(
         Quaternion.multiply(other.inertiaRotation, inverse),
       );
       wx += weight * turn.x;

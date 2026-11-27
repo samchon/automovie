@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, hingedArmSwivel, jointRomOvershoot, samplePoseVelocity, swingTwistRange, AutoMovieEngineKinematics } from "@automovie/engine";
+import { ROM_TOLERANCE, hingedArmSwivel, jointRomOvershoot, AutoMovieEngineMotionSampling, swingTwistRange, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
@@ -53,7 +53,7 @@ export function prepareHumanFreeCurve(
 ): prepareHumanFreeCurve.IReader {
   const tolerance: number =
     duration > 0 && duration < Infinity
-      ? samplePoseVelocity.tolerance(1e-3, duration)
+      ? AutoMovieEngineMotionSampling.samplePoseVelocityTolerance(1e-3, duration)
       : NaN;
   const radians: number = (ROM_TOLERANCE * Math.PI) / 180;
   const legality: Map<

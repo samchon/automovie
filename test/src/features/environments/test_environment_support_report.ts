@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeSeat, AutoMovieArchetypeMoldedCrate, AutoMovieArchetypeMirror, AutoMovieArchetypeRock, AutoMovieArchetypeDrinkware, AutoMovieArchetypeTable } from "@automovie/archetypes";
-import { createBuilding, createCafeKit, createFurnishedRoom, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
+import { createCafeKit, createFurnishedRoom, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
 import { AutoMovieEngineBuiltEnvironment, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieBuiltElement,
@@ -131,7 +131,7 @@ export function test_environment_support_report(): void {
       },
       hall: {
         at: { x: 22, y: 0, z: -4 },
-        use: createBuilding({
+        use: AutoMovieEnvironment.building({
           levels: [{ id: "ground", rooms: { hall: [0, 0, 6, 6] } }],
         }),
       },

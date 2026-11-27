@@ -32,7 +32,7 @@ import type {
 import { prepareSkeletonPoseResolution } from "../../kinematics/prepareSkeletonPoseResolution";
 import { compilePerformance } from "../../perform/internal/compilePerformance";
 import { scenePlacements } from "../../perform/internal/scenePlacements";
-import { sampleFormationMotion } from "../../populationRuntime/formation/sampleFormationMotion";
+import { AutoMovieEnginePopulationFormation } from "../../populationRuntime/formation/AutoMovieEnginePopulationFormation";
 import { transformFormationPoint } from "../../populationRuntime/formation/internal/transformFormationPoint";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
@@ -178,7 +178,7 @@ export function performShot(
           transformFormationPoint(
             formation.centroid,
             formation.anchor,
-            sampleFormationMotion(formationMotions, id, 0),
+            AutoMovieEnginePopulationFormation.sampleFormationMotion(formationMotions, id, 0),
             formation.facingDeg,
           ),
         ],

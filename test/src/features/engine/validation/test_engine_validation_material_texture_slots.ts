@@ -1,4 +1,4 @@
-import { materialTextureSlots } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type { IAutoMovieMaterial } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -35,7 +35,7 @@ export function test_engine_validation_material_texture_slots(): void {
   };
   TestValidator.equals(
     "every bound slot and its color space",
-    materialTextureSlots(material),
+    AutoMovieEngineValidation.materialTextureSlots(material),
     [
       { path: ".baseColorTexture", binding: "oak-albedo", colorSpace: "srgb" },
       { path: ".normalTexture", binding: "oak-normal", colorSpace: "linear" },

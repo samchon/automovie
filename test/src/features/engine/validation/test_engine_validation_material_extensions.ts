@@ -1,9 +1,4 @@
-import {
-  AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS,
-  isAutoMovieMaterialExtension,
-  unsupportedAutoMovieMaterialExtensions,
-  AutoMovieEngineText,
-} from "@automovie/engine";
+import { AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS, unsupportedAutoMovieMaterialExtensions, AutoMovieEngineText, AutoMovieEngineValidation } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -94,7 +89,7 @@ export function test_engine_validation_material_extensions(): void {
       "KHR_draco_mesh_compression",
       "KHR_lights_punctual",
       "KHR_immaterialism",
-    ].map(isAutoMovieMaterialExtension),
+    ].map(AutoMovieEngineValidation.isAutoMovieMaterialExtension),
     [true, true, true, true, true, false, false, false],
   );
 }

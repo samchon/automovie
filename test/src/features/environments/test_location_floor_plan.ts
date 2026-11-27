@@ -1,4 +1,4 @@
-import { createBuilding, createPassage, AutoMovieEnvironment } from "@automovie/archetypes/environments";
+import { createPassage, AutoMovieEnvironment } from "@automovie/archetypes/environments";
 import { Quaternion, Vector3, AutoMovieEngineSpace } from "@automovie/engine";
 import type {
   IAutoMovieBuiltBoundary,
@@ -36,7 +36,7 @@ import { nclose } from "../internal/predicates";
  * @evidence contracts/development/common.md#meaningful-documentation Enumerates the normalized plan and passage cases, expected dimensions, and each named refusal.
  */
 export function test_location_floor_plan(): void {
-  const first: ReturnType<typeof createBuilding> = createBuilding({
+  const first: ReturnType<typeof AutoMovieEnvironment.building> = AutoMovieEnvironment.building({
     levels: [
       {
         id: "ground",
@@ -110,7 +110,7 @@ export function test_location_floor_plan(): void {
       },
     ],
   });
-  const second: ReturnType<typeof createBuilding> = createBuilding({
+  const second: ReturnType<typeof AutoMovieEnvironment.building> = AutoMovieEnvironment.building({
     levels: [
       {
         id: "ground",
@@ -139,7 +139,7 @@ export function test_location_floor_plan(): void {
     clearHeight: 2,
   });
   const east: {
-    use: ReturnType<typeof createBuilding>;
+    use: ReturnType<typeof AutoMovieEnvironment.building>;
     at: { x: number; y: number; z: number };
   } = { use: first, at: { x: 0, y: 3, z: 0 } };
   const west: typeof east = { use: second, at: { x: -8, y: 3, z: 0 } };
@@ -251,8 +251,8 @@ export function test_location_floor_plan(): void {
     /passage "oblique\/bridge" must approach opening "east\/ground\/landing" perpendicular/,
   );
   assert.throws(
-    (): ReturnType<typeof createBuilding> =>
-      createBuilding({
+    (): ReturnType<typeof AutoMovieEnvironment.building> =>
+      AutoMovieEnvironment.building({
         levels: [{ id: "ground", rooms: { a: [0, 0, 4, 4], b: [3, 3, 2, 2] } }],
       }),
     /rooms "a" and "b" have overlapping interiors/,

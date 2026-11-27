@@ -8,7 +8,7 @@ import { rotationVectorJacobian } from "../math/internal/rotationVectorJacobian"
 import { MotionTrajectoryInterval } from "./MotionTrajectoryInterval";
 import type { MotionTrajectoryRead } from "./MotionTrajectoryRead";
 import { MotionTrajectoryRotation } from "./MotionTrajectoryRotation";
-import { samplePoseVelocity } from "./samplePoseVelocity";
+import { AutoMovieEngineMotionSampling } from "./AutoMovieEngineMotionSampling";
 
 /**
  * Numeric quaternion projections shared by full and orientation-only reads.
@@ -33,7 +33,7 @@ export namespace MotionTrajectoryQuaternion {
       const u: number = (t - times[i]!) / span;
       if (u >= 1) return qs[i + 1]!;
       if (interval === undefined || interval.index !== i) {
-        const vector: IAutoMovieVector3 = samplePoseVelocity.rotationVector(
+        const vector: IAutoMovieVector3 = AutoMovieEngineMotionSampling.samplePoseVelocityRotationVector(
           Quaternion.multiply(Quaternion.inverse(qs[i]!), qs[i + 1]!),
         );
         const slope: IAutoMovieVector3 | null = rotationVectorJacobian.inverse(

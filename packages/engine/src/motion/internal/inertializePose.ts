@@ -12,7 +12,7 @@ import type {
 import { poseJointCodec } from "../../kinematics/poseJointCodec";
 import { Quaternion } from "../../math/Quaternion";
 import { inertializeOffset } from "./inertializeOffset";
-import { samplePoseVelocity } from "../samplePoseVelocity";
+import { samplePoseVelocity as samplePoseVelocityImplementation } from "./samplePoseVelocity";
 
 /** World/rotation-vector components in their existing decay evaluation order. */
 const AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
@@ -131,7 +131,7 @@ export function inertializePose(
     const same: boolean = s[0] === t[0] && s[1] === t[1] && s[2] === t[2];
     const x: IAutoMovieVector3 = same
       ? zero
-      : samplePoseVelocity.rotationVector(
+      : samplePoseVelocityImplementation.rotationVector(
           Quaternion.multiply(
             codec.rotation(bone, s),
             Quaternion.inverse(codec.rotation(bone, t)),
@@ -151,7 +151,7 @@ export function inertializePose(
     source.pose.root?.rotation ?? Quaternion.identity();
   const tr: IAutoMovieQuaternion =
     target.pose.root?.rotation ?? Quaternion.identity();
-  const rotation0: IAutoMovieVector3 = samplePoseVelocity.rotationVector(
+  const rotation0: IAutoMovieVector3 = samplePoseVelocityImplementation.rotationVector(
     Quaternion.multiply(sr, Quaternion.inverse(tr)),
   );
   const spin0: IAutoMovieVector3 = {

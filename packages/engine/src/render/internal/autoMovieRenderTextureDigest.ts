@@ -8,7 +8,7 @@ import type {
   IAutoMovieRenderTextureTarget,
 } from "@automovie/interface";
 
-import { materialTextureSlots } from "../../validation/materialTextureSlots";
+import { materialTextureSlots } from "../../validation/internal/materialTextureSlots";
 import { autoMovieRenderDigest } from "./autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 

@@ -16,8 +16,7 @@ import {
 
 import { formationSlotPosition } from "../../populationRuntime/formation/internal/formationSlotPosition";
 import { placeFormationSlot } from "../../populationRuntime/formation/internal/placeFormationSlot";
-import { sampleFormationMotion } from "../../populationRuntime/formation/sampleFormationMotion";
-import { sampleFormationSlotMotion } from "../../populationRuntime/formation/sampleFormationSlotMotion";
+import { AutoMovieEnginePopulationFormation } from "../../populationRuntime/formation/AutoMovieEnginePopulationFormation";
 import { autoMovieModelColumns } from "./autoMovieModelColumns";
 import { engineDiagnostic } from "./engineDiagnostic";
 
@@ -129,7 +128,7 @@ export function validateAutoMovieFormationOverlap(
       IFormationOverlapPlacement[]
     >();
     for (const unit of units) {
-      const motion: IAutoMovieSampledFormationMotion = sampleFormationMotion(
+      const motion: IAutoMovieSampledFormationMotion = AutoMovieEnginePopulationFormation.sampleFormationMotion(
         cues,
         unit.formation.id,
         time,
@@ -149,7 +148,7 @@ export function validateAutoMovieFormationOverlap(
           anchor: unit.formation.anchor,
           baseFacingDeg: unit.formation.facingDeg,
           unit: motion,
-          member: sampleFormationSlotMotion(
+          member: AutoMovieEnginePopulationFormation.sampleFormationSlotMotion(
             slotCues,
             unit.formation.id,
             member.slot,

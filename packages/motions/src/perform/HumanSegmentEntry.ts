@@ -1,4 +1,4 @@
-import { Quaternion, samplePoseVelocity } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -153,7 +153,7 @@ export namespace HumanSegmentEntry {
       const turn: (bone: IAutoMovieResolvedBone) => IAutoMovieVector3 = (
         bone: IAutoMovieResolvedBone,
       ): IAutoMovieVector3 =>
-        samplePoseVelocity.rotationVector(
+        AutoMovieEngineMotionSampling.samplePoseVelocityRotationVector(
           Quaternion.multiply(bone.worldRotation, inverse),
         );
       const ar: IAutoMovieVector3 = turn(a);
@@ -363,7 +363,7 @@ export namespace HumanSegmentEntry {
         prepared,
       );
       return {
-        state: samplePoseVelocity(
+        state: AutoMovieEngineMotionSampling.samplePoseVelocity(
           (): IAutoMoviePose => pose,
           seconds,
           step,
@@ -382,7 +382,7 @@ export namespace HumanSegmentEntry {
       }
       return pose;
     };
-    const state: IAutoMoviePoseState = samplePoseVelocity(
+    const state: IAutoMoviePoseState = AutoMovieEngineMotionSampling.samplePoseVelocity(
       read,
       seconds,
       step,

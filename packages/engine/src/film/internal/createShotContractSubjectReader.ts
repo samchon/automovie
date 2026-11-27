@@ -1,3 +1,4 @@
+import { AutoMovieEnginePopulationFormation } from "../../populationRuntime/formation/AutoMovieEnginePopulationFormation";
 import {
   IAutoMovieCompiledFormation,
   IAutoMovieModel,
@@ -15,9 +16,7 @@ import {
   IAutoMovieVector3,
   IAutoMovieWorldLandmark,
 } from "@automovie/interface";
-
 import { sampleMotion } from "../../motion/sampleMotion";
-import { sampleFormationMotion } from "../../populationRuntime/formation/sampleFormationMotion";
 import { transformFormationPoint } from "../../populationRuntime/formation/internal/transformFormationPoint";
 import { channelKey } from "../../resolve/internal/channelKey";
 import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
@@ -198,7 +197,7 @@ export function createShotContractSubjectReader(
     return transformFormationPoint(
       formation.centroid,
       formation.anchor,
-      sampleFormationMotion(
+      AutoMovieEnginePopulationFormation.sampleFormationMotion(
         compiled.formationMotions ?? [],
         formation.id,
         time,

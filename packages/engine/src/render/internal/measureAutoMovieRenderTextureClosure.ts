@@ -6,13 +6,13 @@ import type {
   IAutoMovieRenderTextureSource,
 } from "@automovie/interface";
 
-import { materialTextureSlots } from "../../validation/materialTextureSlots";
+import { materialTextureSlots } from "../../validation/internal/materialTextureSlots";
 import { autoMovieTextureBindingStateKey } from "./autoMovieTextureBindingStateKey";
 import { autoMovieTextureFormatBytes } from "./autoMovieTextureFormatBytes";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { measureAutoMovieRenderTextureTarget } from "./measureAutoMovieRenderTextureTarget";
 import { measureAutoMovieTextureStorage } from "./measureAutoMovieTextureStorage";
-import { requiredAutoMovieMaterialTexturePurposes } from "../requiredAutoMovieMaterialTexturePurposes";
+import { AutoMovieEngineRenderMaterial } from "../AutoMovieEngineRenderMaterial";
 
 /**
  * Close current and retained consumers over one renderer's texture allocations.
@@ -515,7 +515,7 @@ export function measureAutoMovieRenderTextureClosure(
         bytes: null,
         allocations: null,
       });
-    for (const purpose of requiredAutoMovieMaterialTexturePurposes({
+    for (const purpose of AutoMovieEngineRenderMaterial.requiredTexturePurposes({
       materials: scope.materials,
       defaultPbr: scope.defaultPbr === true,
       areaLights: scope.areaLights ?? false,

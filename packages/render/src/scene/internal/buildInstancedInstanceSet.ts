@@ -1,4 +1,4 @@
-import { selectFormationLod, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEnginePopulationFormation, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieColor,
   IAutoMovieCompiledFormationLod,
@@ -494,7 +494,7 @@ export const buildInstancedInstanceSet: (
                 (prototype.projectionRadius * maximumScale * viewportHeight) /
                 (effectiveHalfY * cameraDepth);
               const selected: IAutoMovieCompiledFormationLod =
-                selectFormationLod({
+                AutoMovieEnginePopulationFormation.selectFormationLod({
                   lod: prototype.lod,
                   distance,
                   projectedPixels,

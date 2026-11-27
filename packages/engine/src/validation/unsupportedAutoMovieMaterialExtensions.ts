@@ -1,6 +1,6 @@
 import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS } from "./constants/AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS";
-import { isAutoMovieMaterialExtension } from "./isAutoMovieMaterialExtension";
+import { isAutoMovieMaterialExtension } from "./internal/isAutoMovieMaterialExtension";
 
 /**
  * Select material/texture-category names absent from

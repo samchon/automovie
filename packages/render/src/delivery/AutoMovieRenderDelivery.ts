@@ -1,12 +1,6 @@
-import type {
-  IAutoMovieProductionAudioProbe,
-  IAutoMovieAssertProductionPngPictureProps,
-  IAutoMovieProductionPngProfile,
-  IAutoMovieResolveProductionPngProfileProps,
-  IAutoMovieAssertProductionVideoProfileProps,
-  IAutoMovieProductionVideoProfile,
-  IAutoMovieResolveProductionVideoProfileProps,
-} from "@automovie/interface";
+import { auditAutoMovieDecodedFrames as auditAutoMovieDecodedFramesImplementation } from "./internal/auditAutoMovieDecodedFrames.js";
+
+import { type IAutoMovieProductionAudioProbe, type IAutoMovieAssertProductionPngPictureProps, type IAutoMovieProductionPngProfile, type IAutoMovieResolveProductionPngProfileProps, type IAutoMovieAssertProductionVideoProfileProps, type IAutoMovieProductionVideoProfile, type IAutoMovieResolveProductionVideoProfileProps, type IAutoMovieDecodedFrameAudit } from "@automovie/interface";
 
 import { assertProductionAacProfile } from "./internal/assertProductionAacProfile.js";
 import { assertProductionVideoProfile } from "./internal/assertProductionVideoProfile.js";
@@ -16,6 +10,24 @@ import { resolveProductionPngProfile } from "./internal/resolveProductionPngProf
 
 /** Render-owned delivery profile operations. */
 export class AutoMovieRenderDelivery {
+  /**
+   * Admit a decoder's framemd5 listing against a commissioned half-open frame
+   * clock: exactly one stream-zero time base, exactly `expectedFrames` video
+   * rows, and frame `i` presenting precisely `[i / fps, (i + 1) / fps)` in that
+   * time base, checked on the exact native tick grid. Adjacent identical images
+   * are reported as holds, never rejected. Malformed rows, gaps, overlaps,
+   * reordering, excess frames and a nonzero start are refused. This proves
+   * presentation continuity of decoded bytes, not motion or quality.
+   *
+   * @param text Complete FFmpeg framemd5 output.
+   * @param expectedFrames Commissioned frame count, a positive safe integer.
+   * @param fps Commissioned frames per second, a positive safe integer.
+   * @returns The admitted frames and holds.
+   */
+  public static auditDecodedFrames(text: string, expectedFrames: number, fps: number): IAutoMovieDecodedFrameAudit {
+    return auditAutoMovieDecodedFramesImplementation(text, expectedFrames, fps);
+  }
+
   private constructor() {}
 
   /** Refuse a probed audio track that differs from the production AAC profile. */

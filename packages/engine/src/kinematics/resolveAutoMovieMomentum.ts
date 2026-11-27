@@ -11,7 +11,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { samplePoseVelocity } from "../motion/samplePoseVelocity";
+import { AutoMovieEngineMotionSampling } from "../motion/AutoMovieEngineMotionSampling";
 import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
 import { physicalPrincipalAxes } from "../physics/internal/physicalPrincipalAxes";
 import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
@@ -30,7 +30,7 @@ import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
  *
  * Each segment's velocity is the chord of its centre over the interval and its
  * angular velocity the rotation vector of its relative turn `Q1 Q0⁻¹`, taken on
- * the shorter arc (`samplePoseVelocity.rotationVector`), over the interval:
+ * the shorter arc (`AutoMovieEngineMotionSampling.samplePoseVelocityRotationVector`), over the interval:
  * both are central differences about the middle, with second-order error in
  * `seconds` for sufficiently smooth segment trajectories. Each segment's
  * position and principal frame are read at the middle (the mean of its centres
@@ -278,7 +278,7 @@ export namespace resolveAutoMovieMomentum {
       after.y = ty;
       after.z = tz;
       after.w = tw;
-      const turn: IAutoMovieVector3 = samplePoseVelocity.rotationVector(
+      const turn: IAutoMovieVector3 = AutoMovieEngineMotionSampling.samplePoseVelocityRotationVector(
         Quaternion.multiply(after, Quaternion.inverse(before)),
       );
       const middle: IAutoMovieQuaternion = Quaternion.slerp(before, after, 0.5);
@@ -464,7 +464,7 @@ function reduceBetween(
     );
     const w: IAutoMovieVector3 =
       rotation === undefined
-        ? samplePoseVelocity.rotationVector(
+        ? AutoMovieEngineMotionSampling.samplePoseVelocityRotationVector(
             Quaternion.multiply(
               p1.inertiaRotation,
               Quaternion.inverse(p0.inertiaRotation),

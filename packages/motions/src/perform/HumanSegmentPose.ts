@@ -1,4 +1,4 @@
-import { hingedArmSwivel, poseJointCodec, samplePoseVelocity, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { hingedArmSwivel, poseJointCodec, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
@@ -399,7 +399,7 @@ export namespace HumanSegmentPose {
   /**
    * A one-sided shown-pose state: the instant is cold; its rate samples
    * continue that instant's fits to the tolerance an inertialization of
-   * `duration` asks (`samplePoseVelocity.tolerance`).
+   * `duration` asks (`AutoMovieEngineMotionSampling.samplePoseVelocityTolerance`).
    *
    * @param read The shown pose at a second with its fits' seeds, continued from
    *   `near` where given.
@@ -417,12 +417,12 @@ export namespace HumanSegmentPose {
     side: ContinuedSide,
     rig: IAutoMoviePoseRig,
     duration: number,
-    prepared?: Parameters<typeof samplePoseVelocity>[6],
+    prepared?: Parameters<typeof AutoMovieEngineMotionSampling.samplePoseVelocity>[6],
   ): IContinued {
-    const tolerance: number = samplePoseVelocity.tolerance(STEP, duration);
+    const tolerance: number = AutoMovieEngineMotionSampling.samplePoseVelocityTolerance(STEP, duration);
     let fits: IFits;
     const samples: IAutoMoviePose[] = [];
-    const state: IAutoMoviePoseState = samplePoseVelocity(
+    const state: IAutoMoviePoseState = AutoMovieEngineMotionSampling.samplePoseVelocity(
       (t: number): IAutoMoviePose => {
         const instant: ISeeded = read(t);
         fits = instant.seeds;

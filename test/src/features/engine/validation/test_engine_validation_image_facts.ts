@@ -1,4 +1,4 @@
-import { readAutoMovieImageFacts } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../../internal/predicates";
@@ -172,13 +172,13 @@ export function test_engine_validation_image_facts(): void {
   TestValidator.equals(
     "every accepted container reports its own media type and size",
     [
-      readAutoMovieImageFacts(png(1024, 512)),
-      readAutoMovieImageFacts(jpeg({ width: 640, height: 480 })),
-      readAutoMovieImageFacts(webpLossy(300, 200)),
-      readAutoMovieImageFacts(webpLossless(300, 200)),
-      readAutoMovieImageFacts(webpExtended(4000, 3000)),
-      readAutoMovieImageFacts(hdr({})),
-      readAutoMovieImageFacts(
+      AutoMovieEngineValidation.readAutoMovieImageFacts(png(1024, 512)),
+      AutoMovieEngineValidation.readAutoMovieImageFacts(jpeg({ width: 640, height: 480 })),
+      AutoMovieEngineValidation.readAutoMovieImageFacts(webpLossy(300, 200)),
+      AutoMovieEngineValidation.readAutoMovieImageFacts(webpLossless(300, 200)),
+      AutoMovieEngineValidation.readAutoMovieImageFacts(webpExtended(4000, 3000)),
+      AutoMovieEngineValidation.readAutoMovieImageFacts(hdr({})),
+      AutoMovieEngineValidation.readAutoMovieImageFacts(
         hdr({ signature: "#?RGBE", resolution: "-Y 16 +X 32" }),
       ),
     ],
@@ -196,21 +196,21 @@ export function test_engine_validation_image_facts(): void {
   TestValidator.equals(
     "a JPEG frame header is found through fill bytes and declared standalone markers",
     [
-      readAutoMovieImageFacts(
+      AutoMovieEngineValidation.readAutoMovieImageFacts(
         jpeg({ width: 8, height: 4, lead: [0xff, 0xff, 0x01] }),
       ),
-      readAutoMovieImageFacts(
+      AutoMovieEngineValidation.readAutoMovieImageFacts(
         jpeg({
           width: 8,
           height: 4,
           lead: [0xff, 0xdd, 0x00, 0x04, 0x00, 0x01, 0xff, 0xd0],
         }),
       ),
-      readAutoMovieImageFacts(
+      AutoMovieEngineValidation.readAutoMovieImageFacts(
         jpeg({ width: 8, height: 4, lead: [0xff, 0xd8] }),
       ),
-      readAutoMovieImageFacts(jpeg({ width: 8, height: 4, marker: 0xc2 })),
-      readAutoMovieImageFacts(jpeg({ width: 8, height: 4, marker: 0xcf })),
+      AutoMovieEngineValidation.readAutoMovieImageFacts(jpeg({ width: 8, height: 4, marker: 0xc2 })),
+      AutoMovieEngineValidation.readAutoMovieImageFacts(jpeg({ width: 8, height: 4, marker: 0xcf })),
     ],
     new Array(5).fill({ mediaType: "image/jpeg", width: 8, height: 4 }),
   );
@@ -218,23 +218,23 @@ export function test_engine_validation_image_facts(): void {
   TestValidator.equals(
     "malformed and non-image bytes are reported rather than guessed",
     namedFacts([
-      ["nullBytes", (): boolean => readAutoMovieImageFacts(null) === null],
+      ["nullBytes", (): boolean => AutoMovieEngineValidation.readAutoMovieImageFacts(null) === null],
       [
         "undefinedBytes",
-        (): boolean => readAutoMovieImageFacts(undefined) === null,
+        (): boolean => AutoMovieEngineValidation.readAutoMovieImageFacts(undefined) === null,
       ],
-      ["empty", (): boolean => readAutoMovieImageFacts(bytes()) === null],
+      ["empty", (): boolean => AutoMovieEngineValidation.readAutoMovieImageFacts(bytes()) === null],
       [
         "pngShort",
         (): boolean =>
-          readAutoMovieImageFacts(png(4, 4).subarray(0, 23)) === null,
+          AutoMovieEngineValidation.readAutoMovieImageFacts(png(4, 4).subarray(0, 23)) === null,
       ],
       [
         "pngSignature",
         (): boolean => {
           const broken: Uint8Array = png(4, 4);
           broken[1] = 0x00;
-          return readAutoMovieImageFacts(broken) === null;
+          return AutoMovieEngineValidation.readAutoMovieImageFacts(broken) === null;
         },
       ],
       [
@@ -242,55 +242,55 @@ export function test_engine_validation_image_facts(): void {
         (): boolean => {
           const broken: Uint8Array = png(4, 4);
           broken[12] = 0x49 + 1;
-          return readAutoMovieImageFacts(broken) === null;
+          return AutoMovieEngineValidation.readAutoMovieImageFacts(broken) === null;
         },
       ],
       [
         "jpegSoiOnly",
         (): boolean =>
-          readAutoMovieImageFacts(bytes(0xff, 0xd8, 0x00, 0x00)) === null,
+          AutoMovieEngineValidation.readAutoMovieImageFacts(bytes(0xff, 0xd8, 0x00, 0x00)) === null,
       ],
       [
         "jpegUnterminatedFill",
         (): boolean =>
-          readAutoMovieImageFacts(bytes(0xff, 0xd8, 0xff, 0xff)) === null,
+          AutoMovieEngineValidation.readAutoMovieImageFacts(bytes(0xff, 0xd8, 0xff, 0xff)) === null,
       ],
       [
         "jpegNoLengthWord",
         (): boolean =>
-          readAutoMovieImageFacts(bytes(0xff, 0xd8, 0xff, 0xe0)) === null,
+          AutoMovieEngineValidation.readAutoMovieImageFacts(bytes(0xff, 0xd8, 0xff, 0xe0)) === null,
       ],
       [
         "jpegShortLength",
         (): boolean =>
-          readAutoMovieImageFacts(bytes(0xff, 0xd8, 0xff, 0xe0, 0x00, 0x01)) ===
+          AutoMovieEngineValidation.readAutoMovieImageFacts(bytes(0xff, 0xd8, 0xff, 0xe0, 0x00, 0x01)) ===
           null,
       ],
       [
         "jpegTruncatedFrame",
         (): boolean =>
-          readAutoMovieImageFacts(
+          AutoMovieEngineValidation.readAutoMovieImageFacts(
             bytes(0xff, 0xd8, 0xff, 0xc0, 0x00, 0x0b, 0x08, 0x00),
           ) === null,
       ],
       [
         "jpegHuffmanIsNotAFrame",
         (): boolean =>
-          readAutoMovieImageFacts(
+          AutoMovieEngineValidation.readAutoMovieImageFacts(
             bytes(0xff, 0xd8, 0xff, 0xc4, 0x00, 0x04, 0x00, 0x00),
           ) === null,
       ],
       [
         "jpegRestartWithoutDri",
         (): boolean =>
-          readAutoMovieImageFacts(
+          AutoMovieEngineValidation.readAutoMovieImageFacts(
             jpeg({ width: 8, height: 4, lead: [0xff, 0xd0] }),
           ) === null,
       ],
       [
         "jpegRestartWithZeroDri",
         (): boolean =>
-          readAutoMovieImageFacts(
+          AutoMovieEngineValidation.readAutoMovieImageFacts(
             jpeg({
               width: 8,
               height: 4,
@@ -301,7 +301,7 @@ export function test_engine_validation_image_facts(): void {
       [
         "jpegMalformedDri",
         (): boolean =>
-          readAutoMovieImageFacts(
+          AutoMovieEngineValidation.readAutoMovieImageFacts(
             jpeg({
               width: 8,
               height: 4,
@@ -312,19 +312,19 @@ export function test_engine_validation_image_facts(): void {
       [
         "jpegEndOfImage",
         (): boolean =>
-          readAutoMovieImageFacts(bytes(0xff, 0xd8, 0xff, 0xd9)) === null,
+          AutoMovieEngineValidation.readAutoMovieImageFacts(bytes(0xff, 0xd8, 0xff, 0xd9)) === null,
       ],
       [
         "webpShort",
         (): boolean =>
-          readAutoMovieImageFacts(webpLossy(4, 4).subarray(0, 29)) === null,
+          AutoMovieEngineValidation.readAutoMovieImageFacts(webpLossy(4, 4).subarray(0, 29)) === null,
       ],
       [
         "webpRiff",
         (): boolean => {
           const broken: Uint8Array = webpLossy(4, 4);
           broken[0] = 0x00;
-          return readAutoMovieImageFacts(broken) === null;
+          return AutoMovieEngineValidation.readAutoMovieImageFacts(broken) === null;
         },
       ],
       [
@@ -332,7 +332,7 @@ export function test_engine_validation_image_facts(): void {
         (): boolean => {
           const broken: Uint8Array = webpLossy(4, 4);
           broken[8] = 0x00;
-          return readAutoMovieImageFacts(broken) === null;
+          return AutoMovieEngineValidation.readAutoMovieImageFacts(broken) === null;
         },
       ],
       [
@@ -340,7 +340,7 @@ export function test_engine_validation_image_facts(): void {
         (): boolean => {
           const broken: Uint8Array = webpLossy(4, 4);
           broken[12] = chars("X")[0]!;
-          return readAutoMovieImageFacts(broken) === null;
+          return AutoMovieEngineValidation.readAutoMovieImageFacts(broken) === null;
         },
       ],
       [
@@ -348,7 +348,7 @@ export function test_engine_validation_image_facts(): void {
         (): boolean => {
           const broken: Uint8Array = webpLossy(4, 4);
           broken[23] = 0x00;
-          return readAutoMovieImageFacts(broken) === null;
+          return AutoMovieEngineValidation.readAutoMovieImageFacts(broken) === null;
         },
       ],
       [
@@ -356,39 +356,39 @@ export function test_engine_validation_image_facts(): void {
         (): boolean => {
           const broken: Uint8Array = webpLossless(4, 4);
           broken[20] = 0x00;
-          return readAutoMovieImageFacts(broken) === null;
+          return AutoMovieEngineValidation.readAutoMovieImageFacts(broken) === null;
         },
       ],
       [
         "hdrSignature",
         (): boolean =>
-          readAutoMovieImageFacts(hdr({ signature: "#?HDR" })) === null,
+          AutoMovieEngineValidation.readAutoMovieImageFacts(hdr({ signature: "#?HDR" })) === null,
       ],
       [
         "hdrNoBlankLine",
         (): boolean =>
-          readAutoMovieImageFacts(
+          AutoMovieEngineValidation.readAutoMovieImageFacts(
             bytes(...chars("#?RADIANCE\nFORMAT=32-bit_rle_rgbe")),
           ) === null,
       ],
       [
         "hdrTruncatedAtBlankLine",
         (): boolean =>
-          readAutoMovieImageFacts(
+          AutoMovieEngineValidation.readAutoMovieImageFacts(
             bytes(...chars("#?RADIANCE\nFORMAT=32-bit_rle_rgbe\n")),
           ) === null,
       ],
       [
         "hdrEmptyResolutionLine",
         (): boolean =>
-          readAutoMovieImageFacts(
+          AutoMovieEngineValidation.readAutoMovieImageFacts(
             bytes(...chars("#?RADIANCE\nFORMAT=32-bit_rle_rgbe\n\n")),
           ) === null,
       ],
       [
         "hdrFlippedScanlines",
         (): boolean =>
-          readAutoMovieImageFacts(hdr({ resolution: "+Y 512 +X 1024" })) ===
+          AutoMovieEngineValidation.readAutoMovieImageFacts(hdr({ resolution: "+Y 512 +X 1024" })) ===
           null,
       ],
     ]),

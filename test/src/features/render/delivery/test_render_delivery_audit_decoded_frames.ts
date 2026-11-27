@@ -1,5 +1,5 @@
 import type { IAutoMovieDecodedFrameAudit } from "@automovie/interface";
-import { auditAutoMovieDecodedFrames } from "@automovie/render";
+import { AutoMovieRenderDelivery } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -24,7 +24,7 @@ export function test_render_delivery_audit_decoded_frames(): void {
   const report: string = ["#tb 0: 1/24", row(0, a), row(1, a), row(2, b)].join(
     "\n",
   );
-  const audit = auditAutoMovieDecodedFrames(report, 3, 24);
+  const audit = AutoMovieRenderDelivery.auditDecodedFrames(report, 3, 24);
   TestValidator.equals(
     "audit",
     [
@@ -35,7 +35,7 @@ export function test_render_delivery_audit_decoded_frames(): void {
     ],
     [3, 0.125, [1, 24], [1]],
   );
-  const oneFrame: IAutoMovieDecodedFrameAudit = auditAutoMovieDecodedFrames(
+  const oneFrame: IAutoMovieDecodedFrameAudit = AutoMovieRenderDelivery.auditDecodedFrames(
     ["#tb 0: 1/1", row(0, a)].join("\n"),
     1,
     1,
@@ -60,6 +60,6 @@ export function test_render_delivery_audit_decoded_frames(): void {
     ],
   ] as const)
     TestValidator.error(title, (): void => {
-      auditAutoMovieDecodedFrames(text, frames, fps);
+      AutoMovieRenderDelivery.auditDecodedFrames(text, frames, fps);
     });
 }

@@ -1,4 +1,4 @@
-import { createBuilding, createCafeKit, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
+import { createCafeKit, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
 import { AutoMovieArchetypeDrinkware } from "@automovie/archetypes/props";
 import { Quaternion, Vector3, AutoMovieEngineSequence } from "@automovie/engine";
 import type {
@@ -30,7 +30,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
   const seconds: number = 12;
   const enterAt: number = 7.5;
   const swing: NonNullable<
-    Extract<createBuilding.Opening, { kind: "door" }>["swing"]
+    Extract<AutoMovieEnvironment.Building.Opening, { kind: "door" }>["swing"]
   > = {
     from: 0.65,
     to: 6.65,
@@ -78,7 +78,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
       },
       station: {
         at: { x: 0, y: grade, z: 0 },
-        use: createBuilding({
+        use: AutoMovieEnvironment.building({
           wallThickness,
           levels: [
             {

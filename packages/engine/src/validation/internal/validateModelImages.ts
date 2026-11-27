@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { AUTO_MOVIE_MAX_TEXTURE_EDGE } from "../constants/AUTO_MOVIE_MAX_TEXTURE_EDGE";
-import { readAutoMovieImageFacts } from "../readAutoMovieImageFacts";
+import { readAutoMovieImageFacts } from "./readAutoMovieImageFacts";
 import { validateUniqueValues } from "./validateUniqueValues";
 
 /**

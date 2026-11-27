@@ -1,5 +1,5 @@
 import type { AutoMovieRenderInspectionCamera } from "../AutoMovieRenderInspectionCamera.js";
-import { classifyAutoMovieCameraInspection } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieCameraInspection,
   IAutoMovieSubjectBox,
@@ -17,7 +17,7 @@ export function observeAutoMovieCameraInspection(
 ): IAutoMovieCameraInspection.IResult {
   const { camera, scene, target, maxOcclusionRatio, pixels } = props;
   if (target === undefined || !isDisplayed(scene, target))
-    return classifyAutoMovieCameraInspection({
+    return AutoMovieEngineValidation.classifyAutoMovieCameraInspection({
       framing: "unavailable",
       maxOcclusionRatio,
       pixels,
@@ -40,7 +40,7 @@ export function observeAutoMovieCameraInspection(
     camera.matrixWorldInverse,
   );
   if (bounds === undefined)
-    return classifyAutoMovieCameraInspection({
+    return AutoMovieEngineValidation.classifyAutoMovieCameraInspection({
       framing: "unavailable",
       maxOcclusionRatio,
       pixels,
@@ -83,7 +83,7 @@ export function observeAutoMovieCameraInspection(
           triangleBudget,
         })
       : undefined;
-  return classifyAutoMovieCameraInspection({
+  return AutoMovieEngineValidation.classifyAutoMovieCameraInspection({
     framing,
     maxOcclusionRatio,
     pixels,

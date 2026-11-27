@@ -1,5 +1,6 @@
+import { samplePoseVelocity as samplePoseVelocityImplementation } from "./internal/samplePoseVelocity";
 import { cubicBezierEasing as cubicBezierEasingImplementation } from "./internal/cubicBezierEasing";
-import { type IAutoMovieSpringStep, type IAutoMovieSpringParams, type AutoMovieEasing, type IAutoMovieInertializeOffset, type IAutoMoviePose, type IAutoMoviePoseState, type IAutoMoviePoseRig, type IAutoMoviePoseJointCodec } from "@automovie/interface";
+import { type IAutoMovieSpringStep, type IAutoMovieSpringParams, type AutoMovieEasing, type IAutoMovieInertializeOffset, type AutoMovieMotionSampleSide, type IAutoMoviePose, type IAutoMoviePoseState, type IAutoMoviePoseRig, type IAutoMoviePoseJointCodec, type IAutoMoviePoseLayer, type IAutoMovieQuaternion, type IAutoMovieVector3 } from "@automovie/interface";
 import { dampedSpring as dampedSpringImplementation } from "./internal/dampedSpring";
 import { ease as easeImplementation } from "./internal/ease";
 import { inertializeOffset as inertializeOffsetImplementation } from "./internal/inertializeOffset";
@@ -7,9 +8,57 @@ import { inertializePose as inertializePoseImplementation } from "./internal/ine
 import { sampleTimes as sampleTimesImplementation } from "./internal/sampleTimes";
 import { smoothMinimum as smoothMinimumImplementation } from "./internal/smoothMinimum";
 import { windowSampleTimes as windowSampleTimesImplementation } from "./internal/windowSampleTimes";
+import { blendPoses as blendPosesImplementation } from "../perform/internal/blendPoses";
+import { mergePoses as mergePosesImplementation } from "../perform/internal/mergePoses";
 
 /** Public operations for Auto Movie Engine Motion Sampling. */
 export namespace AutoMovieEngineMotionSampling {
+  /**
+   * Read the pose and its rates from a pure seconds-to-pose function, using a
+   * symmetric or one-sided second-order difference. The caller owns the input
+   * function, rig and optional same-rig codec.
+   *
+   * @param sample The pose as a pure function of seconds.
+   * @param seconds The instant.
+   * @param step The difference interval, seconds; 1 ms by default.
+   * @param side Which side to read; both by default.
+   * @param rig The rig used for joint angular rates.
+   * @param continued Optional function that continues the instant's fitted pose.
+   * @param prepared Optional same-rig codec or lazy getter.
+   * @returns The pose at the instant and its velocity.
+   */
+  export function samplePoseVelocity(
+    sample: (seconds: number) => IAutoMoviePose,
+    seconds: number,
+    step: number = 1e-3,
+    side: AutoMovieMotionSampleSide = "both",
+    rig?: IAutoMoviePoseRig,
+    continued?: (seconds: number) => IAutoMoviePose,
+    prepared?:
+      | IAutoMoviePoseJointCodec.ICodec
+      | (() => IAutoMoviePoseJointCodec.ICodec),
+  ): IAutoMoviePoseState {
+    return samplePoseVelocityImplementation.sample(
+      sample,
+      seconds,
+      step,
+      side,
+      rig,
+      continued,
+      prepared,
+    );
+  }
+
+  /** Return the continued-fit tolerance in degrees for a difference step and decay. */
+  export function samplePoseVelocityTolerance(step: number, duration: number): number {
+    return samplePoseVelocityImplementation.tolerance(step, duration);
+  }
+
+  /** Read the shorter-arc rotation vector of a unit quaternion. */
+  export function samplePoseVelocityRotationVector(q: IAutoMovieQuaternion): IAutoMovieVector3 {
+    return samplePoseVelocityImplementation.rotationVector(q);
+  }
+
   /**
    * Evaluate a CSS-style cubic Bézier easing `[x1, y1, x2, y2]` at progress `t`.
    *
@@ -193,5 +242,25 @@ export namespace AutoMovieEngineMotionSampling {
    */
   export function windowSampleTimes(start: number, end: number, sampleRate: number): number[] {
     return windowSampleTimesImplementation(start, end, sampleRate);
+  }
+
+  /**
+   * Blend a nonempty list of admitted same-skeleton clinical poses by positive
+   * finite weights per non-null axis. Bone order follows first appearance; root
+   * is the last owning layer's value, else the last non-null root. The result
+   * does not clamp ROM.
+   */
+  export function blendPoses(layers: IAutoMoviePoseLayer[]): IAutoMoviePose {
+    return blendPosesImplementation(layers);
+  }
+
+  /**
+   * Union a nonempty list of admitted same-skeleton poses by bone with later
+   * joints winning. Bone order follows first appearance, root is the last
+   * non-null value, and the first pose supplies skeleton identity. Returned
+   * joint/root objects are borrowed.
+   */
+  export function mergePoses(poses: IAutoMoviePose[]): IAutoMoviePose {
+    return mergePosesImplementation(poses);
   }
 }

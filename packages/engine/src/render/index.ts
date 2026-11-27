@@ -31,6 +31,7 @@ export * from "./exposure";
 export * from "./filmResponse";
 export * from "./filmShading";
 
+export { AutoMovieEngineRenderMaterial } from "./AutoMovieEngineRenderMaterial";
 
 
 
@@ -41,8 +42,7 @@ export * from "./filmShading";
 
 
 
-export * from "./requiredAutoMovieMaterialTexturePurposes";
-export * from "./resolveAutoMovieMaterial";
+
 
 
 

@@ -81,7 +81,7 @@ export { AutoMovieArchetypeLadle } from "./AutoMovieArchetypeLadle";
 export { AutoMovieArchetypeLighter } from "./AutoMovieArchetypeLighter";
 export { AutoMovieArchetypeLipstick } from "./AutoMovieArchetypeLipstick";
 export { AutoMovieArchetypeMop } from "./AutoMovieArchetypeMop";
-export * from "./createPaper";
+export { AutoMovieArchetypePaper } from "./AutoMovieArchetypePaper";
 export { AutoMovieArchetypePen } from "./AutoMovieArchetypePen";
 export { AutoMovieArchetypeScrewdriver } from "./AutoMovieArchetypeScrewdriver";
 export { AutoMovieArchetypeShavingRazor } from "./AutoMovieArchetypeShavingRazor";

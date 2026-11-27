@@ -1,4 +1,4 @@
-import { clipTrackShapeFaults } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieClipShapeFault,
   IAutoMovieClipTrackShapeFaults,
@@ -30,7 +30,7 @@ export function test_engine_validation_clip_track_clock(): void {
   };
   TestValidator.equals(
     "both clock boundaries are accepted",
-    clipTrackShapeFaults(track, 2),
+    AutoMovieEngineValidation.clipTrackShapeFaults(track, 2),
     [],
   );
 
@@ -39,7 +39,7 @@ export function test_engine_validation_clip_track_clock(): void {
   TestValidator.equals(
     "clock bounds precede ordering and value-width faults",
     locations(
-      clipTrackShapeFaults(
+      AutoMovieEngineValidation.clipTrackShapeFaults(
         {
           ...track,
           times: [-1, 3, 2, 2],
@@ -58,7 +58,7 @@ export function test_engine_validation_clip_track_clock(): void {
   );
   TestValidator.equals(
     "each empty input is reported without trying to divide by it",
-    locations(clipTrackShapeFaults({ ...track, times: [], values: [] }, 2)),
+    locations(AutoMovieEngineValidation.clipTrackShapeFaults({ ...track, times: [], values: [] }, 2)),
     [
       ["type", "times", []],
       ["type", "values", []],
@@ -66,7 +66,7 @@ export function test_engine_validation_clip_track_clock(): void {
   );
   TestValidator.equals(
     "a nonpositive clip duration applies no upper bound to the track",
-    locations(clipTrackShapeFaults({ ...track, times: [-1, 2] }, 0)),
+    locations(AutoMovieEngineValidation.clipTrackShapeFaults({ ...track, times: [-1, 2] }, 0)),
     [["temporal", "times[0]", -1]],
   );
 }

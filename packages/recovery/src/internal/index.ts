@@ -103,7 +103,6 @@ export * from "./RecoverySlabGraph";
 
 export * from "./mesh-observations";
 
-export * from "./normalizeRecoveryCourse";
 
 
 
@@ -120,7 +119,8 @@ export * from "./normalizeRecoveryCourse";
 
 
 
-export * from "./prepareRecoveryOpenSlabGraph";
+
+
 
 
 

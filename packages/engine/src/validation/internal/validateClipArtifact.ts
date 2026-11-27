@@ -5,7 +5,7 @@ import type {
   IAutoMovieTrack,
 } from "@automovie/interface";
 
-import { clipTrackShapeFaults } from "../clipTrackShapeFaults";
+import { clipTrackShapeFaults } from "./clipTrackShapeFaults";
 import { pushViolation } from "./pushViolation";
 import { validateHonorableChannel } from "./validateHonorableChannel";
 import { validateRange } from "./validateRange";

@@ -49,7 +49,6 @@ export * from "./resolveBoneMap";
 export * from "./resolvePreparedChainEffector";
 
 export * from "./sampleMotion";
-export * from "./samplePoseVelocity";
 
 export * from "./seededSmoothNoise";
 

@@ -34,7 +34,7 @@ export * from "./guidePasses.js";
 
 
 export * from "./film/productionVisualDeliveryOccurrence.js";
-export * from "./delivery/auditAutoMovieDecodedFrames.js";
+export * from "./delivery/internal/auditAutoMovieDecodedFrames.js";
 export * from "./delivery/auditAutoMovieEncodedPresentation.js";
 
 export * from "./delivery/AUTOMOVIE_PRODUCTION_AAC_PROFILE.js";

@@ -1,4 +1,4 @@
-import { type AutoMovieArchetype, AutoMovieArchetypeBoard, AutoMovieArchetypeCamera, AutoMovieArchetypeClipboard, AutoMovieArchetypeLaptop, createPaper, AutoMovieArchetypePhone, AutoMovieArchetypeTablet, AutoMovieArchetypeAtm, AutoMovieArchetypeSignPost, AutoMovieArchetypeWatch, AutoMovieArchetypeScenicParadeBanner, AutoMovieArchetypeScenicStandard, AutoMovieArchetypeMachine } from "@automovie/archetypes";
+import { type AutoMovieArchetype, AutoMovieArchetypeBoard, AutoMovieArchetypeCamera, AutoMovieArchetypeClipboard, AutoMovieArchetypeLaptop, AutoMovieArchetypePaper, AutoMovieArchetypePhone, AutoMovieArchetypeTablet, AutoMovieArchetypeAtm, AutoMovieArchetypeSignPost, AutoMovieArchetypeWatch, AutoMovieArchetypeScenicParadeBanner, AutoMovieArchetypeScenicStandard, AutoMovieArchetypeMachine } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModel,
@@ -149,7 +149,7 @@ const LISTED: readonly IListed[] = [
     name: "createPaper",
     surface: "face",
     top: BACK,
-    builds: () => seeded((seed) => createPaper({ format: "sheet" }, seed)),
+    builds: () => seeded((seed) => AutoMovieArchetypePaper.create({ format: "sheet" }, seed)),
   },
   {
     name: "createSignPost",

@@ -1,4 +1,6 @@
-import { type IAutoMovieRenderSpec, type IAutoMovieRenderAndSeeResult, type IAutoMovieRenderAndSeeRequest, type IAutoMovieRenderResult, type IAutoMovieRenderAdapters } from "@automovie/interface";
+import { planAutoMovieVideoEncoding as planAutoMovieVideoEncodingImplementation } from "./delivery/internal/planAutoMovieVideoEncoding.js";
+
+import { type IAutoMovieRenderSpec, type IAutoMovieRenderAndSeeResult, type IAutoMovieRenderAndSeeRequest, type IAutoMovieRenderResult, type IAutoMovieRenderAdapters, type IAutoMoviePlanVideoEncodingResult, type IAutoMoviePlanVideoEncodingProps } from "@automovie/interface";
 import { ffmpegArgs as ffmpegArgsImplementation } from "./internal/ffmpegArgs.js";
 import { renderAndSee as renderAndSeeImplementation } from "./internal/renderAndSee.js";
 import { renderVideo as renderVideoImplementation } from "./internal/renderVideo.js";
@@ -57,5 +59,30 @@ export namespace AutoMovieRenderVideo {
    */
   export function render(spec: IAutoMovieRenderSpec, durationSeconds: number, dir: string, outputPath: string, adapters: IAutoMovieRenderAdapters): Promise<IAutoMovieRenderResult> {
     return renderVideoImplementation(spec, durationSeconds, dir, outputPath, adapters);
+  }
+
+  /**
+   * Admit a drawn video's exact clock and raster and plan the one FFmpeg run that
+   * encodes its frames, with an optional soundtrack.
+   *
+   * The frame count is `durationSeconds × fps` and must be a whole number from 1
+   * to a million, so the clock has no partial frame to round. The raster must be
+   * positive and even on both sides, which the `yuv420p` chroma layout needs. The
+   * encoder and following audit share the exact rational rate selected for the
+   * commissioned numeric frame rate. The arguments are `ffmpegArgs` over the
+   * frame pattern in `frameDir` (BT.709 full-range samples tagged as sRGB, no
+   * B-frames), quiet below warnings, with the movie and video track timescales
+   * both set to the exact rate's numerator so a frame lasts its denominator in
+   * ticks and the movie clock never rounds the runtime, four encoder threads and
+   * the `medium` preset, `-frames:v` and `-t` pinned to the clock, and the video
+   * stream mapped explicitly; a soundtrack is the second input, padded with
+   * silence (`apad`) and cut at the clock as 48 kHz stereo AAC at 192 kb/s, and
+   * without one the output has no audio stream.
+   *
+   * It throws naming what is refused: a clock that is not a whole number of
+   * frames in range, an odd or empty raster, and a blank soundtrack path.
+   */
+  export function planVideoEncoding(props: IAutoMoviePlanVideoEncodingProps): IAutoMoviePlanVideoEncodingResult {
+    return planAutoMovieVideoEncodingImplementation(props);
   }
 }

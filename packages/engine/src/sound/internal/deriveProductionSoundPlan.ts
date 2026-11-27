@@ -1,3 +1,4 @@
+import { AutoMovieEnginePopulationFormation } from "../../populationRuntime/formation/AutoMovieEnginePopulationFormation";
 import {
   IAutoMovieAcousticResponseProfile,
   IAutoMovieCamera,
@@ -21,11 +22,9 @@ import {
   IAutoMovieSoundPropagationProfile,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
 import { resolveCameraAt } from "../../film/internal/resolveCameraAt";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { sampleFormationMotion } from "../../populationRuntime/formation/sampleFormationMotion";
 import { transformFormationBounds } from "../../populationRuntime/formation/internal/transformFormationBounds";
 import { transformFormationPoint } from "../../populationRuntime/formation/internal/transformFormationPoint";
 import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
@@ -311,7 +310,7 @@ const resolveSourceMass: (
             candidate.id === subject,
         );
       if (formation !== undefined) {
-        const motion: IAutoMovieSampledFormationMotion = sampleFormationMotion(
+        const motion: IAutoMovieSampledFormationMotion = AutoMovieEnginePopulationFormation.sampleFormationMotion(
           compiled.formationMotions ?? [],
           formation.id,
           time,

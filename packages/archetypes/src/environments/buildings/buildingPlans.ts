@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { buildingWalkable } from "./buildingWalkable";
-import type { createBuilding } from "./createBuilding";
+import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
 
 /**
  * Admit room footprints and storey elevations into a reusable local plan.
@@ -19,7 +19,7 @@ import type { createBuilding } from "./createBuilding";
  * @throws Error naming an invalid level, room or opening.
  */
 export function buildingPlans(
-  props: createBuilding.IProps,
+  props: AutoMovieEnvironment.Building.IProps,
 ): buildingPlans.IPlan {
   const color: string = props.color ?? "#c1b7a5";
   if ("footprint" in props)
@@ -66,7 +66,7 @@ export function buildingPlans(
       rooms.push({ id, region, support: region });
     }
     if (rooms.length === 0) throw new Error(`${path}.rooms is empty`);
-    const openings: createBuilding.Opening[] = structuredClone([
+    const openings: AutoMovieEnvironment.Building.Opening[] = structuredClone([
       ...(level.openings ?? []),
     ]);
     for (const opening of openings) {
@@ -157,7 +157,7 @@ export namespace buildingPlans {
     readonly rooms: readonly IRoom[];
 
     /** Owned copy of the aperture declarations. */
-    readonly openings: readonly createBuilding.Opening[];
+    readonly openings: readonly AutoMovieEnvironment.Building.Opening[];
   }
 
   /** A stair with its resolved endpoints and exact adjoining slab cut. */
@@ -201,7 +201,7 @@ export namespace buildingPlans {
 
 /** Resolve the levels and apply one stair corridor as both required slab holes. */
 function prepareStair(
-  stair: createBuilding.Stair,
+  stair: AutoMovieEnvironment.Building.Stair,
   levels: readonly buildingPlans.ILevel[],
 ): buildingPlans.IStair {
   const path: string = `building.stairs.${stair.id}`;
@@ -234,7 +234,7 @@ function prepareStair(
   // the span's right-handed +Z yaw. Use one corridor for both slab cuts.
   const x: number = ((dz / run) * width) / 2;
   const z: number = ((-dx / run) * width) / 2;
-  const cut: readonly createBuilding.Point[] = [
+  const cut: readonly AutoMovieEnvironment.Building.Point[] = [
     [from[0] - x, from[1] - z],
     [from[0] + x, from[1] + z],
     [to[0] + x, to[1] + z],
@@ -261,14 +261,14 @@ function prepareStair(
  */
 function addCut(
   region: buildingPlans.IRegion,
-  cut: readonly createBuilding.Point[],
+  cut: readonly AutoMovieEnvironment.Building.Point[],
   path: string,
 ): buildingPlans.IRegion {
   /** Convert one stored canonical ring back to the compact plan input. */
   const ring = (
     points: readonly IAutoMovieProfilePoint[],
-  ): createBuilding.Point[] =>
-    points.map(({ x, y }): createBuilding.Point => [x, y]);
+  ): AutoMovieEnvironment.Building.Point[] =>
+    points.map(({ x, y }): AutoMovieEnvironment.Building.Point => [x, y]);
   return draftRegion(
     {
       polygon: ring(region.rings[0]!),
@@ -297,11 +297,11 @@ function admitId(id: string, names: Set<string>, path: string): void {
  * guaranteed interior frame origin.
  */
 function draftRegion(
-  footprint: createBuilding.Footprint,
+  footprint: AutoMovieEnvironment.Building.Footprint,
   path: string,
 ): buildingPlans.IRegion {
-  let outer: readonly createBuilding.Point[];
-  let holes: readonly (readonly createBuilding.Point[])[] = [];
+  let outer: readonly AutoMovieEnvironment.Building.Point[];
+  let holes: readonly (readonly AutoMovieEnvironment.Building.Point[])[] = [];
   let center: IAutoMovieProfilePoint | undefined;
   if ("polygon" in footprint) {
     outer = footprint.polygon;
@@ -354,7 +354,7 @@ function draftRegion(
 }
 
 /** Interpret the second tuple ordinate as planar Y for the XZ analysis. */
-function planPoint([x, y]: createBuilding.Point): IAutoMovieProfilePoint {
+function planPoint([x, y]: AutoMovieEnvironment.Building.Point): IAutoMovieProfilePoint {
   return { x, y };
 }
 

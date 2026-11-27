@@ -2,7 +2,7 @@ import { type AutoMovieArchetype } from "../core/index";
 import { createStationery as createStationeryImplementation } from "./internal/createStationery";
 import { StationeryDraw } from "./StationeryDraw";
 import { AutoMovieArchetypeBook } from "./AutoMovieArchetypeBook";
-import { createPaper } from "./createPaper";
+import { AutoMovieArchetypePaper } from "./AutoMovieArchetypePaper";
 import { AutoMovieArchetypePen } from "./AutoMovieArchetypePen";
 import { AutoMovieArchetypeClipboard } from "./AutoMovieArchetypeClipboard";
 
@@ -56,19 +56,19 @@ export namespace AutoMovieArchetypeStationery {
   /** The named producer selected by each saved kind. */
   export const PRODUCERS = {
     book: AutoMovieArchetypeBook.create,
-    paper: createPaper,
+    paper: AutoMovieArchetypePaper.create,
     pen: AutoMovieArchetypePen.create,
     clipboard: AutoMovieArchetypeClipboard.create,
-    map: createPaper,
+    map: AutoMovieArchetypePaper.create,
   } as const satisfies Readonly<Record<Kind, unknown>>;
 
   /** Each saved selector's named variant. */
   export interface IProducerVariants {
     /** The named variant for the saved `paper` selector. */
-    paper: createPaper.Format;
+    paper: AutoMovieArchetypePaper.Format;
 
     /** The named variant for the saved `map` selector. */
-    map: createPaper.Format;
+    map: AutoMovieArchetypePaper.Format;
   }
 
   /** The named format selected by a legacy paper or map recipe. */

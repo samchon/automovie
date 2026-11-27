@@ -13,7 +13,7 @@ import type {
 import { AutoMovieArchetypeDoor } from "../../architecture/AutoMovieArchetypeDoor";
 import type { AutoMovieArchetype } from "../../core/AutoMovieArchetype";
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
-import type { createBuilding } from "./createBuilding";
+import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
 
 /**
  * Divide the standard door into a fixed frame and a portable hinge-root leaf.
@@ -24,7 +24,7 @@ import type { createBuilding } from "./createBuilding";
  */
 export function buildingDoor(
   id: string,
-  opening: Extract<createBuilding.Opening, { kind: "door" }>,
+  opening: Extract<AutoMovieEnvironment.Building.Opening, { kind: "door" }>,
   seed: number | undefined,
 ): buildingDoor.IDoor {
   const door: AutoMovieArchetype<AutoMovieArchetypeDoor.Affordance, AutoMovieArchetypeDoor.Dimension> =
@@ -111,7 +111,7 @@ export function buildingDoor(
     clearHeight: aperture.height!,
     clearCenter: aperture.frame.translation.x,
     clip: (rotation: IAutoMovieQuaternion): IAutoMovieClip | null => {
-      const swing: Extract<createBuilding.Opening, { kind: "door" }>["swing"] =
+      const swing: Extract<AutoMovieEnvironment.Building.Opening, { kind: "door" }>["swing"] =
         opening.swing;
       if (swing === undefined) return null;
       const { from, to, degrees } = swing;

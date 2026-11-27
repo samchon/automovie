@@ -18,6 +18,7 @@ import { RecoveryScalarIndex as S } from "../internal/RecoveryScalarIndex";
 import { critical } from "../geometry/internal/critical";
 import { cutExact } from "../internal/mesh-observations/cutExact";
 import { planeFrame } from "../geometry/internal/planeFrame";
+import { prepareRecoveryOpenSlabGraph as prepareSlabGraphImplementation } from "./internal/prepareRecoveryOpenSlabGraph";
 
 /**
  * Source observation of open-curve continuation without repeating numerical
@@ -303,5 +304,11 @@ export namespace AutoMovieRecoveryOpenContinuation {
         progress?.(i + 1, bundle.loft.sections.length);
     }
     return output;
+  }
+  /** Prepare source-backed open-slab transport queries for continuation observation. */
+  export function prepareSlabGraph(
+    source: IAutoMovieRecoveryOpenSlabGraph.Source,
+  ): IAutoMovieRecoveryOpenSlabGraph.Prepare {
+    return prepareSlabGraphImplementation(source);
   }
 }

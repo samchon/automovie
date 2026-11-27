@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk, samplePoseVelocity, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieArticulatedRig,
   IAutoMovieQuaternion,
@@ -111,7 +111,7 @@ export function QuadrupedWorldPose<Id extends string, D extends string>(
       const ws: IAutoMovieVector3 = spin(s0, s);
       const wt: IAutoMovieVector3 = spin(t, t1);
       return {
-        x: samplePoseVelocity.rotationVector(
+        x: AutoMovieEngineMotionSampling.samplePoseVelocityRotationVector(
           Quaternion.multiply(s, Quaternion.inverse(t)),
         ),
         v: Vector3.scale(Vector3.subtract(ws, wt), 1 / step),
@@ -397,7 +397,7 @@ function spin(
   from: IAutoMovieQuaternion,
   to: IAutoMovieQuaternion,
 ): IAutoMovieVector3 {
-  return samplePoseVelocity.rotationVector(
+  return AutoMovieEngineMotionSampling.samplePoseVelocityRotationVector(
     Quaternion.multiply(to, Quaternion.inverse(from)),
   );
 }

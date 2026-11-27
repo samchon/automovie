@@ -11,7 +11,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { cubicHermiteValue } from "../../math/internal/cubicHermiteValue";
 import { normalizeClipTime } from "../../math/internal/normalizeClipTime";
 import { clipDurationFault } from "../../validation/internal/clipDurationFault";
-import { clipTrackShapeFaults } from "../../validation/clipTrackShapeFaults";
+import { clipTrackShapeFaults } from "../../validation/internal/clipTrackShapeFaults";
 import { channelIsRotation } from "./channelIsRotation";
 import { channelKey } from "./channelKey";
 import { lerpChannelValues } from "./lerpChannelValues";

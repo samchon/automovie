@@ -10,7 +10,6 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieRecoveryOpenRun,
-  normalizeRecoveryCourse,
   AutoMovieRecoveryReconstruction,
 } from "@automovie/recovery";
 import { createHash } from "node:crypto";
@@ -316,7 +315,7 @@ export function reconstructAutoMovieRecoveryLocal(
     try {
       const courses: IAutoMovieCubicBezierCurve64[] = nodes.map(
         (n: Node, i: number): IAutoMovieCubicBezierCurve64 =>
-          normalizeRecoveryCourse(
+          AutoMovieRecoveryOpenRun.normalizeCourse(
             bundle.reports[n.section]!.open[n.arc]!.curve,
             reversals[i]!,
           ),

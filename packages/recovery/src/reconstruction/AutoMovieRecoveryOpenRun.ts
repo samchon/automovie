@@ -3,7 +3,10 @@ import type {
   IAutoMovieRecoveryOpenReconstructionOperation,
   IAutoMovieRecoveryOpenRunDescriptionOperation,
   IAutoMovieRecoveryOpenRunsPreparationOperation,
+  IAutoMovieCubicBezierCurve64,
 } from "@automovie/interface";
+
+import { normalizeRecoveryCourse as normalizeRecoveryCourseImplementation } from "./internal/normalizeRecoveryCourse";
 
 import { describeRecoveryOpenRun as describeOpenRunImplementation } from "./internal/describeRecoveryOpenRun";
 import { prepareRecoveryLocalContinuation as prepareLocalContinuationImplementation } from "./internal/prepareRecoveryLocalContinuation";
@@ -44,5 +47,12 @@ export namespace AutoMovieRecoveryOpenRun {
     operator: Parameters<IAutoMovieRecoveryOpenRunsPreparationOperation.Operation>[2],
   ): ReturnType<IAutoMovieRecoveryOpenRunsPreparationOperation.Operation> {
     return prepareOpenRunsImplementation(bundle, graph, operator);
+  }
+  /** Normalize and optionally reverse one saved open course for open-run reconstruction. */
+  export function normalizeCourse(
+    curve: IAutoMovieCubicBezierCurve64,
+    reverse: boolean,
+  ): IAutoMovieCubicBezierCurve64 {
+    return normalizeRecoveryCourseImplementation(curve, reverse);
   }
 }

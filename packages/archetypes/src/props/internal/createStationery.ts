@@ -3,7 +3,7 @@ import { ArchetypeDraw, type AutoMovieArchetype } from "../../core/index";
 import "../StationeryDraw";
 import "../AutoMovieArchetypeBook";
 import "../AutoMovieArchetypeClipboard";
-import { createPaper } from "../createPaper";
+import { AutoMovieArchetypePaper } from "../AutoMovieArchetypePaper";
 import "../AutoMovieArchetypePen";
 
 /**
@@ -28,7 +28,7 @@ export function createStationery(
     AutoMovieArchetypeStationery.KINDS,
   );
   if (kind === "paper" || kind === "map")
-    return createPaper(
+    return AutoMovieArchetypePaper.create(
       { ...params, format: AutoMovieArchetypeStationery.PRODUCER_VARIANTS[kind] },
       seed,
     );

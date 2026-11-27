@@ -3,9 +3,9 @@ import {
   IAutoMovieFormationSlotState,
 } from "@automovie/interface";
 
-import { IDENTITY_FORMATION_SLOT_STATE } from "../../constants/IDENTITY_FORMATION_SLOT_STATE";
-import { lerp } from "../../math/internal/lerp";
-import { ease } from "../../motion/internal/ease";
+import { IDENTITY_FORMATION_SLOT_STATE } from "../../../constants/IDENTITY_FORMATION_SLOT_STATE";
+import { lerp } from "../../../math/internal/lerp";
+import { ease } from "../../../motion/internal/ease";
 
 /**
  * Sample what one named member of a unit is doing differently at one time.

@@ -1,4 +1,4 @@
-import { Transform, sampleFormationMotion, sampleFormationSlotMotion, AutoMovieEnginePopulationFormation, AutoMovieEngineValidation } from "@automovie/engine";
+import { Transform, AutoMovieEnginePopulationFormation, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieFormationDesign,
   IAutoMovieFormationSlotPlacement,
@@ -76,8 +76,8 @@ export function test_engine_space_formation_stage_marks(): void {
       anchor: unitDesign.anchor,
       facingDeg: unitDesign.facingDeg,
       baseFacingDeg: unitDesign.facingDeg,
-      unit: sampleFormationMotion([], unitDesign.id, time),
-      member: sampleFormationSlotMotion(cues, unitDesign.id, slot, time),
+      unit: AutoMovieEnginePopulationFormation.sampleFormationMotion([], unitDesign.id, time),
+      member: AutoMovieEnginePopulationFormation.sampleFormationSlotMotion(cues, unitDesign.id, slot, time),
     });
 
   const epsilon: number = 1e-12;

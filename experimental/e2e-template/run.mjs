@@ -186,7 +186,7 @@ const addSdkConsumer = (directory, { parity = true } = {}) => {
   );
   fs.writeFileSync(
     path.join(directory, "src", "composition", "films", "starter.ts"),
-    `import { AutoMovieEnvironment, AutoMovieEnvironmentFurnishing, createBuilding } from "@automovie/archetypes/environments";
+    `import { AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
 import { AutoMovieArchetypeBookcase, AutoMovieArchetypeSeat } from "@automovie/archetypes/furniture";
 import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieCompiledDefinedShot, IAutoMovieEnvironment, IAutoMovieModel, IAutoMovieStage } from "@automovie/interface";
@@ -216,7 +216,7 @@ export function starter(): IFilm {
       const room: IAutoMovieEnvironment = AutoMovieEnvironment.create({
         id: "installed-room",
         items: {
-          hall: { use: createBuilding({ levels: [{
+          hall: { use: AutoMovieEnvironment.building({ levels: [{
             id: "ground",
             rooms: { studio: [0, 0, 6, 4] },
             openings: [{ id: "entry", kind: "passage", between: ["studio", null], edge: [[0, 0], [6, 0]], width: 1.2, height: 2.1 }],

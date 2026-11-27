@@ -2,7 +2,7 @@ import { AutoMovieEnginePlanarGeometry } from "@automovie/engine";
 import type { IAutoMovieProfilePoint } from "@automovie/interface";
 
 import type { buildingPlans } from "./buildingPlans";
-import type { createBuilding } from "./createBuilding";
+import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
 
 /**
  * Split room edges at incident endpoints, identify shared walls, and bind each
@@ -97,7 +97,7 @@ export namespace buildingWalls {
   /** An authored aperture with its orientation in the chosen wall. */
   export interface IBinding {
     /** Opening in the original metre plan. */
-    readonly opening: createBuilding.Opening;
+    readonly opening: AutoMovieEnvironment.Building.Opening;
 
     /** Whether a half-turn carries wall +Z into the requested opening direction. */
     readonly turn: boolean;
@@ -123,7 +123,7 @@ function pointKey(point: IAutoMovieProfilePoint): string {
  */
 function matches(
   point: IAutoMovieProfilePoint,
-  pair: createBuilding.Point,
+  pair: AutoMovieEnvironment.Building.Point,
 ): boolean {
   return point.x === pair[0] && point.y === pair[1];
 }

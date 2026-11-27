@@ -15,7 +15,7 @@ import { AutoMovieControlChannelWriter } from "../delivery/AutoMovieControlChann
 import { admitAutoMovieControlPasses } from "../delivery/admitAutoMovieControlPasses.js";
 import { planAutoMovieAlphaWrap } from "../delivery/planAutoMovieAlphaWrap.js";
 import { planAutoMovieDeliveredCut } from "../delivery/internal/planAutoMovieDeliveredCut.js";
-import { planAutoMovieVideoEncoding } from "../delivery/planAutoMovieVideoEncoding.js";
+import { planAutoMovieVideoEncoding } from "../delivery/internal/planAutoMovieVideoEncoding.js";
 import { frameName } from "../frameName.js";
 import { frameTimes } from "../internal/frameTimes.js";
 import { AutoMovieRenderPicture } from "../picture/AutoMovieRenderPicture.js";

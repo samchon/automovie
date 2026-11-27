@@ -1,4 +1,4 @@
-import { type IAutoMovieFormationSlotMotion, type IAutoMovieFormationDesign, type IAutoMovieFormationStageMarkSet, type IAutoMovieTransform, type IAutoMovieVector3, type IAutoMovieFormationMotionState, type IAutoMovieFormationCadenceSegment, type IAutoMovieFormationMotion, type IAutoMovieFormationGroundRelief, type IAutoMovieGroundQueryPoint, type IAutoMovieFormationSlot, type IAutoMovieFormationGrounding, type IAutoMovieFormationPlacement, type IAutoMovieFormationReform, type IAutoMovieFormationSlotRecord, type IAutoMovieFormationSlotPlacement, type IAutoMoviePlaceFormationSlot, type IAutoMovieFormationBounds } from "@automovie/interface";
+import { type IAutoMovieFormationSlotMotion, type IAutoMovieFormationDesign, type IAutoMovieFormationStageMarkSet, type IAutoMovieTransform, type IAutoMovieVector3, type IAutoMovieFormationMotionState, type IAutoMovieFormationCadenceSegment, type IAutoMovieFormationMotion, type IAutoMovieFormationGroundRelief, type IAutoMovieGroundQueryPoint, type IAutoMovieFormationSlot, type IAutoMovieFormationGrounding, type IAutoMovieFormationPlacement, type IAutoMovieFormationReform, type IAutoMovieFormationSlotRecord, type IAutoMovieFormationSlotPlacement, type IAutoMoviePlaceFormationSlot, type IAutoMovieFormationBounds, type IAutoMovieFormationSlotState, type IAutoMovieFormationLodInput, type IAutoMovieFormationLodSelection, type IAutoMovieSampledFormationMotion } from "@automovie/interface";
 import { compileFormationStageMarks as compileFormationStageMarksImplementation } from "./internal/compileFormationStageMarks";
 import { composeFormationHeroTransform as composeFormationHeroTransformImplementation } from "./internal/composeFormationHeroTransform";
 import { formationCadenceSegments as formationCadenceSegmentsImplementation } from "./internal/formationCadenceSegments";
@@ -10,6 +10,9 @@ import { placeFormationSlot as placeFormationSlotImplementation } from "./intern
 import { rotateFormationLocalOffset as rotateFormationLocalOffsetImplementation } from "./internal/rotateFormationLocalOffset";
 import { transformFormationBounds as transformFormationBoundsImplementation } from "./internal/transformFormationBounds";
 import { transformFormationPoint as transformFormationPointImplementation } from "./internal/transformFormationPoint";
+import { sampleFormationMotion as sampleFormationMotionImplementation } from "./internal/sampleFormationMotion";
+import { sampleFormationSlotMotion as sampleFormationSlotMotionImplementation } from "./internal/sampleFormationSlotMotion";
+import { selectFormationLod as selectFormationLodImplementation } from "./internal/selectFormationLod";
 
 /** Public operations for Auto Movie Engine Population Formation. */
 export namespace AutoMovieEnginePopulationFormation {
@@ -226,5 +229,54 @@ export namespace AutoMovieEnginePopulationFormation {
   /** Apply one sampled formation state to a designed world-space point. */
   export function transformFormationPoint(point: IAutoMovieVector3, anchor: IAutoMovieVector3, motion: IAutoMovieFormationMotionState, baseFacingDeg?: number): IAutoMovieVector3 {
     return transformFormationPointImplementation(point, anchor, motion, baseFacingDeg);
+  }
+
+  /**
+   * Sample one formation's authored cue sequence at finite absolute seconds.
+   * Matching cues sort by start and code-unit id; the first active cue wins.
+   * Identity precedes the first cue, completed targets remain between cues and
+   * reform progress survives cues without a new layout. A new layout starts at
+   * the previous completed arrangement; the first starts at the design. Retained
+   * translation, spacing and layout records alias authored inputs and must be
+   * treated read-only.
+   */
+  export function sampleFormationMotion(motions: readonly IAutoMovieFormationMotion[], formation: string, time: number): IAutoMovieSampledFormationMotion {
+    return sampleFormationMotionImplementation(motions, formation, time);
+  }
+
+  /**
+   * Sample what one named member of a unit is doing differently at one time.
+   *
+   * The unit-level sampler answers for the whole crowd at once; this answers for
+   * one member of it. The retention law is deliberately the same one: identity
+   * before the first cue that names this slot, interpolation inside a cue, and
+   * the cue's exact `to` state retained after it ends. That is what lets a member
+   * removed once stay removed, and a member that fell stay down, without the
+   * author restating either every second of the shot.
+   *
+   * `present` is not interpolated, because half-drawn is not a state a member can
+   * be in. Inside a cue the member holds `from.present`; from the cue's end it
+   * holds `to.present`, which the retention above already carries. So a cue whose
+   * `from` is present and whose `to` is not takes its member out of the shot at
+   * the cue's end, and one absent at both ends takes it out at the cue's start.
+   *
+   * Selection scans all supplied cues and their slot lists before sorting matches
+   * by start and code-unit id. Identity and retained states alias module/input
+   * records; consumers must treat returned states as read-only.
+   */
+  export function sampleFormationSlotMotion(motions: readonly IAutoMovieFormationSlotMotion[], formation: string, slot: number, time: number): IAutoMovieFormationSlotState {
+    return sampleFormationSlotMotionImplementation(motions, formation, slot, time);
+  }
+
+  /**
+   * Select automatic formation LOD from distance and projected contribution.
+   *
+   * Twenty-four projected pixels are neutral. A prior tier retains a 10% boundary
+   * deadband so camera jitter cannot thrash instance buffers. The caller supplies
+   * an ordered admitted tier list, finite distance/pixel values and an optional
+   * fractional hysteresis. Returned lod aliases that list.
+   */
+  export function selectFormationLod(input: IAutoMovieFormationLodInput): IAutoMovieFormationLodSelection {
+    return selectFormationLodImplementation(input);
   }
 }

@@ -1,4 +1,4 @@
-import { classifyAutoMovieCameraInspection } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type { IAutoMovieCameraInspection } from "@automovie/interface";
 import { AutoMovieRenderInspectionCamera } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -144,7 +144,7 @@ export function test_render_scene_observe_camera_inspection(): void {
     visible: number,
     maxOcclusionRatio: number,
   ): IAutoMovieCameraInspection.Occlusion =>
-    classifyAutoMovieCameraInspection({
+    AutoMovieEngineValidation.classifyAutoMovieCameraInspection({
       framing: "possible",
       maxOcclusionRatio,
       pixels: { isolated, visible },

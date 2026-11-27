@@ -10,7 +10,7 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
-import { materialTextureSlots } from "../materialTextureSlots";
+import { materialTextureSlots } from "./materialTextureSlots";
 
 /**
  * Absolute slack for normalized UV spans and relative multiplier slack for

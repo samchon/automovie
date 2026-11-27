@@ -13,8 +13,7 @@ import {
 
 import { formationSlotPosition } from "../../populationRuntime/formation/internal/formationSlotPosition";
 import { placeFormationSlot } from "../../populationRuntime/formation/internal/placeFormationSlot";
-import { sampleFormationMotion } from "../../populationRuntime/formation/sampleFormationMotion";
-import { sampleFormationSlotMotion } from "../../populationRuntime/formation/sampleFormationSlotMotion";
+import { AutoMovieEnginePopulationFormation } from "../../populationRuntime/formation/AutoMovieEnginePopulationFormation";
 import { heightAt } from "../../space/internal/heightAt";
 import { engineDiagnostic } from "./engineDiagnostic";
 
@@ -146,7 +145,7 @@ export function validateAutoMovieFormationGround(
         if (escape !== null) break;
         continue;
       }
-      const motion: IAutoMovieSampledFormationMotion = sampleFormationMotion(
+      const motion: IAutoMovieSampledFormationMotion = AutoMovieEnginePopulationFormation.sampleFormationMotion(
         own,
         formation.id,
         time,
@@ -167,7 +166,7 @@ export function validateAutoMovieFormationGround(
           anchor: formation.anchor,
           baseFacingDeg: formation.facingDeg,
           unit: motion,
-          member: sampleFormationSlotMotion(
+          member: AutoMovieEnginePopulationFormation.sampleFormationSlotMotion(
             ownSlots,
             formation.id,
             member.slot,

@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { resolveTargetPoint } from "../../perform/internal/resolveTargetPoint";
-import { sampleFormationMotion } from "../../populationRuntime/formation/sampleFormationMotion";
+import { AutoMovieEnginePopulationFormation } from "../../populationRuntime/formation/AutoMovieEnginePopulationFormation";
 import { transformFormationPoint } from "../../populationRuntime/formation/internal/transformFormationPoint";
 import { channelKey } from "../../resolve/internal/channelKey";
 import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
@@ -167,7 +167,7 @@ function sampledPoint(
         transformFormationPoint(
           formation.centroid,
           formation.anchor,
-          sampleFormationMotion(props.formationMotions, id, seconds),
+          AutoMovieEnginePopulationFormation.sampleFormationMotion(props.formationMotions, id, seconds),
           formation.facingDeg,
         ),
       );

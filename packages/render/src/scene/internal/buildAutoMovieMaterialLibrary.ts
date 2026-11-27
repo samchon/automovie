@@ -1,4 +1,4 @@
-import { resolveAutoMovieMaterial } from "@automovie/engine";
+import { AutoMovieEngineRenderMaterial } from "@automovie/engine";
 import type {
   IAutoMovieImage,
   IAutoMovieMaterial,
@@ -50,7 +50,7 @@ export const buildAutoMovieMaterialLibrary: (
   >(
     [...requested].map((id: string): [string, IAutoMovieMaterial] => [
       id,
-      resolveAutoMovieMaterial({ models: props.models, material: id }),
+      AutoMovieEngineRenderMaterial.resolveMaterial({ models: props.models, material: id }),
     ]),
   );
 

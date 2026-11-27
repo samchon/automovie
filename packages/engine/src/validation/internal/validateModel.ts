@@ -25,7 +25,7 @@ import type {
 import { admitAutoMovieBicubicAtlas } from "../../geometry/internal/admitAutoMovieBicubicAtlas";
 import { validateJointAxesBasis } from "../../kinematics/internal/validateJointAxesBasis";
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
-import { materialTextureSlots } from "../materialTextureSlots";
+import { materialTextureSlots } from "./materialTextureSlots";
 import { validateAffordance } from "./validateAffordance";
 import { validateAffordanceArticulation } from "./validateAffordanceArticulation";
 import { validateBody } from "./validateBody";

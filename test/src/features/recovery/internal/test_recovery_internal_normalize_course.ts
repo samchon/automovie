@@ -2,7 +2,7 @@ import type {
   AutoMovieCubicBezierControls3,
   IAutoMovieCubicBezierCurve64,
 } from "@automovie/interface";
-import { normalizeRecoveryCourse } from "@automovie/recovery";
+import { AutoMovieRecoveryOpenRun } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -42,7 +42,7 @@ export function test_recovery_internal_normalize_course(): void {
     phaseIntervals: [1, 3],
     spans: [a, b],
   };
-  const forward: IAutoMovieCubicBezierCurve64 = normalizeRecoveryCourse(
+  const forward: IAutoMovieCubicBezierCurve64 = AutoMovieRecoveryOpenRun.normalizeCourse(
     curve,
     false,
   );
@@ -59,7 +59,7 @@ export function test_recovery_internal_normalize_course(): void {
   TestValidator.equals("forward spans", forward.spans, [a, b]);
   TestValidator.equals("normalized phase", forward.phaseUnit, "normalized");
 
-  const backward: IAutoMovieCubicBezierCurve64 = normalizeRecoveryCourse(
+  const backward: IAutoMovieCubicBezierCurve64 = AutoMovieRecoveryOpenRun.normalizeCourse(
     curve,
     true,
   );
@@ -73,6 +73,6 @@ export function test_recovery_internal_normalize_course(): void {
     [a[3], a[2], a[1], a[0]],
   ]);
   TestValidator.error("a closed curve", (): unknown =>
-    normalizeRecoveryCourse({ ...curve, closed: true }, false),
+    AutoMovieRecoveryOpenRun.normalizeCourse({ ...curve, closed: true }, false),
   );
 }

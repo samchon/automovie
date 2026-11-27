@@ -393,6 +393,7 @@ const STABLE_PRODUCER_IDS: Readonly<Record<string, string>> = {
   AutoMovieArchetypeLighter: "createLighter",
   AutoMovieArchetypeTableKnife: "createTableKnife",
   AutoMovieArchetypeZipperPouch: "createZipperPouch",
+  AutoMovieArchetypePaper: "createPaper",
 };
 
 /** The website's local resolver for the installed archetype package. */

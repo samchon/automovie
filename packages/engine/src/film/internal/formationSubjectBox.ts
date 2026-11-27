@@ -1,10 +1,9 @@
+import { AutoMovieEnginePopulationFormation } from "../../populationRuntime/formation/AutoMovieEnginePopulationFormation";
 import {
   IAutoMovieFormationBounds,
   type IAutoMovieFormationSubjectBox,
   IAutoMovieSubjectBox,
 } from "@automovie/interface";
-
-import { sampleFormationMotion } from "../../populationRuntime/formation/sampleFormationMotion";
 import { transformFormationBounds } from "../../populationRuntime/formation/internal/transformFormationBounds";
 
 /**
@@ -12,7 +11,7 @@ import { transformFormationBounds } from "../../populationRuntime/formation/inte
  * shot-local instant.
  *
  * The unit's designed bounds go through {@link transformFormationBounds} under
- * the cue {@link sampleFormationMotion} reports at that instant, so a mass that
+ * the cue {@link AutoMovieEnginePopulationFormation.sampleFormationMotion} reports at that instant, so a mass that
  * has marched, wheeled, or closed its ranks is framed where it is. Both reads
  * are the builder's own: the ground gate that refuses a member standing off its
  * staged surface asks the same two functions the same way, so a gate and a
@@ -31,7 +30,7 @@ export function formationSubjectBox(
   const moved: IAutoMovieFormationBounds = transformFormationBounds(
     props.formation.bounds,
     props.formation.anchor,
-    sampleFormationMotion(
+    AutoMovieEnginePopulationFormation.sampleFormationMotion(
       props.motions,
       props.formation.id,
       Math.max(0, props.seconds),

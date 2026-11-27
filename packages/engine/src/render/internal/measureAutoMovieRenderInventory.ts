@@ -43,7 +43,7 @@ import { measureRenderPasses } from "./measureRenderPasses";
 import { measureRenderPopulation } from "./measureRenderPopulation";
 import { measureRenderSimulation } from "./measureRenderSimulation";
 import { measureRenderTextures } from "./measureRenderTextures";
-import { resolveAutoMovieMaterial } from "../resolveAutoMovieMaterial";
+import { AutoMovieEngineRenderMaterial } from "../AutoMovieEngineRenderMaterial";
 
 /**
  * Measure what one frame of a subject commits the renderer to.
@@ -184,7 +184,7 @@ export function measureAutoMovieRenderInventory(
     let found: IAutoMovieMaterial | undefined = materials.get(material);
     if (found === undefined) {
       try {
-        found = resolveAutoMovieMaterial({
+        found = AutoMovieEngineRenderMaterial.resolveMaterial({
           models: subject.models,
           material,
         });

@@ -1,4 +1,4 @@
-import { samplePoseVelocity } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMoviePose } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -66,7 +66,7 @@ function kinked(t: number): IAutoMoviePose {
 export function test_engine_motion_sample_pose_velocity(): void {
   // 1. A continuation.
   const shown = (t: number): IAutoMoviePose => knee(t, true);
-  const continued: ReturnType<typeof samplePoseVelocity> = samplePoseVelocity(
+  const continued: ReturnType<typeof AutoMovieEngineMotionSampling.samplePoseVelocity> = AutoMovieEngineMotionSampling.samplePoseVelocity(
     shown,
     0.4,
     0.001,
@@ -79,7 +79,7 @@ export function test_engine_motion_sample_pose_velocity(): void {
     continued.pose.joints[0]!.flexion === shown(0.4).joints[0]!.flexion &&
       nclose(continued.velocity.joints.get("leftLowerLeg")![0], 33.7, 1e-9) &&
       Math.abs(
-        samplePoseVelocity(shown, 0.4, 0.001, "after").velocity.joints.get(
+        AutoMovieEngineMotionSampling.samplePoseVelocity(shown, 0.4, 0.001, "after").velocity.joints.get(
           "leftLowerLeg",
         )![0] - 33.7,
       ) > 1,
@@ -89,20 +89,20 @@ export function test_engine_motion_sample_pose_velocity(): void {
   TestValidator.predicate(
     "the continuation tolerance",
     nclose(
-      samplePoseVelocity.tolerance(0.001, 0.4),
+      AutoMovieEngineMotionSampling.samplePoseVelocityTolerance(0.001, 0.4),
       (0.01 * 0.001 * 3125) / (8 * 256 * 0.4),
       1e-18,
     ) &&
-      throwsError((): number => samplePoseVelocity.tolerance(0, 0.4)) &&
-      throwsError((): number => samplePoseVelocity.tolerance(0.001, 0)),
+      throwsError((): number => AutoMovieEngineMotionSampling.samplePoseVelocityTolerance(0, 0.4)) &&
+      throwsError((): number => AutoMovieEngineMotionSampling.samplePoseVelocityTolerance(0.001, 0)),
   );
 
   // 3. One-sided and centred at a kink.
   const read = (
     t: number,
     side: "before" | "after" | "both",
-  ): ReturnType<typeof samplePoseVelocity>["velocity"] =>
-    samplePoseVelocity(kinked, t, 1e-3, side).velocity;
+  ): ReturnType<typeof AutoMovieEngineMotionSampling.samplePoseVelocity>["velocity"] =>
+    AutoMovieEngineMotionSampling.samplePoseVelocity(kinked, t, 1e-3, side).velocity;
   const cases: readonly (readonly [
     number,
     "before" | "after",
@@ -122,7 +122,7 @@ export function test_engine_motion_sample_pose_velocity(): void {
         number,
         number,
       ]): boolean => {
-        const v: ReturnType<typeof samplePoseVelocity>["velocity"] = read(
+        const v: ReturnType<typeof AutoMovieEngineMotionSampling.samplePoseVelocity>["velocity"] = read(
           t,
           side,
         );

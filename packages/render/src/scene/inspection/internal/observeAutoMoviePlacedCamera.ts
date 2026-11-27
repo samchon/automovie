@@ -1,5 +1,5 @@
 import type { AutoMovieRenderInspectionCamera } from "../AutoMovieRenderInspectionCamera.js";
-import { classifyAutoMovieCameraInspection } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type { IAutoMovieCameraInspection, IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 import type { Mesh } from "three";
 
@@ -334,7 +334,7 @@ function reportPixels(
   grade: IAutoMovieCameraInspection.Framing,
 ): void {
   const result: IAutoMovieCameraInspection.Occlusion =
-    classifyAutoMovieCameraInspection({
+    AutoMovieEngineValidation.classifyAutoMovieCameraInspection({
       framing: grade,
       pixels: attempt.pixels,
       maxOcclusionRatio,

@@ -1,4 +1,7 @@
-import { type IAutoMovieCaptureComparison, type IAutoMovieCaptureComparisonProps, type IAutoMovieCaptureFindingDiff, type IAutoMovieCaptureFindingDiffProps, type IAutoMovieCaptureRequestEntry, type IAutoMovieCaptureCompleteRecord, type IAutoMovieCapturePlanRequest, type IAutoMovieCaptureRequestSource, type IAutoMovieCapturePlan, type IAutoMovieCapturePlanProps, type IAutoMovieCaptureFramePlan, type IAutoMovieCaptureFramePlanProps, type IAutoMovieCaptureLayout, type IAutoMovieCaptureLayoutProps, type IAutoMoviePlanVideoFramesProps, type IAutoMoviePlanVideoSceneCutsProps, type IAutoMovieCaptureVideoSource, type IAutoMovieCaptureResolution, type IAutoMovieResolveCapturePatternsProps, type IAutoMovieRunCaptureProps, type IAutoMovieRunVideoCaptureProps, type IAutoMovieRasterImage } from "@automovie/interface";
+import { assertAutoMovieCaptureClock as assertAutoMovieCaptureClockImplementation } from "../delivery/internal/assertAutoMovieCaptureClock.js";
+import { planAutoMovieCaptureUrl as planAutoMovieCaptureUrlImplementation } from "../delivery/internal/planAutoMovieCaptureUrl.js";
+
+import { type IAutoMovieCaptureComparison, type IAutoMovieCaptureComparisonProps, type IAutoMovieCaptureFindingDiff, type IAutoMovieCaptureFindingDiffProps, type IAutoMovieCaptureRequestEntry, type IAutoMovieCaptureCompleteRecord, type IAutoMovieCapturePlanRequest, type IAutoMovieCaptureRequestSource, type IAutoMovieCapturePlan, type IAutoMovieCapturePlanProps, type IAutoMovieCaptureFramePlan, type IAutoMovieCaptureFramePlanProps, type IAutoMovieCaptureLayout, type IAutoMovieCaptureLayoutProps, type IAutoMoviePlanVideoFramesProps, type IAutoMoviePlanVideoSceneCutsProps, type IAutoMovieCaptureVideoSource, type IAutoMovieCaptureResolution, type IAutoMovieResolveCapturePatternsProps, type IAutoMovieRunCaptureProps, type IAutoMovieRunVideoCaptureProps, type IAutoMovieRasterImage, type IAutoMovieAssertCaptureClockHost, type IAutoMovieAssertCaptureClockExpected } from "@automovie/interface";
 import { compareAutoMovieCaptureRounds as compareAutoMovieCaptureRoundsImplementation } from "./internal/compareAutoMovieCaptureRounds.js";
 import { diffAutoMovieCaptureFindings as diffAutoMovieCaptureFindingsImplementation } from "./internal/diffAutoMovieCaptureFindings.js";
 import { formatAutoMovieCapturePlanRequest as formatAutoMovieCapturePlanRequestImplementation } from "./internal/formatAutoMovieCapturePlanRequest.js";
@@ -484,5 +487,33 @@ export namespace AutoMovieRenderCapture {
    */
   export function scaleLabels(raster: Pick<IAutoMovieRasterImage, "width" | "height">, layout: Pick<IAutoMovieCaptureLayout, "cell">): number {
     return scaleAutoMovieCaptureLabelsImplementation(raster, layout);
+  }
+
+  /**
+   * Refuse a capture page that is not ready or does not expose the commissioned
+   * clock, before any sound is prepared or pixel captured: the page must be
+   * ready, report the commissioned duration and frame rate, and count exactly
+   * `durationSeconds * fps` frames, an integer. Readiness is no visual or
+   * physical acceptance.
+   *
+   * @param host Values read from the capture page.
+   * @param expected The commissioned duration and rate.
+   */
+  export function assertClock(host: IAutoMovieAssertCaptureClockHost, expected: IAutoMovieAssertCaptureClockExpected): void {
+    assertAutoMovieCaptureClockImplementation(host, expected);
+  }
+
+  /**
+   * The capture URL of a local review page: the requested URL with its path and
+   * unrelated options kept, the given capture parameters set, and autoplay
+   * (`play`) removed because capture seeks each frame. Only an HTTP loopback host
+   * is admitted, so capture never drives a remote page.
+   *
+   * @param requested The review page URL.
+   * @param parameters Capture parameters to set, such as raster and range.
+   * @returns The capture URL.
+   */
+  export function planUrl(requested: string, parameters: Readonly<Record<string, string>>): string {
+    return planAutoMovieCaptureUrlImplementation(requested, parameters);
   }
 }
