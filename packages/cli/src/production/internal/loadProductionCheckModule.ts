@@ -12,7 +12,7 @@ import * as path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { createProductionCheckInputScope } from "./createProductionCheckInputScope";
-import { importProductionCheckEntry } from "./importProductionCheckEntry.mjs";
+import { importProductionCheckEntry } from "#production-check-entry";
 import { readErrorCode } from "../../file/internal/readErrorCode";
 
 /*

@@ -18,7 +18,7 @@ An installed action that fails under documented use is a package defect. The age
 
 ## The lexicon
 
-Before writing a row, check the lexicon. It holds named rows over the shipped actions, ready to register, in families such as `emblem`, `habit`, `stance`, `gait`, `social`, `stageFight`, `labour`, `ride`, `sport` and `sword`. `HUMAN_LEXICON` lists every family's rows as data:
+Before writing a row, check the lexicon. It holds named rows over the shipped actions, ready to register, in families such as `emblem`, `habit`, `stance`, `gait`, `social`, `stageFight`, `labour`, `ride`, `sport` and `sword`. The public action-family namespaces expose each family's rows as data:
 
 ```ts
 import { AutoMovieMotionHumanGesture, AutoMovieMotionHumanStageFight, AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
@@ -104,7 +104,7 @@ A row or law other productions would need goes into a shared workspace package. 
 An `AutoMovieMotionHumanRefusal` names the performer, the action and its occurrence, the axis at fault, the value given, what the axis accepts and one sentence saying what to change. Its fields carry the same values:
 
 ```ts
-import { AutoMovieMotionHumanRefusal } from "@automovie/motions";
+import { AutoMovieMotionHumanPerformance, AutoMovieMotionHumanRefusal } from "@automovie/motions";
 
 try {
   new AutoMovieMotionHumanPerformance(input);

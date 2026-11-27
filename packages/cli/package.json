@@ -33,12 +33,18 @@
     "LICENSE",
     "README.md"
   ],
+  "imports": {
+    "#production-check-entry": "./src/production/internal/importProductionCheckEntry.mts"
+  },
   "publishConfig": {
     "access": "public",
     "main": "lib/index.js",
     "types": "lib/index.d.ts",
     "bin": {
       "automovie": "lib/bin.js"
+    },
+    "imports": {
+      "#production-check-entry": "./lib/production/internal/importProductionCheckEntry.mjs"
     },
     "exports": {
       ".": {

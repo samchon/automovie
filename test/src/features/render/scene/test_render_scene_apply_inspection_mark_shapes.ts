@@ -2,8 +2,8 @@ import type { IAutoMovieMark } from "@automovie/interface";
 import { AutoMovieRenderThreeKind, type IAutoMovieRenderInspectionHandle, AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
-import type { LineMaterial } from "three/examples/jsm/lines/LineMaterial";
-import type { LineSegments2 } from "three/examples/jsm/lines/LineSegments2";
+import type { LineMaterial } from "#three-addon/lines/LineMaterial";
+import type { LineSegments2 } from "#three-addon/lines/LineSegments2";
 
 import { InspectionScene } from "../../internal/InspectionScene";
 import { compileMaterialShaderSource } from "../../internal/compileMaterialShaderSource";

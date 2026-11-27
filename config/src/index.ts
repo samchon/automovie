@@ -1,2 +1,2 @@
-export { createEvidenceConfig } from "./createEvidenceConfig.ts";
-export { createLintConfig } from "./createLintConfig.ts";
+export { createEvidenceConfig } from "#config/createEvidenceConfig";
+export { createLintConfig } from "#config/createLintConfig";

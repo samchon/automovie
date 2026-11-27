@@ -1,3 +1,3 @@
-import { createLintConfig } from "./src/index.ts";
+import { createLintConfig } from "#config/createLintConfig";
 
 export default createLintConfig();

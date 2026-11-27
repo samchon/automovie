@@ -6,8 +6,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { contourStripOracle as O } from "../internal/contourStripOracle.ts";
-import { nclose } from "../internal/nclose.ts";
+import { contourStripOracle as O } from "./contourStripOracle";
+import { nclose } from "./nclose";
 import { contourLoftBoundaryOracle as B } from "./contourLoftBoundaryOracle";
 
 const { intervalTriangles, aligned }: typeof B = B;

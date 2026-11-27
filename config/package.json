@@ -9,6 +9,9 @@
     "typescript": "catalog:typescript",
     "@wrtnlabs/evidence": "catalog:samchon"
   },
+  "imports": {
+    "#config/*": "./src/*.ts"
+  },
   "exports": {
     ".": "./src/index.ts"
   }

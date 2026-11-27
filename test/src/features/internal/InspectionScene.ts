@@ -4,8 +4,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
-import type { LineMaterial } from "three/examples/jsm/lines/LineMaterial";
-import type { LineSegments2 } from "three/examples/jsm/lines/LineSegments2";
+import type { LineMaterial } from "#three-addon/lines/LineMaterial";
+import type { LineSegments2 } from "#three-addon/lines/LineSegments2";
 
 import { nclose } from "./nclose";
 
