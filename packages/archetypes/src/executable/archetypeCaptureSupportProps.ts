@@ -6,7 +6,7 @@ import {
   type AutoMovieArchetypeCourse,
   AutoMovieArchetypeRide,
 } from "../core";
-import { AutoMovieArchetypeBoat, rowBoat, AutoMovieArchetypeCart } from "../vehicles";
+import { AutoMovieArchetypeBoat, AutoMovieArchetypeCart } from "../vehicles";
 import { AutoMovieArchetypeCannon } from "../weapons";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
@@ -38,8 +38,8 @@ export function archetypeCaptureSupportProps(): Readonly<
     startSpeed: 1.5,
     endSpeed: 1.5,
   };
-  const calm: ReturnType<typeof rowBoat> = rowBoat(boat, waterCourse);
-  const sea: ReturnType<typeof rowBoat> = rowBoat(boat, waterCourse, {
+  const calm: ReturnType<typeof AutoMovieArchetypeBoat.row> = AutoMovieArchetypeBoat.row(boat, waterCourse);
+  const sea: ReturnType<typeof AutoMovieArchetypeBoat.row> = AutoMovieArchetypeBoat.row(boat, waterCourse, {
     sea: { height: 0.4, heading: 35, seed: 1050 },
   });
   const leading: ReturnType<typeof AutoMovieArchetypeCart.create> = AutoMovieArchetypeCart.create({

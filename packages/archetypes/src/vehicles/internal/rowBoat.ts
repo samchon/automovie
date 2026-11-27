@@ -1,4 +1,3 @@
-import { RigidCarrierSample } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 
 import {
@@ -12,7 +11,7 @@ import {
 } from "../../core";
 import { ArchetypeCourseLegs } from "../../core/ArchetypeCourseLegs";
 import { BoatOars } from "../BoatOars";
-import type { AutoMovieArchetypeBoat } from "../AutoMovieArchetypeBoat";
+import { AutoMovieArchetypeBoat } from "../AutoMovieArchetypeBoat";
 
 /** Complete rowboat state at a film second. */
 type Sample = AutoMovieArchetypeRide.ISample<

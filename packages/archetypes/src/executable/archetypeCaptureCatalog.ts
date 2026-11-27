@@ -13,7 +13,7 @@ import { AutoMovieArchetypeMicrophone, AutoMovieArchetypeInstrument } from "../m
 import { AutoMovieArchetypeFireRing, AutoMovieArchetypeRock, AutoMovieArchetypeTent, AutoMovieArchetypeTree } from "../nature";
 import { AutoMovieArchetypeDevice, AutoMovieArchetypeSmoking, AutoMovieArchetypeStationery, AutoMovieArchetypeBox, AutoMovieArchetypeFood, AutoMovieArchetypeTableware, AutoMovieArchetypeUmbrella, AutoMovieArchetypeBag, AutoMovieArchetypeCareItem, AutoMovieArchetypeDrinkware, AutoMovieArchetypeLight, AutoMovieArchetypeLongTool, AutoMovieArchetypeMobilityAid, AutoMovieArchetypeTool, AutoMovieArchetypeVessel } from "../props";
 import { AutoMovieArchetypeCue, AutoMovieArchetypeCueTable, AutoMovieArchetypeSurfboard, AutoMovieArchetypeHighJump, AutoMovieArchetypePoolEdge, AutoMovieArchetypeSkateboard, AutoMovieArchetypeSki, AutoMovieArchetypeGoal, AutoMovieArchetypeStick } from "../sport";
-import { AutoMovieArchetypeBicycle, AutoMovieArchetypeCar, AutoMovieArchetypeMotorcycle, AutoMovieArchetypeBoat, driveCar, rideBicycle, rideMotorcycle, AutoMovieArchetypeDeck, AutoMovieArchetypeCart, AutoMovieArchetypeWheelchair } from "../vehicles";
+import { AutoMovieArchetypeBicycle, AutoMovieArchetypeCar, AutoMovieArchetypeMotorcycle, AutoMovieArchetypeBoat, AutoMovieArchetypeDeck, AutoMovieArchetypeCart, AutoMovieArchetypeWheelchair } from "../vehicles";
 import { AutoMovieArchetypeLongGun } from "../weapons";
 import { archetypeCaptureAnimals } from "./archetypeCaptureAnimals";
 import { archetypeCaptureArmoury } from "./archetypeCaptureArmoury";
@@ -360,14 +360,14 @@ export function archetypeCaptureCatalog(): Readonly<
           AutoMovieArchetypeMicrophone.create({ kind }),
       ),
     }),
-    "ride-car": moving("car", driveCar(car, archetypeCaptureCourse)),
+    "ride-car": moving("car", AutoMovieArchetypeCar.drive(car, archetypeCaptureCourse)),
     "ride-bicycle": moving(
       "bicycle",
-      rideBicycle(bicycle, archetypeCaptureCourse),
+      AutoMovieArchetypeBicycle.ride(bicycle, archetypeCaptureCourse),
     ),
     "ride-motorcycle": moving(
       "motorcycle",
-      rideMotorcycle(
+      AutoMovieArchetypeMotorcycle.ride(
         AutoMovieArchetypeMotorcycle.create({ kind: "motorcycle" }),
         archetypeCaptureCourse,
       ),
