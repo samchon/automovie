@@ -1,5 +1,6 @@
 import { AutoMovieEngineCaptureRecord } from "@automovie/engine";
 import type {
+  IAutoMovieCaptureCompleteRecord,
   IAutoMovieCaptureFolder,
   IAutoMovieCaptureFolderOpenProps,
   IAutoMovieCaptureRecord,

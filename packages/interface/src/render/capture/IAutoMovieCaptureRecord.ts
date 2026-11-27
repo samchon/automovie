@@ -1,13 +1,7 @@
 import type { IAutoMovieInspectionDiagnostics } from "../inspection/IAutoMovieInspectionDiagnostics.js";
-import type { IAutoMovieCaptureBudget } from "./IAutoMovieCaptureBudget.js";
 import type { IAutoMovieCaptureCompleteRecord } from "./IAutoMovieCaptureCompleteRecord.js";
 import type { IAutoMovieCaptureCellRecord } from "./IAutoMovieCaptureCellRecord.js";
-import type { IAutoMovieCaptureComparison } from "./IAutoMovieCaptureComparison.js";
-import type { IAutoMovieCaptureLayout } from "./IAutoMovieCaptureLayout.js";
-import type { IAutoMovieCaptureRequestEntry } from "./IAutoMovieCaptureRequestEntry.js";
 import type { IAutoMovieCaptureTime } from "./IAutoMovieCaptureTime.js";
-import type { IAutoMovieCaptureVideoSource } from "./IAutoMovieCaptureVideoSource.js";
-import type { IAutoMovieCaptureWindow } from "./IAutoMovieCaptureWindow.js";
 
 /**
  * The `record.json` a capture writes in its folder: enough to repeat every cell
