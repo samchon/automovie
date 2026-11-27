@@ -22,11 +22,9 @@
   "files": [
     "lib",
     "src",
-    "vendor/clarabel",
-    "vendor/ihmc",
-    "vendor/quadratic",
     "package.json",
     "LICENSE",
+    "LICENSE-APACHE-2.0",
     "README.md"
   ],
   "publishConfig": {

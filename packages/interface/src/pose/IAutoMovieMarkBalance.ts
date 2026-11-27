@@ -1,4 +1,3 @@
-import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /** World-space balance geometry read by markAutoMovieBalance. */

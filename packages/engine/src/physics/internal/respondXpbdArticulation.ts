@@ -20,8 +20,7 @@ import { reachesXpbdJointBound } from "./reachesXpbdJointBound";
 import { readXpbdJointCoordinate } from "./readXpbdJointCoordinate";
 import { readXpbdJointDirections } from "./readXpbdJointDirections";
 import { readXpbdJointRelation } from "./readXpbdJointRelation";
-import { AutoMovieXpbdArticulation } from "../AutoMovieXpbdArticulation";
-import type { solveXpbdContacts } from "../solveXpbdContacts";
+import type { solveXpbdContacts } from "./solveXpbdContacts";
 
 /**
  * The articulated response of the trees a pass's contacts touch to positional

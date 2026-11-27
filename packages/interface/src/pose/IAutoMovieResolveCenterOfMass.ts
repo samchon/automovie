@@ -1,4 +1,3 @@
-import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";

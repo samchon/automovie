@@ -9,11 +9,11 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
-import { AutoMovieSolidJoinCrossing } from "./AutoMovieSolidJoinCrossing";
-import { AutoMovieSolidJoinNormalCheck } from "./AutoMovieSolidJoinNormalCheck";
 import { AutoMovieSolidRail } from "./AutoMovieSolidRail";
 import { AutoMovieSolidRibbon } from "./AutoMovieSolidRibbon";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
+import { AutoMovieSolidJoinCrossing } from "./internal/AutoMovieSolidJoinCrossing";
+import { AutoMovieSolidJoinNormalCheck } from "./internal/AutoMovieSolidJoinNormalCheck";
 
 /**
  * Shared vector operations preserve the existing arithmetic and allocation

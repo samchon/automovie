@@ -3,12 +3,12 @@ import { contactMask as contactMaskImplementation } from "./internal/contactMask
 import { pinStanceTargets as pinStanceTargetsImplementation } from "./internal/pinStanceTargets";
 import { plantStanceFeet as plantStanceFeetImplementation } from "./internal/plantStanceFeet";
 import { rekeyPlantedFeet as rekeyPlantedFeetImplementation } from "./internal/rekeyPlantedFeet";
-import { prepareChainPlant as prepareChainPlantImplementation } from "./prepareChainPlant";
-import { prepareChainConstants as prepareChainConstantsImplementation } from "./prepareChainConstants";
-import { prepareChainRigConstants as prepareChainRigConstantsImplementation } from "./prepareChainRigConstants";
-import { placeChainPlant as placeChainPlantImplementation } from "./placeChainPlant";
-import { solvePreparedChainPlant as solvePreparedChainPlantImplementation } from "./solvePreparedChainPlant";
-import { resolvePreparedChainEffector as resolvePreparedChainEffectorImplementation } from "./resolvePreparedChainEffector";
+import { prepareChainPlant as prepareChainPlantImplementation } from "./internal/prepareChainPlant";
+import { prepareChainConstants as prepareChainConstantsImplementation } from "./internal/prepareChainConstants";
+import { prepareChainRigConstants as prepareChainRigConstantsImplementation } from "./internal/prepareChainRigConstants";
+import { placeChainPlant as placeChainPlantImplementation } from "./internal/placeChainPlant";
+import { solvePreparedChainPlant as solvePreparedChainPlantImplementation } from "./internal/solvePreparedChainPlant";
+import { resolvePreparedChainEffector as resolvePreparedChainEffectorImplementation } from "./internal/resolvePreparedChainEffector";
 import type { IPlantStanceFeetProps as IPlantStanceFeetInternalProps } from "./internal/IPlantStanceFeetProps";
 import type { IRekeyPlantedFeetProps as IRekeyPlantedFeetInternalProps } from "./internal/IRekeyPlantedFeetProps";
 

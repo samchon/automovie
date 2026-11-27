@@ -1,4 +1,3 @@
-import { AutoMovieEngineKinematics } from "../kinematics/AutoMovieEngineKinematics";
 import type { IAutoMovieCombinePhysicalMassProperties, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";

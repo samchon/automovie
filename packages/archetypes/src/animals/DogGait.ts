@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeEquineGait } from "./AutoMovieArchetypeEquineGait";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
-import { DOG_BODY_MEASURES } from "./dog/internal/constants/DOG_BODY_MEASURES";
+import { DOG_BODY_MEASURES } from "./dog/constants/DOG_BODY_MEASURES";
 
 /**
  * Provisional canine timing with measured walk data and faster point

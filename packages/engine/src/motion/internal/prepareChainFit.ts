@@ -17,7 +17,7 @@ import { skeletonJointAxes } from "../../kinematics/internal/skeletonJointAxes";
 import { twoBoneChainArticulation } from "../../kinematics/internal/twoBoneChainArticulation";
 import { Quaternion } from "../../math/Quaternion";
 import { prepareChainFitRig } from "./prepareChainFitRig";
-import { prepareChainPlant } from "../prepareChainPlant";
+import { prepareChainPlant } from "./prepareChainPlant";
 import { resolveBoneMap } from "./resolveBoneMap";
 
 /**

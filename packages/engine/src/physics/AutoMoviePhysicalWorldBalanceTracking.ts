@@ -15,7 +15,7 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
-import { advancePhysicalBalance as AdvanceBalance } from "./advancePhysicalBalance";
+import { advancePhysicalBalance as AdvanceBalance } from "./internal/advancePhysicalBalance";
 import { AutoMovieEnginePhysics } from "./AutoMovieEnginePhysics";
 import { samplePhysicalAuthoredTargets } from "./internal/samplePhysicalAuthoredTargets";
 

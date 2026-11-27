@@ -22,7 +22,7 @@ export namespace AutoMovieRenderInspectionOverlay {
       /** Matching linear RGB colour buffer. */
       colors: Float32Array;
       /** Point stroke width and depth behavior. */
-      options: IOptions;
+      options: ICreateDotsOptions;
     }
   /**
    * Create one screen-sized, unlit point per xyz vertex with its matching colour.

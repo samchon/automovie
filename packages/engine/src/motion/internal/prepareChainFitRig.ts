@@ -12,7 +12,7 @@ import { hingedArmSwivel } from "../../kinematics/hingedArmSwivel";
 import { jointToQuaternionOnBasis } from "../../kinematics/internal/jointToQuaternionOnBasis";
 import { Quaternion } from "../../math/Quaternion";
 import type { prepareChainFit } from "./prepareChainFit";
-import { prepareChainRigConstants } from "../prepareChainRigConstants";
+import { prepareChainRigConstants } from "./prepareChainRigConstants";
 
 /**
  * Own lazy rig preparation for every target of one unchanged source chain. Axes

@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeEquineGait } from "./AutoMovieArchetypeEquineGait";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
-import { DeerCohorts } from "./deer/internal/DeerCohorts";
+import { DeerCohorts } from "./deer/DeerCohorts";
 
 /**
  * An observed sika walking clock, with explicit construction-only pose data.

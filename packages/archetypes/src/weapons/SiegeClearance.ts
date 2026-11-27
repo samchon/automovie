@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineMath, Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieArchetypeFrame } from "../core/AutoMovieArchetypeFrame";
@@ -227,7 +227,10 @@ function neighbours(
   const result: Set<number> = new Set(angles);
   for (const angle of angles)
     for (const upper of [false, true]) {
-      const neighbour: number = AutoMovieEngineMath.adjacentFloat64(angle, upper);
+      const neighbour: number = AutoMovieEngineMath.adjacentFloat64(
+        angle,
+        upper,
+      );
       if (neighbour >= first && neighbour <= last) result.add(neighbour);
     }
   return [...result];

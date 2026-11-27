@@ -1,6 +1,6 @@
 import type { AutoMovieArchetypeMicrowave } from "../AutoMovieArchetypeMicrowave";
 import type { AutoMovieArchetype } from "../../core/index";
-import { APPLIANCE_BANDS } from "../APPLIANCE_BANDS";
+import { APPLIANCE_BANDS } from "../constants/APPLIANCE_BANDS";
 import { ApplianceConstruction } from "../ApplianceConstruction";
 import { FixtureDraw } from "../FixtureDraw";
 import type { AutoMovieArchetypeAppliance } from "../AutoMovieArchetypeAppliance";

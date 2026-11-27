@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { PoseResolutionSnapshot } from "../PoseResolutionSnapshot";
+import { PoseResolutionSnapshot } from "./PoseResolutionSnapshot";
 
 /** Private operation placement; neither this state nor its operands may escape. */
 interface IPlacement {

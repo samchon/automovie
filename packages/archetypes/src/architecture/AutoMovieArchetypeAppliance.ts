@@ -3,7 +3,7 @@ import {
   type AutoMovieArchetype,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import { APPLIANCE_BANDS } from "./APPLIANCE_BANDS";
+import { APPLIANCE_BANDS } from "./constants/APPLIANCE_BANDS";
 import { FixtureDraw } from "./FixtureDraw";
 import { AutoMovieArchetypeMicrowave } from "./AutoMovieArchetypeMicrowave";
 import { AutoMovieArchetypeRange } from "./AutoMovieArchetypeRange";

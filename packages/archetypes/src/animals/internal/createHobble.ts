@@ -7,7 +7,7 @@ import {
   type AutoMovieArchetypeConvexCell,
   AutoMovieArchetypeDrawSession,
 } from "../../core/index";
-import { AnnularFitting } from "../AnnularFitting";
+import { AnnularFitting } from "./AnnularFitting";
 
 /** A cuff's size. */
 interface ICuff {

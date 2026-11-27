@@ -91,6 +91,7 @@ export namespace AutoMovieSceneResource {
     operations: readonly ((() => void) | (() => Promise<void>))[],
     primary?: { error: unknown },
   ): () => Promise<void> {
+    if (primary === undefined) return createRetirementImplementation(operations);
     return createRetirementImplementation(operations, primary);
   }
   /**

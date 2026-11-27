@@ -4,7 +4,7 @@ import type {
   IAutoMovieProductionViseme,
 } from "@automovie/interface";
 
-import { AUTOMOVIE_IPA_VISEMES } from "../AUTOMOVIE_IPA_VISEMES";
+import { AUTOMOVIE_IPA_VISEMES } from "../constants/AUTOMOVIE_IPA_VISEMES";
 
 /**
  * Time each phoneme of a line's chunks and map it to its MPEG-4 viseme.

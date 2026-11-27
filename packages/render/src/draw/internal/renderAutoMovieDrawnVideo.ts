@@ -11,7 +11,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieRenderAudio } from "../../audio/AutoMovieRenderAudio.js";
-import { AutoMovieControlChannelWriter } from "../../delivery/AutoMovieControlChannelWriter.js";
+import { AutoMovieControlChannelWriter } from "../../delivery/controlChannel/AutoMovieControlChannelWriter.js";
 import { AutoMovieRenderDraw } from "../AutoMovieRenderDraw.js";
 import { planAutoMovieAlphaWrap } from "../../delivery/internal/planAutoMovieAlphaWrap.js";
 import { planAutoMovieDeliveredCut } from "../../delivery/internal/planAutoMovieDeliveredCut.js";

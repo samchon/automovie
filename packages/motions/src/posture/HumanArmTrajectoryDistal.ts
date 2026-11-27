@@ -2,7 +2,6 @@ import {
   HUMANOID_REST_FRAME,
   Quaternion,
   AutoMovieEngineMotionDistalTwist,
-  AutoMovieEngineKinematicsJointRotation,
 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,

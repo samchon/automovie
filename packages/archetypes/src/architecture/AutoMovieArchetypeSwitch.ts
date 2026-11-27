@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import { ADA_RANGES } from "./ADA_RANGES";
+import { ADA_RANGES } from "./constants/ADA_RANGES";
 
 /** The travel of a switch or a button, for which no specification was read. */
 const TRAVEL: string = "switch travel, not read at a source";

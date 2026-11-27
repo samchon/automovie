@@ -11,7 +11,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import { ADA_RANGES } from "./ADA_RANGES";
+import { ADA_RANGES } from "./constants/ADA_RANGES";
 
 /**
  * A DIN 6337 lever's arm off the plane square to its bore, degrees: the

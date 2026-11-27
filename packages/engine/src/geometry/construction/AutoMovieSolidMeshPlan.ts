@@ -11,7 +11,7 @@ import { insertAutoMovieSolidMeshPoints } from "./internal/insertAutoMovieSolidM
 import { legalizeAutoMovieSolidMesh } from "./internal/legalizeAutoMovieSolidMesh";
 import { orientAutoMovieSolidChart } from "./internal/orientAutoMovieSolidChart";
 import { probeAutoMovieSolidMesh } from "./internal/probeAutoMovieSolidMesh";
-import { regionAutoMovieSolidMesh } from "./regionAutoMovieSolidMesh";
+import { regionAutoMovieSolidMesh } from "./internal/regionAutoMovieSolidMesh";
 import { triangulateAutoMovieSolidBoundary } from "./internal/triangulateAutoMovieSolidBoundary";
 import { witnessAutoMovieSolidChartTriangle } from "./internal/witnessAutoMovieSolidChartTriangle";
 

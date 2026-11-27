@@ -4,7 +4,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 import { FixtureDraw } from "./FixtureDraw";
-import { SANITARY_BANDS } from "./SANITARY_BANDS";
+import { SANITARY_BANDS } from "./constants/SANITARY_BANDS";
 import { SanitaryConstruction } from "./SanitaryConstruction";
 import { AutoMovieArchetypeBathtub } from "./AutoMovieArchetypeBathtub";
 import { AutoMovieArchetypeShower } from "./AutoMovieArchetypeShower";

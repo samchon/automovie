@@ -19,7 +19,7 @@ import { swivelJointReadings } from "../../kinematics/swivelJointReadings";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { ROM_TOLERANCE } from "../../rom/constants/ROM_TOLERANCE";
-import { prepareChainPlant } from "../prepareChainPlant";
+import { prepareChainPlant } from "./prepareChainPlant";
 
 /**
  * Answer a hinged fit that asks an effector rotation from the swivels its

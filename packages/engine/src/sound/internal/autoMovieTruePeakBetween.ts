@@ -1,4 +1,4 @@
-import { AUTOMOVIE_TRUE_PEAK_PHASES } from "../AUTOMOVIE_TRUE_PEAK_PHASES";
+import { AUTOMOVIE_TRUE_PEAK_PHASES } from "../constants/AUTOMOVIE_TRUE_PEAK_PHASES";
 
 /**
  * The largest absolute value of the three 4× interpolants between two

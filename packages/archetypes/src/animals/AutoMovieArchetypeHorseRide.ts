@@ -1,4 +1,4 @@
-import type { AutoMovieArchetype, AutoMovieArchetypeRefusal, AutoMovieArchetypeRide } from "../core";
+import type { AutoMovieArchetype, AutoMovieArchetypeRide } from "../core";
 import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";

@@ -1,3 +1,14 @@
+/*
+ * Copyright 2022 University of Oxford Control Group
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Modified for AutoMovie: TypeScript specialization for diagonal PSD QPs
+ * with zero/nonnegative cones and engine-owned numerical workspaces.
+ * Adapted from Clarabel.rs 0.11.1, revision
+ * 25540f559592068d0c8a80e46ded1b21760212a1.
+ * Original source: src/solver/implementations/default/residuals.rs; src/solver/implementations/default/info.rs
+ * License: ../../../LICENSE-APACHE-2.0
+ */
 import type {
   IAutoMovieMeasureQuadraticState,
   IAutoMovieQuadraticConicProgram,

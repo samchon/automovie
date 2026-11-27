@@ -1,6 +1,6 @@
 import { ArchetypeDraw, type AutoMovieArchetype, type IAutoMovieArchetypeBand, } from "../core";
 import { FixtureDraw } from "./FixtureDraw";
-import { OBSTACLE_BANDS } from "./OBSTACLE_BANDS";
+import { OBSTACLE_BANDS } from "./constants/OBSTACLE_BANDS";
 import { AutoMovieArchetypeCrosstie } from "./AutoMovieArchetypeCrosstie";
 import { AutoMovieArchetypeCrowdBarrier } from "./AutoMovieArchetypeCrowdBarrier";
 import { AutoMovieArchetypeJerseyBarrier } from "./AutoMovieArchetypeJerseyBarrier";

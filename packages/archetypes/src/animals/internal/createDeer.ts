@@ -8,8 +8,8 @@ import {
 import { AutoMovieArchetypeDeer } from "../AutoMovieArchetypeDeer";
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedHeadAttachment } from "../AutoMovieArchetypeQuadrupedHeadAttachment";
-import { DeerCohorts } from "../deer/internal/DeerCohorts";
-import { buildDeerBody } from "../deer/internal/buildDeerBody";
+import { DeerCohorts } from "../deer/DeerCohorts";
+import { buildDeerBody } from "../deer/buildDeerBody";
 import { createCohortQuadruped } from "./createCohortQuadruped";
 
 /**

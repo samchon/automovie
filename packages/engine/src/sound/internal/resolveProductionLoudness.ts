@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { AUTOMOVIE_EBU_R128_LOUDNESS } from "../AUTOMOVIE_EBU_R128_LOUDNESS";
-import { AUTOMOVIE_TRUE_PEAK_LIMITER } from "../AUTOMOVIE_TRUE_PEAK_LIMITER";
+import { AUTOMOVIE_TRUE_PEAK_LIMITER } from "../constants/AUTOMOVIE_TRUE_PEAK_LIMITER";
 
 /**
  * Resolve the loudness targets a mix applies: the production's intent when it

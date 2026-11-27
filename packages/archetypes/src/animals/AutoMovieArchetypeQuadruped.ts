@@ -2,9 +2,11 @@ import {
   ArchetypeDraw,
   type AutoMovieArchetype,
   type AutoMovieArchetypeCourse,
+  type AutoMovieArchetypeRide,
   AutoMovieArchetypeRefusal,
 } from "../core/index";
-import { AnnularFitting } from "./AnnularFitting";
+import { AnnularFitting } from "./internal/AnnularFitting";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { EquineFootwork } from "./EquineFootwork";
 import type { QuadrupedTimedCues } from "./QuadrupedTimedCues";
 import { rideQuadrupedImplementation } from "./internal/rideQuadruped";
@@ -34,8 +36,8 @@ import { AutoMovieArchetypeHorse } from "./AutoMovieArchetypeHorse";
 import { AutoMovieArchetypeMule } from "./AutoMovieArchetypeMule";
 import { AutoMovieArchetypeOx } from "./AutoMovieArchetypeOx";
 import { AutoMovieArchetypePony } from "./AutoMovieArchetypePony";
-import { buildDeerBody } from "./deer/internal/buildDeerBody";
-import { buildDogBody } from "./dog/internal/buildDogBody";
+import { buildDeerBody } from "./deer/buildDeerBody";
+import { buildDogBody } from "./dog/buildDogBody";
 import { buildOxBody } from "./ox/internal/buildOxBody";
 
 /** Constructs the quadruped archetype from its recipe. */

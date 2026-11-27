@@ -236,7 +236,7 @@ export namespace ProjectileFirstContactImplementation {
     span: IAutoMovieProjectileFirstContact.ISpan,
     options: IAutoMovieProjectileFirstContact.IOptions,
   ): number {
-    const fastest: number = speed(projectile, span, options);
+    const fastest: number = projectileContactSpeed(projectile, span, options);
     return Math.min(
       span.to - span.from,
       fastest > 0 ? options.thickness / fastest : Infinity,

@@ -812,8 +812,18 @@ export function checkArchetypeAliases(): void {
       startSpeed: speed,
       endSpeed: speed,
     };
-    const oldRide = AutoMovieArchetypeQuadruped.ride(legacy as AutoMovieArchetype, course, gait);
-    const newRide = AutoMovieArchetypeQuadruped.ride(named as AutoMovieArchetype, course, gait);
+    const oldRide: ReturnType<typeof AutoMovieArchetypeQuadruped.ride> =
+      AutoMovieArchetypeQuadruped.ride(
+        legacy as AutoMovieArchetype,
+        course,
+        gait,
+      );
+    const newRide: ReturnType<typeof AutoMovieArchetypeQuadruped.ride> =
+      AutoMovieArchetypeQuadruped.ride(
+        named as AutoMovieArchetype,
+        course,
+        gait,
+      );
     assert.deepEqual(newRide.instants, oldRide.instants, `${kind} gait events`);
     const landings = newRide.instants.filter(
       (event) => event.label === "leftForeOn" && event.seconds > 0,

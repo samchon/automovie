@@ -1,8 +1,8 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal } from "../core";
-import { DOOR_BANDS } from "./DOOR_BANDS";
-import { DOOR_SIZES } from "./DOOR_SIZES";
+import { DOOR_BANDS } from "./constants/DOOR_BANDS";
+import { DOOR_SIZES } from "./constants/DOOR_SIZES";
 import { createDoorMeasures as parts } from "./internal/createDoorMeasures";
 
 /**

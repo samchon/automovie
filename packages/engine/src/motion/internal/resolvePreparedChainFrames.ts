@@ -8,7 +8,7 @@ import type {
 import { jointToQuaternion } from "../../kinematics/internal/jointToQuaternion";
 import { Quaternion } from "../../math/Quaternion";
 import type { prepareChainFit } from "./prepareChainFit";
-import { resolvePreparedChainEffector } from "../resolvePreparedChainEffector";
+import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
 import { resolvePreparedChainLower } from "./resolvePreparedChainLower";
 
 /** Articulations to read under the exact same prepared parent/intermediate pose. */

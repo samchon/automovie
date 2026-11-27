@@ -1,4 +1,4 @@
-import { AUTOMOVIE_DIALOGUE_ENVELOPE_JAW } from "../AUTOMOVIE_DIALOGUE_ENVELOPE_JAW";
+import { AUTOMOVIE_DIALOGUE_ENVELOPE_JAW } from "../constants/AUTOMOVIE_DIALOGUE_ENVELOPE_JAW";
 
 /**
  * The jaw opening for one frame of a line without phoneme chunks, from the

@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import { ADA_RANGES } from "./ADA_RANGES";
+import { ADA_RANGES } from "./constants/ADA_RANGES";
 
 /** The accessible car read. */
 const ADA: string =

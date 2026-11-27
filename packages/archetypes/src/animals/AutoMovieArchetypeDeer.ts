@@ -2,7 +2,7 @@ import { type AutoMovieArchetype } from "../core/index";
 import { createCohortQuadruped } from "./internal/createCohortQuadruped";
 import { type AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { createDeer as createDeerImplementation } from "./internal/createDeer";
-import { DeerCohorts } from "./deer/internal/DeerCohorts";
+import { DeerCohorts } from "./deer/DeerCohorts";
 
 /** Public operations for Auto Movie Archetype Deer. */
 export namespace AutoMovieArchetypeDeer {

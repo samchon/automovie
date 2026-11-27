@@ -6,7 +6,7 @@ import type {
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdSupportRows } from "./AutoMovieXpbdSupportRows";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
-import { solveXpbdJoints as Joints } from "./solveXpbdJoints";
+import { solveXpbdJoints as Joints } from "./internal/solveXpbdJoints";
 
 /**
  * One articulation of the engine's extended position-based dynamics world

@@ -1,7 +1,7 @@
 import { ArchetypeDraw, type AutoMovieArchetype, type IAutoMovieArchetypeBand, } from "../core";
 import { FixtureDraw } from "./FixtureDraw";
-import { STREET_FIXTURE_BANDS } from "./STREET_FIXTURE_BANDS";
-import { STREET_FIXTURE_MODELS } from "./STREET_FIXTURE_MODELS";
+import { STREET_FIXTURE_BANDS } from "./constants/STREET_FIXTURE_BANDS";
+import { STREET_FIXTURE_MODELS } from "./constants/STREET_FIXTURE_MODELS";
 import { AutoMovieArchetypeBollard } from "./AutoMovieArchetypeBollard";
 import { AutoMovieArchetypeFireHydrant } from "./AutoMovieArchetypeFireHydrant";
 import { AutoMovieArchetypeLampPost } from "./AutoMovieArchetypeLampPost";

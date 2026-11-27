@@ -6,9 +6,9 @@ import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import type { AutoMovieXpbdSupportRows } from "./AutoMovieXpbdSupportRows";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
-import { solveXpbdArticulation as Articulation } from "./solveXpbdArticulation";
-import { solveXpbdArticulationContacts as Contacts } from "./solveXpbdArticulationContacts";
-import { solveXpbdArticulationTask as Task } from "./solveXpbdArticulationTask";
+import { solveXpbdArticulation as Articulation } from "./internal/solveXpbdArticulation";
+import { solveXpbdArticulationContacts as Contacts } from "./internal/solveXpbdArticulationContacts";
+import { solveXpbdArticulationTask as Task } from "./internal/solveXpbdArticulationTask";
 
 /**
  * One articulation's impulse response by the articulated-body algorithm

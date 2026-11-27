@@ -2,7 +2,7 @@ import type { IAutoMovieQuaternion } from "@automovie/interface";
 
 import { hingedArmSwivel } from "../../kinematics/hingedArmSwivel";
 import { Quaternion } from "../../math/Quaternion";
-import { prepareChainPlant } from "../prepareChainPlant";
+import { prepareChainPlant } from "./prepareChainPlant";
 
 /**
  * The swivel at which a hinged chain's end joint needs the least articulation

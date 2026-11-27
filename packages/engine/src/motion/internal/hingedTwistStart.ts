@@ -6,7 +6,7 @@ import type {
 import { hingedArmSwivel } from "../../kinematics/hingedArmSwivel";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { prepareChainPlant } from "../prepareChainPlant";
+import { prepareChainPlant } from "./prepareChainPlant";
 
 /**
  * The swivel at which a hinged chain whose mid segment twists distally (a

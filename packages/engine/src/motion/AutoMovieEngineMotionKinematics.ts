@@ -11,7 +11,6 @@ import type {
   IAutoMovieSeededChainFit,
   IAutoMovieSolvedChainPlant,
   IAutoMovieSkeletonPoseResolution,
-  IAutoMovieSwivelNear,
   IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 

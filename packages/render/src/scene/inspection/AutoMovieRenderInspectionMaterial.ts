@@ -16,7 +16,7 @@ export namespace AutoMovieRenderInspectionMaterial {
     /** Request colour assignments and their drawn meshes. */
     export interface IColorObjectsProps {
       /** Drawn meshes and their inspection paths. */
-      meshes: readonly IMesh[];
+      meshes: readonly IColorObjectsMesh[];
       /** Shade currently used to draw the picture. */
       shade: AutoMovieInspectionShade;
       /** Request colour assignments, last matching entry taking precedence. */

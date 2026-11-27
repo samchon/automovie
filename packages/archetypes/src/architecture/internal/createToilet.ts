@@ -1,7 +1,7 @@
 import type { AutoMovieArchetypeToilet } from "../AutoMovieArchetypeToilet";
 import type { AutoMovieArchetype } from "../../core/index";
 import { FixtureDraw } from "../FixtureDraw";
-import { SANITARY_BANDS } from "../SANITARY_BANDS";
+import { SANITARY_BANDS } from "../constants/SANITARY_BANDS";
 import { SanitaryConstruction } from "../SanitaryConstruction";
 import type { AutoMovieArchetypeSanitary } from "../AutoMovieArchetypeSanitary";
 

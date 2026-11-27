@@ -2,10 +2,10 @@ import { type AutoMovieArchetype } from "../core/index";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { createDog as createDogImplementation } from "./internal/createDog";
 import { AutoMovieArchetypeQuadrupedLead } from "./AutoMovieArchetypeQuadrupedLead";
-import { type DogCohort } from "./dog/internal/typings/DogCohort";
+import { type DogCohort } from "./dog/typings/DogCohort";
 import { AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand, AutoMovieArchetypeBand, AutoMovieArchetypeRefusal, type AutoMovieArchetypeBuilder } from "../core";
-import { dogModelDimensions } from "./dog/internal/dogModelDimensions";
-import { measureDogNeckLength } from "./dog/internal/measureDogNeckLength";
+import { dogModelDimensions } from "./dog/dogModelDimensions";
+import { measureDogNeckLength } from "./dog/measureDogNeckLength";
 
 /** Public operations for Auto Movie Archetype Dog. */
 export namespace AutoMovieArchetypeDog {

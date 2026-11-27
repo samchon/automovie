@@ -17,9 +17,9 @@ import { Vector3 } from "../../math/Vector3";
 import { PLANT_RESIDUAL_EPSILON } from "../constants/PLANT_RESIDUAL_EPSILON";
 import { fitHingedChainBend } from "./fitHingedChainBend";
 import type { prepareChainFit } from "./prepareChainFit";
-import { resolvePreparedChainEffector } from "../resolvePreparedChainEffector";
+import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
 import { resolvePreparedChainLower } from "./resolvePreparedChainLower";
-import { solvePreparedChainPlant } from "../solvePreparedChainPlant";
+import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
 
 /**
  * The bend-plane fit of `fitSeededChainToTarget`, before its effector is

@@ -181,7 +181,7 @@ export namespace AutoMovieEnginePhysicalSwingReference {
           onChain ? input.seed : input.authored;
         const above: IAutoMovieRigidTransform | undefined = poses[joint.parent];
         if (!above || !source[joint.parent] || !source[joint.child]) continue;
-        poses[joint.child] = AutoMovieEnginePhysicalSwingReference({
+        poses[joint.child] = AutoMovieEnginePhysicalSwingReference.compute({
           joints: [joint],
           base: above,
           actual: source,

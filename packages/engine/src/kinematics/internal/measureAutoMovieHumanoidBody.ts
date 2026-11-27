@@ -12,11 +12,10 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
-import { physicalShapeHull } from "../../physics/internal/physicalShapeHull";
 import { physicalShapeBoundsImplementation } from "../../physics/internal/physicalShapeBoundsImplementation";
-import { AutoMovieHumanoidNeutralBounds } from "../AutoMovieHumanoidNeutralBounds";
+import { physicalShapeHull } from "../../physics/internal/physicalShapeHull";
+import { AutoMovieHumanoidNeutralBounds } from "./AutoMovieHumanoidNeutralBounds";
 import { resolveAutoMovieHumanoidSurfaces } from "./resolveAutoMovieHumanoidSurfaces";
-
 
 /**
  * Read the anthropometric measure of a canonical humanoid from its rig and
@@ -86,22 +85,31 @@ function measureAutoMovieHumanoidBodyRun(
   };
   const segmentBounds: (
     s: IAutoMoviePhysicalSegment,
-  ) => ReturnType<typeof physicalShapeBoundsImplementation.physicalShapeBounds> = (
+  ) => ReturnType<
+    typeof physicalShapeBoundsImplementation.physicalShapeBounds
+  > = (
     s: IAutoMoviePhysicalSegment,
-  ): ReturnType<typeof physicalShapeBoundsImplementation.physicalShapeBounds> => {
-    const known: ReturnType<typeof physicalShapeBoundsImplementation.physicalShapeBounds> | undefined =
-      extents.get(s);
+  ): ReturnType<
+    typeof physicalShapeBoundsImplementation.physicalShapeBounds
+  > => {
+    const known:
+      | ReturnType<typeof physicalShapeBoundsImplementation.physicalShapeBounds>
+      | undefined = extents.get(s);
     if (known !== undefined) return known;
-    const out: ReturnType<typeof physicalShapeBoundsImplementation.physicalShapeBounds> =
-      AutoMovieHumanoidNeutralBounds.read(profile, s, neutral);
+    const out: ReturnType<
+      typeof physicalShapeBoundsImplementation.physicalShapeBounds
+    > = AutoMovieHumanoidNeutralBounds.read(profile, s, neutral);
     extents.set(s, out);
     return out;
   };
   const bounds: (
     name: AutoMovieHumanoidBone,
-  ) => ReturnType<typeof physicalShapeBoundsImplementation.physicalShapeBounds> = (
+  ) => ReturnType<
+    typeof physicalShapeBoundsImplementation.physicalShapeBounds
+  > = (
     name: AutoMovieHumanoidBone,
-  ): ReturnType<typeof physicalShapeBoundsImplementation.physicalShapeBounds> => segmentBounds(segment(name));
+  ): ReturnType<typeof physicalShapeBoundsImplementation.physicalShapeBounds> =>
+    segmentBounds(segment(name));
   const radius = (name: AutoMovieHumanoidBone): number =>
     Math.max(
       ...segment(name).shapes.map((shape: IAutoMoviePhysicalShape): number => {
@@ -116,7 +124,8 @@ function measureAutoMovieHumanoidBodyRun(
         if (shape.kind === "hull") {
           // Half the hull's least width: the narrowest slab between a face
           // plane and the vertex farthest behind it.
-          const hull: IAutoMoviePhysicalHullFaces.IHull = physicalShapeHull(shape);
+          const hull: IAutoMoviePhysicalHullFaces.IHull =
+            physicalShapeHull(shape);
           let width: number = Infinity;
           for (const face of hull.faces) {
             let back: number = Infinity;
@@ -177,11 +186,14 @@ function measureAutoMovieHumanoidBodyRun(
   > = new Map();
   const foot: (
     side: "left" | "right",
-  ) => ReturnType<typeof physicalShapeBoundsImplementation.physicalShapeBounds> = (
+  ) => ReturnType<
+    typeof physicalShapeBoundsImplementation.physicalShapeBounds
+  > = (
     side: "left" | "right",
   ): { min: IAutoMovieVector3; max: IAutoMovieVector3 } => {
-    const known: ReturnType<typeof physicalShapeBoundsImplementation.physicalShapeBounds> | undefined =
-      feet.get(side);
+    const known:
+      | ReturnType<typeof physicalShapeBoundsImplementation.physicalShapeBounds>
+      | undefined = feet.get(side);
     if (known !== undefined) return known;
     const rear: { min: IAutoMovieVector3; max: IAutoMovieVector3 } = bounds(
       bone(side, "Foot"),
@@ -193,7 +205,9 @@ function measureAutoMovieHumanoidBodyRun(
     const toes: { min: IAutoMovieVector3; max: IAutoMovieVector3 } = bounds(
       bone(side, "Toes"),
     );
-    const extent: ReturnType<typeof physicalShapeBoundsImplementation.physicalShapeBounds> = {
+    const extent: ReturnType<
+      typeof physicalShapeBoundsImplementation.physicalShapeBounds
+    > = {
       min: {
         x: Math.min(rear.min.x, toes.min.x),
         y: Math.min(rear.min.y, toes.min.y),

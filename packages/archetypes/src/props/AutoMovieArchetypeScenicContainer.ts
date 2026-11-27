@@ -1,8 +1,13 @@
-import type { AutoMovieArchetype, AutoMovieArchetypeDrawSession, IAutoMovieArchetypeBand } from "../core";
-import { createScenicContainer as implementation } from "./internal/createScenicContainer";
+import type {
+  AutoMovieArchetype,
+  AutoMovieArchetypeDrawSession,
+  IAutoMovieArchetypeBand,
+} from "../core";
+import type { AutoMovieArchetypeCargoPod } from "./AutoMovieArchetypeCargoPod";
 import type { AutoMovieArchetypeMoldedCrate } from "./AutoMovieArchetypeMoldedCrate";
 import type { AutoMovieArchetypePlankCoffer } from "./AutoMovieArchetypePlankCoffer";
 import type { AutoMovieArchetypeScenicBasket } from "./AutoMovieArchetypeScenicBasket";
+import { createScenicContainer as implementation } from "./internal/createScenicContainer";
 
 /** Public scenic-container producer and its authoring vocabulary. */
 export namespace AutoMovieArchetypeScenicContainer {
@@ -11,17 +16,17 @@ export namespace AutoMovieArchetypeScenicContainer {
    * identifier and model choices.
    *
    * A saved cargo pod keeps its original single top surface. The named
-   * `AutoMovieArchetypeCargoPod.create` builds the same geometry and adds
-   * the bottom `mount` for stacking, so the saved selector keeps the
-   * surface-only construction.
+   * `AutoMovieArchetypeCargoPod.create` builds the same geometry and adds the
+   * bottom `mount` for stacking, so the saved selector keeps the surface-only
+   * construction.
    *
    * @param params The historic selector and optional fixed settings in the
    *   original units.
    * @param seed Draws the omitted settings. Omit it for the original seedless
    *   defaults.
    * @returns The original generated model and its local contacts.
-   * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is
-   *   outside its admitted range.
+   * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting
+   *   is outside its admitted range.
    */
   export function create(
     params: AutoMovieArchetypeScenicContainer.IParams,

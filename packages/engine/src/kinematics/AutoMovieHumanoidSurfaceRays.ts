@@ -1,12 +1,26 @@
-import type { AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaceRays, IAutoMovieHumanoidSurfaceRegions, IAutoMovieHumanoidSurfaces, IAutoMoviePhysicalHullFaces, IAutoMoviePhysicalProfile, IAutoMoviePhysicalSegment, IAutoMoviePhysicalShape, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanoidSurfaceRays,
+  IAutoMovieHumanoidSurfaceRegions,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMoviePhysicalHullFaces,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { physicalShapeHull } from "../physics/internal/physicalShapeHull";
-import { physicalShapeBoundsImplementation } from "../physics/internal/physicalShapeBoundsImplementation";
 import { AutoMovieEnginePhysics } from "../physics/AutoMovieEnginePhysics";
-import { AutoMovieHumanoidNeutralBounds } from "./AutoMovieHumanoidNeutralBounds";
+import { physicalShapeBoundsImplementation } from "../physics/internal/physicalShapeBoundsImplementation";
+import { physicalShapeHull } from "../physics/internal/physicalShapeHull";
 import type { AutoMovieHumanoidSurfaceRegions } from "./AutoMovieHumanoidSurfaceRegions";
+import { AutoMovieHumanoidNeutralBounds } from "./internal/AutoMovieHumanoidNeutralBounds";
 import { resolvePose } from "./internal/resolvePose";
 
 /**
@@ -34,7 +48,9 @@ export namespace AutoMovieHumanoidSurfaceRays {
     exit: Exit;
 
     /** The collider's surface normal reader. */
-    normal: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeNormalPrepare>;
+    normal: ReturnType<
+      typeof AutoMovieEnginePhysics.physicalShapeNormalPrepare
+    >;
   }
 
   /** The six actual rest observations consumed by anatomical surface owners. */
@@ -241,7 +257,10 @@ export namespace AutoMovieHumanoidSurfaceRays {
           (shape: IAutoMoviePhysicalShape): IShapeReading => ({
             shape,
             exit: prepareExit(s.neutral, shape),
-            normal: AutoMovieEnginePhysics.physicalShapeNormalPrepare(s.neutral, shape),
+            normal: AutoMovieEnginePhysics.physicalShapeNormalPrepare(
+              s.neutral,
+              shape,
+            ),
           }),
         ),
       );
@@ -272,7 +291,9 @@ export namespace AutoMovieHumanoidSurfaceRays {
       bone: AutoMovieHumanoidBone,
     ): { min: IAutoMovieVector3; max: IAutoMovieVector3 } => {
       const s: IAutoMoviePhysicalSegment = segment(bone);
-      const known: ReturnType<typeof physicalShapeBoundsImplementation.physicalShapeBounds> = extents.get(s)!;
+      const known: ReturnType<
+        typeof physicalShapeBoundsImplementation.physicalShapeBounds
+      > = extents.get(s)!;
       return { min: { ...known.min }, max: { ...known.max } };
     };
     const local = (

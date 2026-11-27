@@ -8,9 +8,9 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
-import { AutoMovieSolidFoldContact } from "./AutoMovieSolidFoldContact";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
+import { AutoMovieSolidFoldContact } from "./internal/AutoMovieSolidFoldContact";
 
 type Vec3 = AutoMovieVector3Tuple;
 const { cross, dot, norm, scale } = AutoMovieSolidVector;

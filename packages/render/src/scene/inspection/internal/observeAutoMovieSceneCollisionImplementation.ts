@@ -2,7 +2,7 @@ import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieSceneCollision as Collision,
   IAutoMovieInspectionDiagnostics as Diagnostic,
-  IAutoMoviePreparePhysicalGeometry as Geometry,
+
   IAutoMovieVector3,
 } from "@automovie/interface";
 

@@ -36,5 +36,5 @@ A Claude Code subagent may stop mid-task with a message like this:
 
 Claude Code can compact the context on its own.
 
-The main session resumes the same subagent with a firm order to continue the
-task and never stop for context. A mild request to resume does not hold.
+The main session must resume the same subagent with a firm order to continue
+the task and never stop for context. A mild request to resume does not hold.

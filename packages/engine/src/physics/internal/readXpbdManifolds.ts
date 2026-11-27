@@ -1,7 +1,7 @@
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
-import type { solveXpbdContacts } from "../solveXpbdContacts";
+import type { solveXpbdContacts } from "./solveXpbdContacts";
 
 /**
  * A step's touching pairs that responded, one manifold each: non-sensor pairs

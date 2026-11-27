@@ -27,6 +27,8 @@ export namespace AutoMovieSceneRenderMode {
     operations: readonly (() => void)[],
     primary?: { error: unknown },
   ): void {
+    if (primary === undefined)
+      return restoreAutoMovieRenderModeStateImplementation(operations);
     return restoreAutoMovieRenderModeStateImplementation(operations, primary);
   }
 

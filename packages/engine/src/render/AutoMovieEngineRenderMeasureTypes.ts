@@ -58,7 +58,7 @@ export namespace AutoMovieEngineRenderMeasureTypes {
     casters: readonly IFilmStageCaster[];
 
     /** Appends one owner row. */
-    add: IAutoMovieMeasureRenderSimulation.IFilmStageProps["add"];
+    add: IAutoMovieMeasureRenderSimulation.IProps["add"];
 
     /** Receives a gap for each total the missing raster leaves unknown. */
     gaps: IAutoMovieRenderAnalysisGap[];

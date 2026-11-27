@@ -3,7 +3,6 @@ import type { AutoMovieHumanSide, IAutoMovieTransform } from "@automovie/interfa
 
 import {
   type AutoMovieArchetype,
-  type AutoMovieArchetypeRefusal,
   AutoMovieArchetypeBand,
   AutoMovieArchetypeBuilder,
   AutoMovieArchetypeDrawSession,

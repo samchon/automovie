@@ -6,7 +6,6 @@ import type {
 import {
   type AutoMovieArchetype,
   AutoMovieArchetypeFrame,
-  AutoMovieArchetypeRefusal,
 } from "../../core";
 import type { AutoMovieArchetypeEscalator } from "../AutoMovieArchetypeEscalator";
 /** A unit scale: the rides move rigid frames. */

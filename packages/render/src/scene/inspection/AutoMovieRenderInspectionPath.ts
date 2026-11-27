@@ -44,7 +44,7 @@ export namespace AutoMovieRenderInspectionPath {
    * @throws {Error} When the object is not the root or beneath it.
    */
   export function entityPathOf(
-    props: EntityIPathOfProps,
+    props: IEntityPathOfProps,
   ): string {
     return autoMovieInspectionEntityPathOfImplementation(props.root, props.object, props.frontiers);
   }

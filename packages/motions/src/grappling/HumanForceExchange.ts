@@ -1,4 +1,3 @@
-import { AutoMovieEngineKinematics } from "@automovie/engine";
 import { AutoMovieGravity, Vector3, AutoMovieEngineMotionTrajectory, AutoMovieEngineMath } from "@automovie/engine";
 import type { AutoMovieHumanForceSite, IAutoMovieIntegrateMotionTrajectory, IAutoMovieMotionHumanForceExchange, IAutoMovieMotionHumanSustainedForce, IAutoMovieVector3 } from "@automovie/interface";
 

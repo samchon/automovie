@@ -11,7 +11,7 @@ import { Vector3 } from "../../math/Vector3";
 import { PLANT_RESIDUAL_EPSILON } from "../constants/PLANT_RESIDUAL_EPSILON";
 import { fitHingedChainCandidate } from "./fitHingedChainCandidate";
 import type { prepareChainFit } from "./prepareChainFit";
-import { resolvePreparedChainEffector } from "../resolvePreparedChainEffector";
+import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
 
 /**
  * Evaluate and admit the actual hinged candidate of a prepared two-bone fit.

@@ -15,8 +15,8 @@ import type { IAutoMovieXpbdResponder } from "./internal/IAutoMovieXpbdResponder
 import { readXpbdManifolds } from "./internal/readXpbdManifolds";
 import { respondXpbdArticulation } from "./internal/respondXpbdArticulation";
 import { solveXpbdContactVelocities } from "./internal/solveXpbdContactVelocities";
-import { solveXpbdContacts } from "./solveXpbdContacts";
-import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
+import { solveXpbdContacts } from "./internal/solveXpbdContacts";
+import type { solveXpbdSupportCascade } from "./internal/solveXpbdSupportCascade";
 
 /**
  * The engine's rigid-body world: extended position-based dynamics in plain

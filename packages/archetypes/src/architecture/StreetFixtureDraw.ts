@@ -1,8 +1,8 @@
 import { Vector3 } from "@automovie/engine";
 import { AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, type AutoMovieArchetypeMaterial, } from "../core";
 import { FixtureDraw } from "./FixtureDraw";
-import { STREET_FIXTURE_BANDS } from "./STREET_FIXTURE_BANDS";
-import { STREET_FIXTURE_MODELS } from "./STREET_FIXTURE_MODELS";
+import { STREET_FIXTURE_BANDS } from "./constants/STREET_FIXTURE_BANDS";
+import { STREET_FIXTURE_MODELS } from "./constants/STREET_FIXTURE_MODELS";
 import type { AutoMovieArchetypeStreetFixture } from "./AutoMovieArchetypeStreetFixture";
 /**
  * The saved measurements of ground-standing street objects and the round post

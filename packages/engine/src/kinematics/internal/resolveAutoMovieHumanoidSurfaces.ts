@@ -12,12 +12,12 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
-import { AutoMovieHumanoidDigitSurfaces } from "./AutoMovieHumanoidDigitSurfaces";
-import type { AutoMovieHumanoidNeutralBounds } from "../AutoMovieHumanoidNeutralBounds";
-import { AutoMovieHumanoidSurfaceExtents } from "./AutoMovieHumanoidSurfaceExtents";
-import { AutoMovieHumanoidSurfacePlacement } from "../AutoMovieHumanoidSurfacePlacement";
 import { AutoMovieHumanoidSurfaceRays } from "../AutoMovieHumanoidSurfaceRays";
 import { AutoMovieHumanoidSurfaceRegions } from "../AutoMovieHumanoidSurfaceRegions";
+import { AutoMovieHumanoidDigitSurfaces } from "./AutoMovieHumanoidDigitSurfaces";
+import type { AutoMovieHumanoidNeutralBounds } from "./AutoMovieHumanoidNeutralBounds";
+import { AutoMovieHumanoidSurfaceExtents } from "./AutoMovieHumanoidSurfaceExtents";
+import { AutoMovieHumanoidSurfacePlacement } from "./AutoMovieHumanoidSurfacePlacement";
 
 /**
  * Resolve every anatomical region and contact socket of a canonical humanoid
@@ -275,9 +275,9 @@ export namespace resolveAutoMovieHumanoidSurfaces {
    */
   export function place(
     frame: IAutoMovieHumanoidSurfaces.IFrame,
-    bone: Parameters<typeof AutoMovieHumanoidSurfacePlacement>[1],
-  ): ReturnType<typeof AutoMovieHumanoidSurfacePlacement> {
-    return AutoMovieHumanoidSurfacePlacement(frame, bone);
+    bone: Parameters<typeof AutoMovieHumanoidSurfacePlacement.run>[1],
+  ): ReturnType<typeof AutoMovieHumanoidSurfacePlacement.run> {
+    return AutoMovieHumanoidSurfacePlacement.run(frame, bone);
   }
 
   /**

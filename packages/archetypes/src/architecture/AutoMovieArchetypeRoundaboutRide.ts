@@ -1,5 +1,4 @@
 import type { IAutoMovieTransform } from "@automovie/interface";
-import type { AutoMovieArchetypeRefusal } from "../core";
 import { rideRoundaboutImplementation } from "./internal/rideRoundabout";
 
 /** A ride operation owned by the roundabout family. */

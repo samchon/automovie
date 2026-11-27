@@ -1,4 +1,3 @@
-import { AutoMovieEngineKinematics } from "@automovie/engine";
 import { HumanForceExchange as HumanForceExchangeLaw } from "../grappling/HumanForceExchange";
 import { HumanForceResponse as HumanForceResponseLaw } from "../grappling/HumanForceResponse";
 import { HumanForceThrow as HumanForceThrowLaw } from "../grappling/HumanForceThrow";

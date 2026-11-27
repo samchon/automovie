@@ -5,7 +5,7 @@ import type {
   IAutoMovieSampleDialogueExpression,
 } from "@automovie/interface";
 
-import { AUTOMOVIE_COARTICULATION } from "../AUTOMOVIE_COARTICULATION";
+import { AUTOMOVIE_COARTICULATION } from "../constants/AUTOMOVIE_COARTICULATION";
 
 /**
  * Blend a line's visemes at one film frame by coarticulation, in closed form.

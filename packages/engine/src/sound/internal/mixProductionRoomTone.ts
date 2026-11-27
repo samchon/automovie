@@ -9,7 +9,7 @@ import { resolveProductionFrameRate } from "../../film/internal/resolveProductio
 import { AutoMovieEngineRandom } from "../../random/index";
 
 
-import { AUTOMOVIE_ROOM_TONE } from "../AUTOMOVIE_ROOM_TONE";
+import { AUTOMOVIE_ROOM_TONE } from "../constants/AUTOMOVIE_ROOM_TONE";
 
 /**
  * Generate every room-tone bed of a plan and add it, equally to both channels,

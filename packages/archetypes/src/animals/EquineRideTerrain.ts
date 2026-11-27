@@ -14,7 +14,6 @@ import { QuadrupedCorner } from "./QuadrupedCorner";
 import type { QuadrupedRidePose } from "./QuadrupedRidePose";
 import { QuadrupedTail } from "./QuadrupedTail";
 import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
-import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * A quadruped ride's techniques and terrain, prepared once for its route: the

@@ -1,8 +1,8 @@
 import { Vector3 } from "@automovie/engine";
 import { AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, type AutoMovieArchetypeMaterial, } from "../core";
 import { FixtureDraw } from "./FixtureDraw";
-import { OBSTACLE_BANDS } from "./OBSTACLE_BANDS";
-import { TIE_SIZES } from "./TIE_SIZES";
+import { OBSTACLE_BANDS } from "./constants/OBSTACLE_BANDS";
+import { TIE_SIZES } from "./constants/TIE_SIZES";
 import type { AutoMovieArchetypeObstacle } from "./AutoMovieArchetypeObstacle";
 /**
  * The draw and forward-facing ledge shared by ground obstacles with a

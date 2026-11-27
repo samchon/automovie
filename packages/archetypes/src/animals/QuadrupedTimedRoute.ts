@@ -3,7 +3,6 @@ import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGa
 import type { QuadrupedRideClock } from "./QuadrupedRideClock";
 import { QuadrupedTimedCues } from "./QuadrupedTimedCues";
 import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
-import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * The route a quadruped ride follows: an authored course of legs, or a planned

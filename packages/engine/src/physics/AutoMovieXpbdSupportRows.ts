@@ -6,9 +6,9 @@ import { AutoMovieXpbdArticulation } from "./AutoMovieXpbdArticulation";
 import { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieEnginePhysics } from "./AutoMovieEnginePhysics";
-import { solveXpbdSupportCascade as Cascade } from "./solveXpbdSupportCascade";
-import { solveXpbdSupportComplementarity as Complementarity } from "./solveXpbdSupportComplementarity";
-import { solveXpbdSupportLevels as Levels } from "./solveXpbdSupportLevels";
+import { solveXpbdSupportCascade as Cascade } from "./internal/solveXpbdSupportCascade";
+import { solveXpbdSupportComplementarity as Complementarity } from "./internal/solveXpbdSupportComplementarity";
+import { solveXpbdSupportLevels as Levels } from "./internal/solveXpbdSupportLevels";
 
 /**
  * The support rows of one articulation: which contacts take part, the rows each
@@ -334,7 +334,7 @@ export namespace AutoMovieXpbdSupportRows {
    *   leave no feasible point.
   */
   export function cascade(input: IInput): number[] | null {
-    return Cascade(input);
+    return Cascade.run(input);
   }
 
   /**
@@ -400,7 +400,7 @@ export namespace AutoMovieXpbdSupportRows {
   export function complementarity(
     input: IComplementarityInput,
   ): number[] | null {
-    return Complementarity(input);
+    return Complementarity.run(input);
   }
 
   /** Two unit tangents completing a unit normal to a right-handed basis. */

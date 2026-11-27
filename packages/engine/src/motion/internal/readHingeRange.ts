@@ -7,7 +7,7 @@ import type {
 import { decomposeJointRotationOnBasis } from "../../kinematics/internal/decomposeJointRotationOnBasis";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { prepareChainPlant } from "../prepareChainPlant";
+import { prepareChainPlant } from "./prepareChainPlant";
 
 /**
  * The mid joint's flexion range as rotation about its own hinge, radians: what

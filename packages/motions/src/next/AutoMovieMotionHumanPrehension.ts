@@ -1,4 +1,3 @@
-import { AutoMovieEngineKinematicsChains } from "@automovie/engine";
 import { HumanGrasp as HumanGraspSource } from "../handling/HumanGrasp";
 import { HumanGraspUse as HumanGraspUseSource } from "../handling/HumanGraspUse";
 import { HumanGrip as HumanGripSource } from "../handling/HumanGrip";

@@ -3,7 +3,7 @@ import type { IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 import type { AutoMovieXpbdCollider } from "../AutoMovieXpbdCollider";
 import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBinding";
 import { isPhysicalPairExcluded } from "./isPhysicalPairExcluded";
-import type { solveXpbdContacts } from "../solveXpbdContacts";
+import type { solveXpbdContacts } from "./solveXpbdContacts";
 
 /** A bound segment owns its provider order and pairs with higher ordinals. */
 interface ISegment {

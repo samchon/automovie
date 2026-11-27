@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { SolveAirborneTakeoffImplementation } from "./internal/SolveAirborneTakeoffImplementation";
-import { AirborneTakeoffQuadrature as AirborneTakeoffQuadratureImplementation } from "./AirborneTakeoffQuadrature";
+import { AirborneTakeoffQuadrature as AirborneTakeoffQuadratureImplementation } from "./internal/AirborneTakeoffQuadrature";
 
 /** Public take-off solving operations for Engine Motion. */
 export namespace AutoMovieEngineMotionAirborneTakeoff {

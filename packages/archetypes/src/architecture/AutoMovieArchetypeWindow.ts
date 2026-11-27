@@ -12,7 +12,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import { ADA_RANGES } from "./ADA_RANGES";
+import { ADA_RANGES } from "./constants/ADA_RANGES";
 
 /** Window sizes, for which no standard was read. */
 const SIZE: string = "window opening size, not read at a source";

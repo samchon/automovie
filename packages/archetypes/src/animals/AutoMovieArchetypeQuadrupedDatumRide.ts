@@ -1,7 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 
-import type { AutoMovieArchetype, AutoMovieArchetypeRefusal, AutoMovieArchetypeRide } from "../core";
+import type { AutoMovieArchetype, AutoMovieArchetypeRide } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";

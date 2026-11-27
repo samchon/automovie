@@ -17,7 +17,6 @@ import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEqui
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
-import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /** A named instant of a ride. */
 type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];

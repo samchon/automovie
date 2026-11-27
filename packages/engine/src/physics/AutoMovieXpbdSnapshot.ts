@@ -10,8 +10,8 @@ import { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import { AutoMovieXpbdCollider } from "./AutoMovieXpbdCollider";
 import { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
-import type { solveXpbdContacts } from "./solveXpbdContacts";
-import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
+import type { solveXpbdContacts } from "./internal/solveXpbdContacts";
+import type { solveXpbdSupportCascade } from "./internal/solveXpbdSupportCascade";
 
 /**
  * The complete state of an extended position-based dynamics world

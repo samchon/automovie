@@ -15,16 +15,16 @@ import { type IAutoMoviePhysicalBalance, type IAutoMoviePhysicalSupportPatch, ty
 import { Vector3 } from "../math/Vector3";
 import { convexHull2D } from "../math/internal/convexHull2D";
 import { AutoMovieEnginePhysicalStanceSupport } from "./AutoMovieEnginePhysicalStanceSupport";
-import { physicalBalanceAssessment as Assessment } from "./physicalBalanceAssessment";
-import { physicalBalanceCandidate as Candidate } from "./physicalBalanceCandidate";
-import { physicalBalancePair as Pair } from "./physicalBalancePair";
-import { advancePhysicalBalance as advanceImplementation } from "./advancePhysicalBalance";
-import { physicalBalanceHandoff as handoffImplementation } from "./physicalBalanceHandoff";
-import { physicalBalanceRamp as rampImplementation } from "./physicalBalanceRamp";
-import { physicalBalancePlan as planImplementation } from "./physicalBalancePlan";
-import { physicalBalanceSettle as settleImplementation } from "./physicalBalanceSettle";
-import { physicalBalanceStance as stanceImplementation } from "./physicalBalanceStance";
-import { physicalBalanceSwing as swingPhaseImplementation } from "./physicalBalanceSwing";
+import { physicalBalanceAssessment as Assessment } from "./internal/physicalBalanceAssessment";
+import { physicalBalanceCandidate as Candidate } from "./internal/physicalBalanceCandidate";
+import { physicalBalancePair as Pair } from "./internal/physicalBalancePair";
+import { advancePhysicalBalance as advanceImplementation } from "./internal/advancePhysicalBalance";
+import { physicalBalanceHandoff as handoffImplementation } from "./internal/physicalBalanceHandoff";
+import { physicalBalanceRamp as rampImplementation } from "./internal/physicalBalanceRamp";
+import { physicalBalancePlan as planImplementation } from "./internal/physicalBalancePlan";
+import { physicalBalanceSettle as settleImplementation } from "./internal/physicalBalanceSettle";
+import { physicalBalanceStance as stanceImplementation } from "./internal/physicalBalanceStance";
+import { physicalBalanceSwing as swingPhaseImplementation } from "./internal/physicalBalanceSwing";
 
 /**
  * Linear-inverted-pendulum capture-point balance over an arbitrary support
@@ -77,8 +77,8 @@ export namespace AutoMoviePhysicalBalance {
    * @returns The state after the plan, a new one; no held goals; and the
    *   assessment the settle phase reads. The input is never written.
    */
-  export function plan(input: Parameters<typeof planImplementation>[0]): ReturnType<typeof planImplementation> {
-    return planImplementation(input);
+  export function plan(input: Parameters<typeof planImplementation.run>[0]): ReturnType<typeof planImplementation.run> {
+    return planImplementation.run(input);
   }
 
   /**
@@ -116,8 +116,8 @@ export namespace AutoMoviePhysicalBalance {
    *   those given first; and the root's strength and bracing shift. The input is
    *   never written.
    */
-  export function settle(input: Parameters<typeof settleImplementation>[0]): ReturnType<typeof settleImplementation> {
-    return settleImplementation(input);
+  export function settle(input: Parameters<typeof settleImplementation.run>[0]): ReturnType<typeof settleImplementation.run> {
+    return settleImplementation.run(input);
   }
 
   /**
@@ -139,8 +139,8 @@ export namespace AutoMoviePhysicalBalance {
    *   readings.
    * @returns The stance; nothing is written.
    */
-  export function stance(input: Parameters<typeof stanceImplementation>[0]): ReturnType<typeof stanceImplementation> {
-    return stanceImplementation(input);
+  export function stance(input: Parameters<typeof stanceImplementation.run>[0]): ReturnType<typeof stanceImplementation.run> {
+    return stanceImplementation.run(input);
   }
 
   /**
@@ -170,8 +170,8 @@ export namespace AutoMoviePhysicalBalance {
    *   fits (`trackPhysicalBalanceTargets`), the first swing's and a second's as
    *   `pair`. The input is never written.
    */
-  export function swingPhase(input: Parameters<typeof swingPhaseImplementation>[0]): ReturnType<typeof swingPhaseImplementation> {
-    return swingPhaseImplementation(input);
+  export function swingPhase(input: Parameters<typeof swingPhaseImplementation.run>[0]): ReturnType<typeof swingPhaseImplementation.run> {
+    return swingPhaseImplementation.run(input);
   }
 
 /**

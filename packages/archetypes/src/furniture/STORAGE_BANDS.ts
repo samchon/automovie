@@ -1,4 +1,4 @@
-import { ADA_RANGES } from "../architecture/ADA_RANGES";
+import { ADA_RANGES } from "../architecture/constants/ADA_RANGES";
 import {
   AutoMovieArchetypeBand,
   AutoMovieArchetypeUnits,

@@ -4,7 +4,7 @@ import type {
   IAutoMovieSampleDialogueMouth,
 } from "@automovie/interface";
 
-import { AUTOMOVIE_DIALOGUE_ENVELOPE_JAW } from "../AUTOMOVIE_DIALOGUE_ENVELOPE_JAW";
+import { AUTOMOVIE_DIALOGUE_ENVELOPE_JAW } from "../constants/AUTOMOVIE_DIALOGUE_ENVELOPE_JAW";
 import { sampleAutoMovieDialogueVisemeWeights } from "./sampleAutoMovieDialogueVisemeWeights";
 
 /**

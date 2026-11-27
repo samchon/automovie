@@ -1,4 +1,8 @@
-import type { IAutoMovieBodyMeasure, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanProp } from "@automovie/interface";
+import type {
+  IAutoMovieBodyMeasure,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanProp,
+} from "@automovie/interface";
 
 import {
   ArchetypeDraw,
@@ -8,142 +12,214 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import { armourBone } from "./internal/armourBone";
-import { assembleCostumeArmour as assembleCostumeArmourImplementation } from "./internal/assembleCostumeArmour";
 import { AutoMovieArchetypeCostumeCuirass } from "./AutoMovieArchetypeCostumeCuirass";
 import { AutoMovieArchetypeCostumeGauntlet } from "./AutoMovieArchetypeCostumeGauntlet";
 import { AutoMovieArchetypeCostumeGreave } from "./AutoMovieArchetypeCostumeGreave";
 import { AutoMovieArchetypeCostumeHelmet } from "./AutoMovieArchetypeCostumeHelmet";
 import { AutoMovieArchetypeCostumeMail } from "./AutoMovieArchetypeCostumeMail";
 import { AutoMovieArchetypeCostumeVambrace } from "./AutoMovieArchetypeCostumeVambrace";
+import { armourBone } from "./internal/armourBone";
+import { assembleCostumeArmour as assembleCostumeArmourImplementation } from "./internal/assembleCostumeArmour";
 
 /** Constructs the armour archetype from its recipe. */
 export namespace AutoMovieArchetypeArmour {
-/**
- * A piece of armour worn on one bone: a helmet (open, closed or brimmed), a
- * cuirass, a mail shirt, a gauntlet, a vambrace or a greave.
- *
- * Closed wall cells leave face, neck, arm, hem and limb cavities open. Museum
- * H/W/D and total mass remain the selected record's; fitted body boundaries
- * retain their exact measure, plate and provisional helmet pad. Unfitted
- * elliptical walls use the plate band as a minimum normal gauge; their varying
- * gauge preserves shared inner edges and the record envelope. This coarse
- * construction does not claim a uniform historical plate gauge. Fitted mail
- * places its wall outside the body's breadth/depth. Its wall is the recorded
- * mass's equivalent volume under the existing structural-steel density, not a
- * measurement of wire, weave or historical alloy. A gauntlet's forearm radius
- * sizes its cuff; its rigid mitten/thumb regions are coarse authored envelopes,
- * not a measured hand. The selected armet23232 retains its missing visor and
- * arm-defense35850 excludes its separate elbow reinforce. Coarse opening
- * fractions distinguish the kinds without claiming calibrated artifact
- * profiles. Each piece stays on one bone, +Y up, +Z front; wear is its origin.
- * Brim depth and plate metadata retain their existing contracts.
- *
- * @param params The kind, the read piece, the body's measure, and any dimension
- *   the author fixes.
- * @param seed The seed that picks the read piece left free and draws every
- *   dimension left free inside its band; absent, the first piece and the middle
- *   of each band.
- * @returns The piece.
- * @throws {AutoMovieArchetypeRefusal} For an unsupported piece/dimension,
- *   invalid used body measures, inverted cuirass heights or a mail
- *   mass/coverage that cannot contain a positive wall and cavity.
- */
-export function create(
-  params: AutoMovieArchetypeArmour.IParams,
-  seed?: number,
-): AutoMovieArchetype<AutoMovieArchetypeArmour.Affordance, AutoMovieArchetypeArmour.Dimension> {
-  const kind: AutoMovieArchetypeArmour.Kind = ArchetypeDraw.choice(
-    "armour",
-    "kind",
-    params.kind,
-    AutoMovieArchetypeArmour.KINDS,
-  );
-  // The saved input spans every variant, so each variant narrows its own kind
-  // and model against the lists it makes before it draws.
-  const variants: Readonly<
-    Record<
-      AutoMovieArchetypeArmour.Kind,
-      (
-        params: AutoMovieArchetypeArmour.IParams,
-        seed?: number,
-      ) => AutoMovieArchetype<AutoMovieArchetypeArmour.Affordance, AutoMovieArchetypeArmour.Dimension>
-    >
-  > = {
-    openHelmet: (p, s) => AutoMovieArchetypeCostumeHelmet.create({ ...p, kind: "openHelmet", model: ArchetypeDraw.admit("armour", "model", p.model, ["met26453", "met25388", "met23232", "met26508", "met26512", "met21972"] as const) }, s),
-    closedHelmet: (p, s) => AutoMovieArchetypeCostumeHelmet.create({ ...p, kind: "closedHelmet", model: ArchetypeDraw.admit("armour", "model", p.model, ["met26453", "met25388", "met23232", "met26508", "met26512", "met21972"] as const) }, s),
-    brimmedHelmet: (p, s) => AutoMovieArchetypeCostumeHelmet.create({ ...p, kind: "brimmedHelmet", model: ArchetypeDraw.admit("armour", "model", p.model, ["met26453", "met25388", "met23232", "met26508", "met26512", "met21972"] as const) }, s),
-    cuirass: (p, s) => AutoMovieArchetypeCostumeCuirass.create({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met22359", "met23084"] as const) }, s),
-    mail: (p, s) => AutoMovieArchetypeCostumeMail.create({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met34324", "met22415", "met633538", "met27635"] as const) }, s),
-    gauntlet: (p, s) => AutoMovieArchetypeCostumeGauntlet.create({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met23255", "met23256", "met23199"] as const) }, s),
-    vambrace: (p, s) => AutoMovieArchetypeCostumeVambrace.create({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met24896", "met35850"] as const) }, s),
-    greave: (p, s) => AutoMovieArchetypeCostumeGreave.create({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met22970", "met22276"] as const) }, s),
-  };
-  return variants[kind](params, seed);
-}
+  /**
+   * A piece of armour worn on one bone: a helmet (open, closed or brimmed), a
+   * cuirass, a mail shirt, a gauntlet, a vambrace or a greave.
+   *
+   * Closed wall cells leave face, neck, arm, hem and limb cavities open. Museum
+   * H/W/D and total mass remain the selected record's; fitted body boundaries
+   * retain their exact measure, plate and provisional helmet pad. Unfitted
+   * elliptical walls use the plate band as a minimum normal gauge; their varying
+   * gauge preserves shared inner edges and the record envelope. This coarse
+   * construction does not claim a uniform historical plate gauge. Fitted mail
+   * places its wall outside the body's breadth/depth. Its wall is the recorded
+   * mass's equivalent volume under the existing structural-steel density, not a
+   * measurement of wire, weave or historical alloy. A gauntlet's forearm radius
+   * sizes its cuff; its rigid mitten/thumb regions are coarse authored envelopes,
+   * not a measured hand. The selected armet23232 retains its missing visor and
+   * arm-defense35850 excludes its separate elbow reinforce. Coarse opening
+   * fractions distinguish the kinds without claiming calibrated artifact
+   * profiles. Each piece stays on one bone, +Y up, +Z front; wear is its origin.
+   * Brim depth and plate metadata retain their existing contracts.
+   *
+   * @param params The kind, the read piece, the body's measure, and any dimension
+   *   the author fixes.
+   * @param seed The seed that picks the read piece left free and draws every
+   *   dimension left free inside its band; absent, the first piece and the middle
+   *   of each band.
+   * @returns The piece.
+   * @throws {AutoMovieArchetypeRefusal} For an unsupported piece/dimension,
+   *   invalid used body measures, inverted cuirass heights or a mail
+   *   mass/coverage that cannot contain a positive wall and cavity.
+   */
+  export function create(
+    params: AutoMovieArchetypeArmour.IParams,
+    seed?: number,
+  ): AutoMovieArchetype<
+    AutoMovieArchetypeArmour.Affordance,
+    AutoMovieArchetypeArmour.Dimension
+  > {
+    const kind: AutoMovieArchetypeArmour.Kind = ArchetypeDraw.choice(
+      "armour",
+      "kind",
+      params.kind,
+      AutoMovieArchetypeArmour.KINDS,
+    );
+    // The saved input spans every variant, so each variant narrows its own kind
+    // and model against the lists it makes before it draws.
+    const variants: Readonly<
+      Record<
+        AutoMovieArchetypeArmour.Kind,
+        (
+          params: AutoMovieArchetypeArmour.IParams,
+          seed?: number,
+        ) => AutoMovieArchetype<
+          AutoMovieArchetypeArmour.Affordance,
+          AutoMovieArchetypeArmour.Dimension
+        >
+      >
+    > = {
+      openHelmet: (p, s) =>
+        AutoMovieArchetypeCostumeHelmet.create(
+          {
+            ...p,
+            kind: "openHelmet",
+            model: ArchetypeDraw.admit("armour", "model", p.model, [
+              "met26453",
+              "met25388",
+              "met23232",
+              "met26508",
+              "met26512",
+              "met21972",
+            ] as const),
+          },
+          s,
+        ),
+      closedHelmet: (p, s) =>
+        AutoMovieArchetypeCostumeHelmet.create(
+          {
+            ...p,
+            kind: "closedHelmet",
+            model: ArchetypeDraw.admit("armour", "model", p.model, [
+              "met26453",
+              "met25388",
+              "met23232",
+              "met26508",
+              "met26512",
+              "met21972",
+            ] as const),
+          },
+          s,
+        ),
+      brimmedHelmet: (p, s) =>
+        AutoMovieArchetypeCostumeHelmet.create(
+          {
+            ...p,
+            kind: "brimmedHelmet",
+            model: ArchetypeDraw.admit("armour", "model", p.model, [
+              "met26453",
+              "met25388",
+              "met23232",
+              "met26508",
+              "met26512",
+              "met21972",
+            ] as const),
+          },
+          s,
+        ),
+      cuirass: (p, s) =>
+        AutoMovieArchetypeCostumeCuirass.create(
+          {
+            ...p,
+            model: ArchetypeDraw.admit("armour", "model", p.model, [
+              "met22359",
+              "met23084",
+            ] as const),
+          },
+          s,
+        ),
+      mail: (p, s) =>
+        AutoMovieArchetypeCostumeMail.create(
+          {
+            ...p,
+            model: ArchetypeDraw.admit("armour", "model", p.model, [
+              "met34324",
+              "met22415",
+              "met633538",
+              "met27635",
+            ] as const),
+          },
+          s,
+        ),
+      gauntlet: (p, s) =>
+        AutoMovieArchetypeCostumeGauntlet.create(
+          {
+            ...p,
+            model: ArchetypeDraw.admit("armour", "model", p.model, [
+              "met23255",
+              "met23256",
+              "met23199",
+            ] as const),
+          },
+          s,
+        ),
+      vambrace: (p, s) =>
+        AutoMovieArchetypeCostumeVambrace.create(
+          {
+            ...p,
+            model: ArchetypeDraw.admit("armour", "model", p.model, [
+              "met24896",
+              "met35850",
+            ] as const),
+          },
+          s,
+        ),
+      greave: (p, s) =>
+        AutoMovieArchetypeCostumeGreave.create(
+          {
+            ...p,
+            model: ArchetypeDraw.admit("armour", "model", p.model, [
+              "met22970",
+              "met22276",
+            ] as const),
+          },
+          s,
+        ),
+    };
+    return variants[kind](params, seed);
+  }
 
-/** Every wearer socket a costume piece can occupy, in declaration order. */
-const SLOTS: readonly assembleCostumeArmour.Slot[] = [
-  "head",
-  "chest",
-  "leftHand",
-  "rightHand",
-  "leftLowerArm",
-  "rightLowerArm",
-  "leftLowerLeg",
-  "rightLowerLeg",
-];
-
-/** The piece names each existing wearer socket can carry. */
-const PIECES: Readonly<
-  Record<assembleCostumeArmour.Slot, readonly AutoMovieArchetypeArmour.Kind[]>
-> = {
-  head: ["openHelmet", "closedHelmet", "brimmedHelmet"],
-  chest: ["cuirass", "mail"],
-  leftHand: ["gauntlet"],
-  rightHand: ["gauntlet"],
-  leftLowerArm: ["vambrace"],
-  rightLowerArm: ["vambrace"],
-  leftLowerLeg: ["greave"],
-  rightLowerLeg: ["greave"],
-};
-
-/** The rest body's up direction, world. */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/** The rest body's facing, world: the canonical body faces `+Z`. */
-const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
-
-/**
- * Bind separate digital costume pieces to one performer's named bones.
- *
- * Each piece remains its own model. Its `wear` socket, the centre of the body
- * part it covers, is placed on that part's centre on the wearer's T-pose rest
- * with `+Y` up the segment and `+Z` toward the body's front. The binding is
- * that placement expressed in the slot bone's rest frame, so the piece rides
- * the bone through every pose:
- *
- * - A forearm or shank piece centres between the slot joint and the next joint
- *   down the limb (elbow and wrist, knee and ankle), `+Y` toward the upper
- *   joint;
- * - A gauntlet centres half the measured hand length from the wrist toward the
- *   middle finger's base, `+Y` toward the wrist;
- * - A helmet centres midway between the head joint and the vertex at stature;
- * - A cuirass or mail shirt hangs from the shoulder height, its centre half the
- *   piece's own height below it, over the chest joint.
- *
- * @param params The performer id and body, and up to one distinct costume model
- *   per slot.
- * @returns The models and their initial worn bindings for the scene.
- * @throws {AutoMovieArchetypeRefusal} For a mismatched slot, reused model id,
- *   missing piece, a body without the slot's joints or a trunk piece without
- *   its height.
- */
-export function assembleCostumeArmour(
-  params: AutoMovieArchetypeArmour.IAssemblyParams,
-): readonly AutoMovieArchetypeArmour.IAssemblyPiece[] {
-  return assembleCostumeArmourImplementation(params);
-}
+  /**
+   * Bind separate digital costume pieces to one performer's named bones.
+   *
+   * Each piece remains its own model. Its `wear` socket, the centre of the body
+   * part it covers, is placed on that part's centre on the wearer's T-pose rest
+   * with `+Y` up the segment and `+Z` toward the body's front. The binding is
+   * that placement expressed in the slot bone's rest frame, so the piece rides
+   * the bone through every pose:
+   *
+   * - A forearm or shank piece centres between the slot joint and the next joint
+   *   down the limb (elbow and wrist, knee and ankle), `+Y` toward the upper
+   *   joint;
+   * - A gauntlet centres half the measured hand length from the wrist toward the
+   *   middle finger's base, `+Y` toward the wrist;
+   * - A helmet centres midway between the head joint and the vertex at stature;
+   * - A cuirass or mail shirt hangs from the shoulder height, its centre half the
+   *   piece's own height below it, over the chest joint.
+   *
+   * @param params The performer id and body, and up to one distinct costume model
+   *   per slot.
+   * @returns The models and their initial worn bindings for the scene.
+   * @throws {AutoMovieArchetypeRefusal} For a mismatched slot, reused model id,
+   *   missing piece, a body without the slot's joints or a trunk piece without
+   *   its height.
+   */
+  export function assembleCostumeArmour(
+    params: AutoMovieArchetypeArmour.IAssemblyParams,
+  ): readonly AutoMovieArchetypeArmour.IAssemblyPiece[] {
+    return assembleCostumeArmourImplementation(params);
+  }
 }
 
 /** The plate thickness read. */
@@ -450,7 +526,10 @@ export namespace AutoMovieArchetypeArmour {
     AutoMovieArchetypeArmour.Dimension
   >;
 
-  /** The wearer's T-pose rest joints in canonical world metres, bones and measure. */
+  /**
+   * The wearer's T-pose rest joints in canonical world metres, bones and
+   * measure.
+   */
   export type IAssemblyWearer = Pick<
     IAutoMovieMotionHumanBody,
     "rest" | "bones" | "measure"

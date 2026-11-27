@@ -326,7 +326,7 @@ export function performShot(
     skeleton,
     jointAxes: props.jointAxes,
     restFrames: props.restFrames,
-    prepareRig: prepareSkeletonPoseResolution,
+    prepareRig: prepareSkeletonPoseResolution.run,
     duration: performance.duration,
   });
   objectMotions.push(...coupled.clips);
