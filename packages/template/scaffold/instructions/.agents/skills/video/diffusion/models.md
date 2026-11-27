@@ -10,7 +10,7 @@ Read each model's terms and usage policy before adopting it: territory limits, r
 
 ### Video editing and reference generation
 
-<!-- @source [Ray 3.2 video-to-video guide](https://lumalabs.ai/learning-center/articles/ray-3-2-video-to-video) documents its motion and structure controls. -->
+<!-- @reference [Ray 3.2 video-to-video guide](https://lumalabs.ai/learning-center/articles/ray-3-2-video-to-video) documents its motion and structure controls. -->
 
 [Runway Aleph 2.0](https://docs.dev.runwayml.com/guides/models.md) edits or restyles one video with timed keyframe images. It has no adherence setting; its [prompt](https://help.runwayml.com/hc/en-us/articles/52150503729171-Aleph-2-0-Prompting-Guide) names what changes. Continue from a chain frame used as the first keyframe.
 

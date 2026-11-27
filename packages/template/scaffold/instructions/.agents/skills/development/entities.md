@@ -34,7 +34,7 @@ Carry appearance beyond the coarse form in [canon references](../image/canon-ref
 
 ## Flames, screens and lettering
 
-<!-- @source `IAutoMovieFlameCue`, `IAutoMovieSurfaceGraphicTrack`, `IAutoMovieSurfaceGraphic`, `IAutoMovieSurfaceGraphicLayer`, `IAutoMovieAffordance` and `IAutoMovieFontSource` in `@automovie/interface`. -->
+<!-- @reference `IAutoMovieFlameCue`, `IAutoMovieSurfaceGraphicTrack`, `IAutoMovieSurfaceGraphic`, `IAutoMovieSurfaceGraphicLayer`, `IAutoMovieAffordance` and `IAutoMovieFontSource` in `@automovie/interface`. -->
 
 Show what a prop declares. At a lit candle's, lantern's, torch's, lighter's or fire ring's flame frame, author a flame cue on the shot and bind it to the practical light that frame motivates, so the light flickers with the flame and the flame's brightness follows the light. An unbound flame states its own luminance and color.
 

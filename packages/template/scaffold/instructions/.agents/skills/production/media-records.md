@@ -64,6 +64,6 @@ Preserve the original bytes and identify them by their record. Add fields the ge
 
 ### Fonts and stills
 
-<!-- @source `IAutoMovieFontSource` and `IAutoMovieSurfaceGraphicLayer.IImage` in `@automovie/interface`, with the asset ledger's `IAutoMovieAssetProvenance`. -->
+<!-- @reference `IAutoMovieFontSource` and `IAutoMovieSurfaceGraphicLayer.IImage` in `@automovie/interface`, with the asset ledger's `IAutoMovieAssetProvenance`. -->
 
 Record a font the production synthesizes in its own code as an `"embedded"` font source, with the source file and function that build it as its `origin` and the SHA-256 of its bytes as its `digest`. Record a licensed font file, and every still image a surface graphic shows, as a project asset whose provenance carries its `license`. Commit a font file only with that record, because font admission refuses a font asset whose provenance lacks its license or a `"font"` use under the font source's id.

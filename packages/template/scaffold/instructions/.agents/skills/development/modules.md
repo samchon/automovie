@@ -28,7 +28,7 @@ Actors who use overlapping floors or cross between supports cite the appropriate
 
 ## Shots and films
 
-<!-- @source `defineShot` and `AutoMovieEngineFilm.compileDefinedShot` in `@automovie/engine`, `IAutoMovieEngineShotRuntime`'s `frameFormat` in `@automovie/interface`, `prepareAutoMovieFlames` and `prepareAutoMovieSurfaceGraphics` in `@automovie/render`, and `IFilmProduction` in `src/IFilmProduction.ts`. -->
+<!-- @reference `defineShot` and `AutoMovieEngineFilm.compileDefinedShot` in `@automovie/engine`, `IAutoMovieEngineShotRuntime`'s `frameFormat` in `@automovie/interface`, `prepareAutoMovieFlames` and `prepareAutoMovieSurfaceGraphics` in `@automovie/render`, and `IFilmProduction` in `src/IFilmProduction.ts`. -->
 
 Supply the place's prepared stage to the shot's `defineShot` builder and the prepared runtime records to `AutoMovieEngineFilm.compileDefinedShot`. Give the runtime's `frameFormat` the film's `fps`, `width` and `height`, because without `fps` moving camera paths are keyed at 24 frames per second.
 

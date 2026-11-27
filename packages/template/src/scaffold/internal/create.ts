@@ -4,8 +4,10 @@ import * as path from "node:path";
 import type { AutoMovieTemplateScaffoldProps } from "../AutoMovieTemplateScaffoldProps";
 import { assertProjectName } from "./assertProjectName";
 import { listFiles } from "./listFiles";
+import { removeMarkdownReferences } from "./removeMarkdownReferences";
 import { renderWorkspace } from "./renderWorkspace";
 import { sharedSkillPath } from "./sharedSkillPath";
+import { transcludeMarkdownSection } from "./transcludeMarkdownSection";
 
 /**
  * Create the files of a new AutoMovie installation as a `{ posixPath: content
@@ -31,9 +33,10 @@ import { sharedSkillPath } from "./sharedSkillPath";
  * ranges this package's own version, and the others carry the ranges the build
  * read from the repository's `pnpm-workspace.yaml`.
  *
- * Instruction Markdown omits reserved `<!-- @source ... -->` lines after shared
- * skills are expanded. A source paragraph leaves one blank line between its
- * heading and the body.
+ * A standalone `## ${Continuing}` in scaffold skill Markdown inserts the same
+ * path's root skill section from `generated/sections`. Instruction Markdown
+ * omits reserved `<!-- @reference ... -->` lines after expansion. A source
+ * paragraph leaves one blank line between its heading and the body.
  *
  * Nothing is written; the caller writes the map.
  *
@@ -91,14 +94,42 @@ const readLayer = (
   const root: string = path.join(PACKAGE, "scaffold", layer);
 
   /** Strip the source note while keeping one of its surrounding blank lines. */
-  const read = (file: string): string => {
-    const text: string = fs.readFileSync(file, "utf8");
-    return layer === "instructions" && file.endsWith(".md")
-      ? text.replace(
-          /(?<=^|\n)(\r?\n)?<!-- @source (?:(?!-->)[^\r\n])+ -->[ \t]*(?:\r?\n|$)(\r?\n)?/gu,
-          (_: string, before?: string, after?: string): string =>
-            before ?? after ?? "",
+  const read = (file: string, scaffoldRelative?: string): string => {
+    let text: string = fs.readFileSync(file, "utf8");
+    if (
+      layer === "instructions" &&
+      scaffoldRelative !== undefined &&
+      file.endsWith(".md")
+    ) {
+      const sectionSource: string | null = transcludeMarkdownSection.sourcePath(
+        text,
+        scaffoldRelative,
+      );
+      if (sectionSource !== null) {
+        const sectionRoot: string = path.resolve(PACKAGE, "generated/sections");
+        const source: string = path.resolve(sectionRoot, sectionSource);
+        const sourceWithinRoot: string = path.relative(sectionRoot, source);
+        if (
+          sourceWithinRoot === ".." ||
+          sourceWithinRoot.startsWith(`..${path.sep}`) ||
+          path.isAbsolute(sourceWithinRoot)
         )
+          throw new Error(
+            `section source "${sectionSource}" escapes the prepared sections directory`,
+          );
+        if (!fs.lstatSync(source, { throwIfNoEntry: false })?.isFile())
+          throw new Error(
+            `prepared section source "${sectionSource}" is missing; prepare the template package first`,
+          );
+        text = transcludeMarkdownSection.expand(
+          text,
+          scaffoldRelative,
+          fs.readFileSync(source, "utf8"),
+        );
+      }
+    }
+    return layer === "instructions" && file.endsWith(".md")
+      ? removeMarkdownReferences.strip(text)
       : text;
   };
 
@@ -107,7 +138,7 @@ const readLayer = (
     if (shared === null) {
       add(
         relative === "_gitignore" ? ".gitignore" : toPosix(relative),
-        read(path.join(root, relative)),
+        read(path.join(root, relative), relative),
       );
       continue;
     }

@@ -23,7 +23,7 @@ Create a row with `AutoMovieMotionHumanActionRow.of(name, law, fixed)`. Pass row
 
 ### Action axes
 
-<!-- @source [FIBA Level 1 coaching manual](https://assets.fiba.basketball/image/upload/documents-corporate-wabc-coaching-level-manuals-level-1-eng.pdf), §2.1.1, illustrates an off-ball cut that opens space for a teammate. -->
+<!-- @reference [FIBA Level 1 coaching manual](https://assets.fiba.basketball/image/upload/documents-corporate-wabc-coaching-level-manuals-level-1-eng.pdf), §2.1.1, illustrates an off-ball cut that opens space for a teammate. -->
 
 Settle each beat element's axes in order from the beat and study.
 

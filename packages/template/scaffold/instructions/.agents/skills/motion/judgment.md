@@ -12,7 +12,7 @@ At the film camera's scale, do the proportions, orientation and attachments hold
 
 ### Action
 
-<!-- @source [Kovar, Schreiner and Gleicher](https://pages.cs.wisc.edu/~kovar/footskateCleanup.pdf) describe sliding during an intended footplant. -->
+<!-- @reference [Kovar, Schreiner and Gleicher](https://pages.cs.wisc.edu/~kovar/footskateCleanup.pdf) describe sliding during an intended footplant. -->
 
 Do posture, preparation, support and recovery read as this person's behavior and practiced style? For a reaction to contact, locate the surface meeting at or before its onset. Check clearance and plants or grasps relative to their moving support. If perspective hides the contact, use another view or measure the posed surfaces under [frame evaluation](frame-evaluation.md).
 
@@ -34,7 +34,7 @@ Record the time or frames, the failed requirement and the repair owner. Trace th
 
 ## Before widening
 
-<!-- @source [Disney Animation](https://disneyanimation.com/process/layout/) on staging with the camera. Blender Studio on the [timed edit](https://studio.blender.org/tools/pipeline-overview/pre-production/editorial) and [blocking pass](https://studio.blender.org/tools/artist-guide/shot-production/animation). -->
+<!-- @reference [Disney Animation](https://disneyanimation.com/process/layout/) on staging with the camera. Blender Studio on the [timed edit](https://studio.blender.org/tools/pipeline-overview/pre-production/editorial) and [blocking pass](https://studio.blender.org/tools/artist-guide/shot-production/animation). -->
 
 Stage the decisive passage and its lead-in and consequence with coarse cast, props, obstacles and timing cues. Watch it at 1× in the intended view and clear segment review before widening.
 

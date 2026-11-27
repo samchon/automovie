@@ -10,7 +10,7 @@ Align nearby caption boundaries to cuts and leave the required gap between capti
 
 ## Style and format
 
-<!-- @source [Netflix timed text guides](https://partnerhelp.netflixstudios.com/hc/en-us/articles/217350977) give distributor- and language-specific examples. -->
+<!-- @reference [Netflix timed text guides](https://partnerhelp.netflixstudios.com/hc/en-us/articles/217350977) give distributor- and language-specific examples. -->
 
 Follow the [delivery profile](project-context.md#the-delivery-profile)'s style guide for line length and count, reading speed, duration, speaker identification, bracketed sounds and lyric markers. Take off-screen speech, overlap and music from screenplay [notation](../story/layers/notation.md).
 

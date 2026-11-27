@@ -61,7 +61,7 @@ Record fixed user decisions, delegated decisions and reasons, open choices, and 
 
 ### The delivery profile
 
-<!-- @source [YouTube upload encoding](https://support.google.com/youtube/answer/1722171) gives one platform's scan, color and audio requirements. -->
+<!-- @reference [YouTube upload encoding](https://support.google.com/youtube/answer/1722171) gives one platform's scan, color and audio requirements. -->
 
 The profile records, for each delivered video:
 

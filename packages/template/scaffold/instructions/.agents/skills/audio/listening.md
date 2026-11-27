@@ -2,7 +2,7 @@
 
 ## Measurements and tool observations
 
-<!-- @source The [Astra](https://developers.openai.com/api/docs/models/gpt-6.2-astra) and [Sol](https://developers.openai.com/api/docs/models/gpt-6.2-sol) model cards list input modalities. The [Codex input protocol](https://github.com/openai/codex/blob/rust-v0.166.0/codex-rs/protocol/src/user_input.rs) describes attachment transport. -->
+<!-- @reference The [Astra](https://developers.openai.com/api/docs/models/gpt-6.2-astra) and [Sol](https://developers.openai.com/api/docs/models/gpt-6.2-sol) model cards list input modalities. The [Codex input protocol](https://github.com/openai/codex/blob/rust-v0.166.0/codex-rs/protocol/src/user_input.rs) describes attachment transport. -->
 
 Measure duration, silence, clipping and loudness from decoded audio as applicable. Check the model's input modalities and audio tools before making a listening claim. Record decoding, playback commands and transcripts as tool operations.
 

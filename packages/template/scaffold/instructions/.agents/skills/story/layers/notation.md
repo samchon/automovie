@@ -25,7 +25,7 @@ Never reuse or renumber an anchor in any layer, or a scene file's number. Number
 
 ## Records
 
-<!-- @source [ScreenSkills](https://www.screenskills.com/job-profiles/browse/film-and-tv-drama/technical/script-supervisor-film-and-tv-drama/) describes how script supervisors track action, eyelines and props across takes. -->
+<!-- @reference [ScreenSkills](https://www.screenskills.com/job-profiles/browse/film-and-tv-drama/technical/script-supervisor-film-and-tv-drama/) describes how script supervisors track action, eyelines and props across takes. -->
 
 Inside the first section, before its scene heading and action, establish the scene elements, their starting relationships, routes and sightlines. Note expected entrances there and record changes of state as they occur. Preserve the intended reveal order.
 

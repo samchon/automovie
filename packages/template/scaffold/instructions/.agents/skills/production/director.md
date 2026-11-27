@@ -1,6 +1,6 @@
 # Production director
 
-<!-- @source [Directors UK](https://directors.uk.com/what-a-director-does) on performance and the whole film, and [ScreenSkills](https://www.screenskills.com/job-profiles/browse/film-and-tv-drama/development-film-and-tv-drama-job-profiles/director-film-and-tv-drama) on developing the script with the writer. -->
+<!-- @reference [Directors UK](https://directors.uk.com/what-a-director-does) on performance and the whole film, and [ScreenSkills](https://www.screenskills.com/job-profiles/browse/film-and-tv-drama/development-film-and-tv-drama-job-profiles/director-film-and-tv-drama) on developing the script with the writer. -->
 
 Direct the commission within the user's [delegated choices](../story/planning/direction.md).
 

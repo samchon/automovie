@@ -4,7 +4,7 @@ Judge each test at the entry the runner discovers, including cases registered by
 
 ## Behavioral verification
 
-<!-- @source The production test runner in test/index.ts and the displayed bounds in motion/laws/verification.md. -->
+<!-- @reference The production test runner in test/index.ts and the displayed bounds in motion/laws/verification.md. -->
 
 What behavior does the discovered check verify, and what does it need to run?
 

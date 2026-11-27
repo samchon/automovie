@@ -10,7 +10,7 @@ The render, capture and inspector use the film's `playback` transitions. `crossD
 
 ## Render
 
-<!-- @source The [FFmpeg codec options](https://github.com/FFmpeg/FFmpeg/blob/master/doc/codecs.texi) define color_range. -->
+<!-- @reference The [FFmpeg codec options](https://github.com/FFmpeg/FFmpeg/blob/master/doc/codecs.texi) define color_range. -->
 
 For a new host or changed export, decode a shot through a join before scaling. Compare matched frames with the delivery renderer or graded take and on both sides of any conversion or lossy intermediate. Verify darks, highlights and colors under the declared color range.
 
